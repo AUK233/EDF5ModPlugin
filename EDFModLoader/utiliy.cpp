@@ -8,6 +8,7 @@
 #include <format>
 #include <stdexcept>
 #include <list>
+#include "utiliy.h"
 
 // This is a failed modify title. There are other places where the title is overwritten.
 /*
@@ -144,15 +145,12 @@ intptr_t SundaySearch(const byte *target, int tLen, const byte *pattern, int pLe
 	return -1;
 }
 
-// Search the address of the target
-intptr_t ScanPattern(HANDLE hProcess, byte *pattern, int pLen, uintptr_t addr) {
-	SYSTEM_INFO sysInfo;
-	GetSystemInfo(&sysInfo);
+intptr_t ScanPattern(HANDLE hProcess, byte *pattern, int pLen, uintptr_t minAddr, uintptr_t maxAddr) {
 	const int MEM_SIZE = 0x1000;
 	byte mem[MEM_SIZE] = {0};
 
 	MEMORY_BASIC_INFORMATION mbi;
-	for (uintptr_t curAddress = addr; curAddress < (uint64_t)sysInfo.lpMaximumApplicationAddress; curAddress += mbi.RegionSize) {
+	for (uintptr_t curAddress = minAddr; curAddress < maxAddr; curAddress += mbi.RegionSize) {
 		VirtualQueryEx(hProcess, (void *)curAddress, &mbi, sizeof(MEMORY_BASIC_INFORMATION));
 		if ((intptr_t)mbi.RegionSize <= 0)
 			break;
@@ -170,4 +168,12 @@ intptr_t ScanPattern(HANDLE hProcess, byte *pattern, int pLen, uintptr_t addr) {
 	}
 
 	return -1;
+}
+
+// Search the address of the target
+intptr_t ScanPattern(HANDLE hProcess, byte *pattern, int pLen, uintptr_t addr) {
+	SYSTEM_INFO sysInfo;
+	GetSystemInfo(&sysInfo);
+
+	return ScanPattern(hProcess, pattern, pLen, addr, (uint64_t)sysInfo.lpMaximumApplicationAddress);
 }

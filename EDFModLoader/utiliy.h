@@ -10,4 +10,6 @@ void WriteHookToProcess(void *addr, void *data, size_t len);
 // Search the address of the target
 intptr_t SundaySearch(const byte *target, int tLen, const byte *pattern, int pLen);
 // Search the address of the target
+intptr_t ScanPattern(HANDLE hProcess, byte *pattern, int pLen, uintptr_t minAddr, uintptr_t maxAddr);
+// Search the address of the target
 intptr_t ScanPattern(HANDLE hProcess, byte *pattern, int pLen, uintptr_t addr);

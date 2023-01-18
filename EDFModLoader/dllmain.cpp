@@ -14,6 +14,7 @@
 #include <string.h>
 #include <format>
 
+
 #include <plog/Log.h>
 #include <plog/Initializers/RollingFileInitializer.h>
 
@@ -115,10 +116,10 @@ static void RemoveAllHooks(void) {
 }
 
 // Configuration
-static BOOL ModLog = FALSE;
-static BOOL DisplayDamage = TRUE;
-static BOOL DisplayDamageSS = FALSE;
-// Old configuration
+static UINT ModLog = 0;
+static UINT DisplayDamage = 1;
+static UINT PlayerView = 0;
+    // Old configuration
 static BOOL Redirect = TRUE;
 static BOOL LoadPluginsB = FALSE;
 static BOOL GameLog = FALSE;
@@ -386,16 +387,24 @@ void WINAPI hookWeapon() {
 		if (playerAddress > 0) {
 			//!damageStr1.size()
 			if (damageStrPos1 < 1) {
-				uintptr_t scanAddr = 0x1000;
 
-				intptr_t oneScan = ScanPattern(hProcess, (byte *)&str, 48U, scanAddr);
+				SYSTEM_INFO sysInfo;
+				GetSystemInfo(&sysInfo);
+
+				intptr_t oneScan = ScanPattern(hProcess, (byte *)&str, 48U, (uint64_t)sysInfo.lpMinimumApplicationAddress);
 				if (oneScan > 0) {
 					if (oneScan < (intptr_t)hModSelf) {
-						scanAddr = oneScan + 48U;
-						intptr_t nextScan = ScanPattern(hProcess, (byte *)&str, 48U, scanAddr);
+						intptr_t nextScan = ScanPattern(hProcess, (byte *)&str, 48U, (oneScan + 48U), (intptr_t)hModSelf);
+						// Maybe that bug can be fixed
+						intptr_t layoutScan = ScanPattern(hProcess, (byte *)L"Layout", 14U, nextScan, (intptr_t)hModSelf);
 						if (nextScan > 0) {
-							// here has a bug
-							if (nextScan < (intptr_t)hModSelf) {
+							if (layoutScan - nextScan < 100) {
+								PLOG_INFO << "Fake damage string address: " << std::hex << nextScan;
+								nextScan = ScanPattern(hProcess, (byte *)&str, 48U, (nextScan + 48U), (intptr_t)hModSelf);
+							}
+
+							// Here has a bug
+							if (nextScan > 0) {
 								damageStrPos1 = nextScan;
 							} else {
 								damageStrPos1 = oneScan;
@@ -405,12 +414,11 @@ void WINAPI hookWeapon() {
 							PLOG_INFO << "Damage string address: " << std::hex << damageStrPos1;
 						}
 						// Remove split screen text
-						if (DisplayDamageSS) {
-							while (nextScan > 0 && nextScan < (intptr_t)hModSelf) {
-								scanAddr = nextScan + 0x40;
-								nextScan = ScanPattern(hProcess, (byte *)&str, 48U, scanAddr);
+						if (DisplayDamage >= 2) {
+							while (nextScan > 0) {
+								nextScan = ScanPattern(hProcess, (byte *)&str, 48U, (nextScan + 48U), (intptr_t)hModSelf);
 								// done
-								if (nextScan > 0 && nextScan < (intptr_t)hModSelf) {
+								if (nextScan > 0) {
 									memcpy((void *)nextScan, &nullStrDisplay, 48U);
 									PLOG_INFO << "Remove string address: " << std::hex << nextScan;
 								}
@@ -549,8 +557,6 @@ void hookWeaponGUImain() {
 	memcpy(jmpInstruction + 1, &relAddr, 4);
 
 	WriteHookToProcess(originalFunctionAddr, jmpInstruction, sizeof(jmpInstruction));
-	// Finally, start the display function
-	CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)hookWeapon, NULL, NULL, NULL);
 }
 
 // x64 cannot use inline assembly, you have to create asm files.
@@ -570,9 +576,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		wcscat_s(iniPath, L"\\1ModOption.ini");
 
 		// Read configuration
-		ModLog = GetPrivateProfileBoolW(L"ModOption", L"ModLog", ModLog, iniPath);
-		DisplayDamage = GetPrivateProfileBoolW(L"ModOption", L"DisplayDamage", DisplayDamage, iniPath);
-		DisplayDamageSS = GetPrivateProfileBoolW(L"ModOption", L"DisplayDamageSSS", DisplayDamageSS, iniPath);
+		ModLog = GetPrivateProfileIntW(L"ModOption", L"ModLog", ModLog, iniPath);
+		DisplayDamage = GetPrivateProfileIntW(L"ModOption", L"DisplayDamage", DisplayDamage, iniPath);
+		PlayerView = GetPrivateProfileIntW(L"ModOption", L"PlayerView", PlayerView, iniPath);
 		//LoadPluginsB = GetPrivateProfileBoolW(L"ModOption", L"LoadPlugins", LoadPluginsB, iniPath);
 		//Redirect = GetPrivateProfileBoolW(L"ModOption", L"Redirect", Redirect, iniPath);
 		//GameLog = GetPrivateProfileBoolW(L"ModOption", L"GameLog", GameLog, iniPath);
@@ -657,11 +663,20 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		// Add damage display
 		if (DisplayDamage) {
 			hookWeaponGUImain();
+			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)hookWeapon, NULL, NULL, NULL);
 			PLOG_INFO << "Display damage number";
 		} else {
 			PLOG_INFO << "Unable to display damage number";
 		}
-
+		
+		if (PlayerView == 1) {
+			WriteHookToProcess(hmodEXE + 0xE92B1A, (void *)L"configA.sgo", 24U);
+			PLOG_INFO << "Set close over-the-shoulder view";
+		} else if (PlayerView == 2) {
+			WriteHookToProcess(hmodEXE + 0xE92B1A, (void *)L"configB.sgo", 24U);
+			PLOG_INFO << "Set long-range over-the-shoulder view";
+		}
+		
 		// End, change game title
 		std::wstring GameTitle = L"EDF5 for PC in MOD Mode";
 		WriteHookToProcess(hmodEXE + 0xebcbd0, (void *)GameTitle.c_str(), 48U);
