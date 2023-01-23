@@ -194,6 +194,7 @@
     <ClCompile Include="utiliy.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <MASM Include="ASMAntAcidColor.asm" />
     <MASM Include="ASMgamelog_hook.asm" />
     <MASM Include="ASMgetWeaponAddress.asm" />
     <MASM Include="ASMrecordPlayerDamage.asm" />

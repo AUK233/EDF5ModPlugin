@@ -119,8 +119,8 @@ static void RemoveAllHooks(void) {
 static UINT ModLog = 0;
 static UINT DisplayDamage = 1;
 static UINT PlayerView = 0;
-    // Old configuration
-static BOOL Redirect = TRUE;
+// Old configuration
+static BOOL Redirect = FALSE;
 static BOOL LoadPluginsB = FALSE;
 static BOOL GameLog = FALSE;
 
@@ -139,18 +139,18 @@ PointerSet psets[1] = { //
 };
 
 
-// Search and load all *.dll files in Mods\Plugins\ folder
+// Search and load all *.dll files in 1mod\Plugins\ folder
 static void LoadPlugins(void) {
 	WIN32_FIND_DATAW ffd;
 	PLOG_INFO << "Loading plugins";
-	HANDLE hFind = FindFirstFileW(L"Mods\\Plugins\\*.dll", &ffd);
+	HANDLE hFind = FindFirstFileW(L"1mod\\Plugins\\*.dll", &ffd);
 
 	if (hFind != INVALID_HANDLE_VALUE) {
 		do {
 			if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
 				PLOG_INFO << "Loading Plugin: " << ffd.cFileName;
 				wchar_t plugpath[MAX_PATH];
-				wcscpy_s(plugpath, L"Mods\\Plugins\\");
+				wcscpy_s(plugpath, L"1mod\\Plugins\\");
 				wcscat_s(plugpath, ffd.cFileName);
 				HMODULE plugin = LoadLibraryW(plugpath);
 				if (plugin != NULL) {
@@ -252,10 +252,10 @@ static void *__fastcall fnk244d0_hook(void *unk1, oddstr *str, void *unk2) {
 		path = str->str;
 	}
 	if (path != NULL && str->length >= cwslen(L"/cri_bind/") && wcsstart(path, L"/cri_bind/")) {
-		size_t newlen = str->length + cwslen(L"./Mods/") - cwslen(L"/cri_bind/");
+		size_t newlen = str->length + cwslen(L"./1mod/") - cwslen(L"/cri_bind/");
 		wchar_t *modpath = new wchar_t[newlen + 1];
-		wcscpy(modpath, L"./Mods/");
-		wmemcpy(modpath + cwslen(L"./Mods/"), path + cwslen(L"/cri_bind/"), str->length - cwslen(L"/cri_bind/"));
+		wcscpy(modpath, L"./1mod/");
+		wmemcpy(modpath + cwslen(L"./1mod/"), path + cwslen(L"/cri_bind/"), str->length - cwslen(L"/cri_bind/"));
 		modpath[newlen] = L'\0';
 		PLOG_DEBUG << "Checking for " << modpath;
 		if (FileExistsW(modpath)) {
@@ -365,6 +365,9 @@ void __fastcall ASMrecordPlayerDamage();
 uintptr_t playerAddress;
 uintptr_t hookRetAddress;
 float damage_tmp = 0.0f;
+
+void __fastcall ASMAntAcidColor();
+uintptr_t edf5BDF30Address;
 }
 
 HANDLE hProcess = GetCurrentProcess();
@@ -515,6 +518,22 @@ void WINAPI hookWeapon() {
 	}
 }
 
+void hookAntAcidColor() {
+	void *originalFunctionAddr = (void *)(hmodEXE + 0x1FFD1B);
+
+	edf5BDF30Address = (uintptr_t)(hmodEXE + 0x5BDF30);
+
+	uint8_t hookFunction[] = {
+	    0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // mov rax, addr
+	    0xFF, 0xE0                                                  // jmp rax
+	};
+	uint64_t addrToJumpTo64 = (uint64_t)ASMAntAcidColor;
+
+	memcpy(&hookFunction[2], &addrToJumpTo64, sizeof(addrToJumpTo64));
+
+	WriteHookToProcess(originalFunctionAddr, hookFunction, sizeof(hookFunction));
+}
+
 void hookWeaponGUImain() {
 	/*
 	void *originalFunctionAddr = (void *)(sigscan(L"EDF5.exe", "\xC6\x81\x40\x01\x00\x00\x00\xC6\x81\xD0\x00\x00\x00\x00", "xxxxxxxxxxxxxx"));
@@ -534,7 +553,7 @@ void hookWeaponGUImain() {
 
 	// First, load the sgo that we need
 	void *RaderStringAddr = (void *)(sigscan(L"EDF5.exe", "l\0y\0t\0_\0H\0u\0d\0R\0a\0d\0e\0r", "xxxxxxxxxxxxxxxxxxxxxxx"));
-	std::wstring newRader = L"lyt_HudRaderM1.sgo"; 
+	std::wstring newRader = L"lyt_HudRaderM1.sgo";
 	WriteHookToProcess(RaderStringAddr, (void *)newRader.c_str(), 36U);
 
 	// Then, get the damage
@@ -644,8 +663,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		setupFunctions(LoadLibraryW(path));
 
 		// Create ModLoader folders
-		CreateDirectoryW(L"Mods", NULL);
-		CreateDirectoryW(L"Mods\\Plugins", NULL);
+		//CreateDirectoryW(L"1Mod", NULL);
+		//CreateDirectoryW(L"1Mod\\Plugins", NULL);
 
 		// Hook function for additional ModLoader initialization
 		SetupHook(pointers[0], (PVOID*)&initterm_orig, initterm_hook, "Additional initialization", TRUE);
@@ -676,6 +695,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 			WriteHookToProcess(hmodEXE + 0xE92B1A, (void *)L"configB.sgo", 24U);
 			PLOG_INFO << "Set long-range over-the-shoulder view";
 		}
+
+		hookAntAcidColor();
 		
 		// End, change game title
 		std::wstring GameTitle = L"EDF5 for PC in MOD Mode";
