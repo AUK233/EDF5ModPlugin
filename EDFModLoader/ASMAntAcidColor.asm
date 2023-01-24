@@ -1,8 +1,8 @@
 .data
 extern edf5BDF30Address : qword
 
-colorR db 'a',0,'nt_BulletColor', 0,0,0
-color db "a",0,"n",0,"t",0,"_",0,"0",0,"2",00h,00h,00h
+; L"ant_BulletColor"
+color db 97,0,110,0,116,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,67,0,111,0,108,0,111,0,114,0,0,0
 shotnum db "a",0,"n",0,"t",0,"_",0,"0",0,"1",00h,00h,00h
 
 .code
@@ -11,6 +11,14 @@ jmp edf5BDF30Address
 edf5BDF30 ENDP
 
 ASMAntAcidColor proc
+
+mov dword ptr [rbx+12D8h], 360 ; AmmoAlive
+;mov dword ptr [rbx+1320h], 0 ;height
+mov dword ptr [rbx+12F4h], 3E800000h ; AmmoSize
+;mov dword ptr [rbx+12E8h], 41F00000h ; AmmoExplosion
+;mov byte ptr [rbx+12ECh], 1 ; AmmoIsPenetration
+; rbx+12D4h AmmoSpeed
+; rbx+12DCh AmmoDamage
 
 lea rdx, color
 mov rcx, rsi
@@ -30,6 +38,10 @@ movss dword ptr [rbx+1310h], xmm0
 movsxd rax, dword ptr [rcx+8]
 movss xmm0, dword ptr [rax+rcx+20]
 movss dword ptr [rbx+1314h], xmm0
+
+mulss xmm0, dword ptr [rbx+12D4h]
+movss dword ptr [rbx+12D4h], xmm0
+
 movsxd rax, dword ptr [rcx+8]
 movss xmm0, dword ptr [rax+rcx+32]
 movss dword ptr [rbx+1318h], xmm0
