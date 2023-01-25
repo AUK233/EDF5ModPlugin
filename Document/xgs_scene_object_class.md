@@ -30,6 +30,6 @@ Added the following values available for SGO node names.
 |4|int|set acid penetration, only 0 and 1|
 |5|float|change acid size|
 |6|float|change acid hitbox size|
-|7|float|change acid hit impulse, maybe useless|
+|7|float|change acid hit impulse|
 
 ##### [Return to Index](#index)

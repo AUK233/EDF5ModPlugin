@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Assembly Files">
+      <UniqueIdentifier>{373b4125-dde7-4231-a08c-38a586dadab7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -27,19 +30,25 @@
     <ClCompile Include="utiliy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GameFunc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="ASMgamelog_hook.asm">
-      <Filter>Source Files</Filter>
+    <MASM Include="ASMxgsOCgiantAnt.asm">
+      <Filter>Assembly Files</Filter>
     </MASM>
-    <MASM Include="ASMgetWeaponAddress.asm">
-      <Filter>Source Files</Filter>
+    <MASM Include="ASMgamelog_hook.asm">
+      <Filter>Assembly Files</Filter>
     </MASM>
     <MASM Include="ASMrecordPlayerDamage.asm">
-      <Filter>Source Files</Filter>
+      <Filter>Assembly Files</Filter>
     </MASM>
-    <MASM Include="ASMAntAcidColor.asm">
-      <Filter>Source Files</Filter>
+    <MASM Include="ASMCallGameFunction.asm">
+      <Filter>Assembly Files</Filter>
+    </MASM>
+    <MASM Include="ASMplayerViewChange.asm">
+      <Filter>Assembly Files</Filter>
     </MASM>
   </ItemGroup>
   <ItemGroup>
@@ -56,6 +65,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utiliy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFunc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

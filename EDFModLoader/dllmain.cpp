@@ -14,7 +14,6 @@
 #include <string.h>
 #include <format>
 
-
 #include <plog/Log.h>
 #include <plog/Initializers/RollingFileInitializer.h>
 
@@ -23,6 +22,7 @@
 #include "LoggerTweaks.h"
 
 #include "utiliy.h"
+#include "GameFunc.h"
 
 typedef struct {
 	PluginInfo *info;
@@ -115,14 +115,21 @@ static void RemoveAllHooks(void) {
 	}
 }
 
+// Calculate ini path
+WCHAR iniPath[MAX_PATH];
 // Configuration
 static UINT ModLog = 0;
+static UINT RTRead = 0;
 static UINT DisplayDamage = 1;
 static UINT PlayerView = 0;
 // Old configuration
 static BOOL Redirect = FALSE;
 static BOOL LoadPluginsB = FALSE;
 static BOOL GameLog = FALSE;
+
+extern "C" {
+int playerViewIndex = 0;
+}
 
 // Pointer sets
 typedef struct {
@@ -357,17 +364,10 @@ static wchar_t str[] = L"Initialize:Damage1.....";
 wchar_t nullStrDisplay[] = L"                      \0";
 
 extern "C" {
-void __fastcall ASMgetWeaponAddress();
-uintptr_t WeaponRetAddress;
-uintptr_t WeaponAddress;
-
 void __fastcall ASMrecordPlayerDamage();
 uintptr_t playerAddress;
 uintptr_t hookRetAddress;
 float damage_tmp = 0.0f;
-
-void __fastcall ASMAntAcidColor();
-uintptr_t edf5BDF30Address;
 }
 
 HANDLE hProcess = GetCurrentProcess();
@@ -518,39 +518,7 @@ void WINAPI hookWeapon() {
 	}
 }
 
-void hookAntAcidColor() {
-	void *originalFunctionAddr = (void *)(hmodEXE + 0x1FFD1B);
-
-	edf5BDF30Address = (uintptr_t)(hmodEXE + 0x5BDF30);
-
-	uint8_t hookFunction[] = {
-	    0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // mov rax, addr
-	    0xFF, 0xE0                                                  // jmp rax
-	};
-	uint64_t addrToJumpTo64 = (uint64_t)ASMAntAcidColor;
-
-	memcpy(&hookFunction[2], &addrToJumpTo64, sizeof(addrToJumpTo64));
-
-	WriteHookToProcess(originalFunctionAddr, hookFunction, sizeof(hookFunction));
-}
-
 void hookWeaponGUImain() {
-	/*
-	void *originalFunctionAddr = (void *)(sigscan(L"EDF5.exe", "\xC6\x81\x40\x01\x00\x00\x00\xC6\x81\xD0\x00\x00\x00\x00", "xxxxxxxxxxxxxx"));
-	WeaponRetAddress = (uint64_t)originalFunctionAddr + 14;
-
-	void *memoryBlock = AllocatePageNearAddress(originalFunctionAddr);
-
-	uint8_t hookFunction[] = {
-	    0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // mov rax, addr
-	    0xFF, 0xE0, 0x90, 0x90                                      // jmp rax
-	};
-	uint64_t addrToJumpTo64 = (uint64_t)ASMgetWeaponAddress;
-
-	memcpy(&hookFunction[2], &addrToJumpTo64, sizeof(addrToJumpTo64));
-
-	WriteHookToProcess(originalFunctionAddr, hookFunction, 14U);*/
-
 	// First, load the sgo that we need
 	void *RaderStringAddr = (void *)(sigscan(L"EDF5.exe", "l\0y\0t\0_\0H\0u\0d\0R\0a\0d\0e\0r", "xxxxxxxxxxxxxxxxxxxxxxx"));
 	std::wstring newRader = L"lyt_HudRaderM1.sgo";
@@ -578,6 +546,66 @@ void hookWeaponGUImain() {
 	WriteHookToProcess(originalFunctionAddr, jmpInstruction, sizeof(jmpInstruction));
 }
 
+void ReadINIconfig() {
+	// Read configuration
+	PlayerView = GetPrivateProfileIntW(L"ModOption", L"PlayerView", PlayerView, iniPath);
+	RTRead = GetPrivateProfileIntW(L"ModOption", L"RTRead", RTRead, iniPath);
+
+	// playerViewIndex = PlayerView * 4
+	// It means starting with N th data in ptr data
+	// It is used in ASM, so it must be observed
+	switch (PlayerView) {
+	case 1: {
+		if (playerViewIndex != 4) {
+			playerViewIndex = 4;
+			PLOG_INFO << "Set close over-the-shoulder view (left)";
+		}
+		break;
+	}
+	case 2: {
+		if (playerViewIndex != 8) {
+			playerViewIndex = 8;
+			PLOG_INFO << "Set long-range over-the-shoulder view (left)";
+		}
+		break;
+	}
+	case 3: {
+		if (playerViewIndex != 12) {
+			playerViewIndex = 12;
+			PLOG_INFO << "Set close over-the-shoulder view (right)";
+		}
+		break;
+	}
+	case 4: {
+		if (playerViewIndex != 16) {
+			playerViewIndex = 16;
+			PLOG_INFO << "Set long-range over-the-shoulder view (right)";
+		}
+		break;
+	}
+	default:
+		if (playerViewIndex != 0) {
+			playerViewIndex = 0;
+			PLOG_INFO << "Set original view";
+		}
+		break;
+	}
+}
+
+void ReadINILoop() {
+	// wait 30s
+	Sleep(30000);
+
+	while (RTRead) {
+		ReadINIconfig();
+
+		// once per second
+		Sleep(1000);
+	}
+
+	PLOG_INFO << "Turn off real-time read profiles";
+}
+
 // x64 cannot use inline assembly, you have to create asm files.
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
 	static plog::RollingFileAppender<eml::TxtFormatter<ModLoaderStr>> mlLogOutput("1Mod.log");
@@ -589,7 +617,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		DisableThreadLibraryCalls(hModule);
 
 		// Calculate ini path
-		WCHAR iniPath[MAX_PATH];
 		GetModuleFileNameW(hModule, iniPath, _countof(iniPath));
 		PathRemoveFileSpecW(iniPath);
 		wcscat_s(iniPath, L"\\1ModOption.ini");
@@ -597,7 +624,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		// Read configuration
 		ModLog = GetPrivateProfileIntW(L"ModOption", L"ModLog", ModLog, iniPath);
 		DisplayDamage = GetPrivateProfileIntW(L"ModOption", L"DisplayDamage", DisplayDamage, iniPath);
-		PlayerView = GetPrivateProfileIntW(L"ModOption", L"PlayerView", PlayerView, iniPath);
 		//LoadPluginsB = GetPrivateProfileBoolW(L"ModOption", L"LoadPlugins", LoadPluginsB, iniPath);
 		//Redirect = GetPrivateProfileBoolW(L"ModOption", L"Redirect", Redirect, iniPath);
 		//GameLog = GetPrivateProfileBoolW(L"ModOption", L"GameLog", GameLog, iniPath);
@@ -687,16 +713,16 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		} else {
 			PLOG_INFO << "Unable to display damage number";
 		}
-		
-		if (PlayerView == 1) {
-			WriteHookToProcess(hmodEXE + 0xE92B1A, (void *)L"configA.sgo", 24U);
-			PLOG_INFO << "Set close over-the-shoulder view";
-		} else if (PlayerView == 2) {
-			WriteHookToProcess(hmodEXE + 0xE92B1A, (void *)L"configB.sgo", 24U);
-			PLOG_INFO << "Set long-range over-the-shoulder view";
-		}
 
-		hookAntAcidColor();
+		// Very important!!!!!!!!!!!!
+		ReadINIconfig();
+		// Very important!!!!!!!!!!!!
+		hookGameFunctions();
+
+		if (RTRead) {
+			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ReadINILoop, NULL, NULL, NULL);
+			PLOG_INFO << "Enable real-time read profiles";
+		}
 		
 		// End, change game title
 		std::wstring GameTitle = L"EDF5 for PC in MOD Mode";

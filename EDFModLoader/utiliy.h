@@ -7,6 +7,8 @@ uintptr_t GetPointerAddress(const uintptr_t base, std::initializer_list<int> off
 void *AllocatePageNearAddress(void *targetAddr);
 // Injects hook into game process
 void WriteHookToProcess(void *addr, void *data, size_t len);
+// update game's original functions
+void hookGameBlock(void *targetAddr, uint64_t hookAddr);
 // Search the address of the target
 intptr_t SundaySearch(const byte *target, int tLen, const byte *pattern, int pLen);
 // Search the address of the target

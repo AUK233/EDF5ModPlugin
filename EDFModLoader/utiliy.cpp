@@ -124,6 +124,17 @@ void WriteHookToProcess(void *addr, void *data, size_t len) {
 	VirtualProtect(addr, len, oldProtect, &oldProtect);
 }
 
+// update game's original functions
+void hookGameBlock(void *targetAddr, uint64_t dataAddr) {
+	uint8_t hookFunction[] = {
+	    0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // mov rax, addr
+	    0xFF, 0xE0                                                  // jmp rax
+	};
+	memcpy(&hookFunction[2], &dataAddr, sizeof(dataAddr));
+
+	WriteHookToProcess(targetAddr, hookFunction, sizeof(hookFunction));
+}
+
 // Search the address of the target
 intptr_t SundaySearch(const byte *target, int tLen, const byte *pattern, int pLen) {
 	const int SHIFT_SIZE = 0x100;

@@ -1,5 +1,6 @@
 .data
-extern edf5BDF30Address : qword
+; Use other asm functions
+extern edf5BDF30 : proto
 
 ; L"ant_BulletAlive"
 antBulletAlive db 97,0,110,0,116,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,65,0,108,0,105,0,118,0,101,0,0,0
@@ -11,11 +12,8 @@ antBulletExSet db 97,0,110,0,116,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,69,0,
 antBulletHeight db 97,0,110,0,116,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,70,0,105,0,114,0,101,0,72,0,101,0,105,0,103,0,104,0,116,0,0,0
 
 .code
-edf5BDF30 proc
-jmp edf5BDF30Address
-edf5BDF30 ENDP
 
-ASMAntAcidColor proc
+ASMxgsOCgiantAnt proc
 
 lea rdx, antBulletAlive
 mov rcx, rsi
@@ -130,6 +128,6 @@ pop rsi
 pop rbx
 ret
 
-ASMAntAcidColor ENDP
+ASMxgsOCgiantAnt ENDP
 
 END
