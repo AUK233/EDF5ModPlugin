@@ -123,7 +123,7 @@ static UINT RTRead = 0;
 static UINT DisplayDamage = 1;
 static UINT PlayerView = 0;
 // Old configuration
-static BOOL Redirect = FALSE;
+static BOOL Redirect = TRUE;
 static BOOL LoadPluginsB = FALSE;
 static BOOL GameLog = FALSE;
 

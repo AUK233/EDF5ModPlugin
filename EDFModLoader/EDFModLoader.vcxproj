@@ -195,6 +195,7 @@
     <ClCompile Include="utiliy.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <MASM Include="ASM11.asm" />
     <MASM Include="ASMplayerViewChange.asm" />
     <MASM Include="ASMxgsOCgiantAnt.asm" />
     <MASM Include="ASMgamelog_hook.asm" />

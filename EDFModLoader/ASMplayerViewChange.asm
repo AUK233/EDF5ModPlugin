@@ -38,7 +38,7 @@ lea rax, qword ptr [r8+rdx]
 lea rdi, qword ptr [rax+rcx*4] ; storage address
 ; check data amount
 mov eax, dword ptr [rdi+4]
-sub eax, 4
+add eax, -4 ; addition seems to be faster?
 cmp eax, playerViewIndex
 jge CheckExistBlock
 ; jump back to original when less than needed

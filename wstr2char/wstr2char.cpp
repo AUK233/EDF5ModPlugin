@@ -37,4 +37,8 @@ int main()
             std::wcout << L",";
         }
     }
+
+    system("pause");
+
+    return 0;
 }
