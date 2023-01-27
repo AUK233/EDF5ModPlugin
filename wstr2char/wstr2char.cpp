@@ -21,7 +21,7 @@ int main()
 
     std::wstring wstr;
     std::vector<unsigned char> buffer(256,0);
-    std::wcout << "int string: ";
+    std::wcout << "input string: ";
     std::wcin >> wstr;
 
     int wstrSize = wstr.size() * 2;
@@ -37,6 +37,7 @@ int main()
             std::wcout << L",";
         }
     }
+    std::wcout << "\n";
 
     system("pause");
 

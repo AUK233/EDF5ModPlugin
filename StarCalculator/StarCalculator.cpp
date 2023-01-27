@@ -52,22 +52,41 @@ int main()
     float v14 = powf(n3 / 5.0f, n5) * v12;
 
     float v7 = 0.0f;
+    float v7b = 0.0f;
+    float rv7 = 0.0f;
     if ((n1 & 3) != 0) {
        if ((n1 & 3) == 1) {
             v7 = fmaxf(0.0f, (v12 + n0) - v14);
+            v7b = fmaxf(0.0f, n0 * ((1 + n4) - (powf(n3 / 5.0f, n5) * n4)));
+            rv7 = fmaxf(0.0f, n0 / ((1 + n4) - (powf(n3 / 5.0f, n5) * n4)));
+       }
+       else {
+           std::wcout << "----->Node 1 is an invalid value!\n";
        }
     }
     else {
         v7 = fmaxf(0.0f, (n0 - v12) + v14);
+        v7b = fmaxf(0.0f, n0 * ((1 - n4) + (powf(n3 / 5.0f, n5) * n4)));
+        rv7 = fmaxf(0.0f, n0 / ((1 - n4) + (powf(n3 / 5.0f, n5) * n4)));
     }
 
     float v16 = v7 * v10;
     int i16 = (int)(v16 + 0.5f);
+    float v16b = v7b * v10;
+    // Calculate the reverse base value
+    float rv16 = rv7 * v10;
+    int ri16 = (int)(rv16 + 0.5f);
 
     std::wcout << "\n--->Result: ";
     std::wcout << std::to_wstring(v16);
     std::wcout << "\n--->Result (int): ";
     std::wcout << std::to_wstring(i16);
+    std::wcout << "\n--->Result B: ";
+    std::wcout << std::to_wstring(v16b);
+    std::wcout << "\n\n--->Result as base value: ";
+    std::wcout << std::to_wstring(rv16);
+    std::wcout << "\n--->Result as base value (int): ";
+    std::wcout << std::to_wstring(ri16);
     std::wcout << "\n";
 
     system("pause");

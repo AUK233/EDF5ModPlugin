@@ -3,6 +3,7 @@ Added the following values available for SGO node names.
 
 ## xgs_scene_object_class 's value:
 - [GiantAnt](#GiantAnt)
+- [EDF Weapon (Weapon_*)](#EDFWeapon)
 
 ### GiantAnt
 | sgo node name | value type | function | value description |
@@ -31,5 +32,18 @@ Added the following values available for SGO node names.
 |5|float|change acid size|
 |6|float|change acid hitbox size|
 |7|float|change acid hit impulse|
+
+##### [Return to Index](#index)
+
+### EDFWeapon
+| sgo node name | value type | function | value description |
+|---|---|---|---|
+|ReloadPadType|ptr|midsection reload type|[parameters](#EDFWeapon-ReloadPadType), it is not necessary to have all parameters|
+
+#### EDFWeapon ReloadPadType
+| node index | value type | value description |
+|---|---|---|
+|0|int|> 0 will allow not to reload with full time|
+|1|int|useless, read when node0 = 2|
 
 ##### [Return to Index](#index)

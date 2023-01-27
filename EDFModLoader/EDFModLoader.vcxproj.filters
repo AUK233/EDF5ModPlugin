@@ -50,7 +50,10 @@
     <MASM Include="ASMplayerViewChange.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
-    <MASM Include="ASM11.asm">
+    <MASM Include="ASMweaponStartReload.asm">
+      <Filter>Assembly Files</Filter>
+    </MASM>
+    <MASM Include="ASMweaponReloadEX.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
   </ItemGroup>
