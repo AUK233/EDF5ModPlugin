@@ -46,6 +46,7 @@ mov dword ptr [rsi+590h], 3F800000h
 
 ; initialize memory
 mov qword ptr [rsi+2100h], 0
+mov qword ptr [rsi+2108h], 0
 ; read new function
 lea rdx, wReloadPadType
 mov rcx, r14
@@ -62,15 +63,19 @@ lea rcx, qword ptr [rdx+rcx*4]
 ; node0 decides on midsection reload
 movsxd rax, dword ptr [rcx+8]
 mov eax, [rax+rcx+8]
-mov [rsi+2100h], eax ; midsection reload
+mov [rsi+2100h], eax ; midsection type
 cmp eax, 2
-jne EndBlock ; if node does not exist, jump
+jne node1Block
+; if node0 = 2, read node2
+movsxd rax, dword ptr [rcx+8]
+mov eax, [rax+rcx+32]
+mov [rsi+2108h], eax ; charge interval
+mov [rsi+210Ch], eax
 ; node1
+node1Block:
 movsxd rax, dword ptr [rcx+8]
 mov eax, [rax+rcx+20]
-cmp eax, 1
-jl EndBlock ; if < 1
-mov [rsi+2104h], eax
+mov [rsi+2104h], eax ; extra time
 
 EndBlock:
 jmp weaponReloadEXRetAddr

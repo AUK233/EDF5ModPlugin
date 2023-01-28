@@ -1,5 +1,10 @@
 #pragma once
 
+// Hook wrapper functions
+BOOLEAN __fastcall SetHookWrap(const void *Interceptor, void **Original);
+void SetupHook(uintptr_t offset, void **func, void *hook, const char *reason, BOOL active);// remove hook
+BOOLEAN __fastcall RemoveHookWrap(void *Original);
+void RemoveAllHooks(void);
 bool get_module_bounds(const std::wstring name, uintptr_t *start, uintptr_t *end);
 // Scan for a byte pattern with a mask in the form of "xxx???xxx".
 uintptr_t sigscan(const std::wstring name, const char *sig, const char *mask);

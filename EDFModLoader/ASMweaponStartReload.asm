@@ -18,6 +18,7 @@ cvtsi2ss xmm0, eax
 cvtsi2ss xmm1, ecx ; int to float
 divss xmm0, xmm1 ; / totalAmmo
 cvttss2si eax, xmm0 ; float to int
+add eax, dword ptr [rbx+2104h] ; + extra time
 mov dword ptr [rbx+0B90h], eax
 ; original
 originalBlock:

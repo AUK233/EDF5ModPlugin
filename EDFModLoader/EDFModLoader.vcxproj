@@ -191,6 +191,7 @@
     <ClCompile Include="..\HookLib\HookLib\HookLib\HookLib.c" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="GameFunc.cpp" />
+    <ClCompile Include="GameFuncSetup.cpp" />
     <ClCompile Include="proxy.c" />
     <ClCompile Include="utiliy.cpp" />
   </ItemGroup>
@@ -206,6 +207,7 @@
   <ItemGroup>
     <ClInclude Include="..\HookLib\HookLib\HookLib\HookLib.h" />
     <ClInclude Include="GameFunc.h" />
+    <ClInclude Include="GameFuncSetup.h" />
     <ClInclude Include="LoggerTweaks.h" />
     <ClInclude Include="PluginAPI.h" />
     <ClInclude Include="proxy.h" />

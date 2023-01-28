@@ -8,7 +8,7 @@ Added the following values available for SGO node names.
 ### GiantAnt
 | sgo node name | value type | function | value description |
 |---|---|---|---|
-|ant_BulletAlive|int|change acid presence time|bulletType = 0, default 180; = 1, 240|
+|ant_BulletAlive|int|change acid alive time|bulletType = 0, default 180; = 1, 240|
 |ant_BulletColor|ptr|change ant acid color|[color parameters](#GiantAnt-BulletColor), all parameters must be present|
 |ant_BulletExSet|ptr|change ant acid detail|[exset parameters](#GiantAnt-BulletExSet), all parameters must be present|
 |ant_BulletFireHeight|float|change acid launch height||
@@ -44,6 +44,9 @@ Added the following values available for SGO node names.
 | node index | value type | value description |
 |---|---|---|
 |0|int|> 0 will allow not to reload with full time|
-|1|int|useless, read when node0 = 2|
+|1|int|extra reload time when midsection reload|
+| - | - |node0 = 2 requires node2|
+|2|int|charge time, after a period of time 1 ammo will be added|
+| - | - |but note that as long as ammo is not full, it will start|
 
 ##### [Return to Index](#index)

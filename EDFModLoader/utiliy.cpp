@@ -8,26 +8,83 @@
 #include <format>
 #include <stdexcept>
 #include <list>
+
+#include <Shlwapi.h>
+#include <HookLib.h>
+#include <plog/Log.h>
+#include <plog/Initializers/RollingFileInitializer.h>
+
+#include "proxy.h"
+#include "PluginAPI.h"
+#include "LoggerTweaks.h"
+
 #include "utiliy.h"
 
-// This is a failed modify title. There are other places where the title is overwritten.
-/*
-void ModifyGameTitle() {
-    void *originalFunctionAddr = (void *)(sigscan(L"EDF5.exe", "\x48\x8D\x15\x43\x69\xAE\x00\x48\x8D\x4C\x24\x40", "xxxxxxxxxxxx"));
+extern PBYTE hmodEXE;
 
-    void *memoryBlock = AllocatePageNearAddress(originalFunctionAddr);
-    std::wstring GameTitle = L"EarthDefenceForce 5 for PC in mod mode";
-    memcpy(memoryBlock, GameTitle.c_str(), 78U);
+static std::vector<void *> hooks; // Holds all original hooked functions
+static const char hmodGameName[] = "EDF5.exe";
 
-    // lea target = leaAddr + 7 + value
-    uint8_t hookFunction[] = {0x48, 0x8D, 0x15, 0x00, 0x00, 0x00, 0x00};
-    const uint64_t relAddr = (uint64_t)memoryBlock - ((uint64_t)originalFunctionAddr + sizeof(hookFunction));
-    memcpy(hookFunction + 3, &relAddr, 4);
-
-    WriteHookToProcess(originalFunctionAddr, hookFunction, 7U);
+// Hook wrapper functions
+BOOLEAN __fastcall SetHookWrap(const void *Interceptor, void **Original) {
+	if (Original != NULL && *Original != NULL && SetHook(*Original, Interceptor, Original)) {
+		hooks.push_back(*Original);
+		return true;
+	} else {
+		return false;
+	}
 }
 
-*/
+void SetupHook(uintptr_t offset, void **func, void *hook, const char *reason, BOOL active) {
+	if (active) {
+		// PLOG_INFO << "Hooking " << hmodGameName << "+" << std::hex << offset << " (" << reason << ")";
+		*func = hmodEXE + offset;
+		if (!SetHookWrap(hook, func)) {
+			// Error
+			PLOG_ERROR << "Failed to setup " << hmodGameName << "+" << std::hex << offset << " hook";
+		}
+	} else {
+		// PLOG_INFO << "Skipping " << hmodGameName << "+" << std::hex << offset << " hook (" << reason << ")";
+	}
+}
+
+// remove hook
+BOOLEAN __fastcall RemoveHookWrap(void *Original) {
+	if (Original != NULL) {
+		std::vector<void *>::iterator position = std::find(hooks.begin(), hooks.end(), Original);
+		if (position != hooks.end()) {
+			if (RemoveHook(Original)) {
+				hooks.erase(position);
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void RemoveAllHooks(void) {
+	for (std::vector<void *>::iterator it = hooks.begin(); it != hooks.end();) {
+		void *hook = *it;
+		if (RemoveHook(hook)) {
+			it = hooks.erase(it);
+		} else {
+			// hook is HOOK_DATA->OriginalBeginning
+			// hook-16 is HOOK_DATA->OriginalFunction
+			// TODO: Fork HookLib and exposde HOOK_DATA or add function to retrieve original address
+			PVOID address = *((PVOID *)hook - 16 / sizeof(PVOID));
+
+			HMODULE hmodDLL;
+			wchar_t DLLName[MAX_PATH];
+			GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)address, &hmodDLL);
+			GetModuleFileNameW(hmodDLL, DLLName, _countof(DLLName));
+			PathStripPathW(DLLName);
+
+			PLOG_ERROR << "Failed to remove " << DLLName << "+" << std::hex << ((ULONG_PTR)address - (ULONG_PTR)hmodDLL) << " hook";
+			it++;
+		}
+	}
+}
+
 
 bool get_module_bounds(const std::wstring name, uintptr_t *start, uintptr_t *end)
 {

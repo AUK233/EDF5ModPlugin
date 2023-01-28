@@ -23,6 +23,7 @@
 
 #include "utiliy.h"
 #include "GameFunc.h"
+#include "GameFuncSetup.h"
 
 typedef struct {
 	PluginInfo *info;
@@ -31,8 +32,6 @@ typedef struct {
 
 static std::vector<PluginData*> plugins; // Holds all plugins loaded
 typedef bool (__fastcall *LoadDef)(PluginInfo*);
-
-static std::vector<void*> hooks; // Holds all original hooked functions
 
 // Called during initialization of CRT
 typedef void* (__fastcall *initterm_func)(void*, void*);
@@ -69,52 +68,6 @@ constexpr size_t cwslen(wchar_t const (&)[N]) {
 
 #define wcsstart(a, b) (!wcsncmp(a, b, cwslen(b)))
 
-// Hook wrapper functions
-BOOLEAN EDFMLAPI SetHookWrap(const void *Interceptor, void **Original) {
-	if (Original != NULL && *Original != NULL && SetHook(*Original, Interceptor, Original)) {
-		hooks.push_back(*Original);
-		return true;
-	} else {
-		return false;
-	}
-}
-
-BOOLEAN EDFMLAPI RemoveHookWrap(void *Original) {
-	if (Original != NULL) {
-		std::vector<void*>::iterator position = std::find(hooks.begin(), hooks.end(), Original);
-		if (position != hooks.end()) {
-			if (RemoveHook(Original)) {
-				hooks.erase(position);
-				return true;
-			}
-		}
-	}
-	return false;
-}
-
-static void RemoveAllHooks(void) {
-	for (std::vector<void*>::iterator it = hooks.begin(); it != hooks.end();) {
-		void *hook = *it;
-		if (RemoveHook(hook)) {
-			it = hooks.erase(it);
-		} else {
-			// hook is HOOK_DATA->OriginalBeginning
-			// hook-16 is HOOK_DATA->OriginalFunction
-			// TODO: Fork HookLib and exposde HOOK_DATA or add function to retrieve original address
-			PVOID address = *((PVOID*)hook - 16 / sizeof(PVOID));
-
-			HMODULE hmodDLL;
-			wchar_t DLLName[MAX_PATH];
-			GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR)address, &hmodDLL);
-			GetModuleFileNameW(hmodDLL, DLLName, _countof(DLLName));
-			PathStripPathW(DLLName);
-
-			PLOG_ERROR << "Failed to remove " << DLLName << "+" << std::hex << ((ULONG_PTR)address - (ULONG_PTR)hmodDLL) << " hook";
-			it++;
-		}
-	}
-}
-
 // Calculate ini path
 WCHAR iniPath[MAX_PATH];
 // Configuration
@@ -142,9 +95,8 @@ typedef struct {
 
 int pointerSet = -1;
 PointerSet psets[1] = { //
-	{0xebcbd0, L"EarthDefenceForce 5 for PC", "EDF5", "EML5_Load", {0x9c835a, 0x244d0, 0x27380, 0x27680}}, // EDF 5, = old addr + 6144
+	{0xebcbd0, L"EarthDefenceForce 5 for PC", "EDF5", "EML5_Load", {0x9c835a, 0x244d0, 0x27380, 0x27680}},
 };
-
 
 // Search and load all *.dll files in 1mod\Plugins\ folder
 static void LoadPlugins(void) {
@@ -342,19 +294,6 @@ static const char ModLoaderStr[] = "ModPlugin";
 PBYTE hmodEXE;
 PBYTE hModSelf;
 char hmodName[MAX_PATH];
-
-void SetupHook(uintptr_t offset, void **func, void* hook, const char *reason, BOOL active) {
-	if (active) {
-		PLOG_INFO << "Hooking " << hmodName << "+" << std::hex << offset << " (" << reason << ")";
-		*func = hmodEXE + offset;
-		if (!SetHookWrap(hook, func)) {
-			// Error
-			PLOG_ERROR << "Failed to setup " << hmodName << "+" << std::hex << offset << " hook";
-		}
-	} else {
-		PLOG_INFO << "Skipping " << hmodName << "+" << std::hex << offset << " hook (" << reason << ")";
-	}
-}
 
 
 // Since the text is now under the radar, it is only necessary to find an address.
@@ -702,6 +641,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		// Add internal logging hook
 		SetupHook(pointers[3], (PVOID*)&gamelog_orig, gamelog_hook, "Interal logging hook", GameLog);
 
+		//
 		hModSelf = (PBYTE)GetModuleHandleW(L"1mod.dll");
 		PLOG_INFO << "Get self address: " << std::hex << hModSelf;
 
@@ -717,6 +657,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		// Very important!!!!!!!!!!!!
 		ReadINIconfig();
 		// Very important!!!!!!!!!!!!
+		hookGameFunctionsC();
 		hookGameFunctions();
 
 		if (RTRead) {

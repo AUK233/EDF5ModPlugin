@@ -1,4 +1,8 @@
 #pragma once
 
-// here hook all changed functions
-void hookGameFunctions();
+// here hook all changed functions, written in c++
+void hookGameFunctionsC();
+
+typedef void *(__fastcall *fnk391230_func)(intptr_t);
+static fnk391230_func fnk391230_orig;
+static bool __fastcall fnk391230_hook(intptr_t a1);
