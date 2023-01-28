@@ -15,14 +15,19 @@
 extern PBYTE hmodEXE;
 
 extern "C" {
+// star rating calculation
+uintptr_t edf8C8C0Address;
+
 uintptr_t edf4738B0Address;
 uintptr_t edf4DC190Address;
+// read sgo node name
 uintptr_t edf5BDF30Address;
 
-void __fastcall ASMxgsOCgiantAnt();
 
 uintptr_t playerViewRetAddr;
 void __fastcall ASMplayerViewChange();
+
+void __fastcall ASMxgsOCgiantAnt();
 
 uintptr_t weaponReloadEXRetAddr;
 void __fastcall ASMweaponReloadEX();
@@ -31,17 +36,20 @@ void __fastcall ASMweaponStartReload();
 }
 
 void hookGameFunctions() {
+	// get star rating calculation function
+	edf8C8C0Address = (uintptr_t)(hmodEXE + 0x8C8C0);
+
 	edf4738B0Address = (uintptr_t)(hmodEXE + 0x4738B0);
 	edf4DC190Address = (uintptr_t)(hmodEXE + 0x4DC190);
 	// get read sgo node function
 	edf5BDF30Address = (uintptr_t)(hmodEXE + 0x5BDF30);
 
-	// hook GiantAnt extra features
-	hookGameBlock((void *)(hmodEXE + 0x1FFD1B), (uint64_t)ASMxgsOCgiantAnt);
-
 	// allows switching of views
 	playerViewRetAddr = (uintptr_t)(hmodEXE + 0x2DB0D1);
 	hookGameBlock((void *)(hmodEXE + 0x2DB090), (uint64_t)ASMplayerViewChange);
+
+	// hook GiantAnt extra features
+	hookGameBlock((void *)(hmodEXE + 0x1FFD1B), (uint64_t)ASMxgsOCgiantAnt);
 
 	// first, it need to reallocate memory
 	ReallocateWeaponMemory();
@@ -58,10 +66,10 @@ void hookGameFunctions() {
 void ReallocateWeaponMemory() {
 	// Allocate more memory to all weapons
 	// New size must be larger than largest of them all
-	// Safe size at least 0x2000
+	// Safe size at least 0x2500
 	// Must be an integer multiple of 0x10
-	int newWeaponSize = 0x2120;
-	// start:0x2100, size:0x20, function: extra reload types.
+	int newWeaponSize = 0x2520;
+	// start:0x2500, size:0x20, function: extra reload types.
 
 	// Weapon_Accessory 0x11E0
 	WriteHookToProcess((void *)(hmodEXE + 0x398018), &newWeaponSize, 4U);
@@ -77,9 +85,9 @@ void ReallocateWeaponMemory() {
 	WriteHookToProcess((void *)(hmodEXE + 0x3A4368), &newWeaponSize, 4U);
 	// Weapon_Shield 0x1230
 	WriteHookToProcess((void *)(hmodEXE + 0x3A6858), &newWeaponSize, 4U);
-	// Weapon_VehicleMaser 0x11F0
+	// Weapon_VehicleMaser 0x1FF0
 	WriteHookToProcess((void *)(hmodEXE + 0x3A9438), &newWeaponSize, 4U);
-	// Weapon_HomingShoot 0x1FF0
+	// Weapon_HomingShoot 0x11F0
 	WriteHookToProcess((void *)(hmodEXE + 0x46A398), &newWeaponSize, 4U);
 	// Weapon_Throw 0x1200
 	WriteHookToProcess((void *)(hmodEXE + 0x46A3E8), &newWeaponSize, 4U);

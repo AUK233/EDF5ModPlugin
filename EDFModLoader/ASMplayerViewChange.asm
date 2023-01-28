@@ -6,9 +6,9 @@ extern playerViewIndex : dword
 extern playerViewRetAddr : qword
 
 ; old data pointer offset
-GOCOffset DD 0
+GOCOffset dd 0
 ; data pointer address
-GOCofsAddr DQ 0
+GOCofsAddr dq 0
 
 ; L"game_object_camera_setting"
 GOCsetting db 103,0,97,0,109,0,101,0,95,0,111,0,98,0,106,0,101,0,99,0,116,0,95,0,99,0
@@ -38,9 +38,9 @@ lea rax, qword ptr [r8+rdx]
 lea rdi, qword ptr [rax+rcx*4] ; storage address
 ; check data amount
 mov eax, dword ptr [rdi+4]
-add eax, -4 ; addition seems to be faster?
+add eax, -3
 cmp eax, playerViewIndex
-jge CheckExistBlock
+jg CheckExistBlock
 ; jump back to original when less than needed
 jmp playerViewRetAddr
 

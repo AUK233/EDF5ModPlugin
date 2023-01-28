@@ -15,20 +15,20 @@
 // here hook all changed functions, written in c++
 void hookGameFunctionsC() {
 	// allows weapons to be charged
-	SetupHook(0x391230, (PVOID *)&fnk391230_orig, fnk391230_hook, "test", 1);
+	SetupHook(0x391230, (PVOID *)&fnk391230_orig, fnk391230_hook, "Allows weapons to be charged", 1);
 }
 
-static bool __fastcall fnk391230_hook(intptr_t a1) {
+static bool __fastcall fnk391230_hook(uintptr_t pweapon) {
 	// ammo
-	int *curAmmo = (int *)(a1 + 0x8E8);
-	int maxAmmo = *(int *)(a1 + 0x1D0);
-	int ROFCount = *(int *)(a1 + 0xB40);
+	int *curAmmo = (int *)(pweapon + 0x8E8);
+	int maxAmmo = *(int *)(pweapon + 0x1D0);
+	int ROFCount = *(int *)(pweapon + 0xB40);
 	// reloading phase, 0 means no
 	// int rePhase = *(int *)(a1 + 0x8D4);
 	// new function
-	int chargeType = *(int *)(a1 + 0x2100);
-	int chargeTime = *(int *)(a1 + 0x2108);
-	int *chargeRT = (int *)(a1 + 0x210C);
+	int chargeType = *(int *)(pweapon + 0x2500);
+	int chargeTime = *(int *)(pweapon + 0x2508);
+	int *chargeRT = (int *)(pweapon + 0x250C);
 	
 	if (chargeType == 2 && chargeTime > 0) {
 		if (*curAmmo > 0 && *curAmmo < maxAmmo && !ROFCount) {
@@ -43,16 +43,16 @@ static bool __fastcall fnk391230_hook(intptr_t a1) {
 		}
 	}
 	
-	// old
+	// Original function block
 	// don't modify them, it will cause crashes when reloading
 	int v2;
 	int v1 = *curAmmo;
-	if (v1 > 0 || *(INT64 *)(a1 + 3128) || (!*(INT64 *)(a1 + 3144) ? (v2 = *(int *)(a1 + 2960)) : (v2 = *(int *)(a1 + 420)), !v2)) {
-		if (*(BYTE *)(a1 + 224))
+	if (v1 > 0 || *(INT64 *)(pweapon + 3128) || (!*(INT64 *)(pweapon + 3144) ? (v2 = *(int *)(pweapon + 2960)) : (v2 = *(int *)(pweapon + 420)), !v2)) {
+		if (*(BYTE *)(pweapon + 224))
 			return 1;
 	}
-	if (v1 > 0 || *(INT64 *)(a1 + 3128))
+	if (v1 > 0 || *(INT64 *)(pweapon + 3128))
 		return 0;
-	int v4 = *(INT64 *)(a1 + 3144) ? *(int *)(a1 + 420) : *(int *)(a1 + 2960);
-	return v4 && !v1 && !*(int *)(a1 + 0xB40) && *(float *)(a1 + 452) <= 0.0 && *(int *)(a1 + 420) >= 0;
+	int v4 = *(INT64 *)(pweapon + 3144) ? *(int *)(pweapon + 420) : *(int *)(pweapon + 2960);
+	return v4 && !v1 && !*(int *)(pweapon + 0xB40) && *(float *)(pweapon + 452) <= 0.0 && *(int *)(pweapon + 420) >= 0;
 }

@@ -38,6 +38,7 @@ Added the following values available for SGO node names.
 ### EDFWeapon
 | sgo node name | value type | function | value description |
 |---|---|---|---|
+|ReloadInit|float or ptr|initial load progress|now supports using star for it|
 |ReloadPadType|ptr|midsection reload type|[parameters](#EDFWeapon-ReloadPadType), it is not necessary to have all parameters|
 
 #### EDFWeapon ReloadPadType
