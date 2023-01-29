@@ -2,8 +2,26 @@
 Added the following values available for SGO node names.
 
 ## xgs_scene_object_class 's value:
-- [GiantAnt](#GiantAnt)
 - [EDF Weapon (Weapon_*)](#EDFWeapon)
+- [GiantAnt](#GiantAnt)
+- [Monster501](#Monster501)
+
+### EDFWeapon
+| sgo node name | value type | function | value description |
+|---|---|---|---|
+|ReloadInit|float or ptr|initial load progress|now supports using star for it|
+|ReloadPadType|ptr|midsection reload type|[parameters](#EDFWeapon-ReloadPadType), it is not necessary to have all parameters|
+
+#### EDFWeapon ReloadPadType
+| node index | value type | value description |
+|---|---|---|
+|0|int|> 0 will allow not to reload with full time|
+|1|int|extra reload time when midsection reload|
+| - | - |node0 = 2 requires node2|
+|2|int|charge time, after a period of time 1 ammo will be added|
+| - | - |but note that as long as ammo is not full, it will start|
+
+##### [Return to Index](#index)
 
 ### GiantAnt
 | sgo node name | value type | function | value description |
@@ -35,19 +53,31 @@ Added the following values available for SGO node names.
 
 ##### [Return to Index](#index)
 
-### EDFWeapon
+### Monster501
 | sgo node name | value type | function | value description |
 |---|---|---|---|
-|ReloadInit|float or ptr|initial load progress|now supports using star for it|
-|ReloadPadType|ptr|midsection reload type|[parameters](#EDFWeapon-ReloadPadType), it is not necessary to have all parameters|
+|BulletAlive|int|change ammo alive time|default 30|
+|BulletColor|ptr|change ammo color|[color parameters](#Monster501-BulletColor), all parameters must be present|
+|BulletExSet|ptr|change ammo detail|[exset parameters](#Monster501-BulletExSet), all parameters must be present|
 
-#### EDFWeapon ReloadPadType
+#### Monster501 BulletColor
 | node index | value type | value description |
 |---|---|---|
-|0|int|> 0 will allow not to reload with full time|
-|1|int|extra reload time when midsection reload|
-| - | - |node0 = 2 requires node2|
-|2|int|charge time, after a period of time 1 ammo will be added|
-| - | - |but note that as long as ammo is not full, it will start|
+|0|float|red channel|
+|1|float|green channel|
+|2|float|blue channel|
+|3|float|alpha channel|
+
+#### Monster501 BulletExSet
+| node index | value type | value description |
+|---|---|---|
+|0|int|shot count, this must > 0|
+|1|float|ammo speed|
+|2|float|ammo damage|
+|3|float|ammo explosion range|
+|4|int|set ammo penetration, only 0 and 1|
+|5|float|change ammo size|
+|6|float|change ammo hitbox size|
+|7|float|change ammo hit impulse|
 
 ##### [Return to Index](#index)

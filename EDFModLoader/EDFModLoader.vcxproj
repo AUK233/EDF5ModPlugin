@@ -196,6 +196,7 @@
     <ClCompile Include="utiliy.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <MASM Include="ASMxgsOCmonster501.asm" />
     <MASM Include="ASMweaponReloadEX.asm" />
     <MASM Include="ASMweaponStartReload.asm" />
     <MASM Include="ASMplayerViewChange.asm" />

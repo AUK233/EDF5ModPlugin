@@ -28,6 +28,7 @@ uintptr_t playerViewRetAddr;
 void __fastcall ASMplayerViewChange();
 
 void __fastcall ASMxgsOCgiantAnt();
+void __fastcall ASMxgsOCmonster501();
 
 uintptr_t weaponReloadEXRetAddr;
 void __fastcall ASMweaponReloadEX();
@@ -50,6 +51,8 @@ void hookGameFunctions() {
 
 	// hook GiantAnt extra features
 	hookGameBlock((void *)(hmodEXE + 0x1FFD1B), (uint64_t)ASMxgsOCgiantAnt);
+	// hook Monster501 extra features
+	hookGameBlock((void *)(hmodEXE + 0x263B64), (uint64_t)ASMxgsOCmonster501);
 
 	// first, it need to reallocate memory
 	ReallocateWeaponMemory();
