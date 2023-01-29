@@ -12,12 +12,6 @@ m501BulletExSet db 66,0,117,0,108,0,108,0,101,0,116,0,69,0,120,0,83,0,101,0,116,
 .code
 
 ASMxgsOCmonster501 proc
-;
-;mov dword ptr [rbx+1634h], 41000000h
-;mov dword ptr [rbx+1654h], 40800000h
-;mov dword ptr [rbx+163Ch], 42C80000h
-
-mov dword ptr [rbx+167Ch], 3F800000h
 
 lea rdx, m501BulletAlive
 lea rcx, qword ptr [rbx+0B0h]
@@ -79,10 +73,10 @@ movsxd rdx, dword ptr [rax+0Ch]
 add rdx, rax
 lea rcx, [rcx+rcx*2]
 lea rcx, [rdx+rcx*4] ; store ptr address
-; change shot count
+; change shot interval
 movsxd rax, dword ptr [rcx+8]
 mov eax, [rax+rcx+8]
-mov [rbx+1730h], eax
+mov dword ptr [rbx+1714h], eax
 ; change ammo speed
 movsxd rax, dword ptr [rcx+8]
 movss xmm0, dword ptr [rax+rcx+20]

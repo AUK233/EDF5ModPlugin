@@ -69,15 +69,15 @@ Added the following values available for SGO node names.
 |3|float|alpha channel|
 
 #### Monster501 BulletExSet
-| node index | value type | value description |
-|---|---|---|
-|0|int|shot count, this must > 0|
-|1|float|ammo speed|
-|2|float|ammo damage|
-|3|float|ammo explosion range|
-|4|int|set ammo penetration, only 0 and 1|
-|5|float|change ammo size|
-|6|float|change ammo hitbox size|
-|7|float|change ammo hit impulse|
+| node index | value type | original | value description |
+|---|---|---|---|
+|0|invalid|2|shot interval, this must > 0|
+|1|float|8|ammo speed|
+|2|float|100|ammo damage|
+|3|float|0|ammo explosion range|
+|4|int|0|set ammo penetration, only 0 and 1|
+|5|float|4|change ammo size|
+|6|float|0?|change ammo hitbox size|
+|7|float|0?|change ammo hit impulse|
 
 ##### [Return to Index](#index)

@@ -53,6 +53,11 @@ void hookGameFunctions() {
 	hookGameBlock((void *)(hmodEXE + 0x1FFD1B), (uint64_t)ASMxgsOCgiantAnt);
 	// hook Monster501 extra features
 	hookGameBlock((void *)(hmodEXE + 0x263B64), (uint64_t)ASMxgsOCmonster501);
+	// removal forced to 2, then change original 1 to 2
+	unsigned char nop10[10] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
+	WriteHookToProcess((void *)(hmodEXE + 0x264286), &nop10, 10U);
+	int m501shot = 2;
+	WriteHookToProcess((void *)(hmodEXE + 0x263AF4 + 6), &m501shot, 4U);
 
 	// first, it need to reallocate memory
 	ReallocateWeaponMemory();
