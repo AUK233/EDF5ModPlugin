@@ -59,6 +59,9 @@ Added the following values available for SGO node names.
 |BulletAlive|int|change ammo alive time|default 30|
 |BulletColor|ptr|change ammo color|[color parameters](#Monster501-BulletColor), all parameters must be present|
 |BulletExSet|ptr|change ammo detail|[exset parameters](#Monster501-BulletExSet), all parameters must be present|
+|ChangeModelParam|ptr|change model color|same as ant_ChangeModelParam|
+| - | - | - |here are functions that game exists but doesn't use|
+|monster_blood_scale_limit|float||default 10|
 
 #### Monster501 BulletColor
 | node index | value type | value description |
@@ -73,7 +76,7 @@ Added the following values available for SGO node names.
 |---|---|---|---|
 |0|invalid|2|shot interval, this must > 0|
 |1|float|8|ammo speed|
-|2|float|100|ammo damage|
+|2|float|100|ammo damage, invalid, overwrite when attack|
 |3|float|0|ammo explosion range|
 |4|int|0|set ammo penetration, only 0 and 1|
 |5|float|4|change ammo size|

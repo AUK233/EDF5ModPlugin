@@ -1,5 +1,7 @@
 #pragma once
 
+// get game function address
+void GetGameFunctions();
 // here hook all changed functions, written in c++
 void hookGameFunctionsC();
 

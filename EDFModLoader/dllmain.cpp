@@ -657,6 +657,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		// Very important!!!!!!!!!!!!
 		ReadINIconfig();
 		// Very important!!!!!!!!!!!!
+		GetGameFunctions();
 		hookGameFunctionsC();
 		hookGameFunctions();
 

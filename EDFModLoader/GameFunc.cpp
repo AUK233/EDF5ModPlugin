@@ -12,6 +12,31 @@
 
 #include "GameFunc.h"
 
+extern PBYTE hmodEXE;
+extern "C" {
+// star rating calculation
+uintptr_t edf8C8C0Address;
+//
+uintptr_t edf3AE530Address;
+
+uintptr_t edf4738B0Address;
+uintptr_t edf4DC190Address;
+// read sgo node name
+uintptr_t edf5BDF30Address;
+}
+// get game function address
+void GetGameFunctions() {
+	// get star rating calculation function
+	edf8C8C0Address = (uintptr_t)(hmodEXE + 0x8C8C0);
+
+	edf3AE530Address = (uintptr_t)(hmodEXE + 0x3AE530);
+
+	edf4738B0Address = (uintptr_t)(hmodEXE + 0x4738B0);
+	edf4DC190Address = (uintptr_t)(hmodEXE + 0x4DC190);
+	// get read sgo node function
+	edf5BDF30Address = (uintptr_t)(hmodEXE + 0x5BDF30);
+}
+
 // here hook all changed functions, written in c++
 void hookGameFunctionsC() {
 	// allows weapons to be charged

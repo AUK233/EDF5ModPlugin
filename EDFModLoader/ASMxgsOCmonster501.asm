@@ -1,7 +1,10 @@
 .data
 ; Use other asm functions
+extern edf3AE530 : proto
 extern edf5BDF30 : proto
 
+; L"ChangeModelParam"
+m501ChangeModel db 67,0,104,0,97,0,110,0,103,0,101,0,77,0,111,0,100,0,101,0,108,0,80,0,97,0,114,0,97,0,109,0,0,0
 ; L"BulletAlive"
 m501BulletAlive db 66,0,117,0,108,0,108,0,101,0,116,0,65,0,108,0,105,0,118,0,101,0,0,0
 ; L"BulletColor"
@@ -13,15 +16,33 @@ m501BulletExSet db 66,0,117,0,108,0,108,0,101,0,116,0,69,0,120,0,83,0,101,0,116,
 
 ASMxgsOCmonster501 proc
 
+lea rdx, m501ChangeModel
+lea rcx, qword ptr [rbx+0B0h]
+call edf5BDF30 ; read sgo node
+movsxd rcx, eax
+cmp ecx, -1
+jne ChangeModelBlock
+mov rax, rbp
+jmp AmmoAliveBlock
+ChangeModelBlock:
+mov rax, qword ptr [rbx+0B0h]
+movsxd rdx, dword ptr [rax+0Ch]
+add rdx, rax
+lea rcx, [rcx+rcx*2]
+lea rdx, [rdx+rcx*4]
+lea rcx, qword ptr [rbx+680h]
+call edf3AE530
+
+AmmoAliveBlock:
 lea rdx, m501BulletAlive
 lea rcx, qword ptr [rbx+0B0h]
 call edf5BDF30 ; read sgo node
 movsxd rcx, eax
 cmp ecx, -1
-jne AmmoAliveBlock
+jne AmmoAliveBlock2
 mov rax, rbp
 jmp AmmoColorBlock ; if node does not exist, jump
-AmmoAliveBlock:
+AmmoAliveBlock2:
 mov rax, qword ptr [rbx+0B0h]
 movsxd rdx, dword ptr [rax+0Ch]
 add rdx, rax
@@ -81,7 +102,7 @@ mov dword ptr [rbx+1714h], eax
 movsxd rax, dword ptr [rcx+8]
 movss xmm0, dword ptr [rax+rcx+20]
 movss dword ptr [rbx+1634h], xmm0
-; change ammo damage
+; change ammo damage, invalid, overwrite when attack
 movsxd rax, dword ptr [rcx+8]
 movss xmm0, dword ptr [rax+rcx+32]
 movss dword ptr [rbx+163Ch], xmm0
@@ -89,7 +110,7 @@ movss dword ptr [rbx+163Ch], xmm0
 movsxd rax, dword ptr [rcx+8]
 movss xmm0, dword ptr [rax+rcx+44]
 movss dword ptr [rbx+1648h], xmm0
-; change ammo damage
+; change ammo penetration
 movsxd rax, dword ptr [rcx+8]
 lea rax, [rax+rcx+48] ; store address
 cmp dword ptr [rax+8],0
