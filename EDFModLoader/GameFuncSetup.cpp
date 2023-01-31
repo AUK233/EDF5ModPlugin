@@ -18,6 +18,10 @@ extern "C" {
 uintptr_t playerViewRetAddr;
 void __fastcall ASMplayerViewChange();
 
+uintptr_t hookTextDisplayRetAddr;
+void __fastcall ASMhookTextDisplay();
+
+// xgs_scene_object_class
 void __fastcall ASMxgsOCgiantAnt();
 void __fastcall ASMxgsOCmonster501();
 
@@ -31,6 +35,9 @@ void hookGameFunctions() {
 	// allows switching of views
 	playerViewRetAddr = (uintptr_t)(hmodEXE + 0x2DB0D1);
 	hookGameBlock((void *)(hmodEXE + 0x2DB090), (uint64_t)ASMplayerViewChange);
+
+	hookTextDisplayRetAddr = (uintptr_t)(hmodEXE + 0x4B15C9);
+	hookGameBlock((void *)(hmodEXE + 0x4B15B4), (uint64_t)ASMhookTextDisplay);
 
 	// hook GiantAnt extra features
 	hookGameBlock((void *)(hmodEXE + 0x1FFD1B), (uint64_t)ASMxgsOCgiantAnt);

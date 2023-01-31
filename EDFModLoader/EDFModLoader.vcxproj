@@ -192,10 +192,12 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="GameFunc.cpp" />
     <ClCompile Include="GameFuncSetup.cpp" />
+    <ClCompile Include="GFnDisplay.cpp" />
     <ClCompile Include="proxy.c" />
     <ClCompile Include="utiliy.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <MASM Include="ASMhookTextDisplay.asm" />
     <MASM Include="ASMxgsOCmonster501.asm" />
     <MASM Include="ASMweaponReloadEX.asm" />
     <MASM Include="ASMweaponStartReload.asm" />
@@ -209,6 +211,7 @@
     <ClInclude Include="..\HookLib\HookLib\HookLib\HookLib.h" />
     <ClInclude Include="GameFunc.h" />
     <ClInclude Include="GameFuncSetup.h" />
+    <ClInclude Include="GFnDisplay.h" />
     <ClInclude Include="LoggerTweaks.h" />
     <ClInclude Include="PluginAPI.h" />
     <ClInclude Include="proxy.h" />

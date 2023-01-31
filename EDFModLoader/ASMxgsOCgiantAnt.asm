@@ -1,7 +1,10 @@
 .data
 ; Use other asm functions
 extern edf5BDF30 : proto
+extern edf6136C0 : proto
 
+; L"ant_BulletClass"
+antBulletClass db 97,0,110,0,116,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,67,0,108,0,97,0,115,0,115,0,0,0
 ; L"ant_BulletAlive"
 antBulletAlive db 97,0,110,0,116,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,65,0,108,0,105,0,118,0,101,0,0,0
 ; L"ant_BulletColor"
@@ -15,6 +18,7 @@ antBulletHeight db 97,0,110,0,116,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,70,0
 
 ASMxgsOCgiantAnt proc
 
+AmmoAliveBlock:
 lea rdx, antBulletAlive
 mov rcx, rsi
 call edf5BDF30 ; read sgo node
@@ -127,6 +131,24 @@ add rsp, 0A8h
 pop rsi
 pop rbx
 ret
+
+; Useless
+;lea rdx, antBulletClass
+;mov rcx, rsi
+;call edf5BDF30 ; read sgo node
+;cmp eax, -1
+;je AmmoAliveBlock
+;mov r8, [rsi]
+;cdqe
+;movsxd rdx, dword ptr [r8+0Ch]
+;lea rcx, [rax+rax*2]
+;lea rax, [r8+rdx]
+;lea rax, [rax+rcx*4]
+;movsxd rdx, dword ptr [rax+8]
+;add rdx, rax
+;mov rcx, vedf125AB68
+;call edf6136C0
+;mov [rbx+1250h], rax
 
 ASMxgsOCgiantAnt ENDP
 

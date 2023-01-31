@@ -23,7 +23,10 @@ uintptr_t edf4738B0Address;
 uintptr_t edf4DC190Address;
 // read sgo node name
 uintptr_t edf5BDF30Address;
+// get AmmoClass address
+uintptr_t edf6136C0Address;
 }
+
 // get game function address
 void GetGameFunctions() {
 	// get star rating calculation function
@@ -35,6 +38,8 @@ void GetGameFunctions() {
 	edf4DC190Address = (uintptr_t)(hmodEXE + 0x4DC190);
 	// get read sgo node function
 	edf5BDF30Address = (uintptr_t)(hmodEXE + 0x5BDF30);
+	// get get AmmoClass address function
+	edf6136C0Address = (uintptr_t)(hmodEXE + 0x6136C0);
 }
 
 // here hook all changed functions, written in c++

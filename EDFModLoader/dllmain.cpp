@@ -24,6 +24,7 @@
 #include "utiliy.h"
 #include "GameFunc.h"
 #include "GameFuncSetup.h"
+#include "GFnDisplay.h"
 
 typedef struct {
 	PluginInfo *info;
@@ -295,196 +296,6 @@ PBYTE hmodEXE;
 PBYTE hModSelf;
 char hmodName[MAX_PATH];
 
-
-// Since the text is now under the radar, it is only necessary to find an address.
-//std::vector<uintptr_t> damageStr1;
-uintptr_t damageStrPos1 = 0;
-static wchar_t str[] = L"Initialize:Damage1.....";
-wchar_t nullStrDisplay[] = L"                      \0";
-
-extern "C" {
-void __fastcall ASMrecordPlayerDamage();
-uintptr_t playerAddress;
-uintptr_t hookRetAddress;
-float damage_tmp = 0.0f;
-}
-
-HANDLE hProcess = GetCurrentProcess();
-
-constexpr auto DAMAGE_DISPLAY_TIME = 60;
-struct Damage {
-	float value;
-	int time;
-};
-Damage damageNumber;
-//int gameTime = 0;
-//uintptr_t damageStr1Do = 0;
-BOOL DamageStringHide = 0;
-
-void WINAPI hookWeapon() {
-	// If the first address found is in this dll, this function is no longer executed.
-	while (DamageStringHide == 0) {
-		playerAddress = GetPointerAddress((uintptr_t)hmodEXE, {0x0125AB68, 0x238, 0x290, 0x10});
-
-		if (playerAddress > 0) {
-			//!damageStr1.size()
-			if (damageStrPos1 < 1) {
-
-				SYSTEM_INFO sysInfo;
-				GetSystemInfo(&sysInfo);
-
-				intptr_t oneScan = ScanPattern(hProcess, (byte *)&str, 48U, (uint64_t)sysInfo.lpMinimumApplicationAddress);
-				if (oneScan > 0) {
-					if (oneScan < (intptr_t)hModSelf) {
-						intptr_t nextScan = ScanPattern(hProcess, (byte *)&str, 48U, (oneScan + 48U), (intptr_t)hModSelf);
-						// Maybe that bug can be fixed
-						intptr_t layoutScan = ScanPattern(hProcess, (byte *)L"Layout", 14U, nextScan, (intptr_t)hModSelf);
-						if (nextScan > 0) {
-							if (layoutScan - nextScan < 100) {
-								PLOG_INFO << "Fake damage string address: " << std::hex << nextScan;
-								nextScan = ScanPattern(hProcess, (byte *)&str, 48U, (nextScan + 48U), (intptr_t)hModSelf);
-							}
-
-							// Here has a bug
-							if (nextScan > 0) {
-								damageStrPos1 = nextScan;
-							} else {
-								damageStrPos1 = oneScan;
-							}
-
-							// memcpy((void *)damageStrPos1, &nullStrDisplay, 48U);
-							PLOG_INFO << "Damage string address: " << std::hex << damageStrPos1;
-						}
-						// Remove split screen text
-						if (DisplayDamage >= 2) {
-							while (nextScan > 0) {
-								nextScan = ScanPattern(hProcess, (byte *)&str, 48U, (nextScan + 48U), (intptr_t)hModSelf);
-								// done
-								if (nextScan > 0) {
-									memcpy((void *)nextScan, &nullStrDisplay, 48U);
-									PLOG_INFO << "Remove string address: " << std::hex << nextScan;
-								}
-							}
-						}
-						//
-					} else {
-						PLOG_INFO << "Find damage string address is failed, disable damage display: " << std::hex << oneScan;
-						DamageStringHide++;
-					}
-
-					// This function is useless now
-					/*
-					damageStr1.push_back(oneScan);
-					intptr_t nextScan = oneScan;
-					while (nextScan > 0) {
-					    scanAddr = nextScan + 0x40;
-					    nextScan = ScanPattern(hProcess, (byte *)&str, 48U, scanAddr);
-					    PLOG_INFO << "result: " << std::hex << nextScan;
-					    if (nextScan > 0 && nextScan < (intptr_t)hModSelf) {
-					        damageStr1.push_back(nextScan);
-					    }
-					}
-					*/
-				}
-				/*
-				if (damageStr1.size() > 2) {
-				    damageStr1Do = damageStr1.size() - 2;
-				    for (int i = damageStr1Do; i > 0; --i) {
-				        memcpy((void *)damageStr1[i], &nullStrDisplay, 48U);
-				    }
-				}
-				*/
-			}
-
-			// Run only if it > 0
-			if (damageStrPos1 > 0) {
-				if (damage_tmp != 0) {
-					// gameTime - damageNumber.time > DAMAGE_DISPLAY_TIME
-					if (damageNumber.time < 1) {
-						damageNumber.value = -damage_tmp;
-						// gameTime = 0;
-					} else {
-						damageNumber.value -= damage_tmp;
-					}
-					// Why +1, because the following will be immediately subtracted.
-					damageNumber.time = DAMAGE_DISPLAY_TIME + 1;
-					damage_tmp = 0;
-				}
-
-				// memcpy((void *)damageStr1[damageStr1Do], &nullStrDisplay, 48U);
-				memcpy((void *)damageStrPos1, &nullStrDisplay, 48U);
-
-				// damageStr1.size() > 2
-				// gameTime - damageNumber.time < DAMAGE_DISPLAY_TIME
-				// damageNumber.value > 0
-				if (damageNumber.time > 0) {
-					std::wstring displayText;
-					if (damageNumber.value >= 100.0f) {
-						displayText = std::format(L"{:.0f}", damageNumber.value);
-					} else if (damageNumber.value >= 10.0f) {
-						displayText = std::format(L"{:.1f}", damageNumber.value);
-					} else {
-						displayText = std::format(L"{:.2f}", damageNumber.value);
-					}
-
-					size_t strofs = 0;
-					size_t strsize = 44;
-					if (displayText.size() < 22) {
-						strofs = (22 - displayText.size()) * 2;
-						strsize = displayText.size() * 2;
-					}
-					// memcpy((void *)(damageStr1[damageStr1Do] + strofs), displayText.c_str(), strsize);
-					memcpy((void *)(damageStrPos1 + strofs), displayText.c_str(), strsize);
-					damageNumber.time--;
-				}
-			}
-			//
-		} else {
-			if (damageStrPos1 > 0) {
-				damageStrPos1 = 0;
-				damageNumber.time = 0;
-			}
-			/*
-			if (damageStr1.size() > 0) {
-			    damageStr1.clear();
-			    damageStr1.shrink_to_fit();
-			}*/
-		}
-
-		//gameTime++;
-		// 20 fps should be enough
-		Sleep(50);
-	}
-}
-
-void hookWeaponGUImain() {
-	// First, load the sgo that we need
-	void *RaderStringAddr = (void *)(sigscan(L"EDF5.exe", "l\0y\0t\0_\0H\0u\0d\0R\0a\0d\0e\0r", "xxxxxxxxxxxxxxxxxxxxxxx"));
-	std::wstring newRader = L"lyt_HudRaderM1.sgo";
-	WriteHookToProcess(RaderStringAddr, (void *)newRader.c_str(), 36U);
-
-	// Then, get the damage
-	void *originalFunctionAddr = (void *)(sigscan(L"EDF5.exe", "\xF3\x0F\x58\x87\xFC\x01\x00\x00", "xxxxxxxx"));
-	hookRetAddress = (uint64_t)originalFunctionAddr + 0x8;
-
-	void *memoryBlock = AllocatePageNearAddress(originalFunctionAddr);
-
-	uint8_t hookFunction[] = {
-	    0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // mov rax, addr
-	    0xFF, 0xE0                                                  // jmp rax
-	};
-	uint64_t addrToJumpTo64 = (uint64_t)ASMrecordPlayerDamage;
-
-	memcpy(&hookFunction[2], &addrToJumpTo64, sizeof(addrToJumpTo64));
-	memcpy(memoryBlock, hookFunction, sizeof(hookFunction));
-
-	uint8_t jmpInstruction[5] = {0xE9, 0x0, 0x0, 0x0, 0x0};
-	const uint64_t relAddr = (uint64_t)memoryBlock - ((uint64_t)originalFunctionAddr + sizeof(jmpInstruction));
-	memcpy(jmpInstruction + 1, &relAddr, 4);
-
-	WriteHookToProcess(originalFunctionAddr, jmpInstruction, sizeof(jmpInstruction));
-}
-
 void ReadINIconfig() {
 	// Read configuration
 	PlayerView = GetPrivateProfileIntW(L"ModOption", L"PlayerView", PlayerView, iniPath);
@@ -545,6 +356,43 @@ void ReadINILoop() {
 	PLOG_INFO << "Turn off real-time read profiles";
 }
 
+extern "C" {
+void __fastcall ASMrecordPlayerDamage();
+void __fastcall ASMwww1();
+uintptr_t playerDmgRetAddress;
+uintptr_t playerAddress;
+float damage_tmp = 0.0f;
+}
+
+void __fastcall ASMwww1() {
+	playerAddress = GetPointerAddress((uintptr_t)hmodEXE, {0x0125AB68, 0x238, 0x290, 0x10});
+}
+
+// get player weapon damage
+void hookGetPlayerDamage() {
+
+	// Then, get the damage
+	void *originalFunctionAddr = (void *)(sigscan(L"EDF5.exe", "\xF3\x0F\x58\x87\xFC\x01\x00\x00", "xxxxxxxx"));
+	playerDmgRetAddress = (uint64_t)originalFunctionAddr + 0x8;
+
+	void *memoryBlock = AllocatePageNearAddress(originalFunctionAddr);
+
+	uint8_t hookFunction[] = {
+	    0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // mov rax, addr
+	    0xFF, 0xE0                                                  // jmp rax
+	};
+	uint64_t addrToJumpTo64 = (uint64_t)ASMrecordPlayerDamage;
+
+	memcpy(&hookFunction[2], &addrToJumpTo64, sizeof(addrToJumpTo64));
+	memcpy(memoryBlock, hookFunction, sizeof(hookFunction));
+
+	uint8_t jmpInstruction[5] = {0xE9, 0x0, 0x0, 0x0, 0x0};
+	const uint64_t relAddr = (uint64_t)memoryBlock - ((uint64_t)originalFunctionAddr + sizeof(jmpInstruction));
+	memcpy(jmpInstruction + 1, &relAddr, 4);
+
+	WriteHookToProcess(originalFunctionAddr, jmpInstruction, sizeof(jmpInstruction));
+}
+
 // x64 cannot use inline assembly, you have to create asm files.
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
 	static plog::RollingFileAppender<eml::TxtFormatter<ModLoaderStr>> mlLogOutput("1Mod.log");
@@ -586,7 +434,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		PluginInfo *selfInfo = new PluginInfo;
 		selfInfo->infoVersion = PluginInfo::MaxInfoVer;
 		selfInfo->name = "EDF5 Mod Plugin";
-		selfInfo->version = PLUG_VER(0, 3, 9, 0);
+		selfInfo->version = PLUG_VER(0, 3, 9, 1);
 		PluginData *selfData = new PluginData;
 		selfData->info = selfInfo;
 		selfData->module = hModule;
@@ -645,21 +493,27 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		hModSelf = (PBYTE)GetModuleHandleW(L"1mod.dll");
 		PLOG_INFO << "Get self address: " << std::hex << hModSelf;
 
-		// Add damage display
-		if (DisplayDamage) {
-			hookWeaponGUImain();
-			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)hookWeapon, NULL, NULL, NULL);
-			PLOG_INFO << "Display damage number";
-		} else {
-			PLOG_INFO << "Unable to display damage number";
-		}
-
-		// Very important!!!!!!!!!!!!
-		ReadINIconfig();
 		// Very important!!!!!!!!!!!!
 		GetGameFunctions();
 		hookGameFunctionsC();
 		hookGameFunctions();
+		// Very important!!!!!!!!!!!!
+		ReadINIconfig();
+
+		// Add damage display
+		if (DisplayDamage) {
+			// First, load the sgo that we need
+			void *RaderStringAddr = (void *)(sigscan(L"EDF5.exe", "l\0y\0t\0_\0H\0u\0d\0R\0a\0d\0e\0r", "xxxxxxxxxxxxxxxxxxxxxxx"));
+			//std::wstring newRader = L"lyt_HudRaderM1.sgo";
+			WriteHookToProcess(RaderStringAddr, (void *)L"lyt_HudRaderM1.sgo", 36U);
+			// get player weapon damage
+			hookGetPlayerDamage();
+
+			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamage, NULL, NULL, NULL);
+			PLOG_INFO << "Display damage number";
+		} else {
+			PLOG_INFO << "Unable to display damage number";
+		}
 
 		if (RTRead) {
 			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ReadINILoop, NULL, NULL, NULL);

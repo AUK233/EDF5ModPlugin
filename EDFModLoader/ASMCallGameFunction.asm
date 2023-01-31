@@ -4,6 +4,7 @@ extern edf3AE530Address : qword
 extern edf4738B0Address : qword
 extern edf4DC190Address : qword
 extern edf5BDF30Address : qword
+extern edf6136C0Address : qword
 
 ; Export public functions
 public edf8C8C0
@@ -11,6 +12,7 @@ public edf3AE530
 public edf4738B0
 public edf4DC190
 public edf5BDF30
+public edf6136C0
 
 .code
 
@@ -33,5 +35,9 @@ edf4DC190 ENDP
 edf5BDF30 proc
 jmp edf5BDF30Address
 edf5BDF30 ENDP
+
+edf6136C0 proc
+jmp edf6136C0Address
+edf6136C0 ENDP
 
 END
