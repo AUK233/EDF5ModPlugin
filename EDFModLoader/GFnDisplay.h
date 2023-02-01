@@ -5,5 +5,5 @@ void __fastcall setDamageString(PBYTE pstr, PBYTE pcolor);
 }
 
 // get player weapon damage
-//void hookGetPlayerDamage();
+void hookGetPlayerDamage();
 void displayWeaponDamage();

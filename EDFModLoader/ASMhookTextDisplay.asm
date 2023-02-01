@@ -14,7 +14,7 @@ cmp ecx, 95
 jl ofs4B09B4 ; if false, return to original
 mov rdx, r14
 mov rcx, rbx
-call setDamageString 
+call setDamageString
 
 ofs4B09B4:
 lea rax, qword ptr [rbx+60h]

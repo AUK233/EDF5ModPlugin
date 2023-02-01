@@ -8,7 +8,7 @@ extern playerAddress : qword
 ASMrecordPlayerDamage proc
 
 ;push rbx
-call ASMwww1
+;call ASMwww1
 mov rax,[rsi+10h]
 cmp rax, playerAddress
 je addDmg
