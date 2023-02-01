@@ -8,5 +8,6 @@ void __fastcall setDamageString(PBYTE pstr, PBYTE pcolor);
 void hookGetPlayerDamage();
 // reset string
 void displayWeaponDamageReset();
-//
+
+std::wstring FormatDamageNumber(const float dmg);
 void displayWeaponDamageA();

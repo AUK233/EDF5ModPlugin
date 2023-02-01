@@ -19,12 +19,16 @@ extern PBYTE hmodEXE;
 
 static wchar_t DMGstrN0[] = L"                       \n                       \n                       \n                       ";
 static wchar_t DMGstr0[] = L"                       \n                       \n                       \n                       ";
+static wchar_t DMGstr1[] = L"                       \n                       \n                       \n                       ";
+
 
 extern "C" {
 extern int displayDamageIndex;
 extern int displayDamageStatus;
-static uintptr_t pDMGstr0 = (uintptr_t)&DMGstr0;
 }
+
+uintptr_t pDMGstr0 = (uintptr_t)&DMGstr0;
+uintptr_t pDMGstr1 = (uintptr_t)&DMGstr1;
 
 void __fastcall setDamageString(PBYTE pstr, PBYTE pcolor) {
 
@@ -35,6 +39,12 @@ void __fastcall setDamageString(PBYTE pstr, PBYTE pcolor) {
 		memcpy((pcolor + 0x270), &vf, 16U);
 
 		*(uintptr_t *)(pstr + 0x60) = pDMGstr0;
+	} else if (*(INT64 *)(pcolor + 0x270) == 4594572340047290302 && *(INT64 *)(pcolor + 0x278) == 4566650023222005727) {
+		// back to white
+		float vf[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+		memcpy((pcolor + 0x270), &vf, 16U);
+
+		*(uintptr_t *)(pstr + 0x60) = pDMGstr1;
 	}
 }
 
@@ -55,7 +65,7 @@ void hookGetPlayerDamage() {
 	WriteHookToProcess((void *)(hmodEXE + 0xEC8F18), (void *)L"lyt_HudRaderM1.sgo", 36U);
 }
 
-constexpr auto DAMAGE_DISPLAY_TIME = 60;
+constexpr auto DAMAGE_DISPLAY_TIME_S = 61;
 struct Damage {
 	float value;
 	int time;
@@ -71,6 +81,16 @@ void displayWeaponDamageReset() {
 	PLOG_INFO << "Display damage number has been reset";
 }
 
+std::wstring FormatDamageNumber(const float dmg) {
+	if (dmg >= 100.0f) {
+		return std::format(L"{:.0f}", dmg);
+	} else if (dmg >= 10.0f) {
+		return std::format(L"{:.1f}", dmg);
+	} else {
+		return std::format(L"{:.2f}", dmg);
+	}
+}
+
 void displayWeaponDamageA() {
 	while (displayDamageIndex == 1) {
 		playerAddress = GetPointerAddress((uintptr_t)hmodEXE, {0x0125AB68, 0x238, 0x290, 0x10});
@@ -82,21 +102,13 @@ void displayWeaponDamageA() {
 				} else {
 					damageNumber.value -= damage_tmp;
 				}
-				// Why +1, because the following will be immediately subtracted.
-				damageNumber.time = DAMAGE_DISPLAY_TIME + 1;
+				damageNumber.time = DAMAGE_DISPLAY_TIME_S;
 				damage_tmp = 0;
 			}
 
 			memcpy((void *)pDMGstr0, &DMGstrN0, 192U);
 			if (damageNumber.time > 0) {
-				std::wstring displayText;
-				if (damageNumber.value >= 100.0f) {
-					displayText = std::format(L"{:.0f}", damageNumber.value);
-				} else if (damageNumber.value >= 10.0f) {
-					displayText = std::format(L"{:.1f}", damageNumber.value);
-				} else {
-					displayText = std::format(L"{:.2f}", damageNumber.value);
-				}
+				std::wstring displayText = FormatDamageNumber(damageNumber.value);
 
 				size_t strofs = 0;
 				size_t strsize = 44;

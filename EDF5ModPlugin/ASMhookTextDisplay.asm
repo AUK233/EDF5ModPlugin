@@ -14,9 +14,7 @@ cmp ecx, 95
 jl ofs4B09B4 ; if false, return to original
 mov rdx, r14
 mov rcx, rbx
-sub rsp, 10h
 call setDamageString ; call c++ function
-add rsp, 10h
 ; original
 ofs4B09B4:
 lea rax, qword ptr [rbx+60h]
