@@ -367,3 +367,4 @@ FodyWeavers.xsd
 
 # EDF ModLoader packages
 *.zip
+/EDF5ModPlugin/plog

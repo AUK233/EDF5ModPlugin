@@ -22,7 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{684F548A-EDFD-47D3-AA40-4307FCD281AA}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>EDFModLoader</RootNamespace>
+    <RootNamespace>EDF5ModPlugin</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>EDF5ModPlugin</ProjectName>
   </PropertyGroup>
@@ -137,7 +137,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <ModuleDefinitionFile>winmm.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>1mod.def</ModuleDefinitionFile>
       <AdditionalDependencies>kernel32.lib;psapi.lib;shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

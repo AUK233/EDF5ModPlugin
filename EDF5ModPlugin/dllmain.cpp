@@ -83,6 +83,8 @@ static BOOL GameLog = FALSE;
 
 extern "C" {
 int playerViewIndex = 0;
+int displayDamageIndex = 0;
+int displayDamageStatus = 0;
 }
 
 // Pointer sets
@@ -299,6 +301,7 @@ char hmodName[MAX_PATH];
 void ReadINIconfig() {
 	// Read configuration
 	PlayerView = GetPrivateProfileIntW(L"ModOption", L"PlayerView", PlayerView, iniPath);
+	DisplayDamage = GetPrivateProfileIntW(L"ModOption", L"DisplayDamage", DisplayDamage, iniPath);
 	RTRead = GetPrivateProfileIntW(L"ModOption", L"RTRead", RTRead, iniPath);
 
 	// playerViewIndex = PlayerView * 4
@@ -340,6 +343,32 @@ void ReadINIconfig() {
 		}
 		break;
 	}
+
+	// Add damage display
+	switch (DisplayDamage) {
+	case 1: {
+		if (displayDamageIndex != 1) {
+			displayDamageIndex = 1;
+		}
+
+		if (!displayDamageStatus && displayDamageIndex == 1) {
+			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageA, NULL, NULL, NULL);
+			displayDamageStatus = 1;
+			PLOG_INFO << "Display damage number (type A)";
+		}
+		break;
+	}
+	default:
+		if (displayDamageIndex != 0) {
+			displayDamageIndex = 0;
+		}
+
+		if (!displayDamageStatus && displayDamageIndex == 0) {
+			displayDamageStatus = 0;
+			PLOG_INFO << "Unable to display damage number";
+		}
+		break;
+	}
 }
 
 void ReadINILoop() {
@@ -373,7 +402,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 		// Read configuration
 		ModLog = GetPrivateProfileIntW(L"ModOption", L"ModLog", ModLog, iniPath);
-		DisplayDamage = GetPrivateProfileIntW(L"ModOption", L"DisplayDamage", DisplayDamage, iniPath);
 		//LoadPluginsB = GetPrivateProfileBoolW(L"ModOption", L"LoadPlugins", LoadPluginsB, iniPath);
 		//Redirect = GetPrivateProfileBoolW(L"ModOption", L"Redirect", Redirect, iniPath);
 		//GameLog = GetPrivateProfileBoolW(L"ModOption", L"GameLog", GameLog, iniPath);
@@ -460,23 +488,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		GetGameFunctions();
 		hookGameFunctionsC();
 		hookGameFunctions();
+		hookGetPlayerDamage();
 		// Very important!!!!!!!!!!!!
 		ReadINIconfig();
-
-		// Add damage display
-		if (DisplayDamage) {
-			// First, load the sgo that we need
-			void *RaderStringAddr = (void *)(sigscan(L"EDF5.exe", "l\0y\0t\0_\0H\0u\0d\0R\0a\0d\0e\0r", "xxxxxxxxxxxxxxxxxxxxxxx"));
-			//std::wstring newRader = L"lyt_HudRaderM1.sgo";
-			WriteHookToProcess(RaderStringAddr, (void *)L"lyt_HudRaderM1.sgo", 36U);
-			// get player weapon damage
-			hookGetPlayerDamage();
-
-			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamage, NULL, NULL, NULL);
-			PLOG_INFO << "Display damage number";
-		} else {
-			PLOG_INFO << "Unable to display damage number";
-		}
 
 		if (RTRead) {
 			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ReadINILoop, NULL, NULL, NULL);
