@@ -1,20 +1,21 @@
 #pragma once
 
 extern "C" {
-void __fastcall setDamageString(PBYTE pstr, PBYTE pcolor);
+void __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor);
 }
 
 // get player weapon damage
 void hookGetPlayerDamage();
 // reset string
-void displayWeaponDamageReset();
+void __fastcall displayWeaponDamageReset();
 
-std::wstring FormatDamageNumber(const float dmg);
-void DMGCommonClear();
-void setChagreDamageTime(int time);
-void setDamageDisplayTime(int vstart, int vend, int time);
-void displayWeaponDamageA();
-void displayWeaponDamageB();
-void displayWeaponDamageC();
+std::wstring __fastcall FormatDamageNumber(const float dmg);
+void __fastcall DMGCommonClear();
+void __fastcall setChagreDamageTime(int time);
+void __fastcall setDamageDisplayTime(int vstart, int vend, int time);
+void __fastcall displayWeaponDamageA1();
+void __fastcall displayWeaponDamageA2();
+void __fastcall displayWeaponDamageB1();
+void __fastcall displayWeaponDamageB2();
 // reset values in real time read configuration
-void displayWeaponDamageNull();
+void __fastcall displayWeaponDamageNull();

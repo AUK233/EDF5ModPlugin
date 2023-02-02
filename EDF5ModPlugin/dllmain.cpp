@@ -86,6 +86,7 @@ int playerViewIndex = 0;
 int displayDamageIndex = 0;
 int displayDamageStatus = 0;
 }
+HANDLE ddThread;
 
 // Pointer sets
 typedef struct {
@@ -345,6 +346,10 @@ void ReadINIconfig() {
 	}
 
 	// Add damage display
+	if (!displayDamageStatus) {
+		CloseHandle(ddThread);
+	}
+
 	switch (DisplayDamage) {
 	case 1: {
 		if (displayDamageIndex != 1) {
@@ -352,9 +357,9 @@ void ReadINIconfig() {
 		}
 
 		if (!displayDamageStatus && displayDamageIndex == 1) {
-			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageA, NULL, NULL, NULL);
+			ddThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageA1, NULL, NULL, NULL);
 			displayDamageStatus = 1;
-			PLOG_INFO << "Display damage number (type A)";
+			PLOG_INFO << "Display damage number (type A1)";
 		}
 		break;
 	}
@@ -364,9 +369,9 @@ void ReadINIconfig() {
 		}
 
 		if (!displayDamageStatus && displayDamageIndex == 11) {
-			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageB, NULL, NULL, NULL);
+			ddThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageA2, NULL, NULL, NULL);
 			displayDamageStatus = 1;
-			PLOG_INFO << "Display damage number (type B)";
+			PLOG_INFO << "Display damage number (type A2)";
 		}
 		break;
 	}
@@ -376,9 +381,21 @@ void ReadINIconfig() {
 		}
 
 		if (!displayDamageStatus && displayDamageIndex == 2) {
-			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageC, NULL, NULL, NULL);
+			ddThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageB1, NULL, NULL, NULL);
 			displayDamageStatus = 1;
-			PLOG_INFO << "Display damage number (type C)";
+			PLOG_INFO << "Display damage number (type B1)";
+		}
+		break;
+	}
+	case 4: {
+		if (displayDamageIndex != 21) {
+			displayDamageIndex = 21;
+		}
+
+		if (!displayDamageStatus && displayDamageIndex == 21) {
+			ddThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageB2, NULL, NULL, NULL);
+			displayDamageStatus = 1;
+			PLOG_INFO << "Display damage number (type B2)";
 		}
 		break;
 	}
@@ -390,7 +407,7 @@ void ReadINIconfig() {
 		if (!displayDamageStatus && displayDamageIndex == 0) {
 			// reset values in real-time read
 			if (RTRead) {
-				CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageNull, NULL, NULL, NULL);
+				ddThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageNull, NULL, NULL, NULL);
 				displayDamageStatus = 1;
 			}
 			PLOG_INFO << "Unable to display damage number";
