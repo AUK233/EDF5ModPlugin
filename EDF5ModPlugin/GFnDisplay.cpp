@@ -18,19 +18,29 @@
 extern PBYTE hmodEXE;
 
 static wchar_t DMGstrN0[] = L"                       \n                       \n                       \n                       ";
-static wchar_t DMGstr0[] = L"                       \n                       \n                       \n                       ";
-static wchar_t DMGstr1[] = L"                       \n                       \n                       \n                       ";
-
+static wchar_t DMGstrN1[] = L"               \n               \n               \n               \n               \n               \n               ";
+static wchar_t DMGstrN2[] = L"               \n               \n               \n               \n               \n               \n               \n               ";
 
 extern "C" {
 extern int displayDamageIndex;
 extern int displayDamageStatus;
 }
+/*
+struct DamageString {
+	uintptr_t pstr;
+	uintptr_t pcolor;
+};*/
 
-uintptr_t pDMGstr0 = (uintptr_t)&DMGstr0;
-uintptr_t pDMGstr1 = (uintptr_t)&DMGstr1;
+std::vector<uintptr_t> pDMGstr0;
+std::vector<uintptr_t> pDMGstr0C;
+std::vector<uintptr_t> pDMGstr1;
+std::vector<uintptr_t> pDMGstr1C;
+std::vector<uintptr_t> pDMGstr2;
+std::vector<uintptr_t> pDMGstr2C;
 
 void __fastcall setDamageString(PBYTE pstr, PBYTE pcolor) {
+	uintptr_t pText = *(uintptr_t *)(pstr + 0x60);
+	UINT32 textSize = *(UINT32 *)(pstr + 0x80);
 
 	// check that float4 is the required value
 	if (*(INT64 *)(pcolor + 0x270) == 4550220892846510047 && *(INT64 *)(pcolor + 0x278) == 4692750812782960574) {
@@ -38,13 +48,31 @@ void __fastcall setDamageString(PBYTE pstr, PBYTE pcolor) {
 		float vf[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 		memcpy((pcolor + 0x270), &vf, 16U);
 
-		*(uintptr_t *)(pstr + 0x60) = pDMGstr0;
+		if (textSize == 95) {
+			memcpy((void *)pText, &DMGstrN0, 192U);
+			pDMGstr0.push_back(pText);
+		} else if (textSize == 111) {
+			memcpy((void *)pText, &DMGstrN1, 224U);
+			pDMGstr1.push_back(pText);
+		} else if (textSize == 127) {
+			memcpy((void *)pText, &DMGstrN2, 256U);
+			pDMGstr2.push_back(pText);
+		}
 	} else if (*(INT64 *)(pcolor + 0x270) == 4594572340047290302 && *(INT64 *)(pcolor + 0x278) == 4566650023222005727) {
 		// back to white
 		float vf[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 		memcpy((pcolor + 0x270), &vf, 16U);
 
-		*(uintptr_t *)(pstr + 0x60) = pDMGstr1;
+		if (textSize == 95) {
+			memcpy((void *)pText, &DMGstrN0, 192U);
+			pDMGstr0C.push_back(pText);
+		} else if (textSize == 111) {
+			memcpy((void *)pText, &DMGstrN1, 224U);
+			pDMGstr1C.push_back(pText);
+		} else if (textSize == 127) {
+			memcpy((void *)pText, &DMGstrN2, 256U);
+			pDMGstr2C.push_back(pText);
+		}
 	}
 }
 
@@ -61,22 +89,26 @@ void hookGetPlayerDamage() {
 	playerDmgRetAddress = (uintptr_t)(hmodEXE + 0x2DB659);
 	hookGameBlock((void *)(hmodEXE + 0x2DB641), (uint64_t)ASMrecordPlayerDamage);
 	// we still override original radar
-	// use it to ensure that this function is executed correctly
-	WriteHookToProcess((void *)(hmodEXE + 0xEC8F18), (void *)L"lyt_HudRaderM1.sgo", 36U);
+	// WriteHookToProcess((void *)(hmodEXE + 0xEC8F18), (void *)L"lyt_HudRaderM1.sgo", 36U);
 }
 
-constexpr auto DAMAGE_DISPLAY_TIME_S = 61;
+// set damage display duration (short)
+constexpr int DAMAGE_DISPLAY_TIME_S = 61;
+// set rechargeable damage display duration (long)
+constexpr int DAMAGE_CHARGE_TIME_L = 15;
 struct Damage {
 	float value;
 	int time;
 };
+// separate damage
 Damage damageNumber;
+// damage group
+Damage dmgNumGroup[8];
 
 // reset string
 void displayWeaponDamageReset() {
 	damage_tmp = 0;
 	damageNumber.time = 0;
-	memcpy((void *)pDMGstr0, &DMGstrN0, 192U);
 	displayDamageStatus = 0;
 	PLOG_INFO << "Display damage number has been reset";
 }
@@ -91,44 +123,236 @@ std::wstring FormatDamageNumber(const float dmg) {
 	}
 }
 
+void DMGCommonClear() {
+	damageNumber.time = 0;
+	for(int i = 0; i < 8; i++) {
+		dmgNumGroup[i].time = 0;
+	}
+	damage_tmp = 0;
+
+	pDMGstr0.clear();
+	pDMGstr0C.clear();
+	pDMGstr1.clear();
+	pDMGstr1C.clear();
+	pDMGstr2.clear();
+	pDMGstr2C.clear();
+}
+
+void setChagreDamageTime(int time) {
+	if (damageNumber.time < 1) {
+		damageNumber.value = -damage_tmp;
+	} else {
+		damageNumber.value -= damage_tmp;
+	}
+	damageNumber.time = time;
+	damage_tmp = 0;
+}
+
+void setDamageDisplayTime(int vstart, int vend, int time) {
+	for (int i = vstart; i < vend; i++) {
+		if (dmgNumGroup[i + 1].time > 0) {
+			dmgNumGroup[i].value = dmgNumGroup[i + 1].value;
+			dmgNumGroup[i].time = dmgNumGroup[i + 1].time + time;
+		}
+	}
+	dmgNumGroup[vend].value = damageNumber.value;
+	dmgNumGroup[vend].time = time;
+}
+
 void displayWeaponDamageA() {
 	while (displayDamageIndex == 1) {
 		playerAddress = GetPointerAddress((uintptr_t)hmodEXE, {0x0125AB68, 0x238, 0x290, 0x10});
 
 		if (playerAddress > 0) {
-			if (damage_tmp != 0) {
-				if (damageNumber.time < 1) {
-					damageNumber.value = -damage_tmp;
-				} else {
-					damageNumber.value -= damage_tmp;
+			if (pDMGstr0.size() > 0) {
+				if (damage_tmp != 0) {
+					setChagreDamageTime(DAMAGE_DISPLAY_TIME_S);
 				}
-				damageNumber.time = DAMAGE_DISPLAY_TIME_S;
-				damage_tmp = 0;
-			}
 
-			memcpy((void *)pDMGstr0, &DMGstrN0, 192U);
-			if (damageNumber.time > 0) {
-				std::wstring displayText = FormatDamageNumber(damageNumber.value);
-
-				size_t strofs = 0;
-				size_t strsize = 44;
-				if (displayText.size() < 22) {
-					strofs = (22 - displayText.size()) * 2;
-					strsize = displayText.size() * 2;
+				for (size_t i = 0; i < pDMGstr0.size(); i++) {
+					memcpy((void*)pDMGstr0[i], &DMGstrN0, 192U);
 				}
-				
-				memcpy((void *)(pDMGstr0 + strofs), displayText.c_str(), strsize);
-				damageNumber.time--;
+
+				if (damageNumber.time > 0) {
+					std::wstring displayText = FormatDamageNumber(damageNumber.value);
+
+					size_t strofs = 0;
+					size_t strsize = 44;
+					if (displayText.size() < 22) {
+						strofs = (22 - displayText.size()) * 2;
+						strsize = displayText.size() * 2;
+					}
+
+					for (size_t i = 0; i < pDMGstr0.size(); i++) {
+						memcpy((void *)(pDMGstr0[i] + strofs), displayText.c_str(), strsize);
+					}
+					damageNumber.time--;
+				}
 			}
 			//
 		} else {
-			if (damageNumber.time != 0) {
-				damageNumber.time = 0;
-				damage_tmp = 0;
+			if (pDMGstr0.size() > 0) {
+				DMGCommonClear();
 			}
 		}
 		// 20 fps should be enough
 		Sleep(50);
+	}
+	// If setting change, we first have to reset
+	displayWeaponDamageReset();
+}
+
+void displayWeaponDamageB() {
+	while (displayDamageIndex == 11) {
+		playerAddress = GetPointerAddress((uintptr_t)hmodEXE, {0x0125AB68, 0x238, 0x290, 0x10});
+
+		if (playerAddress > 0) {
+			if (pDMGstr0.size() > 0 && pDMGstr0C.size() > 0) {
+				if (damage_tmp != 0) {
+					setChagreDamageTime(DAMAGE_CHARGE_TIME_L);
+				}
+
+				for (size_t i = 0; i < pDMGstr0.size(); i++) {
+					memcpy((void *)pDMGstr0[i], &DMGstrN0, 192U);
+				}
+				for (size_t i = 0; i < pDMGstr0C.size(); i++) {
+					memcpy((void *)pDMGstr0C[i], &DMGstrN0, 192U);
+				}
+
+				if (damageNumber.time > 0) {
+					std::wstring displayText = FormatDamageNumber(damageNumber.value);
+
+					size_t strofs = 0;
+					size_t strsize = 44;
+					if (displayText.size() < 22) {
+						strofs = (22 - displayText.size()) * 2;
+						strsize = displayText.size() * 2;
+					}
+
+					for (size_t i = 0; i < pDMGstr0.size(); i++) {
+						memcpy((void *)(pDMGstr0[i] + strofs), displayText.c_str(), strsize);
+					}
+					damageNumber.time--;
+				} else if (damageNumber.value > 0) {
+					setDamageDisplayTime(0, 3, DAMAGE_DISPLAY_TIME_S);
+
+					damageNumber.value = 0;
+				}
+
+				for (int i = 0; i < 4; i++) {
+					if (dmgNumGroup[i].time > 0) {
+						std::wstring displayText = FormatDamageNumber(dmgNumGroup[i].value);
+
+						size_t strofs = 0;
+						size_t strsize = 44;
+						if (displayText.size() < 22) {
+							strofs = (22 - displayText.size()) * 2;
+							strsize = displayText.size() * 2;
+						}
+						strofs += (size_t)i * 48;
+
+						for (size_t j = 0; j < pDMGstr0C.size(); j++) {
+							memcpy((void *)(pDMGstr0C[j] + strofs), displayText.c_str(), strsize);
+						}
+						dmgNumGroup[i].time--;
+					}
+				}
+			}
+			//
+		} else {
+			if (pDMGstr0.size() > 0) {
+				DMGCommonClear();
+			}
+		}
+		// 20 fps should be enough
+		Sleep(50);
+	}
+	// If setting change, we first have to reset
+	displayWeaponDamageReset();
+}
+
+void displayWeaponDamageC() {
+	while (displayDamageIndex == 2) {
+		playerAddress = GetPointerAddress((uintptr_t)hmodEXE, {0x0125AB68, 0x238, 0x290, 0x10});
+
+		if (playerAddress > 0) {
+			if (pDMGstr1.size() > 0) {
+				if (damage_tmp != 0) {
+					setChagreDamageTime(DAMAGE_DISPLAY_TIME_S);
+				}
+
+				for (size_t i = 0; i < pDMGstr1.size(); i++) {
+					memcpy((void *)pDMGstr1[i], &DMGstrN1, 224U);
+				}
+				for (size_t i = 0; i < pDMGstr2.size(); i++) {
+					memcpy((void *)pDMGstr2[i], &DMGstrN2, 256U);
+				}
+
+				if (damageNumber.time > 0) {
+					std::wstring displayText = FormatDamageNumber(damageNumber.value);
+
+					size_t strofs = 0;
+					size_t strsize = 28;
+					if (displayText.size() < 14) {
+						//strofs = ((14 - displayText.size()) / 2) * 2;
+						strsize = displayText.size() * 2;
+					}
+
+					for (size_t i = 0; i < pDMGstr1.size(); i++) {
+						memcpy((void *)(pDMGstr1[i] + strofs), displayText.c_str(), strsize);
+					}
+					for (size_t i = 0; i < pDMGstr2.size(); i++) {
+						memcpy((void *)(pDMGstr2[i] + 224U), displayText.c_str(), strsize);
+					}
+
+					damageNumber.time--;
+				}
+			}
+			//
+		} else {
+			if (pDMGstr1.size() > 0 || pDMGstr2.size() > 0) {
+				DMGCommonClear();
+			}
+		}
+		// 20 fps should be enough
+		Sleep(50);
+	}
+	// If setting change, we first have to reset
+	displayWeaponDamageReset();
+}
+
+// reset values in real time read configuration
+void displayWeaponDamageNull() {
+	while (displayDamageIndex == 0) {
+		playerAddress = GetPointerAddress((uintptr_t)hmodEXE, {0x0125AB68, 0x238, 0x290, 0x10});
+
+		if (playerAddress > 0) {
+			for (size_t i = 0; i < pDMGstr0.size(); i++) {
+				memcpy((void *)pDMGstr0[i], &DMGstrN0, 192U);
+			}
+			for (size_t i = 0; i < pDMGstr0C.size(); i++) {
+				memcpy((void *)pDMGstr0C[i], &DMGstrN0, 192U);
+			}
+
+			for (size_t i = 0; i < pDMGstr1.size(); i++) {
+				memcpy((void *)pDMGstr1[i], &DMGstrN1, 224U);
+			}
+			for (size_t i = 0; i < pDMGstr1C.size(); i++) {
+				memcpy((void *)pDMGstr1C[i], &DMGstrN1, 224U);
+			}
+			for (size_t i = 0; i < pDMGstr2.size(); i++) {
+				memcpy((void *)pDMGstr2[i], &DMGstrN2, 256U);
+			}
+			for (size_t i = 0; i < pDMGstr2C.size(); i++) {
+				memcpy((void *)pDMGstr2C[i], &DMGstrN2, 256U);
+			}
+		} else {
+			if (pDMGstr0.size() > 0 || pDMGstr1.size() > 0 || pDMGstr2.size() > 0) {
+				DMGCommonClear();
+			}
+		}
+		// Execute twice per second
+		Sleep(500);
 	}
 	// If setting change, we first have to reset
 	displayWeaponDamageReset();

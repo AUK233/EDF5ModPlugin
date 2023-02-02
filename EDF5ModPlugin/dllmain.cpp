@@ -358,13 +358,41 @@ void ReadINIconfig() {
 		}
 		break;
 	}
+	case 2: {
+		if (displayDamageIndex != 11) {
+			displayDamageIndex = 11;
+		}
+
+		if (!displayDamageStatus && displayDamageIndex == 11) {
+			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageB, NULL, NULL, NULL);
+			displayDamageStatus = 1;
+			PLOG_INFO << "Display damage number (type B)";
+		}
+		break;
+	}
+	case 3: {
+		if (displayDamageIndex != 2) {
+			displayDamageIndex = 2;
+		}
+
+		if (!displayDamageStatus && displayDamageIndex == 2) {
+			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageC, NULL, NULL, NULL);
+			displayDamageStatus = 1;
+			PLOG_INFO << "Display damage number (type C)";
+		}
+		break;
+	}
 	default:
 		if (displayDamageIndex != 0) {
 			displayDamageIndex = 0;
 		}
 
 		if (!displayDamageStatus && displayDamageIndex == 0) {
-			displayDamageStatus = 0;
+			// reset values in real-time read
+			if (RTRead) {
+				CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageNull, NULL, NULL, NULL);
+				displayDamageStatus = 1;
+			}
 			PLOG_INFO << "Unable to display damage number";
 		}
 		break;
