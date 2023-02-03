@@ -359,7 +359,7 @@ void ReadINIconfig() {
 		if (!displayDamageStatus && displayDamageIndex == 1) {
 			ddThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageA1, NULL, NULL, NULL);
 			displayDamageStatus = 1;
-			PLOG_INFO << "Display damage number (type A1)";
+			PLOG_INFO << "Display damage number on rader";
 		}
 		break;
 	}
@@ -371,7 +371,7 @@ void ReadINIconfig() {
 		if (!displayDamageStatus && displayDamageIndex == 11) {
 			ddThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageA2, NULL, NULL, NULL);
 			displayDamageStatus = 1;
-			PLOG_INFO << "Display damage number (type A2)";
+			PLOG_INFO << "Display damage number on rader (with charge)";
 		}
 		break;
 	}
@@ -383,7 +383,7 @@ void ReadINIconfig() {
 		if (!displayDamageStatus && displayDamageIndex == 2) {
 			ddThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageB1, NULL, NULL, NULL);
 			displayDamageStatus = 1;
-			PLOG_INFO << "Display damage number (type B1)";
+			PLOG_INFO << "Display damage number on weapon";
 		}
 		break;
 	}
@@ -395,7 +395,7 @@ void ReadINIconfig() {
 		if (!displayDamageStatus && displayDamageIndex == 21) {
 			ddThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageB2, NULL, NULL, NULL);
 			displayDamageStatus = 1;
-			PLOG_INFO << "Display damage number (type B2)";
+			PLOG_INFO << "Display damage number on weapon (with charge)";
 		}
 		break;
 	}

@@ -48,13 +48,13 @@ void __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor) {
 		memcpy((void *)(pcolor + 0x270), &vf, 16U);
 
 		if (textSize == 95) {
-			memcpy((void *)pText, &DMGstrN0, 192U);
+			memcpy((void *)pText, &DMGstrN0, 190U);
 			pDMGstr0.push_back(pText);
 		} else if (textSize == 111) {
-			memcpy((void *)pText, &DMGstrN1, 224U);
+			memcpy((void *)pText, &DMGstrN1, 222U);
 			pDMGstr1.push_back(pText);
 		} else if (textSize == 127) {
-			memcpy((void *)pText, &DMGstrN2, 256U);
+			memcpy((void *)pText, &DMGstrN2, 254U);
 			pDMGstr2.push_back(pText);
 		}
 	} else if (*(INT64 *)(pcolor + 0x270) == 4594572340047290302 && *(INT64 *)(pcolor + 0x278) == 4566650023222005727) {
@@ -63,13 +63,13 @@ void __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor) {
 		memcpy((void *)(pcolor + 0x270), &vf, 16U);
 
 		if (textSize == 95) {
-			memcpy((void *)pText, &DMGstrN0, 192U);
+			memcpy((void *)pText, &DMGstrN0, 190U);
 			pDMGstr0C.push_back(pText);
 		} else if (textSize == 111) {
-			memcpy((void *)pText, &DMGstrN1, 224U);
+			memcpy((void *)pText, &DMGstrN1, 222U);
 			pDMGstr1C.push_back(pText);
 		} else if (textSize == 127) {
-			memcpy((void *)pText, &DMGstrN2, 256U);
+			memcpy((void *)pText, &DMGstrN2, 254U);
 			pDMGstr2C.push_back(pText);
 		}
 	}
@@ -108,6 +108,27 @@ Damage damageNumber;
 // damage group
 Damage dmgNumGroup[8];
 
+void __fastcall displayWeaponDamageClear() {
+	for (size_t i = 0; i < pDMGstr0.size(); i++) {
+		memcpy((void *)pDMGstr0[i], &DMGstrN0, 190U);
+	}
+	for (size_t i = 0; i < pDMGstr0C.size(); i++) {
+		memcpy((void *)pDMGstr0C[i], &DMGstrN0, 190U);
+	}
+	for (size_t i = 0; i < pDMGstr1.size(); i++) {
+		memcpy((void *)pDMGstr1[i], &DMGstrN1, 222U);
+	}
+	for (size_t i = 0; i < pDMGstr1C.size(); i++) {
+		memcpy((void *)pDMGstr1C[i], &DMGstrN1, 222U);
+	}
+	for (size_t i = 0; i < pDMGstr2.size(); i++) {
+		memcpy((void *)pDMGstr2[i], &DMGstrN2, 254U);
+	}
+	for (size_t i = 0; i < pDMGstr2C.size(); i++) {
+		memcpy((void *)pDMGstr2C[i], &DMGstrN2, 254U);
+	}
+}
+
 // reset string
 void __fastcall displayWeaponDamageReset() {
 	damage_tmp = 0;
@@ -116,24 +137,7 @@ void __fastcall displayWeaponDamageReset() {
 		dmgNumGroup[i].time = 0;
 	}
 
-	for (size_t i = 0; i < pDMGstr0.size(); i++) {
-		memcpy((void *)pDMGstr0[i], &DMGstrN0, 192U);
-	}
-	for (size_t i = 0; i < pDMGstr0C.size(); i++) {
-		memcpy((void *)pDMGstr0C[i], &DMGstrN0, 192U);
-	}
-	for (size_t i = 0; i < pDMGstr1.size(); i++) {
-		memcpy((void *)pDMGstr1[i], &DMGstrN1, 224U);
-	}
-	for (size_t i = 0; i < pDMGstr1C.size(); i++) {
-		memcpy((void *)pDMGstr1C[i], &DMGstrN1, 224U);
-	}
-	for (size_t i = 0; i < pDMGstr2.size(); i++) {
-		memcpy((void *)pDMGstr2[i], &DMGstrN2, 256U);
-	}
-	for (size_t i = 0; i < pDMGstr2C.size(); i++) {
-		memcpy((void *)pDMGstr2C[i], &DMGstrN2, 256U);
-	}
+	displayWeaponDamageClear();
 
 	displayDamageStatus = 0;
 	PLOG_INFO << "Display damage number has been reset";
@@ -196,7 +200,7 @@ void __fastcall displayWeaponDamageA1() {
 				}
 
 				for (size_t i = 0; i < pDMGstr0.size(); i++) {
-					memcpy((void*)pDMGstr0[i], &DMGstrN0, 192U);
+					memcpy((void*)pDMGstr0[i], &DMGstrN0, 190U);
 				}
 
 				if (damageNumber.time > 0) {
@@ -239,10 +243,10 @@ void __fastcall displayWeaponDamageA2() {
 				}
 
 				for (size_t i = 0; i < pDMGstr0.size(); i++) {
-					memcpy((void *)pDMGstr0[i], &DMGstrN0, 192U);
+					memcpy((void *)pDMGstr0[i], &DMGstrN0, 190U);
 				}
 				for (size_t i = 0; i < pDMGstr0C.size(); i++) {
-					memcpy((void *)pDMGstr0C[i], &DMGstrN0, 192U);
+					memcpy((void *)pDMGstr0C[i], &DMGstrN0, 190U);
 				}
 
 				if (damageNumber.time > 0) {
@@ -303,16 +307,16 @@ void __fastcall displayWeaponDamageB1() {
 		playerAddress = GetPointerAddress((uintptr_t)hmodEXE, {0x0125AB68, 0x238, 0x290, 0x10});
 
 		if (playerAddress > 0) {
-			if (pDMGstr1.size() > 0) {
+			if (pDMGstr1.size() > 0 || pDMGstr2.size() > 0) {
 				if (damage_tmp != 0) {
 					setChagreDamageTime(DAMAGE_DISPLAY_TIME_S);
 				}
 
 				for (size_t i = 0; i < pDMGstr1.size(); i++) {
-					memcpy((void *)pDMGstr1[i], &DMGstrN1, 224U);
+					memcpy((void *)pDMGstr1[i], &DMGstrN1, 222U);
 				}
 				for (size_t i = 0; i < pDMGstr2.size(); i++) {
-					memcpy((void *)pDMGstr2[i], &DMGstrN2, 256U);
+					memcpy((void *)pDMGstr2[i], &DMGstrN2, 254U);
 				}
 
 				if (damageNumber.time > 0) {
@@ -329,7 +333,7 @@ void __fastcall displayWeaponDamageB1() {
 						memcpy((void *)(pDMGstr1[i] + strofs), displayText.c_str(), strsize);
 					}
 					for (size_t i = 0; i < pDMGstr2.size(); i++) {
-						memcpy((void *)(pDMGstr2[i] + 224U), displayText.c_str(), strsize);
+						memcpy((void *)(pDMGstr2[i] + 222U), displayText.c_str(), strsize);
 					}
 
 					damageNumber.time--;
@@ -353,22 +357,22 @@ void __fastcall displayWeaponDamageB2() {
 		playerAddress = GetPointerAddress((uintptr_t)hmodEXE, {0x0125AB68, 0x238, 0x290, 0x10});
 
 		if (playerAddress > 0) {
-			if (pDMGstr1.size() > 0) {
+			if ((pDMGstr1.size() > 0 && pDMGstr1C.size() > 0) || (pDMGstr2.size() > 0 && pDMGstr2C.size() > 0)) {
 				if (damage_tmp != 0) {
 					setChagreDamageTime(DAMAGE_CHARGE_TIME_S);
 				}
 
 				for (size_t i = 0; i < pDMGstr1.size(); i++) {
-					memcpy((void *)pDMGstr1[i], &DMGstrN1, 224U);
+					memcpy((void *)pDMGstr1[i], &DMGstrN1, 222U);
 				}
 				for (size_t i = 0; i < pDMGstr1C.size(); i++) {
-					memcpy((void *)pDMGstr1C[i], &DMGstrN1, 224U);
+					memcpy((void *)pDMGstr1C[i], &DMGstrN1, 222U);
 				}
 				for (size_t i = 0; i < pDMGstr2.size(); i++) {
-					memcpy((void *)pDMGstr2[i], &DMGstrN2, 256U);
+					memcpy((void *)pDMGstr2[i], &DMGstrN2, 254U);
 				}
 				for (size_t i = 0; i < pDMGstr2C.size(); i++) {
-					memcpy((void *)pDMGstr2C[i], &DMGstrN2, 256U);
+					memcpy((void *)pDMGstr2C[i], &DMGstrN2, 254U);
 				}
 
 				if (damageNumber.time > 0) {
@@ -389,12 +393,12 @@ void __fastcall displayWeaponDamageB2() {
 					}
 					damageNumber.time--;
 				} else if (damageNumber.value > 0) {
-					setDamageDisplayTime(0, 7, DAMAGE_DISPLAY_TIME_L);
+					setDamageDisplayTime(0, 6, DAMAGE_DISPLAY_TIME_L);
 
 					damageNumber.value = 0;
 				}
 
-				for (int i = 0; i < 8; i++) {
+				for (int i = 0; i < 7; i++) {
 					if (dmgNumGroup[i].time > 0) {
 						std::wstring displayText = FormatDamageNumber(dmgNumGroup[i].value);
 
@@ -439,25 +443,7 @@ void __fastcall displayWeaponDamageNull() {
 		playerAddress = GetPointerAddress((uintptr_t)hmodEXE, {0x0125AB68, 0x238, 0x290, 0x10});
 
 		if (playerAddress > 0) {
-			for (size_t i = 0; i < pDMGstr0.size(); i++) {
-				memcpy((void *)pDMGstr0[i], &DMGstrN0, 192U);
-			}
-			for (size_t i = 0; i < pDMGstr0C.size(); i++) {
-				memcpy((void *)pDMGstr0C[i], &DMGstrN0, 192U);
-			}
-
-			for (size_t i = 0; i < pDMGstr1.size(); i++) {
-				memcpy((void *)pDMGstr1[i], &DMGstrN1, 224U);
-			}
-			for (size_t i = 0; i < pDMGstr1C.size(); i++) {
-				memcpy((void *)pDMGstr1C[i], &DMGstrN1, 224U);
-			}
-			for (size_t i = 0; i < pDMGstr2.size(); i++) {
-				memcpy((void *)pDMGstr2[i], &DMGstrN2, 256U);
-			}
-			for (size_t i = 0; i < pDMGstr2C.size(); i++) {
-				memcpy((void *)pDMGstr2C[i], &DMGstrN2, 256U);
-			}
+			displayWeaponDamageClear();
 		} else {
 			if (pDMGstr0.size() > 0 || pDMGstr1.size() > 0 || pDMGstr2.size() > 0) {
 				DMGCommonClear();

@@ -6,6 +6,7 @@ void __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor);
 
 // get player weapon damage
 void hookGetPlayerDamage();
+void __fastcall displayWeaponDamageClear();
 // reset string
 void __fastcall displayWeaponDamageReset();
 

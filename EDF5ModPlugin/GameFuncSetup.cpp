@@ -35,9 +35,13 @@ void hookGameFunctions() {
 	// allows switching of views
 	playerViewRetAddr = (uintptr_t)(hmodEXE + 0x2DB0D1);
 	hookGameBlock((void *)(hmodEXE + 0x2DB090), (uint64_t)ASMplayerViewChange);
-
+	//
 	hookTextDisplayRetAddr = (uintptr_t)(hmodEXE + 0x4B15C9);
 	hookGameBlock((void *)(hmodEXE + 0x4B15B4), (uint64_t)ASMhookTextDisplay);
+	// increase pickup box limit to 4096, offset 0x1984CB
+	int maxBoxes = 0x1000;
+	WriteHookToProcess((void *)(hmodEXE + 0x1990CC), &maxBoxes, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x1990EC), &maxBoxes, 4U);
 
 	// hook GiantAnt extra features
 	hookGameBlock((void *)(hmodEXE + 0x1FFD1B), (uint64_t)ASMxgsOCgiantAnt);
