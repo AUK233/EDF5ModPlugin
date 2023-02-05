@@ -22,6 +22,7 @@ static wchar_t DMGstrN1[] = L"               \n               \n               \
 static wchar_t DMGstrN2[] = L"               \n               \n               \n               \n               \n               \n               \n               ";
 
 //static wchar_t DMGstrN1RS[] = L"Init:Damage1...............\n...........................\n...........................\n...........................";
+//static wchar_t DMGstrN2RS[] = L"Init:Damage1..................0...............................\n...............................0................................";
 
 extern "C" {
 extern int displayDamageIndex;
@@ -33,16 +34,21 @@ struct DamageString {
 	uintptr_t pcolor;
 };*/
 
+// fs suffix is resized text.
 uintptr_t pDMGstr0 = 0;
 uintptr_t pDMGstr0C = 0;
-
+uintptr_t pDMGstr0fs = 0;
+float DMGstr0fs = 1.0f;
+// on class weapon
 uintptr_t pDMGstr1 = 0;
 uintptr_t pDMGstr1C = 0;
 uintptr_t pDMGstr1fs = 0;
 float DMGstr1fs = 1.0f;
-
+// on vehicle weapon
 uintptr_t pDMGstr2 = 0;
 uintptr_t pDMGstr2C = 0;
+uintptr_t pDMGstr2fs = 0;
+float DMGstr2fs = 1.0f;
 
 void __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor) {
 	uintptr_t pText = *(uintptr_t *)(pstr + 0x60);
@@ -57,18 +63,22 @@ void __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor) {
 			memcpy((void *)pText, &DMGstrN0, 190U);
 			if (pDMGstr0 == 0) {
 				pDMGstr0 = pText;
+				pDMGstr0fs = (uintptr_t)(pstr + 0x18);
+				DMGstr0fs = *(float *)(pstr + 0x18);
 			}
 		} else if (textSize == 111) {
 			memcpy((void *)pText, &DMGstrN1, 222U);
 			if (pDMGstr1 == 0) {
 				pDMGstr1 = pText;
 				pDMGstr1fs = (uintptr_t)(pstr + 0x18);
-				memcpy(&DMGstr1fs, (void *)(pstr + 0x18), 4U);
+				DMGstr1fs = *(float *)(pstr + 0x18);
 			}
 		} else if (textSize == 127) {
 			memcpy((void *)pText, &DMGstrN2, 254U);
 			if (pDMGstr2 == 0) {
 				pDMGstr2 = pText;
+				pDMGstr2fs = (uintptr_t)(pstr + 0x18);
+				DMGstr2fs = *(float *)(pstr + 0x18);
 			}
 		}
 	} else if (*(INT64 *)(pcolor + 0x270) == 4594572340047290302 && *(INT64 *)(pcolor + 0x278) == 4566650023222005727) {
@@ -76,17 +86,6 @@ void __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor) {
 		float vf[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 		memcpy((void *)(pcolor + 0x270), &vf, 16U);
 
-		if (textSize == 95) {
-			memcpy((void *)pText, &DMGstrN0, 190U);
-			pDMGstr0C = pText;
-		} else if (textSize == 111) {
-			memcpy((void *)pText, &DMGstrN1, 222U);
-			pDMGstr1C = pText;
-		} else if (textSize == 127) {
-			memcpy((void *)pText, &DMGstrN2, 254U);
-			pDMGstr2C = pText;
-		}
-		/*
 		if (textSize == 95) {
 			memcpy((void *)pText, &DMGstrN0, 190U);
 			if (pDMGstr0C == 0) {
@@ -102,7 +101,7 @@ void __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor) {
 			if (pDMGstr2C == 0) {
 				pDMGstr2C = pText;
 			}
-		}*/
+		}
 	}
 }
 
@@ -194,6 +193,8 @@ void __fastcall DMGCommonClear() {
 
 	pDMGstr0 = 0;
 	pDMGstr0C = 0;
+	pDMGstr0fs = 0;
+	DMGstr0fs = 1.0f;
 
 	pDMGstr1 = 0;
 	pDMGstr1C = 0;
@@ -202,6 +203,8 @@ void __fastcall DMGCommonClear() {
 
 	pDMGstr2 = 0;
 	pDMGstr2C = 0;
+	pDMGstr2fs = 0;
+	DMGstr2fs = 1.0f;
 }
 
 void __fastcall setChagreDamageTime(int time) {
@@ -218,11 +221,11 @@ void __fastcall setDamageDisplayTime(int vstart, int vend, int time) {
 	for (int i = vstart; i < vend; i++) {
 		if (dmgNumGroup[i + 1].time > 0) {
 			dmgNumGroup[i].value = dmgNumGroup[i + 1].value;
-			dmgNumGroup[i].time = dmgNumGroup[i + 1].time + time;
+			dmgNumGroup[i].time = dmgNumGroup[i + 1].time;
 		}
 	}
 	dmgNumGroup[vend].value = damageNumber.value;
-	dmgNumGroup[vend].time = time;
+	dmgNumGroup[vend].time = time + 30;
 }
 
 void __fastcall displayWeaponDamageA1() {
@@ -248,6 +251,8 @@ void __fastcall displayWeaponDamageA1() {
 					}
 
 					memcpy((void *)(pDMGstr0 + strofs), displayText.c_str(), strsize);
+					memcpy((void *)pDMGstr0fs, &DMGstr0fs, 4U);
+					memcpy((void *)(pDMGstr0fs + 4), &DMGstr0fs, 4U);
 					damageNumber.time--;
 				}
 			}
@@ -283,11 +288,16 @@ void __fastcall displayWeaponDamageA2() {
 					size_t strofs = 0;
 					size_t strsize = 44;
 					if (displayText.size() < 22) {
-						strofs = (22 - displayText.size()) * 2;
 						strsize = displayText.size() * 2;
 					}
 
-					memcpy((void *)(pDMGstr0 + strofs), displayText.c_str(), strsize);
+					float fontSize = 0.2f * damageNumber.time;
+					fontSize += (DMGstr0fs * 1.5f);
+
+					memcpy((void *)pDMGstr0, displayText.c_str(), strsize);
+					memcpy((void *)pDMGstr0fs, &fontSize, 4U);
+					memcpy((void *)(pDMGstr0fs + 4), &fontSize, 4U);
+
 					damageNumber.time--;
 				} else if (damageNumber.value > 0) {
 					setDamageDisplayTime(0, 3, DAMAGE_DISPLAY_TIME_S);
@@ -351,6 +361,8 @@ void __fastcall displayWeaponDamageB1() {
 						//strofs += 128U;
 
 						memcpy((void *)(pDMGstr1 + strofs), displayText.c_str(), strsize);
+						memcpy((void *)pDMGstr1fs, &DMGstr1fs, 4U);
+						memcpy((void *)(pDMGstr1fs + 4), &DMGstr1fs, 4U);
 						
 					}
 				} 
@@ -365,7 +377,9 @@ void __fastcall displayWeaponDamageB1() {
 							strsize = displayText.size() * 2;
 						}
 
-						memcpy((void *)(pDMGstr2 + 224U), displayText.c_str(), strsize);
+						memcpy((void *)pDMGstr2, displayText.c_str(), strsize);
+						memcpy((void *)pDMGstr2fs, &DMGstr2fs, 4U);
+						memcpy((void *)(pDMGstr2fs + 4), &DMGstr2fs, 4U);
 					}
 				}
 
@@ -414,8 +428,8 @@ void __fastcall displayWeaponDamageB2() {
 					}
 
 					if (pDMGstr1 > 0) {
-						float fontSize = 0.15f * damageNumber.time;
-						fontSize += DMGstr1fs;
+						float fontSize = 0.1f * damageNumber.time;
+						fontSize += (DMGstr1fs * 1.5f);
 
 						memcpy((void *)pDMGstr1, displayText.c_str(), strsize);
 						memcpy((void *)pDMGstr1fs, &fontSize, 4U);
@@ -423,7 +437,12 @@ void __fastcall displayWeaponDamageB2() {
 					}
 
 					if (pDMGstr2 > 0) {
-						memcpy((void *)(pDMGstr2 + 224U), displayText.c_str(), strsize);
+						float fontSize = 0.15f * damageNumber.time;
+						fontSize += (DMGstr2fs * 1.5f);
+
+						memcpy((void *)pDMGstr2, displayText.c_str(), strsize);
+						memcpy((void *)pDMGstr2fs, &fontSize, 4U);
+						memcpy((void *)(pDMGstr2fs + 4), &fontSize, 4U);
 					}
 
 					damageNumber.time--;

@@ -14,7 +14,7 @@ cmp ecx, 95
 jl ofs4B09B4 ; if false, return to original
 mov rcx, qword ptr [r14+270h]
 cmp ecx, 3F800000h
-je ofs4B09B4
+je ofs4B09B4 ; check ahead of time
 mov rdx, r14
 mov rcx, rbx
 call setDamageString ; call c++ function
