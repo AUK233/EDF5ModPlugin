@@ -62,23 +62,23 @@ void __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor) {
 		if (textSize == 95) {
 			memcpy((void *)pText, &DMGstrN0, 190U);
 			if (pDMGstr0 == 0) {
-				pDMGstr0 = pText;
 				pDMGstr0fs = (uintptr_t)(pstr + 0x18);
 				DMGstr0fs = *(float *)(pstr + 0x18);
+				pDMGstr0 = pText;
 			}
 		} else if (textSize == 111) {
 			memcpy((void *)pText, &DMGstrN1, 222U);
 			if (pDMGstr1 == 0) {
-				pDMGstr1 = pText;
 				pDMGstr1fs = (uintptr_t)(pstr + 0x18);
 				DMGstr1fs = *(float *)(pstr + 0x18);
+				pDMGstr1 = pText;
 			}
 		} else if (textSize == 127) {
 			memcpy((void *)pText, &DMGstrN2, 254U);
 			if (pDMGstr2 == 0) {
-				pDMGstr2 = pText;
 				pDMGstr2fs = (uintptr_t)(pstr + 0x18);
 				DMGstr2fs = *(float *)(pstr + 0x18);
+				pDMGstr2 = pText;
 			}
 		}
 	} else if (*(INT64 *)(pcolor + 0x270) == 4594572340047290302 && *(INT64 *)(pcolor + 0x278) == 4566650023222005727) {
@@ -142,18 +142,24 @@ void __fastcall displayWeaponDamageClear() {
 	
 	if (pDMGstr0 > 0) {
 		memcpy((void *)pDMGstr0, &DMGstrN0, 190U);
+		memcpy((void *)pDMGstr0fs, &DMGstr0fs, 4U);
+		memcpy((void *)(pDMGstr0fs + 4), &DMGstr0fs, 4U);
 	}
 	if (pDMGstr0C > 0) {
 		memcpy((void *)pDMGstr0C, &DMGstrN0, 190U);
 	}
 	if (pDMGstr1 > 0) {
 		memcpy((void *)pDMGstr1, &DMGstrN1, 222U);
+		memcpy((void *)pDMGstr1fs, &DMGstr1fs, 4U);
+		memcpy((void *)(pDMGstr1fs + 4), &DMGstr1fs, 4U);
 	}
 	if (pDMGstr1C > 0) {
 		memcpy((void *)pDMGstr1C, &DMGstrN1, 222U);
 	}
 	if (pDMGstr2 > 0) {
 		memcpy((void *)pDMGstr2, &DMGstrN2, 254U);
+		memcpy((void *)pDMGstr2fs, &DMGstr2fs, 4U);
+		memcpy((void *)(pDMGstr2fs + 4), &DMGstr2fs, 4U);
 	}
 	if (pDMGstr2C > 0) {
 		memcpy((void *)pDMGstr2C, &DMGstrN2, 254U);
@@ -191,20 +197,20 @@ void __fastcall DMGCommonClear() {
 	}
 	damage_tmp = 0;
 
-	pDMGstr0 = 0;
 	pDMGstr0C = 0;
 	pDMGstr0fs = 0;
 	DMGstr0fs = 1.0f;
+	pDMGstr0 = 0;
 
-	pDMGstr1 = 0;
 	pDMGstr1C = 0;
 	pDMGstr1fs = 0;
 	DMGstr1fs = 1.0f;
+	pDMGstr1 = 0;
 
-	pDMGstr2 = 0;
 	pDMGstr2C = 0;
 	pDMGstr2fs = 0;
 	DMGstr2fs = 1.0f;
+	pDMGstr2 = 0;
 }
 
 void __fastcall setChagreDamageTime(int time) {
@@ -251,8 +257,6 @@ void __fastcall displayWeaponDamageA1() {
 					}
 
 					memcpy((void *)(pDMGstr0 + strofs), displayText.c_str(), strsize);
-					memcpy((void *)pDMGstr0fs, &DMGstr0fs, 4U);
-					memcpy((void *)(pDMGstr0fs + 4), &DMGstr0fs, 4U);
 					damageNumber.time--;
 				}
 			}
@@ -361,8 +365,6 @@ void __fastcall displayWeaponDamageB1() {
 						//strofs += 128U;
 
 						memcpy((void *)(pDMGstr1 + strofs), displayText.c_str(), strsize);
-						memcpy((void *)pDMGstr1fs, &DMGstr1fs, 4U);
-						memcpy((void *)(pDMGstr1fs + 4), &DMGstr1fs, 4U);
 						
 					}
 				} 
@@ -378,8 +380,6 @@ void __fastcall displayWeaponDamageB1() {
 						}
 
 						memcpy((void *)pDMGstr2, displayText.c_str(), strsize);
-						memcpy((void *)pDMGstr2fs, &DMGstr2fs, 4U);
-						memcpy((void *)(pDMGstr2fs + 4), &DMGstr2fs, 4U);
 					}
 				}
 

@@ -21,6 +21,10 @@ void __fastcall ASMplayerViewChange();
 uintptr_t hookTextDisplayRetAddr;
 void __fastcall ASMhookTextDisplay();
 
+uintptr_t pickupBoxRangeFRetAddr;
+uintptr_t pickupBoxRangeTRetAddr;
+void __fastcall ASMpickupBoxRange();
+
 // xgs_scene_object_class
 void __fastcall ASMxgsOCgiantAnt();
 void __fastcall ASMxgsOCmonster501();
@@ -35,13 +39,17 @@ void hookGameFunctions() {
 	// allows switching of views
 	playerViewRetAddr = (uintptr_t)(hmodEXE + 0x2DB0D1);
 	hookGameBlock((void *)(hmodEXE + 0x2DB090), (uint64_t)ASMplayerViewChange);
-	//
+	// get text address
 	hookTextDisplayRetAddr = (uintptr_t)(hmodEXE + 0x4B15C9);
 	hookGameBlock((void *)(hmodEXE + 0x4B15B4), (uint64_t)ASMhookTextDisplay);
-	// increase pickup box limit to 4096, offset 0x1984CB
+	// increase pickup box limit to 4096, offset is 0x1984CB
 	int maxBoxes = 0x1000;
 	WriteHookToProcess((void *)(hmodEXE + 0x1990CC), &maxBoxes, 4U);
 	WriteHookToProcess((void *)(hmodEXE + 0x1990EC), &maxBoxes, 4U);
+	// add guaranteed pickup , offset is 0x198350
+	pickupBoxRangeFRetAddr = (uintptr_t)(hmodEXE + 0x198F5F);
+	pickupBoxRangeTRetAddr = (uintptr_t)(hmodEXE + 0x198F64);
+	hookGameBlock((void *)(hmodEXE + 0x198F50), (uint64_t)ASMpickupBoxRange);
 
 	// hook GiantAnt extra features
 	hookGameBlock((void *)(hmodEXE + 0x1FFD1B), (uint64_t)ASMxgsOCgiantAnt);

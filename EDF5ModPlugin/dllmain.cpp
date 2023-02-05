@@ -470,7 +470,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		PluginInfo *selfInfo = new PluginInfo;
 		selfInfo->infoVersion = PluginInfo::MaxInfoVer;
 		selfInfo->name = "EDF5 Mod Plugin";
-		selfInfo->version = PLUG_VER(0, 3, 9, 1);
+		selfInfo->version = PLUG_VER(0, 3, 9, 2);
 		PluginData *selfData = new PluginData;
 		selfData->info = selfInfo;
 		selfData->module = hModule;
