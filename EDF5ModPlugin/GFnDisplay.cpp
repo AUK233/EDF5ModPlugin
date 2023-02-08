@@ -169,6 +169,7 @@ void __fastcall displayWeaponDamageClear() {
 // reset string
 void __fastcall displayWeaponDamageReset() {
 	damage_tmp = 0;
+	damageNumber.value = 0;
 	damageNumber.time = 0;
 	for (int i = 0; i < 8; i++) {
 		dmgNumGroup[i].time = 0;
@@ -191,6 +192,7 @@ std::wstring __fastcall FormatDamageNumber(const float dmg) {
 }
 
 void __fastcall DMGCommonClear() {
+	damageNumber.value = 0;
 	damageNumber.time = 0;
 	for(int i = 0; i < 8; i++) {
 		dmgNumGroup[i].time = 0;

@@ -17,6 +17,7 @@ Added the following values available for SGO node names.
 |---|---|---|
 |0|int|> 0 will allow not to reload with full time|
 |1|int|extra reload time when midsection reload|
+| - | - |note: node1 for energy weapon is invalid, but should be 0|
 | - | - |node0 = 2 requires node2|
 |2|int|charge time, after a period of time 1 ammo will be added|
 | - | - |but note that as long as ammo is not full, it will start|

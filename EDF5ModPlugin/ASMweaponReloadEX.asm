@@ -10,7 +10,7 @@ wReloadInit db 82,0,101,0,108,0,111,0,97,0,100,0,73,0,110,0,105,0,116,0,0,0
 ; L"ReloadPadType"
 wReloadPadType db 82,0,101,0,108,0,111,0,97,0,100,0,80,0,97,0,100,0,84,0,121,0,112,0,101,0,0,0
 ; 0.99f
-wReloadInitFloat db 0A4h, 70h, 7Dh, 3Fh
+wReloadInitFloat dd 3F7D70A4h
 
 .code
 
@@ -23,7 +23,7 @@ movsxd rcx, eax
 cmp ecx, -1
 jne ofs38E2F9
 ;mov rax,rdi ; old
-mov rdx,rbx
+mov rdx, rbx
 jmp ofs38E30B
 ofs38E2F9:
 mov rax, qword ptr [r14]
@@ -40,7 +40,7 @@ lea rcx, qword ptr [rbp+200h] ; note that it cannot be replaced here
 call edf8C8C0
 movss xmm1, dword ptr [rax] ; get value
 ; new 4 line
-movss xmm0, dword ptr wReloadInitFloat
+movss xmm0, wReloadInitFloat
 comiss xmm0, xmm1
 jbe ofs38E33C
 mov dword ptr [rsi+8E8h], edi

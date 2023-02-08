@@ -12,6 +12,16 @@ je originalBlock
 mov eax, dword ptr [rbx+1D0h]
 mov ecx, eax ; totalAmmo
 sub eax, dword ptr [rbx+8E8h] ; - remainAmmo
+; calculate current energy requirement
+cmp dword ptr [rbx+1C4h], 0BF800000h ; check -1
+je normalReloadBlock
+cvtsi2ss xmm0, eax
+cvtsi2ss xmm1, ecx ; int to float
+divss xmm0, xmm1
+mulss xmm0, dword ptr [rbx+1C4h] ; total energy need
+movss dword ptr [rbx+0BA4h], xmm0 ; current energy need
+; calculate current reload time
+normalReloadBlock:
 imul eax, dword ptr [rbx+1A4h] ; * reloadTime
 ; use float division
 cvtsi2ss xmm0, eax
