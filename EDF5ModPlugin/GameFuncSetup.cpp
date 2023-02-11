@@ -36,17 +36,15 @@ void __fastcall ASMweaponStartReload();
 }
 
 void hookGameFunctions() {
+	// first overwrite original
+	OverwriteGameFunctions();
 	// allows switching of views
 	playerViewRetAddr = (uintptr_t)(hmodEXE + 0x2DB0D1);
 	hookGameBlock((void *)(hmodEXE + 0x2DB090), (uint64_t)ASMplayerViewChange);
 	// get text address
 	hookTextDisplayRetAddr = (uintptr_t)(hmodEXE + 0x4B15C9);
 	hookGameBlock((void *)(hmodEXE + 0x4B15B4), (uint64_t)ASMhookTextDisplay);
-	// increase pickup box limit to 4096, offset is 0x1984CB
-	int maxBoxes = 0x1000;
-	WriteHookToProcess((void *)(hmodEXE + 0x1990CC), &maxBoxes, 4U);
-	WriteHookToProcess((void *)(hmodEXE + 0x1990EC), &maxBoxes, 4U);
-	// add guaranteed pickup , offset is 0x198350
+	// add guaranteed pickup, offset is 0x198350
 	pickupBoxRangeFRetAddr = (uintptr_t)(hmodEXE + 0x198F5F);
 	pickupBoxRangeTRetAddr = (uintptr_t)(hmodEXE + 0x198F64);
 	hookGameBlock((void *)(hmodEXE + 0x198F50), (uint64_t)ASMpickupBoxRange);
@@ -55,12 +53,8 @@ void hookGameFunctions() {
 	hookGameBlock((void *)(hmodEXE + 0x1FFD1B), (uint64_t)ASMxgsOCgiantAnt);
 	// hook Monster501 extra features
 	hookGameBlock((void *)(hmodEXE + 0x263B64), (uint64_t)ASMxgsOCmonster501);
-	// removal forced to 2, then change original 1 to 2
-	unsigned char nop10[10] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
-	WriteHookToProcess((void *)(hmodEXE + 0x264286), &nop10, 10U);
-	int m501shot = 2;
-	WriteHookToProcess((void *)(hmodEXE + 0x263AF4 + 6), &m501shot, 4U);
 
+	// new weapon features
 	// first, it need to reallocate memory
 	ReallocateWeaponMemory();
 	// set new readable sgo node name
@@ -70,6 +64,60 @@ void hookGameFunctions() {
 	weaponStartReloadRetAddr = (uintptr_t)(hmodEXE + 0x3911DF);
 	hookGameBlock((void *)(hmodEXE + 0x3911CB), (uint64_t)ASMweaponStartReload);
 
+}
+
+// here is the part overwritten with hex
+void OverwriteGameFunctions() {
+	// increase pickup box limit to 4096, offset is 0x1984CB
+	int maxBoxes = 0x1000;
+	WriteHookToProcess((void *)(hmodEXE + 0x1990CC), &maxBoxes, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x1990EC), &maxBoxes, 4U);
+	// removal Monster501 shot interval forced to 2, then change original 1 to 2
+	unsigned char nop10[10] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
+	WriteHookToProcess((void *)(hmodEXE + 0x264286), &nop10, 10U);
+	int m501shot = 2;
+	WriteHookToProcess((void *)(hmodEXE + 0x263AF4 + 6), &m501shot, 4U);
+
+	// normal explosion
+	// time, offset is 0xEE4E74, default is 42.0f
+	float explosionTime = 6.3f;
+	WriteHookToProcess((void *)(hmodEXE + 0xEE6674), &explosionTime, 4U);
+	// particle count, offset is 0x1AD7DE, default is 60
+	int explosionNum = 90;
+	WriteHookToProcess((void *)(hmodEXE + 0x1AE3DE + 2), &explosionNum, 4U);
+	// smoke time, offset is 0x1ad3b7, default is 60 and 240
+	int explosionST1 = 9;
+	WriteHookToProcess((void *)(hmodEXE + 0x1ADFB8), &explosionST1, 4U);
+	int explosionST2 = 36;
+	WriteHookToProcess((void *)(hmodEXE + 0x1ADFC2), &explosionST2, 4U);
+	// genocide explosion, base offset is 0x1ACA23
+	// particle count, default is 80
+	int GenExploNum = 40;
+	WriteHookToProcess((void *)(hmodEXE + 0x1AD624), &GenExploNum, 4U);
+	// lifetime large, default is 930 and 990
+	int GenExploLargeT1 = 330;
+	WriteHookToProcess((void *)(hmodEXE + 0x1AD71F + 3), &GenExploLargeT1, 4U);
+	int GenExploLargeT2 = 390;
+	WriteHookToProcess((void *)(hmodEXE + 0x1AD726 + 3), &GenExploLargeT2, 4U);
+	// lifetime small, default is 330 and 390
+	int GenExploSmallT1 = 80;
+	WriteHookToProcess((void *)(hmodEXE + 0x1AD808 + 3), &GenExploSmallT1, 4U);
+	int GenExploSmallT2 = 110;
+	WriteHookToProcess((void *)(hmodEXE + 0x1AD80F + 3), &GenExploSmallT2, 4U);
+	/*
+	// particle speed, offset is 0x1ADF4E
+	unsigned char GenExploByte[3] = {0xCA, 0x7A, 0xF9};
+	// 1.8f to 18.0f
+	WriteHookToProcess((void *)(hmodEXE + 0x1AEB4E + 4), &GenExploByte[0], 2U);
+	// 3.2f to 32.0f
+	WriteHookToProcess((void *)(hmodEXE + 0x1AEB5B + 4), &GenExploByte[2], 1U);
+	*/
+	unsigned char GenExploByte = 0xFD;
+	// 0.005f to 0.07f
+	WriteHookToProcess((void *)(hmodEXE + 0x1AEB3B + 4), &GenExploByte, 1U);
+	// particle size, offset is 0xEE4E64, default is 35.0f
+	float GenExploSize = 21.0f;
+	WriteHookToProcess((void *)(hmodEXE + 0xEE6664), &GenExploSize, 4U);
 }
 
 // new functions require more memory
