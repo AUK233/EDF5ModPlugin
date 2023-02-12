@@ -198,6 +198,7 @@
     <ClCompile Include="utiliy.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <MASM Include="ASMxgsWGatling.asm" />
     <MASM Include="ASMpickupBoxRange.asm" />
     <MASM Include="ASMhookTextDisplay.asm" />
     <MASM Include="ASMxgsOCmonster501.asm" />

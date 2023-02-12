@@ -33,6 +33,16 @@ uintptr_t weaponReloadEXRetAddr;
 void __fastcall ASMweaponReloadEX();
 uintptr_t weaponStartReloadRetAddr;
 void __fastcall ASMweaponStartReload();
+// Weapon_Gatling
+uintptr_t wGatlingSetupRetAddr;
+void __fastcall ASMweaponGatlingSetup();
+uintptr_t wGatlingShotRetAddr;
+void __fastcall ASMweaponGatlingShot();
+
+/* For testing
+uintptr_t wwwRetAddr;
+void __fastcall ASMwww();
+*/
 }
 
 void hookGameFunctions() {
@@ -64,6 +74,17 @@ void hookGameFunctions() {
 	weaponStartReloadRetAddr = (uintptr_t)(hmodEXE + 0x3911DF);
 	hookGameBlock((void *)(hmodEXE + 0x3911CB), (uint64_t)ASMweaponStartReload);
 
+	// gatling setup, offset is 0x39A0C5
+	wGatlingSetupRetAddr = (uintptr_t)(hmodEXE + 0x39ACE0);
+	hookGameBlock((void *)(hmodEXE + 0x39ACC5), (uint64_t)ASMweaponGatlingSetup);
+	// gatling shot, offset is 0x39A7AA
+	wGatlingShotRetAddr = (uintptr_t)(hmodEXE + 0x39B3B8);
+	hookGameBlock((void *)(hmodEXE + 0x39B3AA), (uint64_t)ASMweaponGatlingShot);
+
+	/* For testing
+	wwwRetAddr = (uintptr_t)(hmodEXE + 0x);
+	hookGameBlock((void *)(hmodEXE + 0x), (uint64_t)ASMwww);
+	*/
 }
 
 // here is the part overwritten with hex
@@ -157,8 +178,10 @@ void ReallocateWeaponMemory() {
 	WriteHookToProcess((void *)(hmodEXE + 0x46A4D8), &newWeaponSize, 4U);
 	// Weapon_HeavyShoot 0x1260
 	WriteHookToProcess((void *)(hmodEXE + 0x46A528), &newWeaponSize, 4U);
-	// Weapon_Gatling 0x1260
+	// Weapon_Gatling 0x1290
 	WriteHookToProcess((void *)(hmodEXE + 0x46A578), &newWeaponSize, 4U);
+	// start:0x1400, size:0x10, function: set pre-heat type.
+
 	// Weapon_LaserMarker 0x1460
 	WriteHookToProcess((void *)(hmodEXE + 0x46A5C8), &newWeaponSize, 4U);
 	// Weapon_LaserMarkerCallFire 0x1AB0

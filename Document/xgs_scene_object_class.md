@@ -12,6 +12,10 @@ Added the following values available for SGO node names.
 |ReloadInit|float or ptr|initial load progress|now supports using star for it|
 |ReloadPadType|ptr|midsection reload type|[parameters](#EDFWeapon-ReloadPadType), it is not necessary to have all parameters|
 
+| xgs_scene_object_class's value | custom_parameter's ptr value |
+|---|---|
+|Weapon_Gatling|[parameters](#Weapon_Gatling-custom_parameter), min 9 nodes, max 10 nodes|
+
 #### EDFWeapon ReloadPadType
 | node index | value type | value description |
 |---|---|---|
@@ -21,6 +25,14 @@ Added the following values available for SGO node names.
 | - | - |node0 = 2 requires node2|
 |2|int|charge time, after a period of time 1 ammo will be added|
 | - | - |but note that as long as ammo is not full, it will start|
+
+#### Weapon_Gatling custom_parameter
+| node index | value type | value description |
+|---|---|---|
+|7|int|preheat time, must > 0|
+|9|int|preheat type, 0 is original, 1 is speed up|
+
+#### EDFWeapon ReloadPadType
 
 ##### [Return to Index](#index)
 
