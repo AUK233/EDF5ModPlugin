@@ -14,7 +14,7 @@ Added the following values available for SGO node names.
 
 | xgs_scene_object_class's value | custom_parameter's ptr value |
 |---|---|
-|Weapon_Gatling|[parameters](#Weapon_Gatling-custom_parameter), min 9 nodes, max 10 nodes|
+|Weapon_Gatling|[parameters](#Weapon_Gatling-custom_parameter), min 9 nodes, max 11 nodes|
 
 #### EDFWeapon ReloadPadType
 | node index | value type | value description |
@@ -29,8 +29,12 @@ Added the following values available for SGO node names.
 #### Weapon_Gatling custom_parameter
 | node index | value type | value description |
 |---|---|---|
+|4|ptr|this has 4 floats, but it uses 3?|
 |7|int|preheat time, must > 0|
-|9|int|preheat type, 0 is original, 1 is speed up|
+|9|ptr|shot interval multiplier on preheat|
+| - | - |node0's float is max rate, node1 is min|
+|10|int|preheat type, 0 is original|
+| - | - |1 is speed up, will use node9's data|
 
 #### EDFWeapon ReloadPadType
 
