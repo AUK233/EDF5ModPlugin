@@ -180,7 +180,7 @@ void ReallocateWeaponMemory() {
 	WriteHookToProcess((void *)(hmodEXE + 0x46A528), &newWeaponSize, 4U);
 	// Weapon_Gatling 0x1290
 	WriteHookToProcess((void *)(hmodEXE + 0x46A578), &newWeaponSize, 4U);
-	// start:0x1400, size:0x10, function: set pre-heat type.
+	// start:0x1400, size:0x20, function: set pre-heat type.
 
 	// Weapon_LaserMarker 0x1460
 	WriteHookToProcess((void *)(hmodEXE + 0x46A5C8), &newWeaponSize, 4U);

@@ -31,10 +31,12 @@ Added the following values available for SGO node names.
 |---|---|---|
 |4|ptr|this has 4 floats, but it uses 3?|
 |7|int|preheat time, must > 0|
-|9|ptr|shot interval multiplier on preheat|
-| - | - |node0's float is max rate, node1 is min|
+|9|ptr|some interval multiplier on preheat, all defaults are 1|
+| - | - |node0's float is max ROF scale, node1 is min|
+| - | - |node2's float is max accuracy scale, node3 is min|
 |10|int|preheat type, 0 is original|
-| - | - |1 is speed up, will use node9's data|
+| - | - |1 is gradually increase ROF, will use node9's data|
+| - | - |2 is gradually increase accuracy at the same time|
 
 #### EDFWeapon ReloadPadType
 

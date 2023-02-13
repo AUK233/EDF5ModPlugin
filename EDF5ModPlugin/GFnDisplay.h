@@ -1,7 +1,7 @@
 #pragma once
 
 extern "C" {
-void __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor);
+uintptr_t __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor, uintptr_t rspBackup);
 }
 
 // get player weapon damage
