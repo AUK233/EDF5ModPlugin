@@ -32,8 +32,9 @@ Added the following values available for SGO node names.
 |4|ptr|this has 4 floats, but it uses 3?|
 |7|int|preheat time, must > 0|
 |9|ptr|some interval multiplier on preheat, all defaults are 1|
-| - | - |node0's float is max ROF scale, node1 is min|
-| - | - |node2's float is max accuracy scale, node3 is min|
+| - | - |node0's int is shot delay, is min fire time|
+| - | - |node1's float is max ROF scale, node2 is min|
+| - | - |node3's float is max accuracy scale, node4 is min|
 |10|int|preheat type, 0 is original|
 | - | - |1 is gradually increase ROF, will use node9's data|
 | - | - |2 is gradually increase accuracy at the same time|

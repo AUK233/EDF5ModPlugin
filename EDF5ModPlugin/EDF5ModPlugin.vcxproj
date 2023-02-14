@@ -79,6 +79,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>1mod</TargetName>
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(SolutionDir)HookLib\HookLib\Zydis\include;$(SolutionDir)HookLib\HookLib\Zydis\dependencies;$(SolutionDir)HookLib\HookLib\Zydis\dependencies\zycore\include;$(SolutionDir)HookLib\HookLib\zydis\msvc</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(SolutionDir)HookLib\HookLib\zydis\msvc\bin\ReleaseX64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetName>winmm</TargetName>
@@ -176,6 +178,7 @@
       <AdditionalIncludeDirectories>.\;..\HookLib\HookLib\HookLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AssemblerOutput>NoListing</AssemblerOutput>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -193,7 +196,11 @@
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="GameFunc.cpp" />
     <ClCompile Include="GameFuncSetup.cpp" />
-    <ClCompile Include="GFnDisplay.cpp" />
+    <ClCompile Include="GFnDisplay.cpp">
+      <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </OmitFramePointers>
+      <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AssemblyAndSourceCode</AssemblerOutput>
+    </ClCompile>
     <ClCompile Include="proxy.c" />
     <ClCompile Include="utiliy.cpp" />
   </ItemGroup>

@@ -17,9 +17,9 @@
 
 extern PBYTE hmodEXE;
 
-static wchar_t DMGstrN0[] = L"                       \n                       \n                       \n                        ";
-static wchar_t DMGstrN1[] = L"               \n               \n               \n               \n               \n               \n                ";
-static wchar_t DMGstrN2[] = L"               \n               \n               \n               \n               \n               \n               \n                ";
+const wchar_t DMGstrN0[] = L"                       \n                       \n                       \n                        ";
+const wchar_t DMGstrN1[] = L"               \n               \n               \n               \n               \n               \n                ";
+const wchar_t DMGstrN2[] = L"               \n               \n               \n               \n               \n               \n               \n        ";
 
 //static wchar_t DMGstrN1RS[] = L"Init:Damage1...............\n...........................\n...........................\n...........................";
 //static wchar_t DMGstrN2RS[] = L"Init:Damage1..................0...............................\n...............................0................................";
@@ -63,26 +63,24 @@ uintptr_t __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor, uintptr_t
 		if (textSize == 96U) {
 			memcpy((void *)pText, &DMGstrN0, 192U);
 			if (pDMGstr0 == 0) {
-				pDMGstr0fs = (uintptr_t)(pstr + 0x18);
+				pDMGstr0fs = pstr + 0x18;
 				DMGstr0fs = *(float *)(pstr + 0x18);
 				pDMGstr0 = pText;
 			}
 		} else if (textSize == 112U) {
 			memcpy((void *)pText, &DMGstrN1, 224U);
 			if (pDMGstr1 == 0) {
-				pDMGstr1fs = (uintptr_t)(pstr + 0x18);
+				pDMGstr1fs = pstr + 0x18;
 				DMGstr1fs = *(float *)(pstr + 0x18);
 				pDMGstr1 = pText;
 			}
-		} else if (textSize == 128U) {
-			memcpy((void *)pText, &DMGstrN2, 256U);
+		} else if (textSize == 120U) {
+			memcpy((void *)pText, &DMGstrN2, 240U);
 			if (pDMGstr2 == 0) {
-				pDMGstr2fs = (uintptr_t)(pstr + 0x18);
+				pDMGstr2fs = pstr + 0x18;
 				DMGstr2fs = *(float *)(pstr + 0x18);
 				pDMGstr2 = pText;
 			}
-		} else {
-			return rspBackup;
 		}
 	} else if (*(INT64 *)(pcolor + 0x270) == 4594572340047290302 && *(INT64 *)(pcolor + 0x278) == 4566650023222005727) {
 		// back to white
@@ -99,15 +97,15 @@ uintptr_t __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor, uintptr_t
 			if (pDMGstr1C == 0) {
 				pDMGstr1C = pText;
 			}
-		} else if (textSize == 128U) {
-			memcpy((void *)pText, &DMGstrN2, 256U);
+		} else if (textSize == 120U) {
+			memcpy((void *)pText, &DMGstrN2, 240U);
 			if (pDMGstr2C == 0) {
 				pDMGstr2C = pText;
 			}
-		} else {
-			return rspBackup;
 		}
 	}
+
+	//PLOG_INFO << "Initializing the damage string is complete! get rsp: " << std::hex << rspBackup;
 	return rspBackup;
 }
 
@@ -163,12 +161,12 @@ void __fastcall displayWeaponDamageClear() {
 		memcpy((void *)pDMGstr1C, &DMGstrN1, 224U);
 	}
 	if (pDMGstr2 > 0) {
-		memcpy((void *)pDMGstr2, &DMGstrN2, 256U);
+		memcpy((void *)pDMGstr2, &DMGstrN2, 240U);
 		memcpy((void *)pDMGstr2fs, &DMGstr2fs, 4U);
 		memcpy((void *)(pDMGstr2fs + 4), &DMGstr2fs, 4U);
 	}
 	if (pDMGstr2C > 0) {
-		memcpy((void *)pDMGstr2C, &DMGstrN2, 256U);
+		memcpy((void *)pDMGstr2C, &DMGstrN2, 240U);
 	}
 }
 
@@ -377,7 +375,7 @@ void __fastcall displayWeaponDamageB1() {
 					}
 				} 
 				if (pDMGstr2 > 0) {
-					memcpy((void *)pDMGstr2, &DMGstrN2, 256U);
+					memcpy((void *)pDMGstr2, &DMGstrN2, 240U);
 
 					if (damageNumber.time > 0) {
 						std::wstring displayText = FormatDamageNumber(damageNumber.value);
@@ -423,8 +421,8 @@ void __fastcall displayWeaponDamageB2() {
 					memcpy((void *)pDMGstr1C, &DMGstrN1, 224U);
 				}
 				if (pDMGstr2 > 0) {
-					memcpy((void *)pDMGstr2, &DMGstrN2, 256U);
-					memcpy((void *)pDMGstr2C, &DMGstrN2, 256U);
+					memcpy((void *)pDMGstr2, &DMGstrN2, 240U);
+					memcpy((void *)pDMGstr2C, &DMGstrN2, 240U);
 				}
 
 				if (damageNumber.time > 0) {
@@ -474,8 +472,7 @@ void __fastcall displayWeaponDamageB2() {
 							memcpy((void *)(pDMGstr1C + strofs), displayText.c_str(), strsize);
 						}
 
-						size_t strofs2 = 32;
-						strofs2 += (size_t)i * 32;
+						size_t strofs2 = (size_t)i * 32;
 						if (pDMGstr2C > 0) {
 							memcpy((void *)(pDMGstr2C + strofs2), displayText.c_str(), strsize);
 						}
