@@ -50,36 +50,36 @@ void hookGameFunctions() {
 	OverwriteGameFunctions();
 	// allows switching of views
 	playerViewRetAddr = (uintptr_t)(hmodEXE + 0x2DB0D1);
-	hookGameBlock((void *)(hmodEXE + 0x2DB090), (uint64_t)ASMplayerViewChange);
+	hookGameBlock14((void *)(hmodEXE + 0x2DB090), (uint64_t)ASMplayerViewChange);
 	// get text address
 	hookTextDisplayRetAddr = (uintptr_t)(hmodEXE + 0x4B15C9);
-	hookGameBlock((void *)(hmodEXE + 0x4B15B4), (uint64_t)ASMhookTextDisplay);
+	hookGameBlock14((void *)(hmodEXE + 0x4B15B4), (uint64_t)ASMhookTextDisplay);
 	// add guaranteed pickup, offset is 0x198350
 	pickupBoxRangeFRetAddr = (uintptr_t)(hmodEXE + 0x198F5F);
 	pickupBoxRangeTRetAddr = (uintptr_t)(hmodEXE + 0x198F64);
-	hookGameBlock((void *)(hmodEXE + 0x198F50), (uint64_t)ASMpickupBoxRange);
+	hookGameBlock14((void *)(hmodEXE + 0x198F50), (uint64_t)ASMpickupBoxRange);
 
 	// hook GiantAnt extra features
-	hookGameBlock((void *)(hmodEXE + 0x1FFD1B), (uint64_t)ASMxgsOCgiantAnt);
+	hookGameBlock14((void *)(hmodEXE + 0x1FFD1B), (uint64_t)ASMxgsOCgiantAnt);
 	// hook Monster501 extra features
-	hookGameBlock((void *)(hmodEXE + 0x263B64), (uint64_t)ASMxgsOCmonster501);
+	hookGameBlock14((void *)(hmodEXE + 0x263B64), (uint64_t)ASMxgsOCmonster501);
 
 	// new weapon features
 	// first, it need to reallocate memory
 	ReallocateWeaponMemory();
 	// set new readable sgo node name
 	weaponReloadEXRetAddr = (uintptr_t)(hmodEXE + 0x38EF46);
-	hookGameBlock((void *)(hmodEXE + 0x38EEDD), (uint64_t)ASMweaponReloadEX);
+	hookGameBlock14((void *)(hmodEXE + 0x38EEDD), (uint64_t)ASMweaponReloadEX);
 	// allows midsection reload
 	weaponStartReloadRetAddr = (uintptr_t)(hmodEXE + 0x3911DF);
-	hookGameBlock((void *)(hmodEXE + 0x3911CB), (uint64_t)ASMweaponStartReload);
+	hookGameBlock14((void *)(hmodEXE + 0x3911CB), (uint64_t)ASMweaponStartReload);
 
 	// gatling setup, offset is 0x39A0C5
 	wGatlingSetupRetAddr = (uintptr_t)(hmodEXE + 0x39ACE0);
-	hookGameBlock((void *)(hmodEXE + 0x39ACC5), (uint64_t)ASMweaponGatlingSetup);
+	hookGameBlock14((void *)(hmodEXE + 0x39ACC5), (uint64_t)ASMweaponGatlingSetup);
 	// gatling shot, offset is 0x39A7AA
 	wGatlingShotRetAddr = (uintptr_t)(hmodEXE + 0x39B3B8);
-	hookGameBlock((void *)(hmodEXE + 0x39B3AA), (uint64_t)ASMweaponGatlingShot);
+	hookGameBlock14((void *)(hmodEXE + 0x39B3AA), (uint64_t)ASMweaponGatlingShot);
 
 	/* For testing
 	wwwRetAddr = (uintptr_t)(hmodEXE + 0x);

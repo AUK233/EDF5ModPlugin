@@ -1,7 +1,8 @@
 .data
 ; Use other asm functions
-extern edf8C8C0 : proto
-extern edf5BDF30 : proto
+extern edf8C8C0Address : qword
+;extern edf5BDF30 : proto
+extern edf5BDF30Address : qword
 
 extern weaponReloadEXRetAddr : qword
 
@@ -18,7 +19,8 @@ ASMweaponReloadEX proc
 ; add star to "ReloadInit"
 lea rdx, wReloadInit
 mov rcx, r14
-call edf5BDF30
+;call edf5BDF30
+call edf5BDF30Address
 movsxd rcx, eax
 cmp ecx, -1
 jne ofs38E2F9
@@ -37,7 +39,7 @@ ofs38E30B:
 ;movss xmm1, dword ptr [rax+8] ; old
 mov r8,r12
 lea rcx, qword ptr [rbp+200h] ; note that it cannot be replaced here
-call edf8C8C0
+call edf8C8C0Address
 movss xmm1, dword ptr [rax] ; get value
 ; new 4 line
 movss xmm0, wReloadInitFloat
@@ -58,7 +60,8 @@ mov qword ptr [rsi+2508h], 0
 ; read new function "ReloadPadType"
 lea rdx, wReloadPadType
 mov rcx, r14
-call edf5BDF30
+;call edf5BDF30
+call edf5BDF30Address
 movsxd rcx, eax
 cmp ecx, -1
 je EndBlock ; if node does not exist, jump

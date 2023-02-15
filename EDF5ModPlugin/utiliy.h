@@ -14,6 +14,8 @@ void *AllocatePageNearAddress(void *targetAddr);
 void WriteHookToProcess(void *addr, void *data, size_t len);
 // update game's original functions
 void hookGameBlock(void *targetAddr, uint64_t hookAddr);
+// update game's original functions with 14 bytes
+void hookGameBlock14(void *targetAddr, uint64_t hookAddr);
 // Search the address of the target
 intptr_t SundaySearch(const byte *target, int tLen, const byte *pattern, int pLen);
 // Search the address of the target

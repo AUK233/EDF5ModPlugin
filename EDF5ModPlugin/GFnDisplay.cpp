@@ -55,7 +55,8 @@ uintptr_t __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor, uintptr_t
 	UINT32 textSize = *(UINT32 *)(pstr + 0x80);
 	// check that float4 is the required value
 	// ok, now memcpy is a multiple of 16
-	if (*(INT64 *)(pcolor + 0x270) == 4550220892846510047 && *(INT64 *)(pcolor + 0x278) == 4692750812782960574) {
+	if (*(INT32 *)(pcolor + 0x270) == 0x3FAD4FDF && *(INT32 *)(pcolor + 0x274) == 0x3F25A1CB && *(INT32 *)(pcolor + 0x278) == 0x3F5A9FBE && *(INT32 *)(pcolor + 0x27C) == 0x41200000) {
+		// if (*(INT64 *)(pcolor + 0x270) == 4550220892846510047 && *(INT64 *)(pcolor + 0x278) == 4692750812782960574)
 		// then back to white
 		float vf[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 		memcpy((void *)(pcolor + 0x270), &vf, 16U);
@@ -82,7 +83,8 @@ uintptr_t __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor, uintptr_t
 				pDMGstr2 = pText;
 			}
 		}
-	} else if (*(INT64 *)(pcolor + 0x270) == 4594572340047290302 && *(INT64 *)(pcolor + 0x278) == 4566650023222005727) {
+	} else if (*(INT32 *)(pcolor + 0x270) == 0x3F5A9FBE && *(INT32 *)(pcolor + 0x274) == 0x3FC33333 && *(INT32 *)(pcolor + 0x278) == 0x3FAD4FDF && *(INT32 *)(pcolor + 0x27C) == 0x3F600000) {
+		// if (*(INT64 *)(pcolor + 0x270) == 4594572340047290302 && *(INT64 *)(pcolor + 0x278) == 4566650023222005727)
 		// back to white
 		float vf[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 		memcpy((void *)(pcolor + 0x270), &vf, 16U);
@@ -120,7 +122,7 @@ float damage_tmp = 0;
 void hookGetPlayerDamage() {
 	// file offset = 0x2DAA41
 	playerDmgRetAddress = (uintptr_t)(hmodEXE + 0x2DB659);
-	hookGameBlock((void *)(hmodEXE + 0x2DB641), (uint64_t)ASMrecordPlayerDamage);
+	hookGameBlock14((void *)(hmodEXE + 0x2DB641), (uint64_t)ASMrecordPlayerDamage);
 	// we still override original radar
 	// WriteHookToProcess((void *)(hmodEXE + 0xEC8F18), (void *)L"lyt_HudRaderM1.sgo", 36U);
 }
