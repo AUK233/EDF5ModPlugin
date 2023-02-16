@@ -15,6 +15,8 @@
 extern PBYTE hmodEXE;
 
 extern "C" {
+uintptr_t __RTDynamicCastAddr;
+
 uintptr_t playerViewRetAddr;
 void __fastcall ASMplayerViewChange();
 
@@ -29,16 +31,6 @@ void __fastcall ASMpickupBoxRange();
 void __fastcall ASMxgsOCgiantAnt();
 void __fastcall ASMxgsOCmonster501();
 
-uintptr_t weaponReloadEXRetAddr;
-void __fastcall ASMweaponReloadEX();
-uintptr_t weaponStartReloadRetAddr;
-void __fastcall ASMweaponStartReload();
-// Weapon_Gatling
-uintptr_t wGatlingSetupRetAddr;
-void __fastcall ASMweaponGatlingSetup();
-uintptr_t wGatlingShotRetAddr;
-void __fastcall ASMweaponGatlingShot();
-
 /* For testing
 uintptr_t wwwRetAddr;
 void __fastcall ASMwww();
@@ -48,6 +40,7 @@ void __fastcall ASMwww();
 void hookGameFunctions() {
 	// first overwrite original
 	OverwriteGameFunctions();
+	__RTDynamicCastAddr = (uintptr_t)(hmodEXE + 0x9C8228);
 	// allows switching of views
 	playerViewRetAddr = (uintptr_t)(hmodEXE + 0x2DB0D1);
 	hookGameBlock14((void *)(hmodEXE + 0x2DB090), (uint64_t)ASMplayerViewChange);
@@ -63,23 +56,10 @@ void hookGameFunctions() {
 	hookGameBlock14((void *)(hmodEXE + 0x1FFD1B), (uint64_t)ASMxgsOCgiantAnt);
 	// hook Monster501 extra features
 	hookGameBlock14((void *)(hmodEXE + 0x263B64), (uint64_t)ASMxgsOCmonster501);
-
-	// new weapon features
-	// first, it need to reallocate memory
-	ReallocateWeaponMemory();
-	// set new readable sgo node name
-	weaponReloadEXRetAddr = (uintptr_t)(hmodEXE + 0x38EF46);
-	hookGameBlock14((void *)(hmodEXE + 0x38EEDD), (uint64_t)ASMweaponReloadEX);
-	// allows midsection reload
-	weaponStartReloadRetAddr = (uintptr_t)(hmodEXE + 0x3911DF);
-	hookGameBlock14((void *)(hmodEXE + 0x3911CB), (uint64_t)ASMweaponStartReload);
-
-	// gatling setup, offset is 0x39A0C5
-	wGatlingSetupRetAddr = (uintptr_t)(hmodEXE + 0x39ACE0);
-	hookGameBlock14((void *)(hmodEXE + 0x39ACC5), (uint64_t)ASMweaponGatlingSetup);
-	// gatling shot, offset is 0x39A7AA
-	wGatlingShotRetAddr = (uintptr_t)(hmodEXE + 0x39B3B8);
-	hookGameBlock14((void *)(hmodEXE + 0x39B3AA), (uint64_t)ASMweaponGatlingShot);
+	
+	// By Features
+	hookHeavyArmorFunctions();
+	hookWeaponFunctions();
 
 	/* For testing
 	wwwRetAddr = (uintptr_t)(hmodEXE + 0x);
@@ -139,6 +119,78 @@ void OverwriteGameFunctions() {
 	// particle size, offset is 0xEE4E64, default is 35.0f
 	float GenExploSize = 21.0f;
 	WriteHookToProcess((void *)(hmodEXE + 0xEE6664), &GenExploSize, 4U);
+}
+
+extern "C" {
+// Swap boost and dash
+uintptr_t edf11B24E0Address;
+uintptr_t edf11B1AB0Address;
+void __fastcall ASMeFencerJetSetup();
+uintptr_t ofs3073C0JmpAddr;
+uintptr_t ofs2E4070JmpAddr;
+uintptr_t ofs2E42C0JmpAddr;
+uintptr_t ofs2E43E0JmpAddr;
+uintptr_t ofs2E4500JmpAddr;
+void __fastcall ASMeFencerBoostAndDash();
+}
+
+void hookHeavyArmorFunctions() {
+	int newFencerSize = 0x1E10;
+	// start:0x1E00, size:0x10, function: extra reload types.
+	// HeavyArmor 0x1C30
+	WriteHookToProcess((void *)(hmodEXE + 0x2E3408), &newFencerSize, 4U);
+	
+	// +1BA0h, default is 240
+	int newBoosterCD = 300;
+	WriteHookToProcess((void *)(hmodEXE + 0x2E4D38 + 6), &newBoosterCD, 4U);
+	// +1BB0h, default is 90
+	int newDashCD = 120;
+	WriteHookToProcess((void *)(hmodEXE + 0x2E54E4 + 6), &newDashCD, 4U);
+
+	// Swap boost and dash Installation
+	edf11B24E0Address = (uintptr_t)(hmodEXE + 0x11B24E0);
+	edf11B1AB0Address = (uintptr_t)(hmodEXE + 0x11B1AB0);
+	// offset is 0x2E3926
+	hookGameBlock14((void *)(hmodEXE + 0x2E4526), (uint64_t)ASMeFencerJetSetup);
+	// Swap boost and dash Activate
+	ofs3073C0JmpAddr = (uintptr_t)(hmodEXE + 0x307FC0);
+	ofs2E4070JmpAddr = (uintptr_t)(hmodEXE + 0x2E4C70);
+	ofs2E42C0JmpAddr = (uintptr_t)(hmodEXE + 0x2E4EC0);
+	ofs2E43E0JmpAddr = (uintptr_t)(hmodEXE + 0x2E4FE0);
+	ofs2E4500JmpAddr = (uintptr_t)(hmodEXE + 0x2E5100);
+	hookGameBlock14((void *)(hmodEXE + 0x2E4890), (uint64_t)ASMeFencerBoostAndDash);
+}
+
+
+extern "C" {
+uintptr_t weaponReloadEXRetAddr;
+void __fastcall ASMweaponReloadEX();
+uintptr_t weaponStartReloadRetAddr;
+void __fastcall ASMweaponStartReload();
+// Weapon_Gatling
+uintptr_t wGatlingSetupRetAddr;
+void __fastcall ASMweaponGatlingSetup();
+uintptr_t wGatlingShotRetAddr;
+void __fastcall ASMweaponGatlingShot();
+}
+
+void hookWeaponFunctions() {
+	// new weapon features
+	// first, it need to reallocate memory
+	ReallocateWeaponMemory();
+	// set new readable sgo node name
+	weaponReloadEXRetAddr = (uintptr_t)(hmodEXE + 0x38EF46);
+	hookGameBlock14((void *)(hmodEXE + 0x38EEDD), (uint64_t)ASMweaponReloadEX);
+	// allows midsection reload
+	weaponStartReloadRetAddr = (uintptr_t)(hmodEXE + 0x3911DF);
+	hookGameBlock14((void *)(hmodEXE + 0x3911CB), (uint64_t)ASMweaponStartReload);
+
+	// gatling setup, offset is 0x39A0C5
+	wGatlingSetupRetAddr = (uintptr_t)(hmodEXE + 0x39ACE0);
+	hookGameBlock14((void *)(hmodEXE + 0x39ACC5), (uint64_t)ASMweaponGatlingSetup);
+	// gatling shot, offset is 0x39A7AA
+	wGatlingShotRetAddr = (uintptr_t)(hmodEXE + 0x39B3B8);
+	hookGameBlock14((void *)(hmodEXE + 0x39B3AA), (uint64_t)ASMweaponGatlingShot);
 }
 
 // new functions require more memory

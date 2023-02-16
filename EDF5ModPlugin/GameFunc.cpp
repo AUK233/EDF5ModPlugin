@@ -25,6 +25,10 @@ uintptr_t edf4DC190Address;
 uintptr_t edf5BDF30Address;
 // get AmmoClass address
 uintptr_t edf6136C0Address;
+// get Weapon_Accessory data (int)
+uintptr_t edf3983B0Address;
+// get Weapon_Accessory data (float)
+uintptr_t edf3982A0Address;
 }
 
 // get game function address
@@ -40,6 +44,10 @@ void GetGameFunctions() {
 	edf5BDF30Address = (uintptr_t)(hmodEXE + 0x5BDF30);
 	// get get AmmoClass address function
 	edf6136C0Address = (uintptr_t)(hmodEXE + 0x6136C0);
+	// get Weapon_Accessory data (int)
+	edf3983B0Address = (uintptr_t)(hmodEXE + 0x3983B0);
+	// get Weapon_Accessory data (float)
+	edf3982A0Address = (uintptr_t)(hmodEXE + 0x3982A0);
 }
 
 // here hook all changed functions, written in c++

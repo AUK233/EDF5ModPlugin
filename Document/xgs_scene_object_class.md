@@ -15,6 +15,7 @@ Added the following values available for SGO node names.
 | xgs_scene_object_class's value | custom_parameter's ptr value |
 |---|---|
 |Weapon_Gatling|[parameters](#Weapon_Gatling-custom_parameter), min 9 nodes, max 11 nodes|
+|Weapon_Accessory|[new available values](#Weapon_Accessory-custom_parameter)|
 
 #### EDFWeapon ReloadPadType
 | node index | value type | value description |
@@ -39,7 +40,11 @@ Added the following values available for SGO node names.
 | - | - |1 is gradually increase ROF, will use node9's data|
 | - | - |2 is gradually increase accuracy at the same time|
 
-#### EDFWeapon ReloadPadType
+#### Weapon_Accessory custom_parameter
+| type int | value type | value description |
+|---|---|---|
+|1300|int|0 or 1, 1 is switch dash to boost|
+|1301|int|0 or 1, 1 is switch boost to dash|
 
 ##### [Return to Index](#index)
 
