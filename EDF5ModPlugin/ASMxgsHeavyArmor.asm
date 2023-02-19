@@ -20,7 +20,7 @@ extern ofs2E4500JmpAddr : qword
 ASMeFencerJetSetup proc
 
 mov edi, r14d
-movss dword ptr [rbx+1BB4h], xmm6
+movss dword ptr [rbx+1BB4h], xmm6 ; dash interval
 ; fix boost speed
 mov esi, 1
 cvtsi2ss xmm6, esi ; int to float

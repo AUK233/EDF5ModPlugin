@@ -4,6 +4,7 @@ Added the following values available for SGO node names.
 ## xgs_scene_object_class 's value:
 - [EDF Weapon (Weapon_*)](#EDFWeapon)
 - [GiantAnt](#GiantAnt)
+- [GiantSpider](#GiantSpider)
 - [Monster501](#Monster501)
 
 ### EDFWeapon
@@ -75,6 +76,32 @@ Added the following values available for SGO node names.
 |5|float|change acid size|
 |6|float|change acid hitbox size|
 |7|float|change acid hit impulse|
+
+##### [Return to Index](#index)
+
+### GiantSpider
+| sgo node name | value type | function | value description |
+|---|---|---|---|
+
+| - | - |original function|
+|spd_Ammo|ptr|change ammo|[ammo parameters](#GiantSpider-spdammo), all parameters must be present|
+|spd_AmmoColor|ptr|change ammo color|[color parameters](#GiantAnt-BulletColor), all parameters must be present|
+|spd_AmmoExSet|ptr|change ammo detail|[exset parameters](#GiantSpider-BulletExSet), all parameters must be present|
+
+#### GiantSpider spdammo
+| node index | value type | value description |
+|---|---|---|
+|0|float|multiply this factor by original bullet size|
+|1|float|multiply this factor by original bullet speed|
+|2|float|multiply this factor by original bullet damage|
+
+#### GiantSpider BulletExSet
+| node index | value type | value description |
+|---|---|---|
+|0|int|multiply this factor by original shot count, this must > 0|
+|1|float|change ammo explosion range|
+|2|float|change ammo hitbox size|
+|3|float|change ammo hit impulse|
 
 ##### [Return to Index](#index)
 

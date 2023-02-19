@@ -29,6 +29,8 @@ uintptr_t edf6136C0Address;
 uintptr_t edf3983B0Address;
 // get Weapon_Accessory data (float)
 uintptr_t edf3982A0Address;
+//
+uintptr_t vedf125AB68;
 }
 
 // get game function address
@@ -48,13 +50,16 @@ void GetGameFunctions() {
 	edf3983B0Address = (uintptr_t)(hmodEXE + 0x3983B0);
 	// get Weapon_Accessory data (float)
 	edf3982A0Address = (uintptr_t)(hmodEXE + 0x3982A0);
+
+	//
+	vedf125AB68 = (uintptr_t)(hmodEXE + 0x125AB68);
 }
 
 // here hook all changed functions, written in c++
 void hookGameFunctionsC() {
 	// allows weapons to be charged
 	//SetupHook(0x391230, (PVOID *)&fnk391230_orig, fnk391230_hook, "Allows weapons to be charged", 1);
-	hookGameBlock14((void *)(hmodEXE + 0x391230), (uint64_t)fnk391230_hook);
+	hookGameBlock((void *)(hmodEXE + 0x391230), (uint64_t)fnk391230_hook);
 }
 
 bool __fastcall fnk391230_hook(uintptr_t pweapon) {

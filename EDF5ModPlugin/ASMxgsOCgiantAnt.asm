@@ -1,7 +1,7 @@
 .data
 ; Use other asm functions
 extern edf5BDF30 : proto
-extern edf6136C0 : proto
+;extern edf6136C0 : proto
 
 ; L"ant_BulletClass"
 antBulletClass db 97,0,110,0,116,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,67,0,108,0,97,0,115,0,115,0,0,0
@@ -92,7 +92,7 @@ movss dword ptr [rbx+12DCh], xmm0
 movsxd rax, dword ptr [rcx+8]
 movss xmm0, dword ptr [rax+rcx+44]
 movss dword ptr [rbx+12E8h], xmm0
-; change ammo damage
+; change ammo penetration
 movsxd rax, dword ptr [rcx+8]
 lea rax, [rax+rcx+48] ; store address
 cmp dword ptr [rax+8],0

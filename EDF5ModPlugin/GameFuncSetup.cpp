@@ -29,6 +29,7 @@ void __fastcall ASMpickupBoxRange();
 
 // xgs_scene_object_class
 void __fastcall ASMxgsOCgiantAnt();
+void __fastcall ASMxgsOCgiantSpider();
 void __fastcall ASMxgsOCmonster501();
 
 /* For testing
@@ -43,19 +44,21 @@ void hookGameFunctions() {
 	__RTDynamicCastAddr = (uintptr_t)(hmodEXE + 0x9C8228);
 	// allows switching of views
 	playerViewRetAddr = (uintptr_t)(hmodEXE + 0x2DB0D1);
-	hookGameBlock14((void *)(hmodEXE + 0x2DB090), (uint64_t)ASMplayerViewChange);
+	hookGameBlock((void *)(hmodEXE + 0x2DB090), (uint64_t)ASMplayerViewChange);
 	// get text address
 	hookTextDisplayRetAddr = (uintptr_t)(hmodEXE + 0x4B15C9);
-	hookGameBlock14((void *)(hmodEXE + 0x4B15B4), (uint64_t)ASMhookTextDisplay);
+	hookGameBlock((void *)(hmodEXE + 0x4B15B4), (uint64_t)ASMhookTextDisplay);
 	// add guaranteed pickup, offset is 0x198350
 	pickupBoxRangeFRetAddr = (uintptr_t)(hmodEXE + 0x198F5F);
 	pickupBoxRangeTRetAddr = (uintptr_t)(hmodEXE + 0x198F64);
-	hookGameBlock14((void *)(hmodEXE + 0x198F50), (uint64_t)ASMpickupBoxRange);
+	hookGameBlock((void *)(hmodEXE + 0x198F50), (uint64_t)ASMpickupBoxRange);
 
 	// hook GiantAnt extra features
-	hookGameBlock14((void *)(hmodEXE + 0x1FFD1B), (uint64_t)ASMxgsOCgiantAnt);
+	hookGameBlock((void *)(hmodEXE + 0x1FFD1B), (uint64_t)ASMxgsOCgiantAnt);
+	// hook GiantSpider extra features, offset is 0x21E48A
+	hookGameBlock((void *)(hmodEXE + 0x21F08A), (uint64_t)ASMxgsOCgiantSpider);
 	// hook Monster501 extra features
-	hookGameBlock14((void *)(hmodEXE + 0x263B64), (uint64_t)ASMxgsOCmonster501);
+	hookGameBlock((void *)(hmodEXE + 0x263B64), (uint64_t)ASMxgsOCmonster501);
 	
 	// By Features
 	hookHeavyArmorFunctions();
@@ -73,27 +76,31 @@ void OverwriteGameFunctions() {
 	int maxBoxes = 0x1000;
 	WriteHookToProcess((void *)(hmodEXE + 0x1990CC), &maxBoxes, 4U);
 	WriteHookToProcess((void *)(hmodEXE + 0x1990EC), &maxBoxes, 4U);
+
+	// removal GiantSpider change ammo color, offset is 0x21F8FB
+	unsigned char noSpiderColorChange[] = {0xEB, 0x4F};
+	WriteHookToProcess((void *)(hmodEXE + 0x2204FB), &noSpiderColorChange, 2U);
 	// removal Monster501 shot interval forced to 2, then change original 1 to 2
-	unsigned char nop10[10] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
+	unsigned char nop10[] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
 	WriteHookToProcess((void *)(hmodEXE + 0x264286), &nop10, 10U);
 	int m501shot = 2;
 	WriteHookToProcess((void *)(hmodEXE + 0x263AF4 + 6), &m501shot, 4U);
 
 	// normal explosion
 	// time, offset is 0xEE4E74, default is 42.0f
-	float explosionTime = 6.3f;
+	float explosionTime = 8.4f;
 	WriteHookToProcess((void *)(hmodEXE + 0xEE6674), &explosionTime, 4U);
 	// particle count, offset is 0x1AD7DE, default is 60
 	int explosionNum = 90;
 	WriteHookToProcess((void *)(hmodEXE + 0x1AE3DE + 2), &explosionNum, 4U);
 	// smoke time, offset is 0x1ad3b7, default is 60 and 240
-	int explosionST1 = 9;
+	int explosionST1 = 10;
 	WriteHookToProcess((void *)(hmodEXE + 0x1ADFB8), &explosionST1, 4U);
-	int explosionST2 = 36;
+	int explosionST2 = 40;
 	WriteHookToProcess((void *)(hmodEXE + 0x1ADFC2), &explosionST2, 4U);
 	// genocide explosion, base offset is 0x1ACA23
 	// particle count, default is 80
-	int GenExploNum = 40;
+	int GenExploNum = 100;
 	WriteHookToProcess((void *)(hmodEXE + 0x1AD624), &GenExploNum, 4U);
 	// lifetime large, default is 930 and 990
 	int GenExploLargeT1 = 330;
@@ -146,19 +153,22 @@ void hookHeavyArmorFunctions() {
 	// +1BB0h, default is 90
 	int newDashCD = 120;
 	WriteHookToProcess((void *)(hmodEXE + 0x2E54E4 + 6), &newDashCD, 4U);
+	// 0x2E387B 0.5f to 1.25f
+	unsigned char newDashInterval[] = {0xED, 0x1F};
+	WriteHookToProcess((void *)(hmodEXE + 0x2E447B + 4), &newDashInterval, 2U);
 
 	// Swap boost and dash Installation
 	edf11B24E0Address = (uintptr_t)(hmodEXE + 0x11B24E0);
 	edf11B1AB0Address = (uintptr_t)(hmodEXE + 0x11B1AB0);
 	// offset is 0x2E3926
-	hookGameBlock14((void *)(hmodEXE + 0x2E4526), (uint64_t)ASMeFencerJetSetup);
+	hookGameBlock((void *)(hmodEXE + 0x2E4526), (uint64_t)ASMeFencerJetSetup);
 	// Swap boost and dash Activate
 	ofs3073C0JmpAddr = (uintptr_t)(hmodEXE + 0x307FC0);
 	ofs2E4070JmpAddr = (uintptr_t)(hmodEXE + 0x2E4C70);
 	ofs2E42C0JmpAddr = (uintptr_t)(hmodEXE + 0x2E4EC0);
 	ofs2E43E0JmpAddr = (uintptr_t)(hmodEXE + 0x2E4FE0);
 	ofs2E4500JmpAddr = (uintptr_t)(hmodEXE + 0x2E5100);
-	hookGameBlock14((void *)(hmodEXE + 0x2E4890), (uint64_t)ASMeFencerBoostAndDash);
+	hookGameBlock((void *)(hmodEXE + 0x2E4890), (uint64_t)ASMeFencerBoostAndDash);
 }
 
 
@@ -180,17 +190,17 @@ void hookWeaponFunctions() {
 	ReallocateWeaponMemory();
 	// set new readable sgo node name
 	weaponReloadEXRetAddr = (uintptr_t)(hmodEXE + 0x38EF46);
-	hookGameBlock14((void *)(hmodEXE + 0x38EEDD), (uint64_t)ASMweaponReloadEX);
+	hookGameBlock((void *)(hmodEXE + 0x38EEDD), (uint64_t)ASMweaponReloadEX);
 	// allows midsection reload
 	weaponStartReloadRetAddr = (uintptr_t)(hmodEXE + 0x3911DF);
-	hookGameBlock14((void *)(hmodEXE + 0x3911CB), (uint64_t)ASMweaponStartReload);
+	hookGameBlock((void *)(hmodEXE + 0x3911CB), (uint64_t)ASMweaponStartReload);
 
 	// gatling setup, offset is 0x39A0C5
 	wGatlingSetupRetAddr = (uintptr_t)(hmodEXE + 0x39ACE0);
-	hookGameBlock14((void *)(hmodEXE + 0x39ACC5), (uint64_t)ASMweaponGatlingSetup);
+	hookGameBlock((void *)(hmodEXE + 0x39ACC5), (uint64_t)ASMweaponGatlingSetup);
 	// gatling shot, offset is 0x39A7AA
 	wGatlingShotRetAddr = (uintptr_t)(hmodEXE + 0x39B3B8);
-	hookGameBlock14((void *)(hmodEXE + 0x39B3AA), (uint64_t)ASMweaponGatlingShot);
+	hookGameBlock((void *)(hmodEXE + 0x39B3AA), (uint64_t)ASMweaponGatlingShot);
 }
 
 // new functions require more memory
@@ -230,6 +240,7 @@ void ReallocateWeaponMemory() {
 	WriteHookToProcess((void *)(hmodEXE + 0x46A4D8), &newWeaponSize, 4U);
 	// Weapon_HeavyShoot 0x1260
 	WriteHookToProcess((void *)(hmodEXE + 0x46A528), &newWeaponSize, 4U);
+
 	// Weapon_Gatling 0x1290
 	WriteHookToProcess((void *)(hmodEXE + 0x46A578), &newWeaponSize, 4U);
 	// start:0x1400, size:0x20, function: set pre-heat type.
