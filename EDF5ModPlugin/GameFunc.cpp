@@ -58,11 +58,11 @@ void GetGameFunctions() {
 // here hook all changed functions, written in c++
 void hookGameFunctionsC() {
 	// allows weapons to be charged
-	//SetupHook(0x391230, (PVOID *)&fnk391230_orig, fnk391230_hook, "Allows weapons to be charged", 1);
-	hookGameBlock((void *)(hmodEXE + 0x391230), (uint64_t)fnk391230_hook);
+	SetupHook(0x391230, (PVOID *)&fnk391230_orig, fnk391230_hook, "Allows weapons to be charged", 1);
+	//hookGameBlock14((void *)(hmodEXE + 0x391230), (uint64_t)fnk391230_hook);
 }
 
-bool __fastcall fnk391230_hook(uintptr_t pweapon) {
+static bool __fastcall fnk391230_hook(uintptr_t pweapon) {
 	// ammo
 	int *curAmmo = (int *)(pweapon + 0x8E8);
 	int maxAmmo = *(int *)(pweapon + 0x1D0);

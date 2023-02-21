@@ -82,11 +82,12 @@ Added the following values available for SGO node names.
 ### GiantSpider
 | sgo node name | value type | function | value description |
 |---|---|---|---|
-
-| - | - |original function|
-|spd_Ammo|ptr|change ammo|[ammo parameters](#GiantSpider-spdammo), all parameters must be present|
+|spd_AmmoAlive|int|change ammo alive time|default value is unknown|
 |spd_AmmoColor|ptr|change ammo color|[color parameters](#GiantAnt-BulletColor), all parameters must be present|
 |spd_AmmoExSet|ptr|change ammo detail|[exset parameters](#GiantSpider-BulletExSet), all parameters must be present|
+|spd_ChangeModelParam|ptr|change model color|same as ant_ChangeModelParam|
+| - | - |original function|
+|spd_Ammo|ptr|change ammo|[ammo parameters](#GiantSpider-spdammo), all parameters must be present|
 
 #### GiantSpider spdammo
 | node index | value type | value description |

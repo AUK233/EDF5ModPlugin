@@ -20,9 +20,6 @@ uintptr_t __RTDynamicCastAddr;
 uintptr_t playerViewRetAddr;
 void __fastcall ASMplayerViewChange();
 
-uintptr_t hookTextDisplayRetAddr;
-void __fastcall ASMhookTextDisplay();
-
 uintptr_t pickupBoxRangeFRetAddr;
 uintptr_t pickupBoxRangeTRetAddr;
 void __fastcall ASMpickupBoxRange();
@@ -45,9 +42,6 @@ void hookGameFunctions() {
 	// allows switching of views
 	playerViewRetAddr = (uintptr_t)(hmodEXE + 0x2DB0D1);
 	hookGameBlock((void *)(hmodEXE + 0x2DB090), (uint64_t)ASMplayerViewChange);
-	// get text address
-	hookTextDisplayRetAddr = (uintptr_t)(hmodEXE + 0x4B15C9);
-	hookGameBlock((void *)(hmodEXE + 0x4B15B4), (uint64_t)ASMhookTextDisplay);
 	// add guaranteed pickup, offset is 0x198350
 	pickupBoxRangeFRetAddr = (uintptr_t)(hmodEXE + 0x198F5F);
 	pickupBoxRangeTRetAddr = (uintptr_t)(hmodEXE + 0x198F64);

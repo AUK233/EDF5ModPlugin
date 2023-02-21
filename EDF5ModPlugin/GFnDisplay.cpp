@@ -112,6 +112,9 @@ uintptr_t __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor, uintptr_t
 }
 
 extern "C" {
+uintptr_t hookTextDisplayRetAddr;
+void __fastcall ASMhookTextDisplay();
+
 void __fastcall ASMrecordPlayerDamage();
 uintptr_t playerDmgRetAddress;
 uintptr_t playerAddress = 0;
@@ -120,11 +123,17 @@ float damage_tmp = 0;
 
 // get player weapon damage
 void hookGetPlayerDamage() {
+	// get text address
+	hookTextDisplayRetAddr = (uintptr_t)(hmodEXE + 0x4B15C9);
+	hookGameBlock((void *)(hmodEXE + 0x4B15B4), (uint64_t)ASMhookTextDisplay);
 	// file offset = 0x2DAA41
 	playerDmgRetAddress = (uintptr_t)(hmodEXE + 0x2DB659);
-	hookGameBlock14((void *)(hmodEXE + 0x2DB641), (uint64_t)ASMrecordPlayerDamage);
-	// we still override original radar
-	// WriteHookToProcess((void *)(hmodEXE + 0xEC8F18), (void *)L"lyt_HudRaderM1.sgo", 36U);
+	hookGameBlock((void *)(hmodEXE + 0x2DB641), (uint64_t)ASMrecordPlayerDamage);
+	// we still override some original
+	WriteHookToProcess((void *)(hmodEXE + 0xEC8F18), (void *)L"lyt_HudRaderM1.sgo", 36U);
+	WriteHookToProcess((void *)(hmodEXE + 0xECB820), (void *)L"lyt_HudWeaponGuagR1.sgo", 48U);
+	WriteHookToProcess((void *)(hmodEXE + 0xECB7D0), (void *)L"lyt_HudEnergyGuageR1.sgo", 48U);
+	WriteHookToProcess((void *)(hmodEXE + 0xEC8F90), (void *)L"lyt_HudWeaponGuageVehicl1.sgo", 60U);
 }
 
 // set damage display duration (short)
@@ -138,6 +147,7 @@ constexpr int DAMAGE_CHARGE_TIME_L = 15;
 struct Damage {
 	float value;
 	int time;
+	uintptr_t align;
 };
 // separate damage
 Damage damageNumber;

@@ -77,7 +77,7 @@ static UINT RTRead = 0;
 static UINT DisplayDamage = 1;
 static UINT PlayerView = 0;
 // Old configuration
-static BOOL Redirect = TRUE;
+static BOOL Redirect = FALSE;
 static BOOL LoadPluginsB = FALSE;
 static BOOL GameLog = FALSE;
 
@@ -533,9 +533,13 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		GetGameFunctions();
 		hookGameFunctionsC();
 		hookGameFunctions();
-		hookGetPlayerDamage();
 		// Very important!!!!!!!!!!!!
 		ReadINIconfig();
+
+		// Now inject only when needed, for crash rate reduction
+		if (DisplayDamage || RTRead) {
+			hookGetPlayerDamage();
+		}
 
 		if (RTRead) {
 			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ReadINILoop, NULL, NULL, NULL);
