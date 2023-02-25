@@ -137,10 +137,12 @@ movss dword ptr [rdi+14CCh], xmm0
 ;mov byte ptr [rdi+14BCh], 1
 
 OriginalEndBlock:
-lea r11, qword ptr [rsp+90h]
+;lea r11, qword ptr [rsp+90h]
 ;mov rsi, qword ptr [r11+38h]
-movaps xmm6, xmmword ptr [r11-10h]
-mov rsp, r11
+;movaps xmm6, xmmword ptr [r11-10h]
+movaps xmm6, xmmword ptr [rsp+80h]
+;mov rsp, r11
+add rsp, 90h
 pop r15
 pop r14
 pop rdi

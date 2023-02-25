@@ -136,6 +136,20 @@ void hookGetPlayerDamage() {
 	WriteHookToProcess((void *)(hmodEXE + 0xEC8F90), (void *)L"lyt_HudWeaponGuageVehicl1.sgo", 60U);
 }
 
+// fast get address
+uintptr_t __fastcall GetPlayerAddress() {
+	uintptr_t out = (uintptr_t)hmodEXE;
+	std::initializer_list<int> offsets = {0x125AB68, 0x238, 0x290, 0x10};
+	const int *it = offsets.begin();
+	for (int i = 0; i < offsets.size(); i++) {
+		out = *(uintptr_t *)(out + *(it + i));
+		if (out == 0) {
+			return 0;
+		}
+	}
+	return out;
+}
+
 // set damage display duration (short)
 constexpr int DAMAGE_DISPLAY_TIME_S = 61;
 // set damage display duration (long)
@@ -254,7 +268,8 @@ void __fastcall setDamageDisplayTime(int vstart, int vend, int time) {
 
 void __fastcall displayWeaponDamageA1() {
 	while (displayDamageIndex == 1) {
-		playerAddress = GetPointerAddress((uintptr_t)hmodEXE, {0x0125AB68, 0x238, 0x290, 0x10});
+		//playerAddress = GetPointerAddress((uintptr_t)hmodEXE, {0x0125AB68, 0x238, 0x290, 0x10});
+		playerAddress = GetPlayerAddress();
 
 		if (playerAddress > 0) {
 			if (pDMGstr0 > 0) {
@@ -293,7 +308,7 @@ void __fastcall displayWeaponDamageA1() {
 
 void __fastcall displayWeaponDamageA2() {
 	while (displayDamageIndex == 11) {
-		playerAddress = GetPointerAddress((uintptr_t)hmodEXE, {0x0125AB68, 0x238, 0x290, 0x10});
+		playerAddress = GetPlayerAddress();
 
 		if (playerAddress > 0) {
 			if (pDMGstr0 > 0 && pDMGstr0C > 0) {
@@ -360,7 +375,7 @@ void __fastcall displayWeaponDamageA2() {
 
 void __fastcall displayWeaponDamageB1() {
 	while (displayDamageIndex == 2) {
-		playerAddress = GetPointerAddress((uintptr_t)hmodEXE, {0x0125AB68, 0x238, 0x290, 0x10});
+		playerAddress = GetPlayerAddress();
 
 		if (playerAddress > 0) {
 			if (pDMGstr1 > 0 || pDMGstr2 > 0) {
@@ -420,7 +435,7 @@ void __fastcall displayWeaponDamageB1() {
 
 void __fastcall displayWeaponDamageB2() {
 	while (displayDamageIndex == 21) {
-		playerAddress = GetPointerAddress((uintptr_t)hmodEXE, {0x0125AB68, 0x238, 0x290, 0x10});
+		playerAddress = GetPlayerAddress();
 
 		if (playerAddress > 0) {
 			if ((pDMGstr1 > 0 && pDMGstr1C > 0) || (pDMGstr2 > 0 && pDMGstr2C > 0)) {
@@ -510,7 +525,7 @@ void __fastcall displayWeaponDamageB2() {
 // reset values in real time read configuration
 void __fastcall displayWeaponDamageNull() {
 	while (displayDamageIndex == 0) {
-		playerAddress = GetPointerAddress((uintptr_t)hmodEXE, {0x0125AB68, 0x238, 0x290, 0x10});
+		playerAddress = GetPlayerAddress();
 
 		if (playerAddress > 0) {
 			displayWeaponDamageClear();

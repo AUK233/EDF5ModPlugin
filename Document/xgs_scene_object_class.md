@@ -5,6 +5,7 @@ Added the following values available for SGO node names.
 - [EDF Weapon (Weapon_*)](#EDFWeapon)
 - [GiantAnt](#GiantAnt)
 - [GiantSpider](#GiantSpider)
+- [GiantBee](#GiantBee)
 - [Monster501](#Monster501)
 
 ### EDFWeapon
@@ -103,6 +104,26 @@ Added the following values available for SGO node names.
 |1|float|change ammo explosion range|
 |2|float|change ammo hitbox size|
 |3|float|change ammo hit impulse|
+
+##### [Return to Index](#index)
+
+### GiantBee
+| sgo node name | value type | function | value description |
+|---|---|---|---|
+|bee_BulletAlive|int|change ammo alive time|insectbase_Type = 0, default 180; = 1, 300|
+|bee_BulletExSet|ptr|change ammo detail|[exset parameters](#GiantBee-BulletExSet), all parameters must be present|
+
+#### GiantBee BulletExSet
+| node index | value type | value description |
+|---|---|---|
+|0|int|multiply this factor by original shot count, this must > 0|
+|1|float|multiply this factor by original ammo speed|
+|2|float|multiply this factor by original ammo damage|
+|3|float|change ammo explosion range. insectbase_Type = 1, default 3|
+|4|int|set ammo penetration, only 0 and 1|
+|5|float|change ammo size. insectbase_Type = 0, default 0.2; = 1, 1|
+|6|float|change ammo hitbox size|
+|7|float|change ammo hit impulse|
 
 ##### [Return to Index](#index)
 

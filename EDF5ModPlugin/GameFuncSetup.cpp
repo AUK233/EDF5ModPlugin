@@ -27,6 +27,7 @@ void __fastcall ASMpickupBoxRange();
 // xgs_scene_object_class
 void __fastcall ASMxgsOCgiantAnt();
 void __fastcall ASMxgsOCgiantSpider();
+void __fastcall ASMxgsOCgiantBee();
 void __fastcall ASMxgsOCmonster501();
 
 /* For testing
@@ -47,10 +48,12 @@ void hookGameFunctions() {
 	pickupBoxRangeTRetAddr = (uintptr_t)(hmodEXE + 0x198F64);
 	hookGameBlock((void *)(hmodEXE + 0x198F50), (uint64_t)ASMpickupBoxRange);
 
-	// hook GiantAnt extra features
-	hookGameBlock((void *)(hmodEXE + 0x1FFD1B), (uint64_t)ASMxgsOCgiantAnt);
+	// hook GiantAnt extra features, offset is 0x1FF113
+	hookGameBlock((void *)(hmodEXE + 0x1FFD13), (uint64_t)ASMxgsOCgiantAnt);
 	// hook GiantSpider extra features, offset is 0x21E48A
 	hookGameBlock((void *)(hmodEXE + 0x21F08A), (uint64_t)ASMxgsOCgiantSpider);
+	// hook GiantBee extra features, offset is 0x20A0B0
+	hookGameBlock((void *)(hmodEXE + 0x20ACB0), (uint64_t)ASMxgsOCgiantBee);
 	// hook Monster501 extra features
 	hookGameBlock((void *)(hmodEXE + 0x263B64), (uint64_t)ASMxgsOCmonster501);
 	
@@ -82,15 +85,15 @@ void OverwriteGameFunctions() {
 
 	// normal explosion
 	// time, offset is 0xEE4E74, default is 42.0f
-	float explosionTime = 8.4f;
+	float explosionTime = 14.0f;
 	WriteHookToProcess((void *)(hmodEXE + 0xEE6674), &explosionTime, 4U);
 	// particle count, offset is 0x1AD7DE, default is 60
-	int explosionNum = 90;
+	int explosionNum = 80;
 	WriteHookToProcess((void *)(hmodEXE + 0x1AE3DE + 2), &explosionNum, 4U);
 	// smoke time, offset is 0x1ad3b7, default is 60 and 240
-	int explosionST1 = 10;
+	int explosionST1 = 15;
 	WriteHookToProcess((void *)(hmodEXE + 0x1ADFB8), &explosionST1, 4U);
-	int explosionST2 = 40;
+	int explosionST2 = 60;
 	WriteHookToProcess((void *)(hmodEXE + 0x1ADFC2), &explosionST2, 4U);
 	// genocide explosion, base offset is 0x1ACA23
 	// particle count, default is 80
@@ -137,7 +140,7 @@ void __fastcall ASMeFencerBoostAndDash();
 
 void hookHeavyArmorFunctions() {
 	int newFencerSize = 0x1E10;
-	// start:0x1E00, size:0x10, function: extra reload types.
+	// start:0x1E00, size:0x10, function: swap types.
 	// HeavyArmor 0x1C30
 	WriteHookToProcess((void *)(hmodEXE + 0x2E3408), &newFencerSize, 4U);
 	
