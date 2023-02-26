@@ -233,6 +233,7 @@ ofs2E4070:
 jmp ofs2E4070JmpAddr
 ofs2E43E0:
 jmp ofs2E43E0JmpAddr
+int 3
 
 ASMeFencerBoostAndDash ENDP
 

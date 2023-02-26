@@ -29,6 +29,7 @@ addss xmm0, dword ptr [rdi+1FCh]
 minss xmm0, dword ptr [rdi+1F8h]
 maxss xmm0, dword ptr [rdi+1F4h]
 jmp playerDmgRetAddress
+int 3
 
 ASMrecordPlayerDamage ENDP
 END

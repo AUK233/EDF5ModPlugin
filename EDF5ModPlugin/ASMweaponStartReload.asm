@@ -35,6 +35,7 @@ originalBlock:
 mov dword ptr [rbx+8E8h], 0
 mov dword ptr [rbx+0B40h], 4
 jmp weaponStartReloadRetAddr
+int 3
 
 ASMweaponStartReload ENDP
 

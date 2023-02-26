@@ -57,7 +57,7 @@ void GetGameFunctions() {
 
 // here hook all changed functions, written in c++
 void hookGameFunctionsC() {
-	// allows weapons to be charged
+	// allows weapons to be charged, offset is 0x390630
 	SetupHook(0x391230, (PVOID *)&fnk391230_orig, fnk391230_hook, "Allows weapons to be charged", 1);
 	//hookGameBlock14((void *)(hmodEXE + 0x391230), (uint64_t)fnk391230_hook);
 }

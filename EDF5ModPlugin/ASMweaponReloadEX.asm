@@ -89,6 +89,7 @@ mov [rsi+2504h], eax ; extra time
 
 EndBlock:
 jmp weaponReloadEXRetAddr
+int 3
 
 ASMweaponReloadEX ENDP
 

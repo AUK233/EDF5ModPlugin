@@ -17,6 +17,8 @@
 
 extern PBYTE hmodEXE;
 
+static const unsigned char intNOP32[] = {0xCC, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
+
 const wchar_t DMGstrN0[] = L"                       \n                       \n                       \n                        ";
 const wchar_t DMGstrN1[] = L"               \n               \n               \n               \n               \n               \n                ";
 const wchar_t DMGstrN2[] = L"               \n               \n               \n               \n               \n               \n               \n        ";
@@ -123,12 +125,14 @@ float damage_tmp = 0;
 
 // get player weapon damage
 void hookGetPlayerDamage() {
-	// get text address
+	// get text address, offsety is 0x4B09B4
 	hookTextDisplayRetAddr = (uintptr_t)(hmodEXE + 0x4B15C9);
 	hookGameBlock((void *)(hmodEXE + 0x4B15B4), (uint64_t)ASMhookTextDisplay);
-	// file offset = 0x2DAA41
+	WriteHookToProcess((void *)(hmodEXE + 0x4B15B4 + 12), (void *)&intNOP32, 2U);
+	// file offset is 0x2DAA41
 	playerDmgRetAddress = (uintptr_t)(hmodEXE + 0x2DB659);
 	hookGameBlock((void *)(hmodEXE + 0x2DB641), (uint64_t)ASMrecordPlayerDamage);
+	WriteHookToProcess((void *)(hmodEXE + 0x2DB641 + 12), (void *)&intNOP32, 4U);
 	// we still override some original
 	WriteHookToProcess((void *)(hmodEXE + 0xEC8F18), (void *)L"lyt_HudRaderM1.sgo", 36U);
 	WriteHookToProcess((void *)(hmodEXE + 0xECB820), (void *)L"lyt_HudWeaponGuagR1.sgo", 48U);
@@ -143,7 +147,7 @@ uintptr_t __fastcall GetPlayerAddress() {
 	const int *it = offsets.begin();
 	for (int i = 0; i < offsets.size(); i++) {
 		out = *(uintptr_t *)(out + *(it + i));
-		if (out == 0) {
+		if (out <= 0xffff) {
 			return 0;
 		}
 	}
@@ -170,28 +174,28 @@ Damage dmgNumGroup[8];
 
 void __fastcall displayWeaponDamageClear() {
 	
-	if (pDMGstr0 > 0) {
+	if (pDMGstr0 > 0xFFFF) {
 		memcpy((void *)pDMGstr0, &DMGstrN0, 192U);
 		memcpy((void *)pDMGstr0fs, &DMGstr0fs, 4U);
 		memcpy((void *)(pDMGstr0fs + 4), &DMGstr0fs, 4U);
 	}
-	if (pDMGstr0C > 0) {
+	if (pDMGstr0C > 0xFFFF) {
 		memcpy((void *)pDMGstr0C, &DMGstrN0, 192U);
 	}
-	if (pDMGstr1 > 0) {
+	if (pDMGstr1 > 0xFFFF) {
 		memcpy((void *)pDMGstr1, &DMGstrN1, 224U);
 		memcpy((void *)pDMGstr1fs, &DMGstr1fs, 4U);
 		memcpy((void *)(pDMGstr1fs + 4), &DMGstr1fs, 4U);
 	}
-	if (pDMGstr1C > 0) {
+	if (pDMGstr1C > 0xFFFF) {
 		memcpy((void *)pDMGstr1C, &DMGstrN1, 224U);
 	}
-	if (pDMGstr2 > 0) {
+	if (pDMGstr2 > 0xFFFF) {
 		memcpy((void *)pDMGstr2, &DMGstrN2, 240U);
 		memcpy((void *)pDMGstr2fs, &DMGstr2fs, 4U);
 		memcpy((void *)(pDMGstr2fs + 4), &DMGstr2fs, 4U);
 	}
-	if (pDMGstr2C > 0) {
+	if (pDMGstr2C > 0xFFFF) {
 		memcpy((void *)pDMGstr2C, &DMGstrN2, 240U);
 	}
 }
@@ -272,7 +276,7 @@ void __fastcall displayWeaponDamageA1() {
 		playerAddress = GetPlayerAddress();
 
 		if (playerAddress > 0) {
-			if (pDMGstr0 > 0) {
+			if (pDMGstr0 > 0xFFFF) {
 				if (damage_tmp != 0) {
 					setChagreDamageTime(DAMAGE_DISPLAY_TIME_S);
 				}
@@ -311,7 +315,7 @@ void __fastcall displayWeaponDamageA2() {
 		playerAddress = GetPlayerAddress();
 
 		if (playerAddress > 0) {
-			if (pDMGstr0 > 0 && pDMGstr0C > 0) {
+			if (pDMGstr0 > 0xFFFF && pDMGstr0C > 0xFFFF) {
 				if (damage_tmp != 0) {
 					setChagreDamageTime(DAMAGE_CHARGE_TIME_L);
 				}
@@ -378,12 +382,12 @@ void __fastcall displayWeaponDamageB1() {
 		playerAddress = GetPlayerAddress();
 
 		if (playerAddress > 0) {
-			if (pDMGstr1 > 0 || pDMGstr2 > 0) {
+			if (pDMGstr1 > 0xFFFF || pDMGstr2 > 0xFFFF) {
 				if (damage_tmp != 0) {
 					setChagreDamageTime(DAMAGE_DISPLAY_TIME_S);
 				}
 
-				if (pDMGstr1 > 0) {
+				if (pDMGstr1 > 0xFFFF) {
 					memcpy((void *)pDMGstr1, &DMGstrN1, 224U);
 
 					if (damageNumber.time > 0) {
@@ -401,7 +405,7 @@ void __fastcall displayWeaponDamageB1() {
 						
 					}
 				} 
-				if (pDMGstr2 > 0) {
+				if (pDMGstr2 > 0xFFFF) {
 					memcpy((void *)pDMGstr2, &DMGstrN2, 240U);
 
 					if (damageNumber.time > 0) {
@@ -438,16 +442,16 @@ void __fastcall displayWeaponDamageB2() {
 		playerAddress = GetPlayerAddress();
 
 		if (playerAddress > 0) {
-			if ((pDMGstr1 > 0 && pDMGstr1C > 0) || (pDMGstr2 > 0 && pDMGstr2C > 0)) {
+			if ((pDMGstr1 > 0xFFFF && pDMGstr1C > 0xFFFF) || (pDMGstr2 > 0xFFFF && pDMGstr2C > 0xFFFF)) {
 				if (damage_tmp != 0) {
 					setChagreDamageTime(DAMAGE_CHARGE_TIME_S);
 				}
 
-				if (pDMGstr1 > 0) {
+				if (pDMGstr1 > 0xFFFF) {
 					memcpy((void *)pDMGstr1, &DMGstrN1, 224U);
 					memcpy((void *)pDMGstr1C, &DMGstrN1, 224U);
 				}
-				if (pDMGstr2 > 0) {
+				if (pDMGstr2 > 0xFFFF) {
 					memcpy((void *)pDMGstr2, &DMGstrN2, 240U);
 					memcpy((void *)pDMGstr2C, &DMGstrN2, 240U);
 				}
@@ -460,7 +464,7 @@ void __fastcall displayWeaponDamageB2() {
 						strsize = displayText.size() * 2;
 					}
 
-					if (pDMGstr1 > 0) {
+					if (pDMGstr1 > 0xFFFF) {
 						float fontSize = 0.1f * damageNumber.time;
 						fontSize += (DMGstr1fs * 1.5f);
 
@@ -469,7 +473,7 @@ void __fastcall displayWeaponDamageB2() {
 						memcpy((void *)(pDMGstr1fs + 4), &fontSize, 4U);
 					}
 
-					if (pDMGstr2 > 0) {
+					if (pDMGstr2 > 0xFFFF) {
 						float fontSize = 0.15f * damageNumber.time;
 						fontSize += (DMGstr2fs * 1.5f);
 
@@ -495,12 +499,12 @@ void __fastcall displayWeaponDamageB2() {
 							strsize = displayText.size() * 2;
 						}
 						strofs += (size_t)i * 32;
-						if (pDMGstr1C > 0) {
+						if (pDMGstr1C > 0xFFFF) {
 							memcpy((void *)(pDMGstr1C + strofs), displayText.c_str(), strsize);
 						}
 
 						size_t strofs2 = (size_t)i * 32;
-						if (pDMGstr2C > 0) {
+						if (pDMGstr2C > 0xFFFF) {
 							memcpy((void *)(pDMGstr2C + strofs2), displayText.c_str(), strsize);
 						}
 

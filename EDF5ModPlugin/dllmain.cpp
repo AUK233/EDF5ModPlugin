@@ -516,7 +516,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		//CreateDirectoryW(L"1Mod\\Plugins", NULL);
 
 		// Hook function for additional ModLoader initialization
-		SetupHook(pointers[0], (PVOID*)&initterm_orig, initterm_hook, "Additional initialization", TRUE);
+		//SetupHook(pointers[0], (PVOID*)&initterm_orig, initterm_hook, "Additional initialization", TRUE);
 
 		// Add Mods folder redirector hook
 		fnk27380_orig = (fnk27380_func)((PBYTE)hmodEXE + pointers[2]);

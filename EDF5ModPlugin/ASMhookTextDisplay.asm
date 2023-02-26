@@ -19,7 +19,7 @@ mov r8, rsp ; save rsp
 mov rdx, r14
 mov rcx, rbx
 call setDamageString ; call c++ function
-mov rsp, rax ; restore rsp
+;mov rsp, rax ; restore rsp
 ; original
 ofs4B09B4:
 lea rax, qword ptr [rbx+60h]
@@ -29,6 +29,7 @@ mov rax, qword ptr [rax]
 ofs4B09C2:
 mov rcx, qword ptr [rbx+80h]
 jmp hookTextDisplayRetAddr
+int 3
 
 ASMhookTextDisplay ENDP
 

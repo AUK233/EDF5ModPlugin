@@ -59,6 +59,7 @@ imul eax, playerViewIndex
 add eax, GOCOffset
 mov dword ptr [rdi+8], eax
 jmp playerViewRetAddr
+int 3
 
 ASMplayerViewChange ENDP
 

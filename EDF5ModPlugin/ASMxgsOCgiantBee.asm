@@ -33,25 +33,7 @@ ASMxgsOCgiantBee proc
 ;add rdx, rax
 ;mov rcx, [rcx]
 ;call edf6136C0
-;mov [rbx+1290h], rax
-
-lea rdx, beeAmmoClass
-lea rcx, [rbx+0B0h]
-call edf5BDF30 ; read sgo node
-cmp eax, -1
-je AmmoAliveBlock
-mov r8, [rbx+0B0h]
-cdqe 
-movsxd rdx, dword ptr [r8+0Ch]
-lea rcx, [rax+rax*2]
-lea rax, [r8+rdx]
-lea rax, [rax+rcx*4]
-movsxd rdx, dword ptr [rax+8]
-mov rcx, vedf125AB68
-add rdx, rax
-mov rcx, [rcx]
-call edf6136C0
-mov [rbx+12A0h], rax
+;mov [rbx+12A0h], rax
 
 AmmoAliveBlock:
 lea rdx, beeBulletAlive

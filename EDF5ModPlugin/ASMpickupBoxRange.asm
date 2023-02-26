@@ -28,6 +28,7 @@ rangeBlock:
 ; xmm0 is player, xmm1 is item
 mulss xmm0, pickupRangePlusPlus
 jmp pickupBoxRangeFRetAddr
+int 3
 
 ASMpickupBoxRange ENDP
 

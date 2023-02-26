@@ -56,6 +56,7 @@ mov dword ptr [rbx+1400h], ecx ; set pre-heat type
 ; return original
 ofs39A0E0:
 jmp wGatlingSetupRetAddr
+int 3
 
 ASMweaponGatlingSetup ENDP
 

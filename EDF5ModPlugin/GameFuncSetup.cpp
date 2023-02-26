@@ -14,6 +14,9 @@
 
 extern PBYTE hmodEXE;
 
+static const unsigned char intNOP32[] = {0xCC, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
+static const unsigned char Interruptions32[] = {0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC};
+
 extern "C" {
 uintptr_t __RTDynamicCastAddr;
 
@@ -40,22 +43,27 @@ void hookGameFunctions() {
 	// first overwrite original
 	OverwriteGameFunctions();
 	__RTDynamicCastAddr = (uintptr_t)(hmodEXE + 0x9C8228);
-	// allows switching of views
+	// allows switching of views, offset is 0x2DA490
 	playerViewRetAddr = (uintptr_t)(hmodEXE + 0x2DB0D1);
 	hookGameBlock((void *)(hmodEXE + 0x2DB090), (uint64_t)ASMplayerViewChange);
 	// add guaranteed pickup, offset is 0x198350
 	pickupBoxRangeFRetAddr = (uintptr_t)(hmodEXE + 0x198F5F);
 	pickupBoxRangeTRetAddr = (uintptr_t)(hmodEXE + 0x198F64);
 	hookGameBlock((void *)(hmodEXE + 0x198F50), (uint64_t)ASMpickupBoxRange);
+	WriteHookToProcess((void *)(hmodEXE + 0x198F50 + 12), (void *)&intNOP32, 1U);
 
 	// hook GiantAnt extra features, offset is 0x1FF113
 	hookGameBlock((void *)(hmodEXE + 0x1FFD13), (uint64_t)ASMxgsOCgiantAnt);
+	WriteHookToProcess((void *)(hmodEXE + 0x1FFD13 + 12), (void *)&Interruptions32, 6U);
 	// hook GiantSpider extra features, offset is 0x21E48A
 	hookGameBlock((void *)(hmodEXE + 0x21F08A), (uint64_t)ASMxgsOCgiantSpider);
+	WriteHookToProcess((void *)(hmodEXE + 0x21F08A + 12), (void *)&Interruptions32, 10U);
 	// hook GiantBee extra features, offset is 0x20A0B0
 	hookGameBlock((void *)(hmodEXE + 0x20ACB0), (uint64_t)ASMxgsOCgiantBee);
-	// hook Monster501 extra features
+	WriteHookToProcess((void *)(hmodEXE + 0x20ACB0 + 12), (void *)&Interruptions32, 10U);
+	// hook Monster501 extra features, offset is 0x262F64
 	hookGameBlock((void *)(hmodEXE + 0x263B64), (uint64_t)ASMxgsOCmonster501);
+	WriteHookToProcess((void *)(hmodEXE + 0x263B64 + 12), (void *)&Interruptions32, 4U);
 	
 	// By Features
 	hookHeavyArmorFunctions();
@@ -159,13 +167,15 @@ void hookHeavyArmorFunctions() {
 	edf11B1AB0Address = (uintptr_t)(hmodEXE + 0x11B1AB0);
 	// offset is 0x2E3926
 	hookGameBlock((void *)(hmodEXE + 0x2E4526), (uint64_t)ASMeFencerJetSetup);
-	// Swap boost and dash Activate
+	WriteHookToProcess((void *)(hmodEXE + 0x2E4526 + 12), (void *)&Interruptions32, 20U);
+	// Swap boost and dash Activate, offset is 0x2E3C90
 	ofs3073C0JmpAddr = (uintptr_t)(hmodEXE + 0x307FC0);
 	ofs2E4070JmpAddr = (uintptr_t)(hmodEXE + 0x2E4C70);
 	ofs2E42C0JmpAddr = (uintptr_t)(hmodEXE + 0x2E4EC0);
 	ofs2E43E0JmpAddr = (uintptr_t)(hmodEXE + 0x2E4FE0);
 	ofs2E4500JmpAddr = (uintptr_t)(hmodEXE + 0x2E5100);
 	hookGameBlock((void *)(hmodEXE + 0x2E4890), (uint64_t)ASMeFencerBoostAndDash);
+	WriteHookToProcess((void *)(hmodEXE + 0x2E4890 + 12), (void *)&intNOP32, 2U);
 }
 
 
@@ -185,19 +195,23 @@ void hookWeaponFunctions() {
 	// new weapon features
 	// first, it need to reallocate memory
 	ReallocateWeaponMemory();
-	// set new readable sgo node name
+	// set new readable sgo node name, offset is 0x38E2DD
 	weaponReloadEXRetAddr = (uintptr_t)(hmodEXE + 0x38EF46);
 	hookGameBlock((void *)(hmodEXE + 0x38EEDD), (uint64_t)ASMweaponReloadEX);
-	// allows midsection reload
+	WriteHookToProcess((void *)(hmodEXE + 0x38EEDD + 12), (void *)&intNOP32, 16U);
+	// allows midsection reload, offset is 0x3905CB
 	weaponStartReloadRetAddr = (uintptr_t)(hmodEXE + 0x3911DF);
 	hookGameBlock((void *)(hmodEXE + 0x3911CB), (uint64_t)ASMweaponStartReload);
+	WriteHookToProcess((void *)(hmodEXE + 0x3911CB + 12), (void *)&intNOP32, 2U);
 
 	// gatling setup, offset is 0x39A0C5
 	wGatlingSetupRetAddr = (uintptr_t)(hmodEXE + 0x39ACE0);
 	hookGameBlock((void *)(hmodEXE + 0x39ACC5), (uint64_t)ASMweaponGatlingSetup);
+	WriteHookToProcess((void *)(hmodEXE + 0x39ACC5 + 12), (void *)&intNOP32, 8U);
 	// gatling shot, offset is 0x39A7AA
 	wGatlingShotRetAddr = (uintptr_t)(hmodEXE + 0x39B3B8);
 	hookGameBlock((void *)(hmodEXE + 0x39B3AA), (uint64_t)ASMweaponGatlingShot);
+	//WriteHookToProcess((void *)(hmodEXE + 0x39B3AA + 12), (void *)&intNOP32, 2U);
 }
 
 // new functions require more memory
