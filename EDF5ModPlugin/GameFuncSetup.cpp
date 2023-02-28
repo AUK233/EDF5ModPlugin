@@ -91,6 +91,15 @@ void OverwriteGameFunctions() {
 	int m501shot = 2;
 	WriteHookToProcess((void *)(hmodEXE + 0x263AF4 + 6), &m501shot, 4U);
 
+	// normal hit smoke
+	// offset is 0x1B0C23
+	// 30.0f to 15.0f
+	unsigned char normalHitSmokeF[] = {0xE9, 0x4D};
+	WriteHookToProcess((void *)(hmodEXE + 0x1B1823 + 4), &normalHitSmokeF, 2U);
+	// 60 to 20
+	unsigned char normalHitSmokeI = 20;
+	WriteHookToProcess((void *)(hmodEXE + 0x1B1836 + 2), &normalHitSmokeI, 1U);
+
 	// normal explosion
 	// time, offset is 0xEE4E74, default is 42.0f
 	float explosionTime = 14.0f;

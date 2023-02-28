@@ -200,6 +200,8 @@
       <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </OmitFramePointers>
       <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AssemblyAndSourceCode</AssemblerOutput>
+      <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotSet</EnableEnhancedInstructionSet>
+      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
     </ClCompile>
     <ClCompile Include="proxy.c" />
     <ClCompile Include="utiliy.cpp" />

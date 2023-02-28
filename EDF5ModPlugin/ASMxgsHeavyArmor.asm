@@ -13,7 +13,7 @@ extern ofs2E42C0JmpAddr : qword
 extern ofs2E43E0JmpAddr : qword
 extern ofs2E4500JmpAddr : qword
 
-;fencerBoostSpeed dd 3F800000h
+fencerBoostSpeed dd 3F800000h
 
 .code
 
@@ -22,8 +22,8 @@ ASMeFencerJetSetup proc
 mov edi, r14d
 movss dword ptr [rbx+1BB4h], xmm6 ; dash interval
 ; fix boost speed
-mov esi, 1
-cvtsi2ss xmm6, esi ; int to float
+mov esi, 0
+movd xmm6, esi ; int to float
 cmp qword ptr [rbx+1610h], rdi
 je toValueBlockFix
 mov rax, r14
@@ -54,19 +54,21 @@ mov rcx, rax
 call edf3982A0Address
 test al, al
 je addCountBlockFix
-cmp esi, dword ptr [rsp+60h]
-cmovl esi, dword ptr [rsp+60h]
-addCountBlockFix:
 movss xmm0, dword ptr [rsp+60h]
-maxss xmm0, xmm6
-movaps xmm6, xmm0
+maxss xmm6, xmm0
+;maxss xmm0, xmm6
+;movaps xmm6, xmm0
+addCountBlockFix:
 inc edi
 mov eax, edi
 cmp qword ptr [rbx+1610h], rax
 jne checkCountBlockFix
 toValueBlockFix:
+movd esi, xmm6
+cmp esi, 0 ; if it is still 0 when checked
+cmove esi, fencerBoostSpeed ; set it to default
+mov dword ptr [rbx+1BACh], esi ; boost speed
 mov edi, r14d
-movss dword ptr [rbx+1BACh], xmm6 ; boost speed
 
 ; dash to boost
 mov esi, 0
