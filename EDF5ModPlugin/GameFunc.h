@@ -2,6 +2,8 @@
 
 // get game function address
 void GetGameFunctions();
+// get ammo function address
+void GetAmmoFunctions();
 // here hook all changed functions, written in c++
 void hookGameFunctionsC();
 

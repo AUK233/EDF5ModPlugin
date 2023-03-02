@@ -11,6 +11,7 @@
 #include "utiliy.h"
 
 #include "GameFunc.h"
+#include "CommonData.h"
 
 extern PBYTE hmodEXE;
 extern "C" {
@@ -53,6 +54,16 @@ void GetGameFunctions() {
 
 	//
 	vedf125AB68 = (uintptr_t)(hmodEXE + 0x125AB68);
+
+	GetAmmoFunctions();
+}
+
+extern "C" {
+uintptr_t edf136890Address;
+}
+// get ammo function address
+void GetAmmoFunctions() {
+	edf136890Address = (uintptr_t)(hmodEXE + 0x136890);
 }
 
 // here hook all changed functions, written in c++

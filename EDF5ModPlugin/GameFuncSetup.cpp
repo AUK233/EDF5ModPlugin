@@ -8,6 +8,7 @@
 #include <format>
 #include <stdexcept>
 #include <list>
+#include <malloc.h>
 #include "utiliy.h"
 
 #include "GameFuncSetup.h"
@@ -19,6 +20,7 @@ static const unsigned char Interruptions32[] = {0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0x
 
 extern "C" {
 uintptr_t __RTDynamicCastAddr;
+uintptr_t aligned_mallocAddr;
 
 uintptr_t playerViewRetAddr;
 void __fastcall ASMplayerViewChange();
@@ -30,7 +32,12 @@ void __fastcall ASMpickupBoxRange();
 // xgs_scene_object_class
 void __fastcall ASMxgsOCgiantAnt();
 void __fastcall ASMxgsOCgiantSpider();
+
 void __fastcall ASMxgsOCgiantBee();
+uintptr_t giantBeeAmmoNextAddr;
+uintptr_t giantBeeAmmoRetAddr;
+uintptr_t giantBeeAmmoSetRetAddr;
+void __fastcall ASMxgsOCgiantBeeAmmo();
 void __fastcall ASMxgsOCmonster501();
 
 /* For testing
@@ -43,26 +50,36 @@ void hookGameFunctions() {
 	// first overwrite original
 	OverwriteGameFunctions();
 	__RTDynamicCastAddr = (uintptr_t)(hmodEXE + 0x9C8228);
+	aligned_mallocAddr = (uintptr_t)_aligned_malloc;
 	// allows switching of views, offset is 0x2DA490
 	playerViewRetAddr = (uintptr_t)(hmodEXE + 0x2DB0D1);
-	hookGameBlock((void *)(hmodEXE + 0x2DB090), (uint64_t)ASMplayerViewChange);
+	hookGameBlock((void *)(hmodEXE + 0x2DB090), (uintptr_t)ASMplayerViewChange);
 	// add guaranteed pickup, offset is 0x198350
 	pickupBoxRangeFRetAddr = (uintptr_t)(hmodEXE + 0x198F5F);
 	pickupBoxRangeTRetAddr = (uintptr_t)(hmodEXE + 0x198F64);
-	hookGameBlock((void *)(hmodEXE + 0x198F50), (uint64_t)ASMpickupBoxRange);
+	hookGameBlock((void *)(hmodEXE + 0x198F50), (uintptr_t)ASMpickupBoxRange);
 	WriteHookToProcess((void *)(hmodEXE + 0x198F50 + 12), (void *)&intNOP32, 1U);
 
 	// hook GiantAnt extra features, offset is 0x1FF113
-	hookGameBlock((void *)(hmodEXE + 0x1FFD13), (uint64_t)ASMxgsOCgiantAnt);
+	hookGameBlock((void *)(hmodEXE + 0x1FFD13), (uintptr_t)ASMxgsOCgiantAnt);
 	WriteHookToProcess((void *)(hmodEXE + 0x1FFD13 + 12), (void *)&Interruptions32, 6U);
 	// hook GiantSpider extra features, offset is 0x21E48A
-	hookGameBlock((void *)(hmodEXE + 0x21F08A), (uint64_t)ASMxgsOCgiantSpider);
+	hookGameBlock((void *)(hmodEXE + 0x21F08A), (uintptr_t)ASMxgsOCgiantSpider);
 	WriteHookToProcess((void *)(hmodEXE + 0x21F08A + 12), (void *)&Interruptions32, 10U);
+
 	// hook GiantBee extra features, offset is 0x20A0B0
-	hookGameBlock((void *)(hmodEXE + 0x20ACB0), (uint64_t)ASMxgsOCgiantBee);
+	hookGameBlock((void *)(hmodEXE + 0x20ACB0), (uintptr_t)ASMxgsOCgiantBee);
 	WriteHookToProcess((void *)(hmodEXE + 0x20ACB0 + 12), (void *)&Interruptions32, 10U);
+	// hook GiantBee Ammo Set, offset is 0x21060C
+	giantBeeAmmoSetRetAddr = (uintptr_t)(hmodEXE + 0x21120C);
+	// hook GiantBee Ammo, offset is 0x20A6D3
+	giantBeeAmmoNextAddr = (uintptr_t)(hmodEXE + 0x20B2E0);
+	giantBeeAmmoRetAddr = (uintptr_t)(hmodEXE + 0x20B2F9);
+	hookGameBlock((void *)(hmodEXE + 0x20B2D3), (uintptr_t)ASMxgsOCgiantBeeAmmo);
+	WriteHookToProcess((void *)(hmodEXE + 0x20B2D3 + 12), (void *)&intNOP32, 1U);
+
 	// hook Monster501 extra features, offset is 0x262F64
-	hookGameBlock((void *)(hmodEXE + 0x263B64), (uint64_t)ASMxgsOCmonster501);
+	hookGameBlock((void *)(hmodEXE + 0x263B64), (uintptr_t)ASMxgsOCmonster501);
 	WriteHookToProcess((void *)(hmodEXE + 0x263B64 + 12), (void *)&Interruptions32, 4U);
 	
 	// By Features
@@ -174,7 +191,18 @@ void hookHeavyArmorFunctions() {
 	// Swap boost and dash Installation
 	edf11B24E0Address = (uintptr_t)(hmodEXE + 0x11B24E0);
 	edf11B1AB0Address = (uintptr_t)(hmodEXE + 0x11B1AB0);
-	// offset is 0x2E3926
+	// offset is 0x2E37C4, remove old boost speed
+	unsigned char removeBoostSpeed[] = {
+		0x89, 0xBB, 0xA4, 0x1B, 0x00, 0x00, // mov dword ptr [rbx+1BA4h], edi
+		0x89, 0xBB, 0xA8, 0x1B, 0x00, 0x00, // mov dword ptr [rbx+1BA8h], edi
+	    0x41, 0x8B, 0xFE,                   // mov edi, r14d
+		0xEB, 0x1E,                         // jmp
+		0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90,
+		0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90,
+	    0x48                                // jmp target: cmp
+	};
+	WriteHookToProcess((void *)(hmodEXE + 0x2E43BC), &removeBoostSpeed, 48U);
+	// offset is 0x2E37BC
 	hookGameBlock((void *)(hmodEXE + 0x2E4526), (uint64_t)ASMeFencerJetSetup);
 	WriteHookToProcess((void *)(hmodEXE + 0x2E4526 + 12), (void *)&Interruptions32, 20U);
 	// Swap boost and dash Activate, offset is 0x2E3C90
