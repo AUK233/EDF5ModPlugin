@@ -8,12 +8,16 @@
 #include <format>
 #include <stdexcept>
 #include <list>
+#include <HookLib.h>
 #include "utiliy.h"
 
 #include "GameFunc.h"
-#include "CommonData.h"
+//#include "CommonData.h"
 
 extern PBYTE hmodEXE;
+
+static const unsigned char intNOP32[] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
+
 extern "C" {
 // star rating calculation
 uintptr_t edf8C8C0Address;
@@ -54,22 +58,46 @@ void GetGameFunctions() {
 
 	//
 	vedf125AB68 = (uintptr_t)(hmodEXE + 0x125AB68);
-
+	// get ammo function address
 	GetAmmoFunctions();
 }
 
 extern "C" {
+// AcidBullet01
 uintptr_t edf136890Address;
+// FlameBullet01
+uintptr_t edf14DE20Address;
+// PlasmaBullet01
+uintptr_t edf16DBB0Address;
+// SolidBullet01
+uintptr_t edf185510Address;
+// SpiderStringBullet01
+uintptr_t edf18AE10Address;
+// SpiderStringBullet02
+uintptr_t edf18DF30Address;
+// PulseBullet01
+uintptr_t edf171140Address;
+// LaserBullet02
+uintptr_t edf156FF0Address;
 }
 // get ammo function address
 void GetAmmoFunctions() {
 	edf136890Address = (uintptr_t)(hmodEXE + 0x136890);
+	edf14DE20Address = (uintptr_t)(hmodEXE + 0x14DE20);
+	edf16DBB0Address = (uintptr_t)(hmodEXE + 0x16DBB0);
+	edf185510Address = (uintptr_t)(hmodEXE + 0x185510);
+	edf18AE10Address = (uintptr_t)(hmodEXE + 0x18AE10);
+	edf18DF30Address = (uintptr_t)(hmodEXE + 0x18DF30);
+	edf171140Address = (uintptr_t)(hmodEXE + 0x171140);
+	edf156FF0Address = (uintptr_t)(hmodEXE + 0x156FF0);
 }
 
 // here hook all changed functions, written in c++
 void hookGameFunctionsC() {
 	// allows weapons to be charged, offset is 0x390630
-	SetupHook(0x391230, (PVOID *)&fnk391230_orig, fnk391230_hook, "Allows weapons to be charged", 1);
+	//SetupHook(0x391230, (PVOID *)&fnk391230_orig, fnk391230_hook, "Allows weapons to be charged", 1);
+	hookGameBlock((void *)(hmodEXE + 0x391230), (uint64_t)fnk391230_hook);
+	WriteHookToProcess((void *)(hmodEXE + 0x391230 + 12), (void *)&intNOP32, 8U);
 	//hookGameBlock14((void *)(hmodEXE + 0x391230), (uint64_t)fnk391230_hook);
 }
 
@@ -104,10 +132,10 @@ static bool __fastcall fnk391230_hook(uintptr_t pweapon) {
 	int v1 = *curAmmo;
 	if (v1 > 0 || *(INT64 *)(pweapon + 3128) || (!*(INT64 *)(pweapon + 3144) ? (v2 = *(int *)(pweapon + 2960)) : (v2 = *(int *)(pweapon + 420)), !v2)) {
 		if (*(BYTE *)(pweapon + 224))
-			return 1;
+			return true;
 	}
 	if (v1 > 0 || *(INT64 *)(pweapon + 3128))
-		return 0;
+		return false;
 	int v4 = *(INT64 *)(pweapon + 3144) ? *(int *)(pweapon + 420) : *(int *)(pweapon + 2960);
-	return v4 && !v1 && !*(int *)(pweapon + 0xB40) && *(float *)(pweapon + 452) <= 0.0 && *(int *)(pweapon + 420) >= 0;
+	return v4 && !v1 && !*(int *)(pweapon + 0xB40) && *(float *)(pweapon + 452) <= 0.0f && *(int *)(pweapon + 420) >= 0;
 }

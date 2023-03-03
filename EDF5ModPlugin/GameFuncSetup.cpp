@@ -15,7 +15,7 @@
 
 extern PBYTE hmodEXE;
 
-static const unsigned char intNOP32[] = {0xCC, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
+static const unsigned char intNOP32[] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
 static const unsigned char Interruptions32[] = {0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC};
 
 extern "C" {
@@ -28,17 +28,6 @@ void __fastcall ASMplayerViewChange();
 uintptr_t pickupBoxRangeFRetAddr;
 uintptr_t pickupBoxRangeTRetAddr;
 void __fastcall ASMpickupBoxRange();
-
-// xgs_scene_object_class
-void __fastcall ASMxgsOCgiantAnt();
-void __fastcall ASMxgsOCgiantSpider();
-
-void __fastcall ASMxgsOCgiantBee();
-uintptr_t giantBeeAmmoNextAddr;
-uintptr_t giantBeeAmmoRetAddr;
-uintptr_t giantBeeAmmoSetRetAddr;
-void __fastcall ASMxgsOCgiantBeeAmmo();
-void __fastcall ASMxgsOCmonster501();
 
 /* For testing
 uintptr_t wwwRetAddr;
@@ -60,29 +49,8 @@ void hookGameFunctions() {
 	hookGameBlock((void *)(hmodEXE + 0x198F50), (uintptr_t)ASMpickupBoxRange);
 	WriteHookToProcess((void *)(hmodEXE + 0x198F50 + 12), (void *)&intNOP32, 1U);
 
-	// hook GiantAnt extra features, offset is 0x1FF113
-	hookGameBlock((void *)(hmodEXE + 0x1FFD13), (uintptr_t)ASMxgsOCgiantAnt);
-	WriteHookToProcess((void *)(hmodEXE + 0x1FFD13 + 12), (void *)&Interruptions32, 6U);
-	// hook GiantSpider extra features, offset is 0x21E48A
-	hookGameBlock((void *)(hmodEXE + 0x21F08A), (uintptr_t)ASMxgsOCgiantSpider);
-	WriteHookToProcess((void *)(hmodEXE + 0x21F08A + 12), (void *)&Interruptions32, 10U);
-
-	// hook GiantBee extra features, offset is 0x20A0B0
-	hookGameBlock((void *)(hmodEXE + 0x20ACB0), (uintptr_t)ASMxgsOCgiantBee);
-	WriteHookToProcess((void *)(hmodEXE + 0x20ACB0 + 12), (void *)&Interruptions32, 10U);
-	// hook GiantBee Ammo Set, offset is 0x21060C
-	giantBeeAmmoSetRetAddr = (uintptr_t)(hmodEXE + 0x21120C);
-	// hook GiantBee Ammo, offset is 0x20A6D3
-	giantBeeAmmoNextAddr = (uintptr_t)(hmodEXE + 0x20B2E0);
-	giantBeeAmmoRetAddr = (uintptr_t)(hmodEXE + 0x20B2F9);
-	hookGameBlock((void *)(hmodEXE + 0x20B2D3), (uintptr_t)ASMxgsOCgiantBeeAmmo);
-	WriteHookToProcess((void *)(hmodEXE + 0x20B2D3 + 12), (void *)&intNOP32, 1U);
-
-	// hook Monster501 extra features, offset is 0x262F64
-	hookGameBlock((void *)(hmodEXE + 0x263B64), (uintptr_t)ASMxgsOCmonster501);
-	WriteHookToProcess((void *)(hmodEXE + 0x263B64 + 12), (void *)&Interruptions32, 4U);
-	
 	// By Features
+	hookMonsterFunctions();
 	hookHeavyArmorFunctions();
 	hookWeaponFunctions();
 
@@ -160,6 +128,46 @@ void OverwriteGameFunctions() {
 }
 
 extern "C" {
+// xgs_scene_object_class
+void __fastcall ASMxgsOCgiantAnt();
+void __fastcall ASMxgsOCgiantSpider();
+// giant bee
+void __fastcall ASMxgsOCgiantBee();
+uintptr_t giantBeeAmmoNextAddr;
+uintptr_t giantBeeAmmoRetAddr;
+uintptr_t giantBeeAmmoSetNextAddr;
+uintptr_t giantBeeAmmoSetRetAddr;
+void __fastcall ASMxgsOCgiantBeeAmmo();
+//
+void __fastcall ASMxgsOCmonster501();
+}
+
+void hookMonsterFunctions() {
+	// hook GiantAnt extra features, offset is 0x1FF113
+	hookGameBlock((void *)(hmodEXE + 0x1FFD13), (uintptr_t)ASMxgsOCgiantAnt);
+	WriteHookToProcess((void *)(hmodEXE + 0x1FFD13 + 12), (void *)&Interruptions32, 6U);
+	// hook GiantSpider extra features, offset is 0x21E48A
+	hookGameBlock((void *)(hmodEXE + 0x21F08A), (uintptr_t)ASMxgsOCgiantSpider);
+	WriteHookToProcess((void *)(hmodEXE + 0x21F08A + 12), (void *)&Interruptions32, 10U);
+
+	// hook GiantBee extra features, offset is 0x20A0B0
+	hookGameBlock((void *)(hmodEXE + 0x20ACB0), (uintptr_t)ASMxgsOCgiantBee);
+	WriteHookToProcess((void *)(hmodEXE + 0x20ACB0 + 12), (void *)&Interruptions32, 10U);
+	// hook GiantBee Ammo Set, offset is 0x21060C
+	giantBeeAmmoSetNextAddr = (uintptr_t)(hmodEXE + 0x2111DC);
+	giantBeeAmmoSetRetAddr = (uintptr_t)(hmodEXE + 0x21120C);
+	// hook GiantBee Ammo, offset is 0x20A6D3
+	giantBeeAmmoNextAddr = (uintptr_t)(hmodEXE + 0x20B2E0);
+	giantBeeAmmoRetAddr = (uintptr_t)(hmodEXE + 0x20B2F9);
+	hookGameBlock((void *)(hmodEXE + 0x20B2D3), (uintptr_t)ASMxgsOCgiantBeeAmmo);
+	WriteHookToProcess((void *)(hmodEXE + 0x20B2D3 + 12), (void *)&intNOP32, 1U);
+
+	// hook Monster501 extra features, offset is 0x262F64
+	hookGameBlock((void *)(hmodEXE + 0x263B64), (uintptr_t)ASMxgsOCmonster501);
+	WriteHookToProcess((void *)(hmodEXE + 0x263B64 + 12), (void *)&Interruptions32, 4U);
+}
+
+extern "C" {
 // Swap boost and dash
 uintptr_t edf11B24E0Address;
 uintptr_t edf11B1AB0Address;
@@ -177,6 +185,8 @@ void hookHeavyArmorFunctions() {
 	// start:0x1E00, size:0x10, function: swap types.
 	// HeavyArmor 0x1C30
 	WriteHookToProcess((void *)(hmodEXE + 0x2E3408), &newFencerSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x2E4229 + 1), &newFencerSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0xC61AC9 + 1), &newFencerSize, 4U);
 	
 	// +1BA0h, default is 240
 	int newBoosterCD = 300;
@@ -262,45 +272,78 @@ void ReallocateWeaponMemory() {
 
 	// Weapon_Accessory 0x11E0
 	WriteHookToProcess((void *)(hmodEXE + 0x398018), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x398268 + 1), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0xC65789 + 1), &newWeaponSize, 4U);
 	// Weapon_BasicShoot 0x1200
 	WriteHookToProcess((void *)(hmodEXE + 0x398588), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x399269 + 1), &newWeaponSize, 4U);
 	// Weapon_BasicSemiAuto 0x1200
 	WriteHookToProcess((void *)(hmodEXE + 0x39863D), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0xC657F9 + 1), &newWeaponSize, 4U);
 	// Weapon_ChargeShoot 0x14D0
 	WriteHookToProcess((void *)(hmodEXE + 0x3997F8), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x399E19 + 1), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0xC65919 + 1), &newWeaponSize, 4U);
 	// Weapon_PreChargeShoot 0x1310
 	WriteHookToProcess((void *)(hmodEXE + 0x3A3E48), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x3A3FC6 + 1), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0xC65BC9 + 1), &newWeaponSize, 4U);
 	// Weapon_RadioContact 0x1500
 	WriteHookToProcess((void *)(hmodEXE + 0x3A4368), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x26D359 + 1), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x3A4949 + 1), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0xC65C19 + 1), &newWeaponSize, 4U);
 	// Weapon_Shield 0x1230
 	WriteHookToProcess((void *)(hmodEXE + 0x3A6858), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x3A6BE7 + 1), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0xC65CF9 + 1), &newWeaponSize, 4U);
 	// Weapon_VehicleMaser 0x1FF0
 	WriteHookToProcess((void *)(hmodEXE + 0x3A9438), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x3AAB99 + 1), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0xC65DC9 + 1), &newWeaponSize, 4U);
 	// Weapon_HomingShoot 0x11F0
 	WriteHookToProcess((void *)(hmodEXE + 0x46A398), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x3ABB86 + 1), &newWeaponSize, 4U);
 	// Weapon_Throw 0x1200
 	WriteHookToProcess((void *)(hmodEXE + 0x46A3E8), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x3A8D57 + 1), &newWeaponSize, 4U);
 	// Weapon_Swing 0x1210
 	WriteHookToProcess((void *)(hmodEXE + 0x46A438), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x3A8547 + 1), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x353589 + 1), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0xC6EE99 + 1), &newWeaponSize, 4U);
 	// Weapon_PileBanker 0x11F0
 	WriteHookToProcess((void *)(hmodEXE + 0x46A488), &newWeaponSize, 4U);
-	// Weapon_ImpactHammer 0x11F0
+	WriteHookToProcess((void *)(hmodEXE + 0x398A17 + 1), &newWeaponSize, 4U);
+	// Weapon_ImpactHammer 0x1320
 	WriteHookToProcess((void *)(hmodEXE + 0x46A4D8), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x39D057 + 1), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0xC6EEB9 + 1), &newWeaponSize, 4U);
 	// Weapon_HeavyShoot 0x1260
 	WriteHookToProcess((void *)(hmodEXE + 0x46A528), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x39BC87 + 1), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0xC6EED9 + 1), &newWeaponSize, 4U);
 
 	// Weapon_Gatling 0x1290
 	WriteHookToProcess((void *)(hmodEXE + 0x46A578), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x39AEC9 + 1), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0xC6EEF9 + 1), &newWeaponSize, 4U);
 	// start:0x1400, size:0x20, function: set pre-heat type.
 
 	// Weapon_LaserMarker 0x1460
 	WriteHookToProcess((void *)(hmodEXE + 0x46A5C8), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x3A0868 + 1), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0xC6EF19 + 1), &newWeaponSize, 4U);
 	// Weapon_LaserMarkerCallFire 0x1AB0
 	WriteHookToProcess((void *)(hmodEXE + 0x46A618), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x3A0FF6 + 1), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0xC6EF39 + 1), &newWeaponSize, 4U);
 	// Weapon_MarkerShooter 0x11F0
 	WriteHookToProcess((void *)(hmodEXE + 0x46A66D), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0xC6EE79 + 1), &newWeaponSize, 4U);
 	// Weapon_VehicleShoot 0x11F0
 	WriteHookToProcess((void *)(hmodEXE + 0x469AD8), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x3A3817 + 1), &newWeaponSize, 4U);
 	// Weapon_VehicleRailGun 0x11F0
 	WriteHookToProcess((void *)(hmodEXE + 0x46A72D), &newWeaponSize, 4U);
 }

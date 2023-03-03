@@ -112,6 +112,7 @@ Added the following values available for SGO node names.
 |---|---|---|---|
 |bee_BulletAlive|int|change ammo alive time|insectbase_Type = 0, default 180; = 1, 300|
 |bee_BulletExSet|ptr|change ammo detail|[exset parameters](#GiantBee-BulletExSet), all parameters must be present|
+|bee_BulletSet|ptr|change ammo type and color|[set parameters](#GiantBee-BulletSet), all parameters must be present|
 
 #### GiantBee BulletExSet
 | node index | value type | value description |
@@ -124,6 +125,18 @@ Added the following values available for SGO node names.
 |5|float|change ammo size. insectbase_Type = 0, default 0.2; = 1, 1|
 |6|float|change ammo hitbox size|
 |7|float|change ammo hit impulse|
+
+#### GiantBee BulletSet
+| node index | value type | value description |
+|---|---|---|
+|0|int|ammo type, 0 is default|
+| - | - |1 is AcidBullet01, 2 is FlameBullet01|
+| - | - |3 is PlasmaBullet01, 4 is SolidBullet01|
+| - | - |5 is PulseBullet01, 6 is LaserBullet02|
+|1|float|color red channel|
+|2|float|color green channel|
+|3|float|color blue channel|
+|4|float|color alpha channel|
 
 ##### [Return to Index](#index)
 
