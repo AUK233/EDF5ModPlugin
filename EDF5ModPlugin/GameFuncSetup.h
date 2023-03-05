@@ -7,5 +7,6 @@ void OverwriteGameFunctions();
 void hookMonsterFunctions();
 void hookHeavyArmorFunctions();
 void hookWeaponFunctions();
+void hookAmmoFunctions();
 // new functions require more memory
 void ReallocateWeaponMemory();

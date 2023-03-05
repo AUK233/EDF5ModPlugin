@@ -16,6 +16,8 @@ extern edf16DBB0Address : qword
 extern edf185510Address : qword
 extern edf171140Address : qword
 extern edf156FF0Address : qword
+extern edf187EC0Address : qword
+extern edf150AD0Address : qword
 
 ;L"bee_BulletSet"
 beeBulletSet db 98,0,101,0,101,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,83,0,101,0,116,0,0,0
@@ -25,7 +27,7 @@ beeBulletAlive db 98,0,101,0,101,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,65,0,
 beeBulletExSet db 98,0,101,0,101,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,69,0,120,0,83,0,101,0,116,0,0,0
 
 ; ASMxgsOCgiantBeeAmmoSet jump table
-beeAmmoTypeTable dq setBeeAcidBullet01, setBeeFlameBullet01, setBeePlasmaBullet01, setBeeSolidBullet01, setBeePulseBullet01, setBeeLaserBullet02, 0
+beeAmmoTypeTable dq setBeeAcidBullet01, setBeeFlameBullet01, setBeePlasmaBullet01, setBeeSolidBullet01, setBeePulseBullet01, setBeeSolidExpBullet01, setBeeHomingLaserBullet01, setBeeLaserBullet02, 0
 
 .code
 
@@ -189,7 +191,7 @@ ASMxgsOCgiantBeeAmmoSet proc
         mov qword ptr [r9+20h],rax
     ; check ammo type
         mov eax, [rcx+12A0h]
-        cmp eax, 7
+        cmp eax, 9
         jge ofs2105DC
     ; read jump table
         lea rdx, beeAmmoTypeTable-8
@@ -262,6 +264,30 @@ ASMxgsOCgiantBeeAmmoSet proc
         mov rdx, rdi
         mov rcx, rax
         call edf171140Address
+        mov rbp, rax
+        jmp giantBeeAmmoSetRetAddr
+    setBeeSolidExpBullet01::
+        lea edx, [r12+10h]
+        mov ecx, 6F0h ;SolidExpBullet01Size
+        call aligned_mallocAddr
+        mov qword ptr [rsp+0A0h], rax
+        test rax, rax
+        je ofs210609
+        mov rdx, rdi
+        mov rcx, rax
+        call edf187EC0Address
+        mov rbp, rax
+        jmp giantBeeAmmoSetRetAddr
+    setBeeHomingLaserBullet01::
+        lea edx, [r12+10h]
+        mov ecx, 8C0h ;HomingLaserBullet01Size
+        call aligned_mallocAddr
+        mov qword ptr [rsp+0A0h], rax
+        test rax, rax
+        je ofs210609
+        mov rdx, rdi
+        mov rcx, rax
+        call edf150AD0Address
         mov rbp, rax
         jmp giantBeeAmmoSetRetAddr
     setBeeLaserBullet02::

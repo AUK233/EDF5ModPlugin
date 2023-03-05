@@ -7,6 +7,7 @@ Added the following values available for SGO node names.
 - [GiantSpider](#GiantSpider)
 - [GiantBee](#GiantBee)
 - [Monster501](#Monster501)
+- [Humanoid_Basic](#Humanoid_Basic)
 
 ### EDFWeapon
 | sgo node name | value type | function | value description |
@@ -132,7 +133,8 @@ Added the following values available for SGO node names.
 |0|int|ammo type, 0 is default|
 | - | - |1 is AcidBullet01, 2 is FlameBullet01|
 | - | - |3 is PlasmaBullet01, 4 is SolidBullet01|
-| - | - |5 is PulseBullet01, 6 is LaserBullet02|
+| - | - |5 is PulseBullet01, 6 is SolidExpBullet01|
+| - | - |7 is HomingLaserBullet01, 8 is LaserBullet02|
 |1|float|color red channel|
 |2|float|color green channel|
 |3|float|color blue channel|
@@ -161,7 +163,7 @@ Added the following values available for SGO node names.
 #### Monster501 BulletExSet
 | node index | value type | original | value description |
 |---|---|---|---|
-|0|invalid|2|shot interval, this must > 0|
+|0|int|2|shot interval, this must > 0|
 |1|float|8|ammo speed|
 |2|float|100|ammo damage, invalid, overwrite when attack|
 |3|float|0|ammo explosion range|
@@ -169,5 +171,19 @@ Added the following values available for SGO node names.
 |5|float|4|change ammo size|
 |6|float|0?|change ammo hitbox size|
 |7|float|0?|change ammo hit impulse|
+
+##### [Return to Index](#index)
+
+### Humanoid_Basic
+| sgo node name | value type | function | value description |
+|---|---|---|---|
+| - | - | - |here are functions that game exists but doesn't use|
+|humanoid_climb_setting|ptr||[exset parameters](#Humanoid_Basic-ClimbSet), all parameters must be present|
+
+#### Humanoid_Basic ClimbSet
+| node index | value type | value description |
+|---|---|---|
+|0|float|default 6.0|
+|1|float|default 20.5|
 
 ##### [Return to Index](#index)

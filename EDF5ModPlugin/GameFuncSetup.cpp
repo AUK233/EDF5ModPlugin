@@ -53,6 +53,7 @@ void hookGameFunctions() {
 	hookMonsterFunctions();
 	hookHeavyArmorFunctions();
 	hookWeaponFunctions();
+	hookAmmoFunctions();
 
 	/* For testing
 	wwwRetAddr = (uintptr_t)(hmodEXE + 0x);
@@ -66,6 +67,18 @@ void OverwriteGameFunctions() {
 	int maxBoxes = 0x1000;
 	WriteHookToProcess((void *)(hmodEXE + 0x1990CC), &maxBoxes, 4U);
 	WriteHookToProcess((void *)(hmodEXE + 0x1990EC), &maxBoxes, 4U);
+
+	// forced private room creation
+	// everyone, offset is 0x57F88F
+	unsigned char everyone1[] = {0x82, 0x94};
+	WriteHookToProcess((void *)(hmodEXE + 0x58048F + 3), &everyone1, 2U);
+	unsigned char everyone2[] = {0x3C, 0x78};
+	WriteHookToProcess((void *)(hmodEXE + 0x5820D5 + 3), &everyone2, 2U);
+	// need password, offset is 0x57FAD0
+	unsigned char password1[] = {0x41};
+	WriteHookToProcess((void *)(hmodEXE + 0x5806D0 + 3), &password1, 1U);
+	unsigned char password2[] = {0xDC, 0x78};
+	WriteHookToProcess((void *)(hmodEXE + 0x582035 + 3), &password2, 2U);
 
 	// removal GiantSpider change ammo color, offset is 0x21F8FB
 	unsigned char noSpiderColorChange[] = {0xEB, 0x4F};
@@ -259,6 +272,28 @@ void hookWeaponFunctions() {
 	wGatlingShotRetAddr = (uintptr_t)(hmodEXE + 0x39B3B8);
 	hookGameBlock((void *)(hmodEXE + 0x39B3AA), (uint64_t)ASMweaponGatlingShot);
 	//WriteHookToProcess((void *)(hmodEXE + 0x39B3AA + 12), (void *)&intNOP32, 2U);
+}
+
+extern "C" {
+uintptr_t ammoSolidExpBullet01RetAddr;
+void __fastcall ASMammoSolidExpBullet01();
+}
+
+void hookAmmoFunctions() {
+	// hook SolidExpBullet01
+	// offset is 0x187637
+	ammoSolidExpBullet01RetAddr = (uintptr_t)(hmodEXE + 0x188262);
+	hookGameBlock((void *)(hmodEXE + 0x188237), (uintptr_t)ASMammoSolidExpBullet01);
+	WriteHookToProcess((void *)(hmodEXE + 0x188237 + 12), (void *)&intNOP32, 7U);
+	// explosion effect, offset is 0x1880DD
+	int hitFxNum = 10;
+	// particle count
+	WriteHookToProcess((void *)(hmodEXE + 0x188CDD + 3), &hitFxNum, 4U);
+	// particle time
+	WriteHookToProcess((void *)(hmodEXE + 0x188CE4 + 3), &hitFxNum, 4U);
+	// particle speed x3.0f to x0.75f
+	unsigned char hitFxSpeed[] = {0xB1, 0xD6};
+	WriteHookToProcess((void *)(hmodEXE + 0x188CF3 + 4), &hitFxSpeed, 2U);
 }
 
 // new functions require more memory

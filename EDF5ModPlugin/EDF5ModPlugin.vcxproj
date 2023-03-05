@@ -194,7 +194,9 @@
   <ItemGroup>
     <ClCompile Include="..\HookLib\HookLib\HookLib\HookLib.c" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="GameFunc.cpp" />
+    <ClCompile Include="GameFunc.cpp">
+      <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AssemblyAndSourceCode</AssemblerOutput>
+    </ClCompile>
     <ClCompile Include="GameFuncSetup.cpp" />
     <ClCompile Include="GFnDisplay.cpp">
       <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -207,6 +209,7 @@
     <ClCompile Include="utiliy.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <MASM Include="ASMammoSolidExpBullet01.asm" />
     <MASM Include="ASMxgsOCgiantBee.asm" />
     <MASM Include="ASMxgsOCgiantSpider.asm" />
     <MASM Include="ASMxgsWGatling.asm" />

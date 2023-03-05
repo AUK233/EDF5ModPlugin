@@ -216,9 +216,9 @@ void __fastcall displayWeaponDamageReset() {
 }
 
 std::wstring __fastcall FormatDamageNumber(const float dmg) {
-	if (dmg >= 100.0f) {
+	if (dmg >= 1000.0f) {
 		return std::format(L"{:.0f}", dmg);
-	} else if (dmg >= 10.0f) {
+	} else if (dmg >= 100.0f) {
 		return std::format(L"{:.1f}", dmg);
 	} else {
 		return std::format(L"{:.2f}", dmg);

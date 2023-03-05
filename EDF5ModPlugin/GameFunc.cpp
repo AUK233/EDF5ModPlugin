@@ -12,7 +12,7 @@
 #include "utiliy.h"
 
 #include "GameFunc.h"
-//#include "CommonData.h"
+#include "CommonData.h"
 
 extern PBYTE hmodEXE;
 
@@ -79,6 +79,10 @@ uintptr_t edf18DF30Address;
 uintptr_t edf171140Address;
 // LaserBullet02
 uintptr_t edf156FF0Address;
+// SolidExpBullet01
+uintptr_t edf187EC0Address;
+// HomingLaserBullet01
+uintptr_t edf150AD0Address;
 }
 // get ammo function address
 void GetAmmoFunctions() {
@@ -90,6 +94,8 @@ void GetAmmoFunctions() {
 	edf18DF30Address = (uintptr_t)(hmodEXE + 0x18DF30);
 	edf171140Address = (uintptr_t)(hmodEXE + 0x171140);
 	edf156FF0Address = (uintptr_t)(hmodEXE + 0x156FF0);
+	edf187EC0Address = (uintptr_t)(hmodEXE + 0x187EC0);
+	edf150AD0Address = (uintptr_t)(hmodEXE + 0x150AD0);
 }
 
 // here hook all changed functions, written in c++
@@ -127,7 +133,7 @@ static bool __fastcall fnk391230_hook(uintptr_t pweapon) {
 	}
 	
 	// Original function block
-	// don't modify them, it will cause crashes when reloading
+	// Attempts to modify it failed.
 	int v2;
 	int v1 = *curAmmo;
 	if (v1 > 0 || *(INT64 *)(pweapon + 3128) || (!*(INT64 *)(pweapon + 3144) ? (v2 = *(int *)(pweapon + 2960)) : (v2 = *(int *)(pweapon + 420)), !v2)) {
@@ -138,4 +144,39 @@ static bool __fastcall fnk391230_hook(uintptr_t pweapon) {
 		return false;
 	int v4 = *(INT64 *)(pweapon + 3144) ? *(int *)(pweapon + 420) : *(int *)(pweapon + 2960);
 	return v4 && !v1 && !*(int *)(pweapon + 0xB40) && *(float *)(pweapon + 452) <= 0.0f && *(int *)(pweapon + 420) >= 0;
+	// It has some problems
+	/*
+	int v2;
+	int checkAmmo = *curAmmo;
+	if (checkAmmo > 0 || *(INT64 *)(pweapon + 0xC38) || (!*(INT64 *)(pweapon + 0xC48) ? (v2 = *(int *)(pweapon + 0xB90)) : (v2 = *(int *)(pweapon + 0x1A4)), !v2)) {
+		if (*(BYTE *)(pweapon + 0xE0)) {
+			return true;
+		}
+	}
+
+	if (checkAmmo > 0 || *(INT64 *)(pweapon + 0xC38)) {
+		return 0;
+	}
+
+	if (*(INT64 *)(pweapon + 0xC48)) {
+		v2 = *(int *)(pweapon + 0x1A4);
+	} else {
+		v2 = *(int *)(pweapon + 0xB90);
+	}
+
+	if (v2) {
+		return 0;
+	} else if (!checkAmmo) {
+		return 0;
+	} else if (*(int *)(pweapon + 0xB40) != checkAmmo) {
+		return 0;
+	} else if (*(float *)(pweapon + 0x1C4) < 0.0f) {
+		return 0;
+	} else if (*(int *)(pweapon + 0x1A4) < checkAmmo) {
+		return 0;
+	}
+	else {
+		return 1;
+	}
+	*/
 }
