@@ -6,6 +6,7 @@ Added the following values available for SGO node names.
 - [GiantAnt](#GiantAnt)
 - [GiantSpider](#GiantSpider)
 - [GiantBee](#GiantBee)
+- [DragonSmall](#DragonSmall)
 - [Monster501](#Monster501)
 - [Humanoid_Basic](#Humanoid_Basic)
 
@@ -139,6 +140,44 @@ Added the following values available for SGO node names.
 |2|float|color green channel|
 |3|float|color blue channel|
 |4|float|color alpha channel|
+
+##### [Return to Index](#index)
+
+### DragonSmall
+| sgo node name | value type | function | value description |
+|---|---|---|---|
+|dragon_AttackBulletAlive|int|change ammo alive time|default 360|
+|dragon_AttackBulletColor|ptr|change ammo color|[color parameters](#DragonSmall-BulletColor), all parameters must be present|
+|dragon_AttackBulletExSet|ptr|change ant acid detail|[exset parameters](#DragonSmall-BulletExSet), all parameters must be present|
+|dragon_ChangeModelParam|ptr|change model color|same as ant_ChangeModelParam|
+| - | - |original function|
+|dragon_AttackBulletSetting|ptr|change ammo damage|[parameters](#DragonSmall-AttackBulletSetting), all parameters must be present|
+
+#### DragonSmall BulletColor
+| node index | value type | value description |
+|---|---|---|
+|0|float|red channel, default 1.0|
+|1|float|green channel, default 4.0|
+|2|float|blue channel, default 4.0|
+|3|float|alpha channel, default 1.0|
+
+#### DragonSmall BulletExSet
+| node index | value type | value description |
+|---|---|---|
+|0|int|multiply this factor by original shot count, this must > 0|
+|1|float|change acid explosion range|
+|2|int|set acid penetration, only 0 and 1|
+|3|float|change acid hitbox size|
+|4|float|change acid hit impulse|
+
+#### DragonSmall AttackBulletSetting
+| node index | value type | value description |
+|---|---|---|
+|0|float|change ammo size|
+|1|float|increase this by original ammo speed|
+|2|float|divide this factor by original ammo speed|
+|3|float|shot accuracy, default 0.1|
+|4|float|multiply this factor by original ammo damage|
 
 ##### [Return to Index](#index)
 

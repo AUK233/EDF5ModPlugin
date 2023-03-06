@@ -86,6 +86,12 @@
     <MASM Include="ASMammoSolidExpBullet01.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
+    <MASM Include="ASMxgsOCdragonSmall.asm">
+      <Filter>Assembly Files</Filter>
+    </MASM>
+    <MASM Include="ASMammoSolidBullet01.asm">
+      <Filter>Assembly Files</Filter>
+    </MASM>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\HookLib\HookLib\HookLib\HookLib.h">

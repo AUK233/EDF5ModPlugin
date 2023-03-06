@@ -35,6 +35,22 @@ uintptr_t edf3983B0Address;
 // get Weapon_Accessory data (float)
 uintptr_t edf3982A0Address;
 //
+uintptr_t edf1BCBA0Address;
+uintptr_t edf1ACA80Address;
+uintptr_t edf6E160Address;
+uintptr_t edf6E0D0Address;
+uintptr_t edf70730Address;
+uintptr_t RtlEnterCriticalSection;
+uintptr_t RtlLeaveCriticalSection;
+uintptr_t vedfE940C0;
+uintptr_t vedfE94130;
+uintptr_t edf5C8410Address;
+uintptr_t edf707B0Address;
+uintptr_t edf70850Address;
+uintptr_t edf1BCDF0Address;
+uintptr_t edf5C6C80Address;
+uintptr_t edf5C8660Address;
+//
 uintptr_t vedf125AB68;
 }
 
@@ -55,6 +71,22 @@ void GetGameFunctions() {
 	edf3983B0Address = (uintptr_t)(hmodEXE + 0x3983B0);
 	// get Weapon_Accessory data (float)
 	edf3982A0Address = (uintptr_t)(hmodEXE + 0x3982A0);
+	// error
+	edf1BCBA0Address = (uintptr_t)(hmodEXE + 0x1BCBA0);
+	edf1ACA80Address = (uintptr_t)(hmodEXE + 0x1ACA80);
+	edf6E160Address = (uintptr_t)(hmodEXE + 0x6E160);
+	edf6E0D0Address = (uintptr_t)(hmodEXE + 0x6E0D0);
+	edf70730Address = (uintptr_t)(hmodEXE + 0x70730);
+	RtlEnterCriticalSection = (uintptr_t)EnterCriticalSection;
+	RtlLeaveCriticalSection = (uintptr_t)LeaveCriticalSection;
+	vedfE940C0 = (uintptr_t)(hmodEXE + 0xE940C0);
+	vedfE94130 = (uintptr_t)(hmodEXE + 0xE94130);
+	edf5C8410Address = (uintptr_t)(hmodEXE + 0x5C8410);
+	edf707B0Address = (uintptr_t)(hmodEXE + 0x707B0);
+	edf70850Address = (uintptr_t)(hmodEXE + 0x70850);
+	edf1BCDF0Address = (uintptr_t)(hmodEXE + 0x1BCDF0);
+	edf5C6C80Address = (uintptr_t)(hmodEXE + 0x5C6C80);
+	edf5C8660Address = (uintptr_t)(hmodEXE + 0x5C8660);
 
 	//
 	vedf125AB68 = (uintptr_t)(hmodEXE + 0x125AB68);

@@ -28,7 +28,7 @@ Its Ammo_CustomParameter has a maximum of 3 parameters.
 #### SolidExpBullet01 Node2
 | node index | value type | value description |
 |---|---|---|
-|0|float|hit damage factor|
-|1|float|explosion damage factor|
+|0|float|hit damage factor, default 0.2|
+|1|float|explosion damage factor, default 0.8|
 
 #### [Return to Index](#index)

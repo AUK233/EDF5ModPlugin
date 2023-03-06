@@ -80,15 +80,6 @@ void OverwriteGameFunctions() {
 	unsigned char password2[] = {0xDC, 0x78};
 	WriteHookToProcess((void *)(hmodEXE + 0x582035 + 3), &password2, 2U);
 
-	// removal GiantSpider change ammo color, offset is 0x21F8FB
-	unsigned char noSpiderColorChange[] = {0xEB, 0x4F};
-	WriteHookToProcess((void *)(hmodEXE + 0x2204FB), &noSpiderColorChange, 2U);
-	// removal Monster501 shot interval forced to 2, then change original 1 to 2
-	unsigned char nop10[] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
-	WriteHookToProcess((void *)(hmodEXE + 0x264286), &nop10, 10U);
-	int m501shot = 2;
-	WriteHookToProcess((void *)(hmodEXE + 0x263AF4 + 6), &m501shot, 4U);
-
 	// normal hit smoke
 	// offset is 0x1B0C23
 	// 30.0f to 15.0f
@@ -151,7 +142,9 @@ uintptr_t giantBeeAmmoRetAddr;
 uintptr_t giantBeeAmmoSetNextAddr;
 uintptr_t giantBeeAmmoSetRetAddr;
 void __fastcall ASMxgsOCgiantBeeAmmo();
-//
+// dragon small
+void __fastcall ASMxgsOCdragonSmall();
+// monster501
 void __fastcall ASMxgsOCmonster501();
 }
 
@@ -159,9 +152,13 @@ void hookMonsterFunctions() {
 	// hook GiantAnt extra features, offset is 0x1FF113
 	hookGameBlock((void *)(hmodEXE + 0x1FFD13), (uintptr_t)ASMxgsOCgiantAnt);
 	WriteHookToProcess((void *)(hmodEXE + 0x1FFD13 + 12), (void *)&Interruptions32, 6U);
+
 	// hook GiantSpider extra features, offset is 0x21E48A
 	hookGameBlock((void *)(hmodEXE + 0x21F08A), (uintptr_t)ASMxgsOCgiantSpider);
 	WriteHookToProcess((void *)(hmodEXE + 0x21F08A + 12), (void *)&Interruptions32, 10U);
+	// removal GiantSpider change ammo color, offset is 0x21F8FB
+	unsigned char noSpiderColorChange[] = {0xEB, 0x4F};
+	WriteHookToProcess((void *)(hmodEXE + 0x2204FB), &noSpiderColorChange, 2U);
 
 	// hook GiantBee extra features, offset is 0x20A0B0
 	hookGameBlock((void *)(hmodEXE + 0x20ACB0), (uintptr_t)ASMxgsOCgiantBee);
@@ -175,9 +172,19 @@ void hookMonsterFunctions() {
 	hookGameBlock((void *)(hmodEXE + 0x20B2D3), (uintptr_t)ASMxgsOCgiantBeeAmmo);
 	WriteHookToProcess((void *)(hmodEXE + 0x20B2D3 + 12), (void *)&intNOP32, 1U);
 
+	// hook DragonSmall extra features, offset is 0x1EC496
+	hookGameBlock((void *)(hmodEXE + 0x1ED096), (uintptr_t)ASMxgsOCdragonSmall);
+	WriteHookToProcess((void *)(hmodEXE + 0x1ED096 + 12), (void *)&Interruptions32, 10U);
+
 	// hook Monster501 extra features, offset is 0x262F64
 	hookGameBlock((void *)(hmodEXE + 0x263B64), (uintptr_t)ASMxgsOCmonster501);
 	WriteHookToProcess((void *)(hmodEXE + 0x263B64 + 12), (void *)&Interruptions32, 4U);
+	// removal Monster501 shot interval forced to 2, then change original 1 to 2
+	//unsigned char nop10[] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
+	unsigned char nop10[] = {0x90, 0x66, 0x0F, 0x1F, 0x84, 0, 0, 0, 0, 0};
+	WriteHookToProcess((void *)(hmodEXE + 0x264286), &nop10, 10U);
+	int m501shot = 2;
+	WriteHookToProcess((void *)(hmodEXE + 0x263AF4 + 6), &m501shot, 4U);
 }
 
 extern "C" {
@@ -275,11 +282,20 @@ void hookWeaponFunctions() {
 }
 
 extern "C" {
+uintptr_t ammoSolidBullet01RetAddr;
+void __fastcall ASMammoSolidBullet01();
+
 uintptr_t ammoSolidExpBullet01RetAddr;
 void __fastcall ASMammoSolidExpBullet01();
 }
 
 void hookAmmoFunctions() {
+	// hook SolidExpBullet01, can't use it now
+	// offset is 0x184BE2
+	ammoSolidBullet01RetAddr = (uintptr_t)(hmodEXE + 0x1857F0);
+	//hookGameBlock((void *)(hmodEXE + 0x1857E2), (uintptr_t)ASMammoSolidBullet01);
+	//WriteHookToProcess((void *)(hmodEXE + 0x1857E2 + 12), (void *)&intNOP32, 2U);
+
 	// hook SolidExpBullet01
 	// offset is 0x187637
 	ammoSolidExpBullet01RetAddr = (uintptr_t)(hmodEXE + 0x188262);
