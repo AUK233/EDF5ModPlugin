@@ -2,7 +2,7 @@
 ; Use other asm functions
 extern edf3AE530 : proto
 extern edf5BDF30 : proto
-extern edf6136C0 : proto
+;extern edf6136C0 : proto
 
 extern vedf125AB68 : qword
 extern giantBeeAmmoNextAddr : qword
@@ -21,6 +21,8 @@ extern edf150AD0Address : qword
 
 ;L"bee_BulletSet"
 beeBulletSet db 98,0,101,0,101,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,83,0,101,0,116,0,0,0
+; L"bee_BulletAccuracy"
+beeBulletAccuracy db 98,0,101,0,101,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,65,0,99,0,99,0,117,0,114,0,97,0,99,0,121,0,0,0
 ; L"bee_BulletAlive"
 beeBulletAlive db 98,0,101,0,101,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,65,0,108,0,105,0,118,0,101,0,0,0
 ; L"bee_BulletExSet"
@@ -33,7 +35,8 @@ beeAmmoTypeTable dq setBeeAcidBullet01, setBeeFlameBullet01, setBeePlasmaBullet0
 
 ASMxgsOCgiantBee proc
 
-        mov dword ptr [rbx+12A0h], 0
+        mov dword ptr [rbx+12A0h], 0 ; ammo type
+        mov dword ptr [rbx+12A4h], 3F333333h ; shot accuracy, 0.7f
     AmmoSetBlock:
         lea rdx, beeBulletSet
         lea rcx, [rbx+0B0h]
@@ -67,7 +70,7 @@ ASMxgsOCgiantBee proc
         lea rcx, [rbx+0B0h]
         call edf5BDF30 ; read sgo node
         cmp eax, -1
-        je AmmoExSetBlock ; if node does not exist, jump
+        je AmmoAccuracyBlock ; if node does not exist, jump
         ; read int in node 
         mov r8, [rbx+0B0h]
         cdqe
@@ -76,6 +79,21 @@ ASMxgsOCgiantBee proc
         lea rax, [r8+rdx]
         mov ecx, [rax+rcx*4+8]
         mov [rbx+1318h], ecx ; AmmoAlive
+
+    AmmoAccuracyBlock:
+        lea rdx, beeBulletAccuracy
+        lea rcx, [rbx+0B0h]
+        call edf5BDF30 ; read sgo node
+        cmp eax, -1
+        je AmmoExSetBlock ; if node does not exist, jump
+        ; read int in node 
+        mov r8, [rbx+0B0h]
+        cdqe
+        movsxd rdx, dword ptr [r8+0Ch]
+        lea rcx, [rax+rax*2]
+        lea rax, [r8+rdx]
+        movss xmm0, dword ptr [rax+rcx*4+8]
+        movss dword ptr [rbx+12A4h], xmm0 ; shot accuracy
 
     AmmoExSetBlock:
         lea rdx, beeBulletExSet
@@ -149,7 +167,7 @@ ASMxgsOCgiantBeeAmmo proc
         movaps xmmword ptr [rbp-50h], xmm0
         movaps xmm0, xmmword ptr [rbp+10h]
         movdqa xmmword ptr [rbp-40h], xmm0
-        ; set new ammo type
+    ; set new ammo type
         cmp dword ptr [r14+12A0h], 0
         je returnNext
         lea r9, [rbp+60h]

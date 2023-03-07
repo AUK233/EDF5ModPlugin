@@ -112,6 +112,7 @@ Added the following values available for SGO node names.
 ### GiantBee
 | sgo node name | value type | function | value description |
 |---|---|---|---|
+|bee_BulletAccuracy|int|change shot accuracy|default 0.7|
 |bee_BulletAlive|int|change ammo alive time|insectbase_Type = 0, default 180; = 1, 300|
 |bee_BulletExSet|ptr|change ammo detail|[exset parameters](#GiantBee-BulletExSet), all parameters must be present|
 |bee_BulletSet|ptr|change ammo type and color|[set parameters](#GiantBee-BulletSet), all parameters must be present|
@@ -149,7 +150,13 @@ Added the following values available for SGO node names.
 |dragon_AttackBulletAlive|int|change ammo alive time|default 360|
 |dragon_AttackBulletColor|ptr|change ammo color|[color parameters](#DragonSmall-BulletColor), all parameters must be present|
 |dragon_AttackBulletExSet|ptr|change ant acid detail|[exset parameters](#DragonSmall-BulletExSet), all parameters must be present|
+|dragon_AttackBulletType|int|change ammo type|0 is default|
+| - | - |1 is AcidBullet01|2 is LightningBullet01|
+| - | - |3 is PlasmaBullet01|4 is SolidBullet01|
+| - | - |5 is PulseBullet01|6 is SolidExpBullet01|
+| - | - |7 is HomingLaserBullet01|8 is LaserBullet02|
 |dragon_ChangeModelParam|ptr|change model color|same as ant_ChangeModelParam|
+|dragon_CustomBulletParam|ptr||like Ammo_CustomParameter|
 | - | - |original function|
 |dragon_AttackBulletSetting|ptr|change ammo damage|[parameters](#DragonSmall-AttackBulletSetting), all parameters must be present|
 

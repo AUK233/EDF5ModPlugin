@@ -115,6 +115,8 @@ uintptr_t edf156FF0Address;
 uintptr_t edf187EC0Address;
 // HomingLaserBullet01
 uintptr_t edf150AD0Address;
+// LightningBullet01
+uintptr_t edf15FD90Address;
 }
 // get ammo function address
 void GetAmmoFunctions() {
@@ -128,6 +130,7 @@ void GetAmmoFunctions() {
 	edf156FF0Address = (uintptr_t)(hmodEXE + 0x156FF0);
 	edf187EC0Address = (uintptr_t)(hmodEXE + 0x187EC0);
 	edf150AD0Address = (uintptr_t)(hmodEXE + 0x150AD0);
+	edf15FD90Address = (uintptr_t)(hmodEXE + 0x15FD90);
 }
 
 // here hook all changed functions, written in c++

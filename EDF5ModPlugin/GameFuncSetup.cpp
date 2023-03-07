@@ -144,6 +144,11 @@ uintptr_t giantBeeAmmoSetRetAddr;
 void __fastcall ASMxgsOCgiantBeeAmmo();
 // dragon small
 void __fastcall ASMxgsOCdragonSmall();
+uintptr_t dragonSmallAmmoNextAddr;
+uintptr_t dragonSmallAmmoRetAddr;
+uintptr_t dragonSmallAmmoSetNextAddr;
+uintptr_t dragonSmallAmmoSetRetAddr;
+void __fastcall ASMxgsOCdragonSmallAmmo();
 // monster501
 void __fastcall ASMxgsOCmonster501();
 }
@@ -171,10 +176,24 @@ void hookMonsterFunctions() {
 	giantBeeAmmoRetAddr = (uintptr_t)(hmodEXE + 0x20B2F9);
 	hookGameBlock((void *)(hmodEXE + 0x20B2D3), (uintptr_t)ASMxgsOCgiantBeeAmmo);
 	WriteHookToProcess((void *)(hmodEXE + 0x20B2D3 + 12), (void *)&intNOP32, 1U);
+	// allows adjustment of shot accuracy, offset is 0x20A642
+	unsigned char beeAccuracy[] = {
+		0xF3, 0x45, 0x0F, 0x10, 0x8E, 0xA4, 0x12, 0x00, 0x00, 
+		0x0F, 0x1F, 0x44, 0x00, 0x00, 0xC7, 0x44
+	};
+	WriteHookToProcess((void *)(hmodEXE + 0x20B242), &beeAccuracy, 16U);
 
 	// hook DragonSmall extra features, offset is 0x1EC496
 	hookGameBlock((void *)(hmodEXE + 0x1ED096), (uintptr_t)ASMxgsOCdragonSmall);
 	WriteHookToProcess((void *)(hmodEXE + 0x1ED096 + 12), (void *)&Interruptions32, 10U);
+	// hook DragonSmall Ammo Set, offset is 0x1F6C6C
+	dragonSmallAmmoSetNextAddr = (uintptr_t)(hmodEXE + 0x1F783C);
+	dragonSmallAmmoSetRetAddr = (uintptr_t)(hmodEXE + 0x1F786C);
+	// hook DragonSmall Ammo, offset is 0x1EC89C
+	dragonSmallAmmoNextAddr = (uintptr_t)(hmodEXE + 0x1ED4C6);
+	dragonSmallAmmoRetAddr = (uintptr_t)(hmodEXE + 0x1ED4DF);
+	hookGameBlock((void *)(hmodEXE + 0x1ED49C), (uintptr_t)ASMxgsOCdragonSmallAmmo);
+	WriteHookToProcess((void *)(hmodEXE + 0x1ED49C + 12), (void *)&intNOP32, 30U);
 
 	// hook Monster501 extra features, offset is 0x262F64
 	hookGameBlock((void *)(hmodEXE + 0x263B64), (uintptr_t)ASMxgsOCmonster501);
