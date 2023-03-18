@@ -142,7 +142,7 @@ void hookGameFunctionsC() {
 	//hookGameBlock14((void *)(hmodEXE + 0x391230), (uint64_t)fnk391230_hook);
 }
 
-static bool __fastcall fnk391230_hook(uintptr_t pweapon) {
+static bool __fastcall fnk391230_hook(const uintptr_t pweapon) {
 	// ammo
 	int *curAmmo = (int *)(pweapon + 0x8E8);
 	int maxAmmo = *(int *)(pweapon + 0x1D0);
@@ -153,17 +153,18 @@ static bool __fastcall fnk391230_hook(uintptr_t pweapon) {
 	int chargeType = *(int *)(pweapon + 0x2500);
 	int chargeTime = *(int *)(pweapon + 0x2508);
 	int *chargeRT = (int *)(pweapon + 0x250C);
-	
-	if (chargeType == 2 && chargeTime > 0) {
-		if (*curAmmo > 0 && *curAmmo < maxAmmo && !ROFCount) {
-			if (*chargeRT <= 0) {
-				*curAmmo += 1;
-				*chargeRT = chargeTime;
+	if (chargeType == 2 || chargeType == 3) {
+		if (chargeTime > 0) {
+			if (*curAmmo > 0 && *curAmmo < maxAmmo && !ROFCount) {
+				if (*chargeRT <= 0) {
+					*curAmmo += 1;
+					*chargeRT = chargeTime;
+				} else {
+					*chargeRT += -1;
+				}
 			} else {
-				*chargeRT += -1;
+				*chargeRT = chargeTime;
 			}
-		} else {
-			*chargeRT = chargeTime;
 		}
 	}
 	

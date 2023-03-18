@@ -48,7 +48,7 @@ ASMxgsOCdragonSmall proc
     ;mov dword ptr [rbx+12B4],ecx ;ammo size
     ;mov dword ptr [rbx+13A8],ecx ;accuracy
         movss dword ptr [rbx+14F0h], xmm0
-
+    ;new
         mov dword ptr [rbx+1220h], 0
     AmmoTypeBlock:
         lea rdx, dragonBulletType

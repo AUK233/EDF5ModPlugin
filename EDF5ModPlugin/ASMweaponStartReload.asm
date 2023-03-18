@@ -6,13 +6,16 @@ extern weaponStartReloadRetAddr : qword
 
 ASMweaponStartReload proc
 
-        cmp dword ptr [rbx+2500h], 0
+        mov eax, dword ptr [rbx+2500h]
+        cmp eax, 0
         je originalBlock
+        cmp eax, 3 ; no manual reload
+        je ofs3905EC
         ; current reload time = (totalAmmo - remainAmmo) * reloadTime  / totalAmmo
         mov eax, dword ptr [rbx+1D0h]
         mov ecx, eax ; totalAmmo
         sub eax, dword ptr [rbx+8E8h] ; - remainAmmo
-        ; calculate current energy requirement
+    ; calculate current energy requirement
         cmp dword ptr [rbx+1C4h], 0BF800000h ; check -1
         je normalReloadBlock
         cvtsi2ss xmm0, eax
@@ -35,6 +38,10 @@ ASMweaponStartReload proc
         mov dword ptr [rbx+8E8h], 0
         mov dword ptr [rbx+0B40h], 4
         jmp weaponStartReloadRetAddr
+    ofs3905EC:
+        add rsp, 20h
+        pop rbx
+        ret
         int 3
 
 ASMweaponStartReload ENDP

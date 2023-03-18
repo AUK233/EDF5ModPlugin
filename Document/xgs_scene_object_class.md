@@ -14,7 +14,7 @@ Added the following values available for SGO node names.
 | sgo node name | value type | function | value description |
 |---|---|---|---|
 |ReloadInit|float or ptr|initial load progress|now supports using star for it|
-|ReloadPadType|ptr|midsection reload type|[parameters](#EDFWeapon-ReloadPadType), it is not necessary to have all parameters|
+|ReloadPadType|ptr|midsection reload type|[parameters](#EDFWeapon-ReloadPadType), all parameters must be present|
 
 | xgs_scene_object_class's value | custom_parameter's ptr value |
 |---|---|
@@ -25,9 +25,9 @@ Added the following values available for SGO node names.
 | node index | value type | value description |
 |---|---|---|
 |0|int|> 0 will allow not to reload with full time|
+| - | - |2 means it can be charged, 3 does not allow manual reload|
 |1|int|extra reload time when midsection reload|
 | - | - |note: node1 for energy weapon is invalid, but should be 0|
-| - | - |node0 = 2 requires node2|
 |2|int|charge time, after a period of time 1 ammo will be added|
 | - | - |but note that as long as ammo is not full, it will start|
 
@@ -63,10 +63,10 @@ Added the following values available for SGO node names.
 #### GiantAnt BulletColor
 | node index | value type | value description |
 |---|---|---|
-|0|float|red channel|
-|1|float|green channel|
-|2|float|blue channel|
-|3|float|alpha channel|
+|0|float|red channel. bulletType = 0, default 4.5; = 1, 3|
+|1|float|green channel. bulletType = 0, default 2.25; = 1, 1.5|
+|2|float|blue channel. bulletType = 0, default 1.5; = 1, 1.05|
+|3|float|alpha channel. bulletType = 0, default 1; = 1, 1|
 
 #### GiantAnt BulletExSet
 | node index | value type | value description |
@@ -85,8 +85,8 @@ Added the following values available for SGO node names.
 ### GiantSpider
 | sgo node name | value type | function | value description |
 |---|---|---|---|
-|spd_AmmoAlive|int|change ammo alive time|default value is unknown|
-|spd_AmmoColor|ptr|change ammo color|[color parameters](#GiantAnt-BulletColor), all parameters must be present|
+|spd_AmmoAlive|int|change ammo alive time|default 300|
+|spd_AmmoColor|ptr|change ammo color|[color parameters](#GiantSpider-BulletColor), all parameters must be present|
 |spd_AmmoExSet|ptr|change ammo detail|[exset parameters](#GiantSpider-BulletExSet), all parameters must be present|
 |spd_ChangeModelParam|ptr|change model color|same as ant_ChangeModelParam|
 | - | - |original function|
@@ -98,6 +98,14 @@ Added the following values available for SGO node names.
 |0|float|multiply this factor by original bullet size|
 |1|float|multiply this factor by original bullet speed|
 |2|float|multiply this factor by original bullet damage|
+
+#### GiantSpider BulletColor
+| node index | value type | value description |
+|---|---|---|
+|0|float|red channel. default 0.5|
+|1|float|green channel. default 0.5|
+|2|float|blue channel. default 0.5|
+|3|float|alpha channel. default 1|
 
 #### GiantSpider BulletExSet
 | node index | value type | value description |

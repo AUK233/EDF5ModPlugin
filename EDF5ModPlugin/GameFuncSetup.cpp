@@ -220,7 +220,7 @@ void __fastcall ASMeFencerBoostAndDash();
 }
 
 void hookHeavyArmorFunctions() {
-	int newFencerSize = 0x1E10;
+	int newFencerSize = 0x2000;
 	// start:0x1E00, size:0x10, function: swap types.
 	// HeavyArmor 0x1C30
 	WriteHookToProcess((void *)(hmodEXE + 0x2E3408), &newFencerSize, 4U);
@@ -337,7 +337,7 @@ void ReallocateWeaponMemory() {
 	// New size must be larger than largest of them all
 	// Safe size at least 0x2500
 	// Must be an integer multiple of 0x10
-	int newWeaponSize = 0x2520;
+	int newWeaponSize = 0x2600;
 	// start:0x2500, size:0x20, function: extra reload types.
 
 	// Weapon_Accessory 0x11E0

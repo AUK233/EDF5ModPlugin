@@ -16,6 +16,7 @@
 #include "GFnDisplay.h"
 
 extern PBYTE hmodEXE;
+extern int ModLogStatus;
 
 static const unsigned char intNOP32[] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
 
@@ -212,7 +213,9 @@ void __fastcall displayWeaponDamageReset() {
 	displayWeaponDamageClear();
 
 	displayDamageStatus = 0;
-	PLOG_INFO << "Display damage number has been reset";
+	if (ModLogStatus == 1) {
+		PLOG_INFO << "Display damage number has been reset";
+	}
 }
 
 std::wstring __fastcall FormatDamageNumber(const float dmg) {

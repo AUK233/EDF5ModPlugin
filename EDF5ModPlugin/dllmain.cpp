@@ -87,6 +87,7 @@ int displayDamageIndex = 0;
 int displayDamageStatus = 0;
 }
 HANDLE ddThread;
+int ModLogStatus = 0;
 
 // Pointer sets
 typedef struct {
@@ -178,25 +179,6 @@ static void LoadPlugins(void) {
 			PLOG_ERROR << "Failed to search for plugins: error " << dwError;
 		}
 	}
-}
-
-// Early hook into game process
-static void* __fastcall initterm_hook(void *unk1, void *unk2) {
-	static bool initialized = false;
-	if (!initialized) {
-		initialized = true;
-		PLOG_INFO << "Additional initialization";
-
-		// Load plugins
-		if (LoadPluginsB) {
-			LoadPlugins();
-		} else {
-			PLOG_INFO << "Plugin loading disabled";
-		}
-
-		PLOG_INFO << "Initialization finished";
-	}
-	return initterm_orig(unk1, unk2);
 }
 
 struct oddstr {
@@ -312,35 +294,50 @@ void ReadINIconfig() {
 	case 1: {
 		if (playerViewIndex != 4) {
 			playerViewIndex = 4;
-			PLOG_INFO << "Set close over-the-shoulder view (left)";
+
+			if (ModLogStatus == 1) {
+				PLOG_INFO << "Set close over-the-shoulder view (left)";
+			}
 		}
 		break;
 	}
 	case 2: {
 		if (playerViewIndex != 8) {
 			playerViewIndex = 8;
-			PLOG_INFO << "Set long-range over-the-shoulder view (left)";
+
+			if (ModLogStatus == 1) {
+				PLOG_INFO << "Set long-range over-the-shoulder view (left)";
+			}
 		}
 		break;
 	}
 	case 3: {
 		if (playerViewIndex != 12) {
 			playerViewIndex = 12;
-			PLOG_INFO << "Set close over-the-shoulder view (right)";
+
+			if (ModLogStatus == 1) {
+				PLOG_INFO << "Set close over-the-shoulder view (right)";
+			}
 		}
 		break;
 	}
 	case 4: {
 		if (playerViewIndex != 16) {
 			playerViewIndex = 16;
-			PLOG_INFO << "Set long-range over-the-shoulder view (right)";
+
+			if (ModLogStatus == 1) {
+				PLOG_INFO << "Set long-range over-the-shoulder view (right)";
+			}
 		}
 		break;
 	}
 	default:
 		if (playerViewIndex != 0) {
 			playerViewIndex = 0;
-			PLOG_INFO << "Set original view";
+
+			if (ModLogStatus == 1) {
+				PLOG_INFO << "Set original view";
+			}
 		}
 		break;
 	}
@@ -359,7 +356,10 @@ void ReadINIconfig() {
 		if (!displayDamageStatus && displayDamageIndex == 1) {
 			ddThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageA1, NULL, NULL, NULL);
 			displayDamageStatus = 1;
-			PLOG_INFO << "Display damage number on rader";
+
+			if (ModLogStatus == 1) {
+				PLOG_INFO << "Display damage number on rader";
+			}
 		}
 		break;
 	}
@@ -371,7 +371,10 @@ void ReadINIconfig() {
 		if (!displayDamageStatus && displayDamageIndex == 11) {
 			ddThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageA2, NULL, NULL, NULL);
 			displayDamageStatus = 1;
-			PLOG_INFO << "Display damage number on rader (with charge)";
+
+			if (ModLogStatus == 1) {
+				PLOG_INFO << "Display damage number on rader (with charge)";
+			}
 		}
 		break;
 	}
@@ -383,7 +386,10 @@ void ReadINIconfig() {
 		if (!displayDamageStatus && displayDamageIndex == 2) {
 			ddThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageB1, NULL, NULL, NULL);
 			displayDamageStatus = 1;
-			PLOG_INFO << "Display damage number on weapon";
+
+			if (ModLogStatus == 1) {
+				PLOG_INFO << "Display damage number on weapon";
+			}
 		}
 		break;
 	}
@@ -395,7 +401,10 @@ void ReadINIconfig() {
 		if (!displayDamageStatus && displayDamageIndex == 21) {
 			ddThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageB2, NULL, NULL, NULL);
 			displayDamageStatus = 1;
-			PLOG_INFO << "Display damage number on weapon (with charge)";
+
+			if (ModLogStatus == 1) {
+				PLOG_INFO << "Display damage number on weapon (with charge)";
+			}
 		}
 		break;
 	}
@@ -410,10 +419,14 @@ void ReadINIconfig() {
 				ddThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageNull, NULL, NULL, NULL);
 				displayDamageStatus = 1;
 			}
-			PLOG_INFO << "Unable to display damage number";
+
+			if (ModLogStatus == 1) {
+				PLOG_INFO << "Unable to display damage number";
+			}
 		}
 		break;
 	}
+	// End
 }
 
 void ReadINILoop() {
@@ -428,6 +441,44 @@ void ReadINILoop() {
 	}
 
 	PLOG_INFO << "Turn off real-time read profiles";
+}
+
+// Early hook into game process
+static void *__fastcall initterm_hook(void *unk1, void *unk2) {
+	static bool initialized = false;
+	if (!initialized) {
+		initialized = true;
+		PLOG_INFO << "Additional initialization";
+
+		// Load new function
+		// Very important!!!!!!!!!!!!
+		GetGameFunctions();
+		hookGameFunctionsC();
+		hookGameFunctions();
+		// Very important!!!!!!!!!!!!
+		ReadINIconfig();
+		// Now inject only when needed, for crash rate reduction
+		if (DisplayDamage || RTRead) {
+			hookGetPlayerDamage();
+		}
+		// It needs to be right here
+		if (RTRead) {
+			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ReadINILoop, NULL, NULL, NULL);
+			if (ModLogStatus == 1) {
+				PLOG_INFO << "Enable real-time read profiles";
+			}
+		}
+
+		// Load plugins
+		if (LoadPluginsB) {
+			LoadPlugins();
+		} else {
+			PLOG_INFO << "Plugin loading disabled";
+		}
+
+		PLOG_INFO << "Initialization finished";
+	}
+	return initterm_orig(unk1, unk2);
 }
 
 // x64 cannot use inline assembly, you have to create asm files.
@@ -453,6 +504,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 		// Open Log file
 		if (ModLog) {
+			ModLogStatus = 1;
 			DeleteFileW(L"1Mod.log");
 #ifdef NDEBUG
 			plog::init(plog::info, &mlLogOutput);
@@ -470,7 +522,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		PluginInfo *selfInfo = new PluginInfo;
 		selfInfo->infoVersion = PluginInfo::MaxInfoVer;
 		selfInfo->name = "EDF5 Mod Plugin";
-		selfInfo->version = PLUG_VER(0, 3, 9, 2);
+		selfInfo->version = PLUG_VER(0, 4, 0, 0);
 		PluginData *selfData = new PluginData;
 		selfData->info = selfInfo;
 		selfData->module = hModule;
@@ -495,28 +547,40 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		uintptr_t *pointers = psets[pointerSet].pointers;
 
 		PluginVersion v = selfInfo->version;
-		PLOG_INFO.printf("ModPlugin (%s) v%u.%u.%u Initializing\n", psets[pointerSet].ident, v.major, v.minor, v.patch);
+		if (ModLogStatus == 1) {
+			PLOG_INFO.printf("ModPlugin (%s) v%u.%u.%u.%u Initializing\n", psets[pointerSet].ident, v.major, v.minor, v.patch, v.build);
+		}
 
 		// Setup DLL proxy
 		wchar_t path[MAX_PATH];
 		if (!GetWindowsDirectoryW(path, _countof(path))) {
 			DWORD dwError = GetLastError();
-			PLOG_ERROR << "Failed to get windows directory path: error " << dwError;
+			if (ModLogStatus == 1) {
+				PLOG_ERROR << "Failed to get windows directory path: error " << dwError;
+			}
 			return FALSE;
 		}
 
 		wcscat_s(path, L"\\System32\\winmm.dll");
 
-		PLOG_INFO << "Loading real winmm.dll";
-		PLOG_INFO << "Setting up dll proxy functions";
+		if (ModLogStatus == 1) {
+			PLOG_INFO << "Loading real winmm.dll";
+			PLOG_INFO << "Setting up dll proxy functions";
+		}
 		setupFunctions(LoadLibraryW(path));
 
 		// Create ModLoader folders
 		//CreateDirectoryW(L"1Mod", NULL);
 		//CreateDirectoryW(L"1Mod\\Plugins", NULL);
 
+		//
+		hModSelf = (PBYTE)GetModuleHandleW(L"1mod.dll");
+		if (ModLogStatus == 1) {
+			PLOG_INFO << "Get self address: " << std::hex << hModSelf;
+		}
+
 		// Hook function for additional ModLoader initialization
-		//SetupHook(pointers[0], (PVOID*)&initterm_orig, initterm_hook, "Additional initialization", TRUE);
+		SetupHook(pointers[0], (PVOID*)&initterm_orig, initterm_hook, "Additional initialization", TRUE);
 
 		// Add Mods folder redirector hook
 		fnk27380_orig = (fnk27380_func)((PBYTE)hmodEXE + pointers[2]);
@@ -525,45 +589,30 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		// Add internal logging hook
 		SetupHook(pointers[3], (PVOID*)&gamelog_orig, gamelog_hook, "Interal logging hook", GameLog);
 
-		//
-		hModSelf = (PBYTE)GetModuleHandleW(L"1mod.dll");
-		PLOG_INFO << "Get self address: " << std::hex << hModSelf;
-
-		// Very important!!!!!!!!!!!!
-		GetGameFunctions();
-		hookGameFunctionsC();
-		hookGameFunctions();
-		// Very important!!!!!!!!!!!!
-		ReadINIconfig();
-
-		// Now inject only when needed, for crash rate reduction
-		if (DisplayDamage || RTRead) {
-			hookGetPlayerDamage();
-		}
-
-		if (RTRead) {
-			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ReadINILoop, NULL, NULL, NULL);
-			PLOG_INFO << "Enable real-time read profiles";
-		}
-		
 		// End, change game title
 		std::wstring GameTitle = L"EDF5 for PC in MOD Mode";
 		WriteHookToProcess(hmodEXE + 0xebcbd0, (void *)GameTitle.c_str(), 48U);
 
 		// Finished
-		PLOG_INFO << "Basic initialization complete";
+		if (ModLogStatus == 1) {
+			PLOG_INFO << "Basic initialization complete";
+		}
 
 		break;
 	}
 	case DLL_PROCESS_DETACH: {
-		PLOG_INFO << "ModPlugin Unloading";
+		if (ModLogStatus == 1) {
+			PLOG_INFO << "ModPlugin Unloading";
 
 		// Remove hooks
-		PLOG_INFO << "Removing hooks";
+			PLOG_INFO << "Removing hooks";
+		}
 		RemoveAllHooks();
 
 		// Unload all plugins
-		PLOG_INFO << "Unloading plugins";
+		if (ModLogStatus == 1) {
+			PLOG_INFO << "Unloading plugins";
+		}
 		for (PluginData *pluginData : plugins) {
 			delete pluginData->info;
 			if (pluginData->module != hModule) {
@@ -574,7 +623,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		plugins.clear();
 
 		// Unload real winmm.dll
-		PLOG_INFO << "Unloading real winmm.dll";
+		if (ModLogStatus == 1) {
+			PLOG_INFO << "Unloading real winmm.dll";
+		}
 		cleanupProxy();
 
 		// TODO: Close log file?

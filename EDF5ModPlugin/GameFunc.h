@@ -9,4 +9,4 @@ void hookGameFunctionsC();
 
 //typedef void *(__fastcall *fnk391230_func)(uintptr_t);
 //static fnk391230_func fnk391230_orig;
-static bool __fastcall fnk391230_hook(uintptr_t pweapon);
+static bool __fastcall fnk391230_hook(const uintptr_t pweapon);
