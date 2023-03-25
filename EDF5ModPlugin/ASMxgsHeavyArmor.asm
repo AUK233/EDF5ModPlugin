@@ -158,7 +158,7 @@ ASMeFencerJetSetup proc
         ; original
         mov rbp, qword ptr [rsp+70h]
         mov rbx, qword ptr [rsp+68h]
-        movaps xmm6, xmmword ptr [rsp+30h]
+        movups xmm6, xmmword ptr [rsp+30h]
         add rsp, 40h
         pop r14
         pop rdi

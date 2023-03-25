@@ -450,6 +450,26 @@ static void *__fastcall initterm_hook(void *unk1, void *unk2) {
 		initialized = true;
 		PLOG_INFO << "Additional initialization";
 
+		// Load plugins
+		if (LoadPluginsB) {
+			LoadPlugins();
+		} else {
+			PLOG_INFO << "Plugin loading disabled";
+		}
+
+		PLOG_INFO << "Initialization finished";
+	}
+	return initterm_orig(unk1, unk2);
+}
+
+static void __fastcall initterm_hook2(_PVFV *unk1, _PVFV *unk2) {
+	static bool initialized = false;
+	if (!initialized) {
+		initialized = true;
+		if (ModLogStatus == 1) {
+			PLOG_INFO << "Additional initialization";
+		}
+
 		// Load new function
 		// Very important!!!!!!!!!!!!
 		GetGameFunctions();
@@ -472,13 +492,13 @@ static void *__fastcall initterm_hook(void *unk1, void *unk2) {
 		// Load plugins
 		if (LoadPluginsB) {
 			LoadPlugins();
-		} else {
-			PLOG_INFO << "Plugin loading disabled";
 		}
 
-		PLOG_INFO << "Initialization finished";
+		if (ModLogStatus == 1) {
+			PLOG_INFO << "Initialization finished";
+		}
 	}
-	return initterm_orig(unk1, unk2);
+	return _initterm(unk1, unk2);
 }
 
 // x64 cannot use inline assembly, you have to create asm files.
@@ -580,7 +600,15 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		}
 
 		// Hook function for additional ModLoader initialization
-		SetupHook(pointers[0], (PVOID*)&initterm_orig, initterm_hook, "Additional initialization", TRUE);
+		// offset is 0x9C775A
+		//SetupHook(pointers[0], (PVOID*)&initterm_orig, initterm_hook, "Additional initialization", TRUE);
+		SetupHook(pointers[0], (PVOID *)&initterm_orig, initterm_hook2, "Additional initialization", TRUE);
+
+		//void *memoryBlock = AllocatePageNearAddress(hmodEXE + 0x9c835a);
+		//uintptr_t hookFunction = (uintptr_t)initterm_hook2;
+		//memcpy(memoryBlock, (void *)hookFunction, 8U);
+		//uint64_t relAddr = (uint64_t)memoryBlock - (uint64_t)(hmodEXE + 0x9c835a + 6);
+		//(hmodEXE + 0x9c835a + 2, &relAddr, 4U);
 
 		// Add Mods folder redirector hook
 		fnk27380_orig = (fnk27380_func)((PBYTE)hmodEXE + pointers[2]);

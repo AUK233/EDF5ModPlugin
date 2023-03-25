@@ -52,6 +52,7 @@ uintptr_t edf5C6C80Address;
 uintptr_t edf5C8660Address;
 //
 uintptr_t vedf125AB68;
+uintptr_t vedf125ABA0;
 }
 
 // get game function address
@@ -90,6 +91,7 @@ void GetGameFunctions() {
 
 	//
 	vedf125AB68 = (uintptr_t)(hmodEXE + 0x125AB68);
+	vedf125ABA0 = (uintptr_t)(hmodEXE + 0x125ABA0);
 	// get ammo function address
 	GetAmmoFunctions();
 }
@@ -117,6 +119,12 @@ uintptr_t edf187EC0Address;
 uintptr_t edf150AD0Address;
 // LightningBullet01
 uintptr_t edf15FD90Address;
+// Delayed explosion
+uintptr_t edf47D950Address;
+// Genocide explosion
+uintptr_t edf1AE7A0Address;
+// Normal explosion
+uintptr_t edf1AD970Address;
 }
 // get ammo function address
 void GetAmmoFunctions() {
@@ -131,6 +139,10 @@ void GetAmmoFunctions() {
 	edf187EC0Address = (uintptr_t)(hmodEXE + 0x187EC0);
 	edf150AD0Address = (uintptr_t)(hmodEXE + 0x150AD0);
 	edf15FD90Address = (uintptr_t)(hmodEXE + 0x15FD90);
+	// Delayed explosion
+	edf47D950Address = (uintptr_t)(hmodEXE + 0x47D950);
+	edf1AE7A0Address = (uintptr_t)(hmodEXE + 0x1AE7A0);
+	edf1AD970Address = (uintptr_t)(hmodEXE + 0x1AD970);
 }
 
 // here hook all changed functions, written in c++

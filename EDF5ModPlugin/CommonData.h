@@ -15,4 +15,6 @@ constexpr UINT32 LightningBullet0101Size = 0x880;
 extern "C" {
 float _Common_F0P2 = 0.2f;
 float _Common_F0P8 = 0.8f;
+float _Common_F5P0 = 5.0f;
+float _Common_F70P0 = 70.0f; 
 }

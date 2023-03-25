@@ -4,6 +4,7 @@ The following values are available for Ammo_CustomParameter when AmmoClass is X.
 ## AmmoClass 's value:
 - [SolidBullet01](#SolidBullet01)
 - [SolidExpBullet01](#SolidExpBullet01)
+- [LaserBullet02](#LaserBullet02)
 
 ### SolidBullet01
 Its Ammo_CustomParameter has a maximum of 3 parameters.
@@ -30,5 +31,17 @@ Its Ammo_CustomParameter has a maximum of 3 parameters.
 |---|---|---|
 |0|float|hit damage factor, default 0.2|
 |1|float|explosion damage factor, default 0.8|
+
+#### [Return to Index](#index)
+
+### LaserBullet02
+Its Ammo_CustomParameter has a maximum of 1 parameters.
+
+| node index | value type | function | value description |
+|---|---|---|---|
+|0|int|ammo type|0 is normal laser, 1 is laser bullet|
+|-|-|-|2 is delayed explosion laser|
+|-|-|-|3 is no explosion effect|
+|-|-|-|(new)4 is delayed normal explosion|
 
 #### [Return to Index](#index)

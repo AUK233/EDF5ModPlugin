@@ -306,6 +306,11 @@ void __fastcall ASMammoSolidBullet01();
 
 uintptr_t ammoSolidExpBullet01RetAddr;
 void __fastcall ASMammoSolidExpBullet01();
+
+uintptr_t ammoLaserBullet02RetAddr;
+void __fastcall ASMammoLaserBullet02();
+uintptr_t ammoLaserBullet02BlastRetAddr;
+void __fastcall ASMammoLaserBullet02Blast();
 }
 
 void hookAmmoFunctions() {
@@ -329,6 +334,16 @@ void hookAmmoFunctions() {
 	// particle speed x3.0f to x0.75f
 	unsigned char hitFxSpeed[] = {0xB1, 0xD6};
 	WriteHookToProcess((void *)(hmodEXE + 0x188CF3 + 4), &hitFxSpeed, 2U);
+
+	// hook LaserBullet02
+	// offset is 0x156682
+	ammoLaserBullet02RetAddr = (uintptr_t)(hmodEXE + 0x15729D);
+	hookGameBlock((void *)(hmodEXE + 0x157282), (uintptr_t)ASMammoLaserBullet02);
+	WriteHookToProcess((void *)(hmodEXE + 0x157282 + 12), (void *)&intNOP32, 5U);
+	// explosion effect, offset is 0x1572B5
+	ammoLaserBullet02BlastRetAddr = (uintptr_t)(hmodEXE + 0x157F18);
+	hookGameBlock((void *)(hmodEXE + 0x157EB5), (uintptr_t)ASMammoLaserBullet02Blast);
+	WriteHookToProcess((void *)(hmodEXE + 0x157EB5 + 12), (void *)&intNOP32, 16U);
 }
 
 // new functions require more memory

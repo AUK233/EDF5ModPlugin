@@ -132,7 +132,7 @@ ASMxgsOCgiantSpider proc
         ;lea r11, qword ptr [rsp+90h]
         ;mov rsi, qword ptr [r11+38h]
         ;movaps xmm6, xmmword ptr [r11-10h]
-        movaps xmm6, xmmword ptr [rsp+80h]
+        movups xmm6, xmmword ptr [rsp+80h]
         ;mov rsp, r11
         add rsp, 90h
         pop r15

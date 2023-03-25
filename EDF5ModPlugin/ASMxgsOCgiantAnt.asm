@@ -124,7 +124,7 @@ ASMxgsOCgiantAnt proc
         movss dword ptr [rbx+1320h], xmm0 ; shot height
 
     OriginalEndBlock:
-        movaps xmm6, xmmword ptr [rsp+90h]
+        movups xmm6, xmmword ptr [rsp+90h]
         add rsp, 0A8h
         pop rsi
         pop rbx

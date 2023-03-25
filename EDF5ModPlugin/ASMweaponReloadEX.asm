@@ -18,7 +18,6 @@ ASMweaponReloadEX proc
     ; add star to "ReloadInit"
         lea rdx, wReloadInit
         mov rcx, r14
-        ;call edf5BDF30
         call edf5BDF30
         movsxd rcx, eax
         cmp ecx, -1
@@ -36,11 +35,17 @@ ASMweaponReloadEX proc
         lea rdx, qword ptr [rdx+rcx*4]
     ofs38E30B:
         ;movss xmm1, dword ptr [rax+8] ; old
-        mov r8,r12
+        ; backup start
+        movups xmm6, xmmword ptr [rbp+200h]
+        movups xmm0, xmmword ptr [rbp+210h]
+        movups xmmword ptr [rbp+200h], xmm0
+        ; backup end
+        mov r8, r12
         lea rcx, qword ptr [rbp+200h] ; note that it cannot be replaced here
         call edf8C8C0
         movss xmm1, dword ptr [rax] ; get value
-        ; new 4 line
+        movups xmmword ptr [rbp+200h], xmm6 ; recovery
+        ; old line
         movss xmm0, wReloadInitFloat
         comiss xmm0, xmm1
         jbe ofs38E33C

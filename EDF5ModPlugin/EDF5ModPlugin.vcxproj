@@ -209,6 +209,7 @@
     <ClCompile Include="utiliy.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <MASM Include="ASMammoLaserBullet02.asm" />
     <MASM Include="ASMammoSolidBullet01.asm" />
     <MASM Include="ASMammoSolidExpBullet01.asm" />
     <MASM Include="ASMxgsOCdragonSmall.asm" />
