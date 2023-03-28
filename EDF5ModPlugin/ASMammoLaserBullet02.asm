@@ -25,8 +25,8 @@ ASMammoLaserBullet02 proc
     type4:
         cmp eax, 4
         jne ofs15669D
-        or word ptr [rsi+20Ch], 8
-        mov dword ptr [rsi+404h], 3
+        or word ptr [rsi+20Ch], 8 ; no explosion destruction FX
+        mov dword ptr [rsi+404h], 3 ; delayed damage
     ofs15669D:
         jmp ammoLaserBullet02RetAddr
         int 3
@@ -46,7 +46,7 @@ ASMammoLaserBullet02Blast proc
         xor r8d, r8d
         lea rdx, qword ptr [rsi+670h]
         call edf47D950Address
-
+        ; rsi+390h is color r
         movss xmm3, dword ptr [rsi+368h]
         lea r8, qword ptr [rsp+30h]
         divss xmm3, _Common_F70P0
@@ -70,14 +70,12 @@ ASMammoLaserBullet02Blast proc
         call edf47D950Address
 
         movss xmm3, dword ptr [rsi+368h]
-        lea r8, qword ptr [rsp+30h]
+        lea r8, dword ptr [rsi+680h] ; set fx angle
         divss xmm3, _Common_F5P0
         mov rcx, vedf125ABA0
         lea rdx, qword ptr [rsi+670h]
         mov rcx, [rcx]
-        movups xmm0, xmmword_140EE7550
         movss dword ptr [rsp+20h], xmm9
-        movups xmmword ptr [rsp+30h], xmm0
         call edf1AD970Address
 
     ofs157318:

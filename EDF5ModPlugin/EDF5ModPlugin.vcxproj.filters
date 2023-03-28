@@ -95,6 +95,9 @@
     <MASM Include="ASMammoLaserBullet02.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
+    <MASM Include="ASMammoLaserBullet01.asm">
+      <Filter>Assembly Files</Filter>
+    </MASM>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PluginAPI.h">

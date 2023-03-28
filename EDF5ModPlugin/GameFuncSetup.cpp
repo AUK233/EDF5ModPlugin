@@ -80,6 +80,12 @@ void OverwriteGameFunctions() {
 	unsigned char password2[] = {0xDC, 0x78};
 	WriteHookToProcess((void *)(hmodEXE + 0x582035 + 3), &password2, 2U);
 
+	// minimum building destruction blast radius
+	// offset is 0x141AA5
+	// 3.0f to 5.0f
+	unsigned char minBlastBuilding = 0xFC;
+	WriteHookToProcess((void *)(hmodEXE + 0x1426A5 + 3), &minBlastBuilding, 1U);
+
 	// normal hit smoke
 	// offset is 0x1B0C23
 	// 30.0f to 15.0f
@@ -307,6 +313,9 @@ void __fastcall ASMammoSolidBullet01();
 uintptr_t ammoSolidExpBullet01RetAddr;
 void __fastcall ASMammoSolidExpBullet01();
 
+uintptr_t ammoLaserBullet01RetAddr;
+void __fastcall ASMammoLaserBullet01();
+
 uintptr_t ammoLaserBullet02RetAddr;
 void __fastcall ASMammoLaserBullet02();
 uintptr_t ammoLaserBullet02BlastRetAddr;
@@ -334,6 +343,12 @@ void hookAmmoFunctions() {
 	// particle speed x3.0f to x0.75f
 	unsigned char hitFxSpeed[] = {0xB1, 0xD6};
 	WriteHookToProcess((void *)(hmodEXE + 0x188CF3 + 4), &hitFxSpeed, 2U);
+
+	// hook LaserBullet01
+	// offset is 0x155421
+	ammoLaserBullet01RetAddr = (uintptr_t)(hmodEXE + 0x156038);
+	hookGameBlock((void *)(hmodEXE + 0x156021), (uintptr_t)ASMammoLaserBullet01);
+	WriteHookToProcess((void *)(hmodEXE + 0x156021 + 12), (void *)&intNOP32, 11U);
 
 	// hook LaserBullet02
 	// offset is 0x156682

@@ -4,6 +4,7 @@ The following values are available for Ammo_CustomParameter when AmmoClass is X.
 ## AmmoClass 's value:
 - [SolidBullet01](#SolidBullet01)
 - [SolidExpBullet01](#SolidExpBullet01)
+- [LaserBullet01](#LaserBullet01)
 - [LaserBullet02](#LaserBullet02)
 
 ### SolidBullet01
@@ -18,7 +19,7 @@ Its Ammo_CustomParameter has a maximum of 3 parameters.
 #### [Return to Index](#index)
 
 ### SolidExpBullet01
-Its Ammo_CustomParameter has a maximum of 3 parameters.
+Its Ammo_CustomParameter has a maximum of 3 parameters, minimum 1 parameter required.
 
 | node index | value type | function | value description |
 |---|---|---|---|
@@ -34,8 +35,29 @@ Its Ammo_CustomParameter has a maximum of 3 parameters.
 
 #### [Return to Index](#index)
 
+### LaserBullet01
+Its Ammo_CustomParameter has a maximum of 13 parameters, minimum 11 parameters required.
+
+| node index | value type | function | value description |
+|---|---|---|---|
+|0|ptr|color|hit FX color adjustment|
+|1|ptr|color|adjust color of hit light source|
+|2|float|hit scale|adjusts size of light point on hit|
+|3|float|light scale|adjusting luminous intensity of entire laser|
+|4|int|hit point time|set time of light point display when hit|
+|5|int|hit laser FX number|set number of laser FX scattered after hit|
+|6|float|spread (radian)|set angle at which laser FX spreads out on hit|
+|7|float|spread (radian)|ditto|
+|8|float|FX length|set length of laser fx on hit|
+|9|float|FX bend|set bend of laser fx on hit|
+|10|int|FX segment|set number of segments per laser FX, more is more round.|
+|11|float|unknown|default 1.0|
+|12|int|ammo type (new)|1 means no explosive knockdown|
+
+#### [Return to Index](#index)
+
 ### LaserBullet02
-Its Ammo_CustomParameter has a maximum of 1 parameters.
+Its Ammo_CustomParameter has a maximum of 1 parameter, minimum 1 parameter required.
 
 | node index | value type | function | value description |
 |---|---|---|---|
