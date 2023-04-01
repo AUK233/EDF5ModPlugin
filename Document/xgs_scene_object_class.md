@@ -71,7 +71,7 @@ Added the following values available for SGO node names.
 #### GiantAnt BulletExSet
 | node index | value type | value description |
 |---|---|---|
-|0|int|multiply this factor by original shot count, this must > 0|
+|0|int|multiply this factor by original shot count. If is 0, shot count is 1.|
 |1|float|multiply this factor by original acid speed|
 |2|float|multiply this factor by original acid damage|
 |3|float|change acid explosion range|
@@ -110,7 +110,7 @@ Added the following values available for SGO node names.
 #### GiantSpider BulletExSet
 | node index | value type | value description |
 |---|---|---|
-|0|int|multiply this factor by original shot count, this must > 0|
+|0|int|multiply this factor by original shot count. If is 0, shot count is 1.|
 |1|float|change ammo explosion range|
 |2|float|change ammo hitbox size|
 |3|float|change ammo hit impulse|
@@ -128,7 +128,7 @@ Added the following values available for SGO node names.
 #### GiantBee BulletExSet
 | node index | value type | value description |
 |---|---|---|
-|0|int|multiply this factor by original shot count, this must > 0|
+|0|int|multiply this factor by original shot count. If is 0, shot count is 1.|
 |1|float|multiply this factor by original ammo speed|
 |2|float|multiply this factor by original ammo damage|
 |3|float|change ammo explosion range. insectbase_Type = 1, default 3|
@@ -179,7 +179,7 @@ Added the following values available for SGO node names.
 #### DragonSmall BulletExSet
 | node index | value type | value description |
 |---|---|---|
-|0|int|multiply this factor by original shot count, this must > 0|
+|0|int|multiply this factor by original shot count. If is 0, shot count is 1.|
 |1|float|change acid explosion range|
 |2|int|set acid penetration, only 0 and 1|
 |3|float|change acid hitbox size|

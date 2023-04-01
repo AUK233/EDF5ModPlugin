@@ -132,11 +132,18 @@ ASMxgsOCdragonSmall proc
         lea rcx, [rax+rax*2]
         lea rax, [r8+rdx]
         lea rcx, [rax+rcx*4] ; store ptr address
+
         ; change shot count
         movsxd rax, dword ptr [rcx+8]
         mov eax, [rax+rcx+8]
         imul eax, [rbx+1370h] ; old * this
+        ; check 0
+        mov edx, 1
+        cmp eax, edx
+        cmovl eax, edx ; if < 1
+        ; write value
         mov [rbx+1370h], eax
+        
         ; change ammo explosion range
         movsxd rax, dword ptr [rcx+8]
         movss xmm0, dword ptr [rax+rcx+20]

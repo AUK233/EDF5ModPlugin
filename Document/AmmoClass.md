@@ -46,6 +46,7 @@ Its Ammo_CustomParameter has a maximum of 13 parameters, minimum 11 parameters r
 |3|float|light scale|adjusting luminous intensity of entire laser|
 |4|int|hit point time|set time of light point display when hit|
 |5|int|hit laser FX number|set number of laser FX scattered after hit|
+|-|-|(new)|when it is -1, change hit light texture|
 |6|float|spread (radian)|set angle at which laser FX spreads out on hit|
 |7|float|spread (radian)|ditto|
 |8|float|FX length|set length of laser fx on hit|

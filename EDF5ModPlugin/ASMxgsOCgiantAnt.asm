@@ -70,11 +70,18 @@ ASMxgsOCgiantAnt proc
         lea rcx, [rax+rax*2]
         lea rax, [r8+rdx]
         lea rcx, [rax+rcx*4] ; store ptr address
+
         ; change shot count
         movsxd rax, dword ptr [rcx+8]
         mov eax, [rax+rcx+8]
         imul eax, [rbx+13B0h] ; old * this
+        ; check 0
+        mov edx, 1
+        cmp eax, edx
+        cmovl eax, edx ; if < 1
+        ; write value
         mov [rbx+13B0h], eax
+
         ; change ammo speed
         movsxd rax, dword ptr [rcx+8]
         movss xmm0, dword ptr [rax+rcx+20]

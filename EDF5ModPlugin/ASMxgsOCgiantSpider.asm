@@ -108,11 +108,18 @@ ASMxgsOCgiantSpider proc
         lea rcx, [rax+rax*2]
         lea rax, [r8+rdx]
         lea rcx, [rax+rcx*4] ; store ptr address
+
         ; change shot count
         movsxd rax, dword ptr [rcx+8]
         mov eax, [rax+rcx+8]
         imul eax, [rdi+15D0h] ; old * this
+        ; check 0
+        mov edx, 1
+        cmp eax, edx
+        cmovl eax, edx ; if < 1
+        ; write value
         mov [rdi+15D0h], eax
+
         ; change ammo explosion range
         movsxd rax, dword ptr [rcx+8]
         movss xmm0, dword ptr [rax+rcx+20]

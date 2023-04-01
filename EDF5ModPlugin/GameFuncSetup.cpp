@@ -315,6 +315,8 @@ void __fastcall ASMammoSolidExpBullet01();
 
 uintptr_t ammoLaserBullet01RetAddr;
 void __fastcall ASMammoLaserBullet01();
+uintptr_t ammoLaserBullet01HitRetAddr;
+void __fastcall ASMammoLaserBullet01Hit();
 
 uintptr_t ammoLaserBullet02RetAddr;
 void __fastcall ASMammoLaserBullet02();
@@ -349,6 +351,10 @@ void hookAmmoFunctions() {
 	ammoLaserBullet01RetAddr = (uintptr_t)(hmodEXE + 0x156038);
 	hookGameBlock((void *)(hmodEXE + 0x156021), (uintptr_t)ASMammoLaserBullet01);
 	WriteHookToProcess((void *)(hmodEXE + 0x156021 + 12), (void *)&intNOP32, 11U);
+	// hit FX, offset is 0x15893D
+	ammoLaserBullet01HitRetAddr = (uintptr_t)(hmodEXE + 0x15954B);
+	hookGameBlock((void *)(hmodEXE + 0x15953D), (uintptr_t)ASMammoLaserBullet01Hit);
+	WriteHookToProcess((void *)(hmodEXE + 0x15953D + 12), (void *)&intNOP32, 2U);
 
 	// hook LaserBullet02
 	// offset is 0x156682
