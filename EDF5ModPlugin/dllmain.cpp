@@ -73,6 +73,7 @@ constexpr size_t cwslen(wchar_t const (&)[N]) {
 WCHAR iniPath[MAX_PATH];
 // Configuration
 static UINT ModLog = 0;
+static UINT WEOpen = 1;
 static UINT RTRead = 0;
 static UINT DisplayDamage = 1;
 static UINT PlayerView = 0;
@@ -87,6 +88,7 @@ int displayDamageIndex = 0;
 int displayDamageStatus = 0;
 }
 HANDLE ddThread;
+int weaponEnhance = 0;
 int ModLogStatus = 0;
 
 // Pointer sets
@@ -475,7 +477,7 @@ static void __fastcall initterm_hook2(_PVFV *unk1, _PVFV *unk2) {
 		GetGameFunctions();
 		hookGameFunctionsC();
 		hookGameFunctions();
-		// Very important!!!!!!!!!!!!
+		// Read config
 		ReadINIconfig();
 		// Now inject only when needed, for crash rate reduction
 		if (DisplayDamage || RTRead) {
@@ -518,6 +520,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 		// Read configuration
 		ModLog = GetPrivateProfileIntW(L"ModOption", L"ModLog", ModLog, iniPath);
+		WEOpen = GetPrivateProfileIntW(L"ModOption", L"EnhancedWP", WEOpen, iniPath);
 		//LoadPluginsB = GetPrivateProfileBoolW(L"ModOption", L"LoadPlugins", LoadPluginsB, iniPath);
 		//Redirect = GetPrivateProfileBoolW(L"ModOption", L"Redirect", Redirect, iniPath);
 		//GameLog = GetPrivateProfileBoolW(L"ModOption", L"GameLog", GameLog, iniPath);
@@ -542,7 +545,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		PluginInfo *selfInfo = new PluginInfo;
 		selfInfo->infoVersion = PluginInfo::MaxInfoVer;
 		selfInfo->name = "EDF5 Mod Plugin";
-		selfInfo->version = PLUG_VER(0, 4, 0, 0);
+		selfInfo->version = PLUG_VER(0, 4, 0, 1);
 		PluginData *selfData = new PluginData;
 		selfData->info = selfInfo;
 		selfData->module = hModule;
@@ -597,6 +600,19 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		hModSelf = (PBYTE)GetModuleHandleW(L"1mod.dll");
 		if (ModLogStatus == 1) {
 			PLOG_INFO << "Get self address: " << std::hex << hModSelf;
+		}
+		// Weapon Enhancement
+		if (WEOpen) {
+			weaponEnhance = 1;
+
+			if (ModLogStatus == 1) {
+				PLOG_INFO << "Enable weapon enhancement";
+			}
+		}
+		else {
+			if (ModLogStatus == 1) {
+				PLOG_INFO << "Disable weapon enhancement";
+			}
 		}
 
 		// Hook function for additional ModLoader initialization

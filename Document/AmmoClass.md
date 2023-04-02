@@ -40,10 +40,10 @@ Its Ammo_CustomParameter has a maximum of 13 parameters, minimum 11 parameters r
 
 | node index | value type | function | value description |
 |---|---|---|---|
-|0|ptr|color|hit FX color adjustment|
+|0|ptr|color|adjust hit FX color|
 |1|ptr|color|adjust color of hit light source|
-|2|float|hit scale|adjusts size of light point on hit|
-|3|float|light scale|adjusting luminous intensity of entire laser|
+|2|float|hit scale|adjust size of light point on hit|
+|3|float|light scale|adjust luminous intensity of entire laser|
 |4|int|hit point time|set time of light point display when hit|
 |5|int|hit laser FX number|set number of laser FX scattered after hit|
 |-|-|(new)|when it is -1, change hit light texture|

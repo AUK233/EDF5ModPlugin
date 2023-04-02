@@ -15,6 +15,7 @@
 #include "CommonData.h"
 
 extern PBYTE hmodEXE;
+extern int weaponEnhance;
 
 static const unsigned char intNOP32[] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
 
@@ -119,6 +120,17 @@ uintptr_t edf187EC0Address;
 uintptr_t edf150AD0Address;
 // LightningBullet01
 uintptr_t edf15FD90Address;
+// Set insect ammo type
+uintptr_t InsectAmmoType[11 + 1];
+uintptr_t giantBeeAmmoSetRetAddr;
+void __fastcall ASMInsectPlasmaBullet01();
+void __fastcall ASMInsectSolidBullet01();
+void __fastcall ASMInsectPulseBullet01();
+void __fastcall ASMInsectSolidExpBullet01();
+void __fastcall ASMInsectHomingLaserBullet01();
+void __fastcall ASMInsectLaserBullet02();
+void __fastcall ASMInsectLightningBullet01();
+
 // Delayed explosion
 uintptr_t edf47D950Address;
 // Genocide explosion
@@ -139,6 +151,34 @@ void GetAmmoFunctions() {
 	edf187EC0Address = (uintptr_t)(hmodEXE + 0x187EC0);
 	edf150AD0Address = (uintptr_t)(hmodEXE + 0x150AD0);
 	edf15FD90Address = (uintptr_t)(hmodEXE + 0x15FD90);
+
+	// Set insect ammo type
+	InsectAmmoType[0] = 0;
+	// Get insect ammo return address
+	giantBeeAmmoSetRetAddr = (uintptr_t)(hmodEXE + 0x21120C);
+	// AcidBullet01
+	InsectAmmoType[1] = (uintptr_t)(hmodEXE + 0x204FC0);
+	// FlameBullet01
+	InsectAmmoType[2] = (uintptr_t)(hmodEXE + 0x1F77F0);
+	// PlasmaBullet01
+	InsectAmmoType[3] = (uintptr_t)ASMInsectPlasmaBullet01;
+	// SolidBullet01
+	InsectAmmoType[4] = (uintptr_t)ASMInsectSolidBullet01;
+	// PulseBullet01
+	InsectAmmoType[5] = (uintptr_t)ASMInsectPulseBullet01;
+	// SolidExpBullet01
+	InsectAmmoType[6] = (uintptr_t)ASMInsectSolidExpBullet01;
+	// HomingLaserBullet01
+	InsectAmmoType[7] = (uintptr_t)ASMInsectHomingLaserBullet01;
+	// LaserBullet02
+	InsectAmmoType[8] = (uintptr_t)ASMInsectLaserBullet02;
+	// FlameBullet02
+	InsectAmmoType[9] = (uintptr_t)(hmodEXE + 0x205220);
+	// NeedleBullet01
+	InsectAmmoType[10] = (uintptr_t)(hmodEXE + 0x211190);
+	// LightningBullet01
+	InsectAmmoType[11] = (uintptr_t)ASMInsectLightningBullet01;
+
 	// Delayed explosion
 	edf47D950Address = (uintptr_t)(hmodEXE + 0x47D950);
 	edf1AE7A0Address = (uintptr_t)(hmodEXE + 0x1AE7A0);
@@ -147,11 +187,13 @@ void GetAmmoFunctions() {
 
 // here hook all changed functions, written in c++
 void hookGameFunctionsC() {
+	if (weaponEnhance) {
 	// allows weapons to be charged, offset is 0x390630
 	//SetupHook(0x391230, (PVOID *)&fnk391230_orig, fnk391230_hook, "Allows weapons to be charged", 1);
 	hookGameBlock((void *)(hmodEXE + 0x391230), (uint64_t)fnk391230_hook);
 	WriteHookToProcess((void *)(hmodEXE + 0x391230 + 12), (void *)&intNOP32, 8U);
 	//hookGameBlock14((void *)(hmodEXE + 0x391230), (uint64_t)fnk391230_hook);
+	}
 }
 
 static bool __fastcall fnk391230_hook(const uintptr_t pweapon) {
