@@ -17,4 +17,6 @@ float _Common_F0P2 = 0.2f;
 float _Common_F0P8 = 0.8f;
 float _Common_F5P0 = 5.0f;
 float _Common_F70P0 = 70.0f; 
+
+float _CommonRVA_EE7550[4] = {0.0f, 1.0f, 0.0f, 1.0f};
 }

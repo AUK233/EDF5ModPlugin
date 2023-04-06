@@ -321,6 +321,9 @@ uintptr_t ammoLaserBullet02RetAddr;
 void __fastcall ASMammoLaserBullet02();
 uintptr_t ammoLaserBullet02BlastRetAddr;
 void __fastcall ASMammoLaserBullet02Blast();
+
+uintptr_t ammoMissileBullet01BlastRetAddr;
+void __fastcall ASMammoMissileBullet01Blast();
 }
 
 void hookAmmoFunctions() {
@@ -364,6 +367,15 @@ void hookAmmoFunctions() {
 	ammoLaserBullet02BlastRetAddr = (uintptr_t)(hmodEXE + 0x157F18);
 	hookGameBlock((void *)(hmodEXE + 0x157EB5), (uintptr_t)ASMammoLaserBullet02Blast);
 	WriteHookToProcess((void *)(hmodEXE + 0x157EB5 + 12), (void *)&intNOP32, 16U);
+
+	// hook MissileBullet01
+	// explosion effect, offset is 0x1613B3
+	ammoMissileBullet01BlastRetAddr = (uintptr_t)(hmodEXE + 0x161FEC);
+	hookGameBlock((void *)(hmodEXE + 0x161FB3), (uintptr_t)ASMammoMissileBullet01Blast);
+	WriteHookToProcess((void *)(hmodEXE + 0x161FB3 + 12), (void *)&intNOP32, 18U);
+	// expanded guidance type, offset is 0x161545
+	unsigned char MB01GuideType[] = {3, 0x77};
+	WriteHookToProcess((void *)(hmodEXE + 0x162145 + 2), &MB01GuideType, 2U);
 }
 
 // new functions require more memory

@@ -9,8 +9,7 @@ extern vedf125ABA0 : qword
 
 extern _Common_F70P0 : dword
 extern _Common_F5P0 : dword
-
-xmmword_140EE7550 DD 00000000h, 3F800000h, 00000000h, 3F800000h
+extern _CommonRVA_EE7550 : xmmword
 
 .code
 
@@ -22,6 +21,7 @@ ASMammoLaserBullet02 proc
         jne type4
         or word ptr [rsi+20Ch], 8
         mov dword ptr [rsi+404h], 3
+        jmp ammoLaserBullet02RetAddr
     type4:
         cmp eax, 4
         jne ofs15669D
@@ -53,10 +53,11 @@ ASMammoLaserBullet02Blast proc
         mov rcx, vedf125ABA0
         lea rdx, qword ptr [rsi+670h]
         mov rcx, [rcx]
-        movups xmm0, xmmword_140EE7550
+        movups xmm0, _CommonRVA_EE7550
         movss dword ptr [rsp+20h], xmm9
-        movups xmmword ptr [rsp+30h], xmm0
+        movups [rsp+30h], xmm0
         call edf1AE7A0Address
+        jmp ammoLaserBullet02BlastRetAddr
     
     type4:
         cmp eax, 4

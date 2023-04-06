@@ -6,6 +6,7 @@ The following values are available for Ammo_CustomParameter when AmmoClass is X.
 - [SolidExpBullet01](#SolidExpBullet01)
 - [LaserBullet01](#LaserBullet01)
 - [LaserBullet02](#LaserBullet02)
+- [MissileBullet01](#MissileBullet01)
 
 ### SolidBullet01
 Its Ammo_CustomParameter has a maximum of 3 parameters.
@@ -66,5 +67,16 @@ Its Ammo_CustomParameter has a maximum of 1 parameter, minimum 1 parameter requi
 |-|-|-|2 is delayed explosion laser|
 |-|-|-|3 is no explosion effect|
 |-|-|-|(new)4 is delayed normal explosion|
+
+#### [Return to Index](#index)
+
+### MissileBullet01
+Its Ammo_CustomParameter has a maximum of 12 parameter, minimum 11 parameter required.
+
+| node index | value type | function | value description |
+|---|---|---|---|
+|0|int|ammo type|0,1,2 is almost no difference|
+|-|-|-|(new)3 is genocide explosion effect|
+|-|-|-|(new)4 is genocide horizontal explosion|
 
 #### [Return to Index](#index)
