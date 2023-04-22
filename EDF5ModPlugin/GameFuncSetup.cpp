@@ -229,8 +229,8 @@ void hookHeavyArmorFunctions() {
 	// start:0x1E00, size:0x10, function: swap types.
 	// HeavyArmor 0x1C30
 	WriteHookToProcess((void *)(hmodEXE + 0x2E3408), &newFencerSize, 4U);
-	WriteHookToProcess((void *)(hmodEXE + 0x2E4229 + 1), &newFencerSize, 4U);
-	WriteHookToProcess((void *)(hmodEXE + 0xC61AC9 + 1), &newFencerSize, 4U);
+	//WriteHookToProcess((void *)(hmodEXE + 0x2E4229 + 1), &newFencerSize, 4U);
+	//WriteHookToProcess((void *)(hmodEXE + 0xC61AC9 + 1), &newFencerSize, 4U);
 	
 	// +1BA0h, default is 240
 	int newBoosterCD = 300;

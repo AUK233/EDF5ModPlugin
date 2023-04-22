@@ -166,8 +166,8 @@ ASMxgsOCgiantBeeAmmo proc
         mov eax, [r14+12A0h]
         cmp eax, 0
         jle returnNext
-        cmp eax, 11
-        jge returnNext
+        cmp eax, 14
+        jg returnNext
         ; get address
         lea rdx, InsectAmmoType
         cdqe

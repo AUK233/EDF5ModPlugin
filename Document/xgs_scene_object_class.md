@@ -146,7 +146,8 @@ Added the following values available for SGO node names.
 | - | - |5 is PulseBullet01, 6 is SolidExpBullet01|
 | - | - |7 is HomingLaserBullet01, 8 is LaserBullet02|
 | - | - |9 is FlameBullet02, 10 is NeedleBullet01|
-| - | - |11 is LightningBullet01|
+| - | - |11 is LightningBullet01, 12 is LaserBullet01|
+| - | - |13 is RocketBullet01, 14 is BeamBullet01|
 |1|float|color red channel|
 |2|float|color green channel|
 |3|float|color blue channel|

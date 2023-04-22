@@ -8,9 +8,12 @@ constexpr UINT32 SolidExpBullet01Size = 0x6F0;
 constexpr UINT32 SpiderStringBullet01Size = 0x770;
 constexpr UINT32 SpiderStringBullet02Size = 0x710;
 constexpr UINT32 PulseBullet01Size = 0x710;
+constexpr UINT32 LaserBullet01Size = 0x750;
 constexpr UINT32 LaserBullet02Size = 0xC90;
 constexpr UINT32 HomingLaserBullet01Size = 0x8C0;
-constexpr UINT32 LightningBullet0101Size = 0x880;
+constexpr UINT32 LightningBullet01Size = 0x880;
+constexpr UINT32 RocketBullet01Size = 0xA70;
+constexpr UINT32 BeamBullet01Size = 0x710;
 
 extern "C" {
 float _Common_F0P2 = 0.2f;
