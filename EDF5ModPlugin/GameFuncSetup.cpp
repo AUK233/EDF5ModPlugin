@@ -212,6 +212,21 @@ void hookMonsterFunctions() {
 }
 
 extern "C" {
+// ranger!
+void __fastcall ASMeArmySoldierUseAuxiliary();
+uintptr_t eArmySoldierUseAuxiliaryRetAddr;
+// vehicle_call
+uintptr_t edf2E0270Address;
+// ranger dash
+uintptr_t edf2E07C0Address;
+// Execution?
+uintptr_t edf2E18A0Address;
+//
+uintptr_t eSoldierCallSupportRetAddr;
+uintptr_t edf5F8C40Address;
+// Show 2nd support slot
+void __fastcall ASMhudShowSupportSlot2();
+uintptr_t hudShowSupportSlot2RetAddr;
 // Swap boost and dash
 uintptr_t edf11B24E0Address;
 uintptr_t edf11B1AB0Address;
@@ -225,6 +240,23 @@ void __fastcall ASMeFencerBoostAndDash();
 }
 
 void hookHeavyArmorFunctions() {
+	// ranger!
+	// offset is 0x2DF417
+	eArmySoldierUseAuxiliaryRetAddr = (uintptr_t)(hmodEXE + 0x2E00C1);
+	hookGameBlock((void *)(hmodEXE + 0x2E0017), (uint64_t)ASMeArmySoldierUseAuxiliary);
+	WriteHookToProcess((void *)(hmodEXE + 0x2E0017 + 12), (void *)&intNOP32, 8U);
+	//
+	edf2E0270Address = (uintptr_t)(hmodEXE + 0x2E0270);
+	edf2E07C0Address = (uintptr_t)(hmodEXE + 0x2E07C0);
+	edf2E18A0Address = (uintptr_t)(hmodEXE + 0x2E18A0);
+	//
+	eSoldierCallSupportRetAddr = (uintptr_t)(hmodEXE + 0x2E0368);
+	edf5F8C40Address = (uintptr_t)(hmodEXE + 0x5F8C40);
+	// Show 2nd support slot
+	hudShowSupportSlot2RetAddr = (uintptr_t)(hmodEXE + 0x4D7A7F);
+	hookGameBlock((void *)(hmodEXE + 0x4D7A70), (uint64_t)ASMhudShowSupportSlot2);
+	WriteHookToProcess((void *)(hmodEXE + 0x4D7A70 + 12), (void *)&intNOP32, 3U);
+
 	int newFencerSize = 0x2000;
 	// start:0x1E00, size:0x10, function: swap types.
 	// HeavyArmor 0x1C30
@@ -243,7 +275,6 @@ void hookHeavyArmorFunctions() {
 	WriteHookToProcess((void *)(hmodEXE + 0x2E447B + 4), &newDashInterval, 2U);
 
 	// Swap boost and dash Installation
-	edf11B24E0Address = (uintptr_t)(hmodEXE + 0x11B24E0);
 	edf11B1AB0Address = (uintptr_t)(hmodEXE + 0x11B1AB0);
 	// offset is 0x2E37C4, remove old boost speed
 	unsigned char removeBoostSpeed[] = {
