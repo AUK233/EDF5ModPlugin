@@ -86,10 +86,10 @@ extern "C" {
 int playerViewIndex = 0;
 int displayDamageIndex = 0;
 int displayDamageStatus = 0;
+int ModLogStatus = 0;
 }
 HANDLE ddThread;
 int weaponEnhance = 0;
-int ModLogStatus = 0;
 
 // Pointer sets
 typedef struct {
@@ -281,6 +281,7 @@ static const char ModLoaderStr[] = "ModPlugin";
 
 PBYTE hmodEXE;
 PBYTE hModSelf;
+HANDLE handleEXE;
 char hmodName[MAX_PATH];
 
 void ReadINIconfig() {
@@ -551,6 +552,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		selfData->module = hModule;
 		plugins.push_back(selfData);
 
+		handleEXE = GetCurrentProcess();
 		// Determine what game is hosting us
 		hmodEXE = (PBYTE)GetModuleHandleW(NULL);
 		GetModuleFileNameA((HMODULE)hmodEXE, hmodName, _countof(hmodName));

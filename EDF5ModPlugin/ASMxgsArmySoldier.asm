@@ -173,7 +173,7 @@ ASMhudShowSupportSlot2 proc
         lea rdx, qword ptr [rbp+48h]
         cmp ebx, 1
         je ShowSupportSlot2
-        
+
         lea r8, lyt_HudSubWeaponGuageR1
         jmp hudShowSupportSlot2RetAddr
     ShowSupportSlot2:

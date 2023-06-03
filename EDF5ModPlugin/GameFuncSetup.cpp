@@ -275,6 +275,7 @@ void hookHeavyArmorFunctions() {
 	WriteHookToProcess((void *)(hmodEXE + 0x2E447B + 4), &newDashInterval, 2U);
 
 	// Swap boost and dash Installation
+	edf11B24E0Address = (uintptr_t)(hmodEXE + 0x11B24E0);
 	edf11B1AB0Address = (uintptr_t)(hmodEXE + 0x11B1AB0);
 	// offset is 0x2E37C4, remove old boost speed
 	unsigned char removeBoostSpeed[] = {
@@ -490,7 +491,7 @@ void ReallocateWeaponMemory() {
 	WriteHookToProcess((void *)(hmodEXE + 0x46A66D), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0xC6EE79 + 1), &newWeaponSize, 4U);
 	// Weapon_VehicleShoot 0x11F0
-	WriteHookToProcess((void *)(hmodEXE + 0x469AD8), &newWeaponSize, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x46A6D8), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x3A3817 + 1), &newWeaponSize, 4U);
 	// Weapon_VehicleRailGun 0x11F0
 	WriteHookToProcess((void *)(hmodEXE + 0x46A72D), &newWeaponSize, 4U);

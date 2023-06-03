@@ -16,7 +16,6 @@
 #include "GFnDisplay.h"
 
 extern PBYTE hmodEXE;
-extern int ModLogStatus;
 
 static const unsigned char intNOP32[] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
 
@@ -30,6 +29,7 @@ const wchar_t DMGstrN2[] = L"               \n               \n               \n
 extern "C" {
 extern int displayDamageIndex;
 extern int displayDamageStatus;
+extern int ModLogStatus;
 }
 /*
 struct DamageString {
@@ -52,6 +52,15 @@ uintptr_t pDMGstr2 = 0;
 uintptr_t pDMGstr2C = 0;
 uintptr_t pDMGstr2fs = 0;
 float DMGstr2fs = 1.0f;
+
+
+void __fastcall debugGetWeaponName(uintptr_t pstr) {
+	// int addr = *(int *)(hmodEXE + 0x469AD8);
+	wchar_t str[64];
+	wcscpy_s(str, (wchar_t *)pstr);
+	// PLOG_INFO << "weapon name: " << str << " Weapon_VehicleShoot: " << std::hex << addr;
+	PLOG_INFO << "weapon name: " << str;
+}
 
 uintptr_t __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor, uintptr_t rspBackup) {
 	uintptr_t pText = *(uintptr_t *)(pstr + 0x60);

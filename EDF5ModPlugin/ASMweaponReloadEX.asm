@@ -3,6 +3,9 @@
 extern edf8C8C0 : proto
 extern edf5BDF30 : proto
 
+extern debugGetWeaponName : proto
+extern ModLogStatus : dword
+
 extern weaponReloadEXRetAddr : qword
 
 ; L"ReloadInit"
@@ -57,9 +60,17 @@ ASMweaponReloadEX proc
         sub dword ptr [rsi+0B90h], eax
     ofs38E33C:
         mov dword ptr [rsi+590h], 3F800000h
+    ; debug
+        cmp ModLogStatus, 1
+        jne ofsNewFN
+        mov rcx, [rsi+148h]
+        call debugGetWeaponName
+    ofsNewFN:
     ; initialize memory
-        mov qword ptr [rsi+2500h], 0
-        mov qword ptr [rsi+2508h], 0
+        xorps xmm0, xmm0
+        movups [rsi+2500h], xmm0
+        ;mov qword ptr [rsi+2500h], 0
+        ;mov qword ptr [rsi+2508h], 0
     ; read new function "ReloadPadType"
         lea rdx, wReloadPadType
         mov rcx, r14

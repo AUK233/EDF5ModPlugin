@@ -21,6 +21,7 @@
 #include "utiliy.h"
 
 extern PBYTE hmodEXE;
+extern HANDLE handleEXE;
 
 static std::vector<void *> hooks; // Holds all original hooked functions
 static const char hmodGameName[] = "EDF5.exe";
@@ -179,6 +180,8 @@ void WriteHookToProcess(void *addr, void *data, size_t len) {
 	VirtualProtect(addr, len, PAGE_EXECUTE_READWRITE, &oldProtect);
 	memcpy(addr, data, len);
 	VirtualProtect(addr, len, oldProtect, &oldProtect);
+	// Refresh cpu instruction?
+	//FlushInstructionCache(handleEXE, addr, len);
 }
 
 // update game's original functions

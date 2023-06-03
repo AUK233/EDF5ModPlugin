@@ -1,6 +1,7 @@
 #pragma once
 
 extern "C" {
+void __fastcall debugGetWeaponName(uintptr_t pstr);
 uintptr_t __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor, uintptr_t rspBackup);
 }
 
