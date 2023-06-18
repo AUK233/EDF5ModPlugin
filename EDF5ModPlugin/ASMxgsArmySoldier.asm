@@ -10,6 +10,11 @@ extern eSoldierCallSupportRetAddr : qword
 
 extern hudShowSupportSlot2RetAddr : qword
 
+extern eAccessoryEnhancementRetAddr : qword
+extern eAccessoryEnhancement : proto
+extern eGetAccessoryValueAddr : qword
+extern eGetAccessoryINT32Addr : qword
+
 ; L"support_call"
 eSoldierCallSupport db 115,0,117,0,112,0,112,0,111,0,114,0,116,0,95,0,99,0,97,0,108,0,108,0,0,0
 ; L"app:/ui/lyt_HudSubWeaponGuageR.sgo"
@@ -182,5 +187,42 @@ ASMhudShowSupportSlot2 proc
         int 3
 
 ASMhudShowSupportSlot2 ENDP
+
+ASMeAccessoryEnhancement proc
+
+        mov rcx, rdi
+        call eAccessoryEnhancement
+        ;mov rcx, [rdi+1590h]
+        ;mov rax, [rdi+15A0h]
+        ;lea rdx, [rcx+rax*8]
+        ;cmp rcx, rdx
+        ;je Original
+        ;fedawd:
+        ;mov rax, [rcx]
+        ;mov r8d, [rax+1D0h]
+        ;add r8d, r8d
+        ;mov [rax+1D0h], r8d
+        ;add rcx, 8
+        ;cmp rcx,rdx
+        ;jne fedawd
+    ; Original
+        xor r9d, r9d
+        movaps xmm2, xmm8
+        lea edx, [r9+10h]
+        mov rcx, rdi
+        jmp eAccessoryEnhancementRetAddr
+        int 3
+
+ASMeAccessoryEnhancement ENDP
+
+ASMeGetAccessoryValue proc
+    jmp eGetAccessoryValueAddr
+    int 3
+ASMeGetAccessoryValue ENDP
+
+ASMeGetAccessoryINT32 proc
+    jmp eGetAccessoryINT32Addr
+    int 3
+ASMeGetAccessoryINT32 ENDP
 
 END

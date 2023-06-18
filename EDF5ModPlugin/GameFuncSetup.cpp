@@ -237,6 +237,9 @@ uintptr_t ofs2E42C0JmpAddr;
 uintptr_t ofs2E43E0JmpAddr;
 uintptr_t ofs2E4500JmpAddr;
 void __fastcall ASMeFencerBoostAndDash();
+// General
+void __fastcall ASMeAccessoryEnhancement();
+uintptr_t eAccessoryEnhancementRetAddr;
 }
 
 void hookHeavyArmorFunctions() {
@@ -299,6 +302,12 @@ void hookHeavyArmorFunctions() {
 	ofs2E4500JmpAddr = (uintptr_t)(hmodEXE + 0x2E5100);
 	hookGameBlock((void *)(hmodEXE + 0x2E4890), (uint64_t)ASMeFencerBoostAndDash);
 	WriteHookToProcess((void *)(hmodEXE + 0x2E4890 + 12), (void *)&intNOP32, 2U);
+
+	// General
+	// Add new accessory functions, offset is 0x303DB4
+	hookGameBlock((void *)(hmodEXE + 0x3049B4), (uint64_t)ASMeAccessoryEnhancement);
+	WriteHookToProcess((void *)(hmodEXE + 0x3049B4 + 12), (void *)&intNOP32, 2U);
+	eAccessoryEnhancementRetAddr = (uintptr_t)(hmodEXE + 0x3049C2);
 }
 
 

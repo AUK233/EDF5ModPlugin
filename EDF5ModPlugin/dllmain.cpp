@@ -617,6 +617,44 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 			}
 		}
 
+		// Restrict the cpu number used by the application
+		UINT CPULimit = GetPrivateProfileIntW(L"ModOption", L"LimitCPU", 0, iniPath);
+		if (CPULimit > 3) {
+			DWORD_PTR ProcessAffinityMask = 1;
+			UINT isHT = GetPrivateProfileIntW(L"ModOption", L"HasHT", 0, iniPath);
+			if (isHT == 0) {
+				if (CPULimit >= 32) {
+					ProcessAffinityMask = 0xFFFFFFFF;
+					CPULimit = 32;
+				} else {
+					// Nth power of 2
+					ProcessAffinityMask <<= CPULimit;
+					ProcessAffinityMask -= 1;
+				}
+
+				if (ModLogStatus == 1) {
+					PLOG_INFO << "Set the number of threads to be used to: " << CPULimit;
+				}
+			} else {
+				if (CPULimit >= 16) {
+					ProcessAffinityMask = 0b01010101010101010101010101010101;
+					CPULimit = 16;
+				} else {
+					UINT CPUCore = CPULimit * 2;
+					for (UINT i = 2; i < CPUCore; i += 2) {
+						DWORD_PTR temp = 1Ui64 << i;
+						ProcessAffinityMask += temp;
+					}
+				}
+
+				if (ModLogStatus == 1) {
+					PLOG_INFO << "Set the number of cores to be used to: " << CPULimit;
+				}
+			}
+
+			SetProcessAffinityMask(GetCurrentProcess(), ProcessAffinityMask);
+		}
+
 		// Hook function for additional ModLoader initialization
 		// offset is 0x9C775A
 		//SetupHook(pointers[0], (PVOID*)&initterm_orig, initterm_hook, "Additional initialization", TRUE);
