@@ -52,7 +52,7 @@ void hookGameFunctions() {
 
 	// By Features
 	hookMonsterFunctions();
-	hookHeavyArmorFunctions();
+	hookEDFClassFunctions();
 	hookAmmoFunctions();
 
 	if (weaponEnhance) {
@@ -227,6 +227,11 @@ uintptr_t edf5F8C40Address;
 // Show 2nd support slot
 void __fastcall ASMhudShowSupportSlot2();
 uintptr_t hudShowSupportSlot2RetAddr;
+// air raider!
+void __fastcall ASMeEngineerUseAuxiliary();
+uintptr_t eEngineerUseAuxiliaryRetAddr;
+uintptr_t edf2E2E30Address;
+// fencer!
 // Swap boost and dash
 uintptr_t edf11B24E0Address;
 uintptr_t edf11B1AB0Address;
@@ -242,7 +247,7 @@ void __fastcall ASMeAccessoryEnhancement();
 uintptr_t eAccessoryEnhancementRetAddr;
 }
 
-void hookHeavyArmorFunctions() {
+void hookEDFClassFunctions() {
 	// ranger!
 	// offset is 0x2DF417
 	eArmySoldierUseAuxiliaryRetAddr = (uintptr_t)(hmodEXE + 0x2E00C1);
@@ -260,6 +265,30 @@ void hookHeavyArmorFunctions() {
 	hookGameBlock((void *)(hmodEXE + 0x4D7A70), (uint64_t)ASMhudShowSupportSlot2);
 	WriteHookToProcess((void *)(hmodEXE + 0x4D7A70 + 12), (void *)&intNOP32, 3U);
 
+	// air raider!
+	// offset is 0x2E197A
+	eEngineerUseAuxiliaryRetAddr = (uintptr_t)(hmodEXE + 0x2E25FC);
+	hookGameBlock((void *)(hmodEXE + 0x2E257A), (uint64_t)ASMeEngineerUseAuxiliary);
+	WriteHookToProcess((void *)(hmodEXE + 0x2E257A + 12), (void *)&intNOP32, 6U);
+	edf2E2E30Address = (uintptr_t)(hmodEXE + 0x2E2E30);
+
+	// wing diver!
+	// Flying Speed, default is 0.4f
+	unsigned char newWDFlying[] = {0x51, 0xE5};
+	float WDspeedFly = 0.27f;
+	WriteHookToProcess((void *)(hmodEXE + 0x2F6F65 + 7), &WDspeedFly, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x2F848B + 4), &newWDFlying[0], 1U);
+	// Takeoff Speed, default is 0.007f
+	float WDspeedTakeoff = 0.005f;
+	WriteHookToProcess((void *)(hmodEXE + 0x2F6F7B + 7), &WDspeedTakeoff, 4U);
+	WriteHookToProcess((void *)(hmodEXE + 0x2F84D3 + 4), &newWDFlying[1], 1U);
+	// Flight Consumption, default is 0.25f
+	// now it is 0.2f
+	unsigned char newWDFlyEnergy[] = {0x51, 0x9A};
+	WriteHookToProcess((void *)(hmodEXE + 0x2F7263 + 4), &newWDFlyEnergy[0], 1U);
+	WriteHookToProcess((void *)(hmodEXE + 0x2F861A + 4), &newWDFlyEnergy[1], 1U);
+
+	// fencer!
 	int newFencerSize = 0x2000;
 	// start:0x1E00, size:0x10, function: swap types.
 	// HeavyArmor 0x1C30

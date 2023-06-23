@@ -47,12 +47,15 @@ Added the following values available for SGO node names.
 #### Weapon_Accessory custom_parameter
 | type int | value type | value description |
 |---|---|---|
+|909|float|> 0, multiply this factor by recoil|
 |1001|float|> 0, multiply this factor by weapon's ammo amount|
 |1002|float|> 0, multiply this factor by weapon's reload time|
 |1003|float|> 0, multiply this factor by weapon's rate of fire|
 |1050|float|> 0, multiply this factor by weapon's damage|
 |1051|float|> 0, multiply this factor by weapon's bullet speed|
 |1052|float|> 0, multiply this factor by weapon's explosion radius|
+|1060|float|> 0, multiply this factor by weapon's bullet size|
+|1150|float|> 0, multiply this factor by weapon's -damage|
 | - | - |fencer only|
 |1300|int|0 or 1, 1 is switch dash to boost|
 |1301|int|0 or 1, 1 is switch boost to dash|

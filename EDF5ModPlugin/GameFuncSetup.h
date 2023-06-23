@@ -5,7 +5,7 @@ void hookGameFunctions();
 // here is the part overwritten with hex
 void OverwriteGameFunctions();
 void hookMonsterFunctions();
-void hookHeavyArmorFunctions();
+void hookEDFClassFunctions();
 void hookWeaponFunctions();
 void hookAmmoFunctions();
 // new functions require more memory

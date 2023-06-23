@@ -7,8 +7,10 @@ extern eArmySoldierUseAuxiliaryRetAddr : qword
 extern edf5F8C40Address : qword
 
 extern eSoldierCallSupportRetAddr : qword
-
 extern hudShowSupportSlot2RetAddr : qword
+
+extern eEngineerUseAuxiliaryRetAddr : qword
+extern edf2E2E30Address : qword
 
 extern eAccessoryEnhancementRetAddr : qword
 extern eAccessoryEnhancement : proto
@@ -187,6 +189,68 @@ ASMhudShowSupportSlot2 proc
         int 3
 
 ASMhudShowSupportSlot2 ENDP
+
+ASMeEngineerUseAuxiliary proc
+    ;Get a weapon with support slot 1
+        cmp byte ptr [rbx+0B5Dh], 0
+        je use2Slot
+        test byte ptr [rbx+420h], 4
+        jne ofs2E19FC
+        cmp qword ptr [rbx+1610h], 0
+        jbe ofs2E19FC
+        mov rax, qword ptr [rbx+1600h]
+        movsxd rcx, dword ptr [rax]
+        cmp ecx, dword ptr [rbx+15A0h]
+        jge ofs2E19FC
+        test ecx, ecx
+        js ofs2E19FC
+        mov rax, qword ptr [rbx+1590h]
+        mov rdx, qword ptr [rax+rcx*8]
+        test rdx, rdx
+        je ofs2E19FC
+        cmp dword ptr [rdx+8E8h], 0
+        jbe ofs2E19FC
+        ; use support slot 1
+        lea rax, ASMeSoldierCallSupport
+        jmp common
+    use2Slot:
+        ;Get a weapon with support slot 2
+        cmp byte ptr [rbx+0B5Bh], 0
+        je ofs2E19FC
+        test byte ptr [rbx+420h], 4
+        jne ofs2E19FC
+        cmp qword ptr [rbx+1610h], 0
+        jbe ofs2E19FC
+        mov rax, qword ptr [rbx+1600h]
+        movsxd rcx, dword ptr [rax]
+        inc rcx ; support slot 2
+        cmp ecx, dword ptr [rbx+15A0h]
+        jge ofs2E19FC
+        test ecx, ecx
+        js ofs2E19FC
+        mov rax, qword ptr [rbx+1590h]
+        mov rdx, qword ptr [rax+rcx*8]
+        test rdx, rdx
+        je ofs2E19FC
+        cmp dword ptr [rdx+8E8h], 0
+        jbe ofs2E19FC
+        ; use support slot 2
+        mov rax, edf2E0270Address
+    common:
+        mov qword ptr [rsp+30h], rax
+        lea rcx, qword ptr [rbx+1A00h]
+        cmp qword ptr [rcx+28h], 0
+        mov dword ptr [rsp+38h], 0
+        movaps xmm0, xmmword ptr [rsp+30h]
+        movdqa xmmword ptr [rsp+30h], xmm0
+        je ofs2E19FC
+        lea rdx, qword ptr [rsp+30h]
+        call edf2E2E30Address
+    ofs2E19FC:
+        jmp eEngineerUseAuxiliaryRetAddr
+        int 3
+
+ASMeEngineerUseAuxiliary ENDP
 
 ASMeAccessoryEnhancement proc
 

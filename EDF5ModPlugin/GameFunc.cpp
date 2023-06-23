@@ -289,6 +289,18 @@ void __fastcall eAccessoryEnhancement(const uintptr_t p_Class) {
 			}
 		}
 	}
+	// Update (-)AmmoDamage
+	getScale = ASMeGetAccessoryValue(p_Class, 1150, 1.0f, 0);
+	if (getScale != 1.0f) {
+		for (uintptr_t i = p_weapon; i != (p_weapon + (num_weapon * 8)); i += 8) {
+			p_weaponValue = *(uintptr_t *)i;
+			float ammoDamage = *(float *)(p_weaponValue + 0x69C);
+			if (ammoDamage < 0.0f) {
+				ammoDamage *= getScale;
+				*(float *)(p_weaponValue + 0x69C) = ammoDamage;
+			}
+		}
+	}
 	// Update AmmoSpeed
 	getScale = ASMeGetAccessoryValue(p_Class, 1051, 1.0f, 0);
 	if (getScale != 1.0f) {
@@ -310,6 +322,18 @@ void __fastcall eAccessoryEnhancement(const uintptr_t p_Class) {
 			if (blastRadius > 0.0f) {
 				blastRadius *= getScale;
 				*(float *)(p_weaponValue + 0x6A8) = blastRadius;
+			}
+		}
+	}
+	// Update AmmoSize
+	getScale = ASMeGetAccessoryValue(p_Class, 1060, 1.0f, 0);
+	if (getScale != 1.0f) {
+		for (uintptr_t i = p_weapon; i != (p_weapon + (num_weapon * 8)); i += 8) {
+			p_weaponValue = *(uintptr_t *)i;
+			float ammoSize = *(float *)(p_weaponValue + 0x6B4);
+			if (ammoSize > 0.0f) {
+				ammoSize *= getScale;
+				*(float *)(p_weaponValue + 0x6B4) = ammoSize;
 			}
 		}
 	}
@@ -344,6 +368,13 @@ void __fastcall eAccessoryEnhancement(const uintptr_t p_Class) {
 				}
 			}
 		}
+	}
+
+	// Update Recoil
+	getScale = ASMeGetAccessoryValue(p_Class, 909, 1.0f, 0);
+	if (getScale != 1.0f) {
+		p_weaponValue = p_Class + 0x169C;
+		*(float *)p_weaponValue *= getScale;
 	}
 }
 
