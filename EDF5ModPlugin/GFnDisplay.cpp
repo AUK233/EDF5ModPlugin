@@ -130,7 +130,8 @@ void __fastcall ASMhookTextDisplay();
 void __fastcall ASMrecordPlayerDamage();
 uintptr_t playerDmgRetAddress;
 uintptr_t playerAddress = 0;
-float damage_tmp = 0;
+float damageTempValue[2] = {0,0};
+void __fastcall ASMresetPlayerDamageTemp(float* ptr, UINT64 Zero);
 }
 
 // get player weapon damage
@@ -212,7 +213,8 @@ void __fastcall displayWeaponDamageClear() {
 
 // reset string
 void __fastcall displayWeaponDamageReset() {
-	damage_tmp = 0;
+
+	ASMresetPlayerDamageTemp(&damageTempValue[0], 0);
 	damageNumber.value = 0;
 	damageNumber.time = 0;
 	for (int i = 0; i < 8; i++) {
@@ -243,7 +245,7 @@ void __fastcall DMGCommonClear() {
 	for(int i = 0; i < 8; i++) {
 		dmgNumGroup[i].time = 0;
 	}
-	damage_tmp = 0;
+	ASMresetPlayerDamageTemp(&damageTempValue[0], 0);
 
 	pDMGstr0C = 0;
 	pDMGstr0fs = 0;
@@ -263,12 +265,12 @@ void __fastcall DMGCommonClear() {
 
 void __fastcall setChagreDamageTime(int time) {
 	if (damageNumber.time < 1) {
-		damageNumber.value = -damage_tmp;
+		damageNumber.value = -damageTempValue[0];
 	} else {
-		damageNumber.value -= damage_tmp;
+		damageNumber.value -= damageTempValue[0];
 	}
 	damageNumber.time = time;
-	damage_tmp = 0;
+	ASMresetPlayerDamageTemp(&damageTempValue[0], 0);
 }
 
 void __fastcall setDamageDisplayTime(int vstart, int vend, int time) {
@@ -289,7 +291,7 @@ void __fastcall displayWeaponDamageA1() {
 
 		if (playerAddress > 0) {
 			if (pDMGstr0 > 0xFFFF) {
-				if (damage_tmp != 0) {
+				if ((UINT32)damageTempValue[1]) {
 					setChagreDamageTime(DAMAGE_DISPLAY_TIME_S);
 				}
 
@@ -328,7 +330,7 @@ void __fastcall displayWeaponDamageA2() {
 
 		if (playerAddress > 0) {
 			if (pDMGstr0 > 0xFFFF && pDMGstr0C > 0xFFFF) {
-				if (damage_tmp != 0) {
+				if ((UINT32)damageTempValue[1]) {
 					setChagreDamageTime(DAMAGE_CHARGE_TIME_L);
 				}
 
@@ -395,7 +397,7 @@ void __fastcall displayWeaponDamageB1() {
 
 		if (playerAddress > 0) {
 			if (pDMGstr1 > 0xFFFF || pDMGstr2 > 0xFFFF) {
-				if (damage_tmp != 0) {
+				if ((UINT32)damageTempValue[1]) {
 					setChagreDamageTime(DAMAGE_DISPLAY_TIME_S);
 				}
 
@@ -455,7 +457,7 @@ void __fastcall displayWeaponDamageB2() {
 
 		if (playerAddress > 0) {
 			if ((pDMGstr1 > 0xFFFF && pDMGstr1C > 0xFFFF) || (pDMGstr2 > 0xFFFF && pDMGstr2C > 0xFFFF)) {
-				if (damage_tmp != 0) {
+				if ((UINT32)damageTempValue[1]) {
 					setChagreDamageTime(DAMAGE_CHARGE_TIME_S);
 				}
 

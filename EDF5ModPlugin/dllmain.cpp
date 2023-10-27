@@ -88,7 +88,7 @@ int displayDamageIndex = 0;
 int displayDamageStatus = 0;
 int ModLogStatus = 0;
 }
-HANDLE ddThread;
+//HANDLE ddThread;
 int weaponEnhance = 0;
 
 // Pointer sets
@@ -100,7 +100,7 @@ typedef struct {
 	uintptr_t pointers[4];
 } PointerSet;
 
-int pointerSet = -1;
+//int pointerSet = -1;
 PointerSet psets[1] = { //
 	{0xebcbd0, L"EarthDefenceForce 5 for PC", "EDF5", "EML5_Load", {0x9c835a, 0x244d0, 0x27380, 0x27680}},
 };
@@ -120,7 +120,7 @@ static void LoadPlugins(void) {
 				wcscat_s(plugpath, ffd.cFileName);
 				HMODULE plugin = LoadLibraryW(plugpath);
 				if (plugin != NULL) {
-					LoadDef loadfunc = (LoadDef)GetProcAddress(plugin, psets[pointerSet].plugfunc);
+					LoadDef loadfunc = (LoadDef)GetProcAddress(plugin, psets[0].plugfunc);
 					bool unload = false;
 					if (loadfunc != NULL) {
 						PluginInfo *pluginInfo = new PluginInfo();
@@ -157,7 +157,7 @@ static void LoadPlugins(void) {
 							delete pluginInfo;
 						}
 					} else {
-						PLOG_WARNING << "Plugin does not contain " << psets[pointerSet].plugfunc << " function";
+						PLOG_WARNING << "Plugin does not contain " << psets[0].plugfunc << " function";
 						unload = true;
 					}
 					if (unload) {
@@ -346,9 +346,11 @@ void ReadINIconfig() {
 	}
 
 	// Add damage display
+	/*
 	if (!displayDamageStatus) {
 		CloseHandle(ddThread);
 	}
+	*/
 
 	switch (DisplayDamage) {
 	case 1: {
@@ -357,7 +359,10 @@ void ReadINIconfig() {
 		}
 
 		if (!displayDamageStatus && displayDamageIndex == 1) {
-			ddThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageA1, NULL, NULL, NULL);
+			HANDLE tempHND = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageA1, NULL, NULL, NULL);
+			if (tempHND) {
+				CloseHandle(tempHND);
+			}
 			displayDamageStatus = 1;
 
 			if (ModLogStatus == 1) {
@@ -372,7 +377,10 @@ void ReadINIconfig() {
 		}
 
 		if (!displayDamageStatus && displayDamageIndex == 11) {
-			ddThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageA2, NULL, NULL, NULL);
+			HANDLE tempHND = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageA2, NULL, NULL, NULL);
+			if (tempHND) {
+				CloseHandle(tempHND);
+			}
 			displayDamageStatus = 1;
 
 			if (ModLogStatus == 1) {
@@ -387,7 +395,10 @@ void ReadINIconfig() {
 		}
 
 		if (!displayDamageStatus && displayDamageIndex == 2) {
-			ddThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageB1, NULL, NULL, NULL);
+			HANDLE tempHND = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageB1, NULL, NULL, NULL);
+			if (tempHND) {
+				CloseHandle(tempHND);
+			}
 			displayDamageStatus = 1;
 
 			if (ModLogStatus == 1) {
@@ -402,7 +413,10 @@ void ReadINIconfig() {
 		}
 
 		if (!displayDamageStatus && displayDamageIndex == 21) {
-			ddThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageB2, NULL, NULL, NULL);
+			HANDLE tempHND = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageB2, NULL, NULL, NULL);
+			if (tempHND) {
+				CloseHandle(tempHND);
+			}
 			displayDamageStatus = 1;
 
 			if (ModLogStatus == 1) {
@@ -419,7 +433,10 @@ void ReadINIconfig() {
 		if (!displayDamageStatus && displayDamageIndex == 0) {
 			// reset values in real-time read
 			if (RTRead) {
-				ddThread = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageNull, NULL, NULL, NULL);
+				HANDLE tempHND = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageNull, NULL, NULL, NULL);
+				if (tempHND) {
+					CloseHandle(tempHND);
+				}
 				displayDamageStatus = 1;
 			}
 
@@ -465,6 +482,14 @@ static void *__fastcall initterm_hook(void *unk1, void *unk2) {
 	return initterm_orig(unk1, unk2);
 }
 
+VOID WINAPI hookSleep(DWORD dwMilliseconds) {
+	if (dwMilliseconds < 100) {
+		dwMilliseconds = 100;
+	}
+
+	return Sleep(dwMilliseconds);
+}
+
 static void __fastcall initterm_hook2(_PVFV *unk1, _PVFV *unk2) {
 	static bool initialized = false;
 	if (!initialized) {
@@ -472,6 +497,8 @@ static void __fastcall initterm_hook2(_PVFV *unk1, _PVFV *unk2) {
 		if (ModLogStatus == 1) {
 			PLOG_INFO << "Additional initialization";
 		}
+
+		//WriteHookToProcess(hmodEXE + 0xC971C0, (void*)hookSleep, 8U);
 
 		// Load new function
 		// Very important!!!!!!!!!!!!
@@ -486,7 +513,11 @@ static void __fastcall initterm_hook2(_PVFV *unk1, _PVFV *unk2) {
 		}
 		// It needs to be right here
 		if (RTRead) {
-			CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ReadINILoop, NULL, NULL, NULL);
+			HANDLE tempHND = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ReadINILoop, NULL, NULL, NULL);
+			if (tempHND) {
+				CloseHandle(tempHND);
+			}
+
 			if (ModLogStatus == 1) {
 				PLOG_INFO << "Enable real-time read profiles";
 			}
@@ -553,8 +584,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		plugins.push_back(selfData);
 
 		handleEXE = GetCurrentProcess();
-		// Determine what game is hosting us
 		hmodEXE = (PBYTE)GetModuleHandleW(NULL);
+		// Determine what game is hosting us
+		/*
 		GetModuleFileNameA((HMODULE)hmodEXE, hmodName, _countof(hmodName));
 		char *hmodFName = PathFindFileNameA(hmodName);
 		memmove(hmodName, hmodFName, strlen(hmodFName) + 1);
@@ -570,10 +602,12 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 			return FALSE;
 		}
 		uintptr_t *pointers = psets[pointerSet].pointers;
+		*/
+		uintptr_t *pointers = psets[0].pointers;
 
 		PluginVersion v = selfInfo->version;
 		if (ModLogStatus == 1) {
-			PLOG_INFO.printf("ModPlugin (%s) v%u.%u.%u.%u Initializing\n", psets[pointerSet].ident, v.major, v.minor, v.patch, v.build);
+			PLOG_INFO.printf("ModPlugin (%s) v%u.%u.%u.%u Initializing\n", psets[0].ident, v.major, v.minor, v.patch, v.build);
 		}
 
 		// Setup DLL proxy
