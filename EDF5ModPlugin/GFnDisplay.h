@@ -1,8 +1,17 @@
 #pragma once
+#include "EDFPointerStruct.h"
+
 
 extern "C" {
+HUiHudTextContentPointer* __fastcall ASMgetHUiHudTextContentPointer(void* pText);
+
+void __fastcall hookSleep(DWORD time);
 void __fastcall debugGetWeaponName(uintptr_t pstr);
 uintptr_t __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor, uintptr_t rspBackup);
+size_t __fastcall TextForFormatFloatNumber(const float number, WCHAR *destination, size_t len);
+size_t __fastcall TextForFormatFloatNumber2(const float number, WCHAR *destination, size_t len);
+size_t __fastcall eTextForWeaponReloadTime(EDFWeaponStruct *pweapon, WCHAR *destination, EDFColor4Pointer *pcolor);
+void __fastcall dhaihdiwa(HUiHudWeaponPointer* destination);
 }
 
 // get player weapon damage
@@ -24,3 +33,5 @@ void __fastcall displayWeaponDamageB1();
 void __fastcall displayWeaponDamageB2();
 // reset values in real time read configuration
 void __fastcall displayWeaponDamageNull();
+
+void hookHUDEnhancement();

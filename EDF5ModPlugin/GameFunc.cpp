@@ -209,14 +209,25 @@ void GetAmmoFunctions() {
 	edf1AD970Address = (uintptr_t)(hmodEXE + 0x1AD970);
 }
 
+extern "C" {
+	// checking the status of weapons fire
+	// 0 is can shoot, 1 is not
+	uintptr_t rva391230;
+	void __fastcall ASMrva391230();
+}
+
 // here hook all changed functions, written in c++
 void hookGameFunctionsC() {
+	rva391230 = (uintptr_t)(hmodEXE + 0x391230);
 	if (weaponEnhance) {
-	// allows weapons to be charged, offset is 0x390630
-	//SetupHook(0x391230, (PVOID *)&fnk391230_orig, fnk391230_hook, "Allows weapons to be charged", 1);
-	hookGameBlock((void *)(hmodEXE + 0x391230), (uint64_t)fnk391230_hook);
-	WriteHookToProcess((void *)(hmodEXE + 0x391230 + 12), (void *)&intNOP32, 8U);
-	//hookGameBlock14((void *)(hmodEXE + 0x391230), (uint64_t)fnk391230_hook);
+		// EDF5.exe+4D3402 is the location of the HUD check.
+		// EDF5.exe+4B96B1 is checking the sights.
+		BYTE ofs4D2802[] = { 0xE8, 0xBC, 0xDE, 0xEB, 0xFF};
+		WriteHookToProcess((void*)(hmodEXE + 0x4D3402), &ofs4D2802, 5U);
+		// allows weapons to be charged, offset is 0x390630
+		//SetupHook(0x391230, (PVOID *)&fnk391230_orig, fnk391230_hook, "Allows weapons to be charged", 1);
+		// now override a useless position.
+		hookGameBlock((void *)(hmodEXE + 0x3912C3), (uint64_t)ASMrva391230);
 	}
 }
 
@@ -378,7 +389,25 @@ void __fastcall eAccessoryEnhancement(const uintptr_t p_Class) {
 	}
 }
 
-static bool __fastcall fnk391230_hook(const uintptr_t pweapon) {
+void __fastcall edfSoldierWeaponCharge(EDFWeaponPointer* pweapon) {
+	if (pweapon->chargeType == 2 || pweapon->chargeType == 3) {
+		if (pweapon->chargeTime > 0) {
+			if (pweapon->curAmmo > 0 && pweapon->curAmmo < pweapon->maxAmmo && !pweapon->ROFCount) {
+				if (pweapon->chargeTimeCount <= 0) {
+					pweapon->curAmmo += 1;
+					pweapon->chargeTimeCount = pweapon->chargeTime;
+				} else {
+					pweapon->chargeTimeCount += -1;
+				}
+			} else {
+				pweapon->chargeTimeCount = pweapon->chargeTime;
+			}
+		}
+	}
+}
+
+
+bool __fastcall fnk391230_hook(const uintptr_t pweapon) {
 	// ammo
 	int *curAmmo = (int *)(pweapon + 0x8E8);
 	int maxAmmo = *(int *)(pweapon + 0x1D0);
@@ -403,7 +432,7 @@ static bool __fastcall fnk391230_hook(const uintptr_t pweapon) {
 			}
 		}
 	}
-	
+
 	// Original function block
 	// Attempts to modify it failed.
 	int v2;
@@ -416,39 +445,4 @@ static bool __fastcall fnk391230_hook(const uintptr_t pweapon) {
 		return false;
 	int v4 = *(INT64 *)(pweapon + 3144) ? *(int *)(pweapon + 420) : *(int *)(pweapon + 2960);
 	return v4 && !v1 && !*(int *)(pweapon + 0xB40) && *(float *)(pweapon + 452) <= 0.0f && *(int *)(pweapon + 420) >= 0;
-	// It has some problems
-	/*
-	int v2;
-	int checkAmmo = *curAmmo;
-	if (checkAmmo > 0 || *(INT64 *)(pweapon + 0xC38) || (!*(INT64 *)(pweapon + 0xC48) ? (v2 = *(int *)(pweapon + 0xB90)) : (v2 = *(int *)(pweapon + 0x1A4)), !v2)) {
-		if (*(BYTE *)(pweapon + 0xE0)) {
-			return true;
-		}
-	}
-
-	if (checkAmmo > 0 || *(INT64 *)(pweapon + 0xC38)) {
-		return 0;
-	}
-
-	if (*(INT64 *)(pweapon + 0xC48)) {
-		v2 = *(int *)(pweapon + 0x1A4);
-	} else {
-		v2 = *(int *)(pweapon + 0xB90);
-	}
-
-	if (v2) {
-		return 0;
-	} else if (!checkAmmo) {
-		return 0;
-	} else if (*(int *)(pweapon + 0xB40) != checkAmmo) {
-		return 0;
-	} else if (*(float *)(pweapon + 0x1C4) < 0.0f) {
-		return 0;
-	} else if (*(int *)(pweapon + 0x1A4) < checkAmmo) {
-		return 0;
-	}
-	else {
-		return 1;
-	}
-	*/
 }

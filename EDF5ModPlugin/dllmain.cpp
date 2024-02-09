@@ -482,14 +482,6 @@ static void *__fastcall initterm_hook(void *unk1, void *unk2) {
 	return initterm_orig(unk1, unk2);
 }
 
-VOID WINAPI hookSleep(DWORD dwMilliseconds) {
-	if (dwMilliseconds < 100) {
-		dwMilliseconds = 100;
-	}
-
-	return Sleep(dwMilliseconds);
-}
-
 static void __fastcall initterm_hook2(_PVFV *unk1, _PVFV *unk2) {
 	static bool initialized = false;
 	if (!initialized) {
@@ -497,8 +489,6 @@ static void __fastcall initterm_hook2(_PVFV *unk1, _PVFV *unk2) {
 		if (ModLogStatus == 1) {
 			PLOG_INFO << "Additional initialization";
 		}
-
-		//WriteHookToProcess(hmodEXE + 0xC971C0, (void*)hookSleep, 8U);
 
 		// Load new function
 		// Very important!!!!!!!!!!!!
@@ -508,6 +498,7 @@ static void __fastcall initterm_hook2(_PVFV *unk1, _PVFV *unk2) {
 		// Read config
 		ReadINIconfig();
 		// Now inject only when needed, for crash rate reduction
+		hookHUDEnhancement();
 		if (DisplayDamage || RTRead) {
 			hookGetPlayerDamage();
 		}
@@ -715,6 +706,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		if (ModLogStatus == 1) {
 			PLOG_INFO << "Basic initialization complete";
 		}
+		// timeBeginPeriod(1);
+		//ftimeBeginPeriod(50);
 
 		break;
 	}

@@ -47,7 +47,7 @@
     <MASM Include="ASMgamelog_hook.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
-    <MASM Include="ASMrecordPlayerDamage.asm">
+    <MASM Include="ASMweaponOtherSet.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
     <MASM Include="ASMCallGameFunction.asm">
@@ -56,10 +56,7 @@
     <MASM Include="ASMplayerViewChange.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
-    <MASM Include="ASMweaponStartReload.asm">
-      <Filter>Assembly Files</Filter>
-    </MASM>
-    <MASM Include="ASMweaponReloadEX.asm">
+    <MASM Include="ASMedfWeaponSet.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
     <MASM Include="ASMxgsOCmonster501.asm">
@@ -135,6 +132,12 @@
     </ClInclude>
     <ClInclude Include="GameFunc.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EDFPointerStruct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="commonNOP.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

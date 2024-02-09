@@ -323,8 +323,14 @@ void fmmioWrite() { PA = winmm.ommioWrite; runASM(); }
 void fmmsystemGetVersion() { PA = winmm.ommsystemGetVersion; runASM(); }
 void fsndPlaySoundA() { PA = winmm.osndPlaySoundA; runASM(); }
 void fsndPlaySoundW() { PA = winmm.osndPlaySoundW; runASM(); }
-void ftimeBeginPeriod() { PA = winmm.otimeBeginPeriod; runASM(); }
-void ftimeEndPeriod() { PA = winmm.otimeEndPeriod; runASM(); }
+void __fastcall ftimeBeginPeriod(UINT uPeriod) {
+	PA = winmm.otimeBeginPeriod;
+	runASM();
+}
+void __fastcall ftimeEndPeriod(UINT uPeriod) {
+	PA = winmm.otimeEndPeriod;
+	runASM();
+}
 void ftimeGetDevCaps() { PA = winmm.otimeGetDevCaps; runASM(); }
 void ftimeGetSystemTime() { PA = winmm.otimeGetSystemTime; runASM(); }
 void ftimeGetTime() { PA = winmm.otimeGetTime; runASM(); }

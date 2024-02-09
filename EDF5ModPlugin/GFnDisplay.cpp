@@ -13,14 +13,16 @@
 #include <plog/Initializers/RollingFileInitializer.h>
 #include "utiliy.h"
 
+#include "commonNOP.h"
 #include "GFnDisplay.h"
 
 extern PBYTE hmodEXE;
 
 static const unsigned char intNOP32[] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
 
+const wchar_t DMGstrSpace16[] = L"               ";
 const wchar_t DMGstrN0[] = L"                       \n                       \n                       \n                        ";
-const wchar_t DMGstrN1[] = L"               \n               \n               \n               \n               \n               \n                ";
+const wchar_t DMGstrSpace112[] = L"               \n               \n               \n               \n               \n               \n                ";
 const wchar_t DMGstrN2[] = L"               \n               \n               \n               \n               \n               \n               \n        ";
 
 //static wchar_t DMGstrN1RS[] = L"Init:Damage1...............\n...........................\n...........................\n...........................";
@@ -81,7 +83,7 @@ uintptr_t __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor, uintptr_t
 				pDMGstr0 = pText;
 			}
 		} else if (textSize == 112U) {
-			memcpy((void *)pText, &DMGstrN1, 224U);
+			memcpy((void *)pText, &DMGstrSpace112, 224U);
 			if (pDMGstr1 == 0) {
 				pDMGstr1fs = pstr + 0x18;
 				DMGstr1fs = *(float *)(pstr + 0x18);
@@ -107,7 +109,7 @@ uintptr_t __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor, uintptr_t
 				pDMGstr0C = pText;
 			}
 		} else if (textSize == 112U) {
-			memcpy((void *)pText, &DMGstrN1, 224U);
+			memcpy((void *)pText, &DMGstrSpace112, 224U);
 			if (pDMGstr1C == 0) {
 				pDMGstr1C = pText;
 			}
@@ -121,6 +123,70 @@ uintptr_t __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor, uintptr_t
 
 	//PLOG_INFO << "Initializing the damage string is complete! get rsp: " << std::hex << rspBackup;
 	return rspBackup;
+}
+
+// __forceinline
+size_t __fastcall TextForFormatFloatNumber(const float number, WCHAR *destination, size_t len) {
+	std::wstring wstr;
+	if (number >= 1000.0f) {
+		wstr = std::format(L"{:.0f}", number);
+	} else if (number >= 100.0f) {
+		wstr = std::format(L"{:.1f}", number);
+	} else {
+		wstr = std::format(L"{:.2f}", number);
+	}
+
+	if (wstr.size() <= len) {
+		memcpy(destination, wstr.c_str(), wstr.size() * 2);
+		return wstr.size();
+	} else {
+		memcpy(destination, wstr.c_str(), len * 2);
+		INT16 nullStr = 0;
+		memcpy(destination + len, &nullStr, 2U);
+		return len;
+	}
+}
+
+size_t __fastcall TextForFormatFloatNumber2(const float number, WCHAR *destination, size_t len) {
+	std::wstring wstr;
+	if (number >= 100.0f) {
+		wstr = std::format(L"{:.0f}", number);
+	} else if (number >= 10.0f) {
+		wstr = std::format(L"{:.1f}", number);
+	} else {
+		wstr = std::format(L"{:.2f}", number);
+	}
+	size_t wstrSize = wstr.size();
+	wchar_t *textS = destination + 8;
+	if (wstrSize <= len) {
+		memcpy(destination, wstr.c_str(), wstrSize * 2);
+		memcpy(destination + wstrSize, textS, 4U);
+		return (wstrSize + 1);
+	} else {
+		memcpy(destination, wstr.c_str(), len * 2);
+		memcpy(destination + len, textS, 4U);
+		return (len + 1);
+	}
+}
+
+constexpr float WeaponReloadTimeColor[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+
+size_t __fastcall eTextForWeaponReloadTime(EDFWeaponStruct *pweapon, WCHAR *destination, EDFColor4Pointer *pcolor) {
+	ZeroMemory(destination, 16U);
+	memcpy(pcolor, WeaponReloadTimeColor, 16U);
+	float remainTime = pweapon->reloadTimeCount / 60.0f;
+	wchar_t textS[] = L"s";
+	memcpy(destination + 8, textS, 4U);
+	return TextForFormatFloatNumber2(remainTime, destination, 7);
+}
+
+void __fastcall dhaihdiwa(HUiHudWeaponPointer* p)
+{
+	HUiHudTextContentPointer* pText = ASMgetHUiHudTextContentPointer(p->TextDamage->addr228h);
+	float test = rand() / float(RAND_MAX);
+	test *= 10000000.0f;
+	memcpy(pText->text, DMGstrSpace16, 32U);
+	TextForFormatFloatNumber(test, pText->text, 15U);
 }
 
 extern "C" {
@@ -194,12 +260,12 @@ void __fastcall displayWeaponDamageClear() {
 		memcpy((void *)pDMGstr0C, &DMGstrN0, 192U);
 	}
 	if (pDMGstr1 > 0xFFFF) {
-		memcpy((void *)pDMGstr1, &DMGstrN1, 224U);
+		memcpy((void *)pDMGstr1, &DMGstrSpace112, 224U);
 		memcpy((void *)pDMGstr1fs, &DMGstr1fs, 4U);
 		memcpy((void *)(pDMGstr1fs + 4), &DMGstr1fs, 4U);
 	}
 	if (pDMGstr1C > 0xFFFF) {
-		memcpy((void *)pDMGstr1C, &DMGstrN1, 224U);
+		memcpy((void *)pDMGstr1C, &DMGstrSpace112, 224U);
 	}
 	if (pDMGstr2 > 0xFFFF) {
 		memcpy((void *)pDMGstr2, &DMGstrN2, 240U);
@@ -402,7 +468,7 @@ void __fastcall displayWeaponDamageB1() {
 				}
 
 				if (pDMGstr1 > 0xFFFF) {
-					memcpy((void *)pDMGstr1, &DMGstrN1, 224U);
+					memcpy((void *)pDMGstr1, &DMGstrSpace112, 224U);
 
 					if (damageNumber.time > 0) {
 						std::wstring displayText = FormatDamageNumber(damageNumber.value);
@@ -462,8 +528,8 @@ void __fastcall displayWeaponDamageB2() {
 				}
 
 				if (pDMGstr1 > 0xFFFF) {
-					memcpy((void *)pDMGstr1, &DMGstrN1, 224U);
-					memcpy((void *)pDMGstr1C, &DMGstrN1, 224U);
+					memcpy((void *)pDMGstr1, &DMGstrSpace112, 224U);
+					memcpy((void *)pDMGstr1C, &DMGstrSpace112, 224U);
 				}
 				if (pDMGstr2 > 0xFFFF) {
 					memcpy((void *)pDMGstr2, &DMGstrN2, 240U);
@@ -557,5 +623,61 @@ void __fastcall displayWeaponDamageNull() {
 	}
 	// If setting change, we first have to reset
 	displayWeaponDamageReset();
+}
+
+extern "C" {
+void __fastcall ASMhookSleep();
+uintptr_t hookSleepRet;
+//
+uintptr_t rva9C6E40;
+uintptr_t rva27380;
+// IncreaseTextLength
+uintptr_t rva27570;
+// Int2WString(void* dst, int)
+uintptr_t rvaB7220;
+// Int to WString?
+uintptr_t rva4D86D0;
+// UpdateText
+uintptr_t rva4CA990;
+void __fastcall ASMreadHUiHudWeapon();
+void __fastcall ASMHUiHudWeaponUpdateAmmoText();
+}
+
+void __fastcall hookSleep(DWORD time) {
+	Sleep(time);
+}
+
+void hookHUDEnhancement() {
+	//hookGameBlock((void*)(hmodEXE + 0x60FDEA), (uint64_t)ASMhookSleep);
+	//hookSleepRet = (uintptr_t)(hmodEXE + 0x60FE0F);
+	
+	// EDF5.exe+3532C8
+	// this has problem, since EDF5.exe+34C8EA
+	BYTE ofs3526C1[] = {
+		0x49, 0x8B, 0x9D, 0x18, 0x04, 0x00, 0x00, // mov rbx, [r13+418h]
+		0x48, 0x81, 0xC3, 0xC0, 0x00, 0x00, 0x00, // add rbx, 0C0h
+		0xEB, 0x0C,                               // jmp
+		0x0F, 0x1F, 0x00,
+		0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00
+	};
+	//WriteHookToProcess((void *)(hmodEXE + 0x3532C1), &ofs3526C1, 28U);
+
+	int newWeaponSize = 0xE00;
+	static_assert(sizeof(HUiHudWeaponPointer) < 0xE00);
+	WriteHookToProcess((void *)(hmodEXE + 0x4D1017 + 1), &newWeaponSize, 4U);
+	rva9C6E40 = (uintptr_t)(hmodEXE + 0x9C6E40);
+	rva27380 = (uintptr_t)(hmodEXE + 0x27380);
+	rva27570 = (uintptr_t)(hmodEXE + 0x27570);
+	rvaB7220 = (uintptr_t)(hmodEXE + 0xB7220);
+	rva4D86D0 = (uintptr_t)(hmodEXE + 0x4D86D0);
+	rva4CA990 = (uintptr_t)(hmodEXE + 0x4CA990);
+	// EDF5.exe+4D1C32
+	hookGameBlock((void *)(hmodEXE + 0x4D1C32), (uint64_t)ASMreadHUiHudWeapon);
+	WriteHookToProcess((void *)(hmodEXE + 0x4D1C32 + 12), (void *)&nop6, 6U);
+	// EDF5.exe+4D7110
+	hookGameBlock((void *)(hmodEXE + 0x4D7110), (uint64_t)ASMHUiHudWeaponUpdateAmmoText);
+	BYTE _r14_ = 0x4C;
+	WriteHookToProcess((void *)(hmodEXE + 0x4D70B5), &_r14_, 1U);
+	WriteHookToProcess((void *)(hmodEXE + 0x4D70E2), &_r14_, 1U);
 }
 

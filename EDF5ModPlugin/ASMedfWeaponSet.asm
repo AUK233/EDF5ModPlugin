@@ -2,11 +2,15 @@
 ; Use other asm functions
 extern edf8C8C0 : proto
 extern edf5BDF30 : proto
+extern edfSoldierWeaponCharge : proto
 
 extern debugGetWeaponName : proto
 extern ModLogStatus : dword
 
+extern rva391230 : qword
+
 extern weaponReloadEXRetAddr : qword
+extern weaponStartReloadRetAddr : qword
 
 ; L"ReloadInit"
 wReloadInit db 82,0,101,0,108,0,111,0,97,0,100,0,73,0,110,0,105,0,116,0,0,0
@@ -16,6 +20,23 @@ wReloadPadType db 82,0,101,0,108,0,111,0,97,0,100,0,80,0,97,0,100,0,84,0,121,0,1
 wReloadInitFloat dd 3F7D70A4h
 
 .code
+
+ASMrva391230 proc
+        push rdi
+        mov rdi, rcx
+        call rva391230
+        test al, al
+        je chargeWeapon
+        mov eax, 1
+        pop rdi
+        ret
+    chargeWeapon:
+        mov rcx, rdi
+        call edfSoldierWeaponCharge
+        xor eax, eax
+        pop rdi
+        ret
+ASMrva391230 ENDP
 
 ASMweaponReloadEX proc
     ; add star to "ReloadInit"
@@ -103,5 +124,47 @@ ASMweaponReloadEX proc
         int 3
 
 ASMweaponReloadEX ENDP
+
+ASMweaponStartReload proc
+
+        mov eax, dword ptr [rbx+2500h]
+        cmp eax, 0
+        je originalBlock
+        cmp eax, 3 ; no manual reload
+        je ofs3905EC
+        ; current reload time = (totalAmmo - remainAmmo) * reloadTime  / totalAmmo
+        mov eax, dword ptr [rbx+1D0h]
+        mov ecx, eax ; totalAmmo
+        sub eax, dword ptr [rbx+8E8h] ; - remainAmmo
+    ; calculate current energy requirement
+        cmp dword ptr [rbx+1C4h], 0BF800000h ; check -1
+        je normalReloadBlock
+        cvtsi2ss xmm0, eax
+        cvtsi2ss xmm1, ecx ; int to float
+        divss xmm0, xmm1
+        mulss xmm0, dword ptr [rbx+1C4h] ; total energy need
+        movss dword ptr [rbx+0BA4h], xmm0 ; current energy need
+    ; calculate current reload time
+    normalReloadBlock:
+        imul eax, dword ptr [rbx+1A4h] ; * reloadTime
+        ; use float division
+        cvtsi2ss xmm0, eax
+        cvtsi2ss xmm1, ecx ; int to float
+        divss xmm0, xmm1 ; / totalAmmo
+        cvttss2si eax, xmm0 ; float to int
+        add eax, dword ptr [rbx+2504h] ; + extra time
+        mov dword ptr [rbx+0B90h], eax
+    ; original
+    originalBlock:
+        mov dword ptr [rbx+8E8h], 0
+        mov dword ptr [rbx+0B40h], 4
+        jmp weaponStartReloadRetAddr
+    ofs3905EC:
+        add rsp, 20h
+        pop rbx
+        ret
+        int 3
+
+ASMweaponStartReload ENDP
 
 END

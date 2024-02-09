@@ -195,6 +195,17 @@ void hookGameBlock(void *targetAddr, uint64_t dataAddr) {
 	WriteHookToProcess(targetAddr, hookFunction, sizeof(hookFunction));
 }
 
+// update game's original functions
+void hookGameBlockWithCall(void* targetAddr, uint64_t dataAddr) {
+	uint8_t hookFunction[] = {
+		0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // mov rax, addr
+		0xFF, 0xD0                                                  // call rax
+	};
+	memcpy(&hookFunction[2], &dataAddr, sizeof(dataAddr));
+
+	WriteHookToProcess(targetAddr, hookFunction, sizeof(hookFunction));
+}
+
 // update game's original functions with 14 bytes
 void hookGameBlock14(void *targetAddr, uint64_t dataAddr) {
 	uint8_t hookFunction[] = {
