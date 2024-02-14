@@ -390,7 +390,7 @@ void __fastcall eAccessoryEnhancement(const uintptr_t p_Class) {
 }
 
 void __fastcall edfSoldierWeaponCharge(EDFWeaponPointer* pweapon) {
-	if (pweapon->chargeType == 2 || pweapon->chargeType == 3) {
+	if (pweapon->reloadPadType == 2 || pweapon->reloadPadType == 3) {
 		if (pweapon->chargeTime > 0) {
 			if (pweapon->curAmmo > 0 && pweapon->curAmmo < pweapon->maxAmmo && !pweapon->ROFCount) {
 				if (pweapon->chargeTimeCount <= 0) {
@@ -404,6 +404,7 @@ void __fastcall edfSoldierWeaponCharge(EDFWeaponPointer* pweapon) {
 			}
 		}
 	}
+	// end
 }
 
 
@@ -415,10 +416,10 @@ bool __fastcall fnk391230_hook(const uintptr_t pweapon) {
 	// reloading phase, 0 means no
 	// int rePhase = *(int *)(a1 + 0x8D4);
 	// new function
-	int chargeType = *(int *)(pweapon + 0x2500);
+	int reloadPadType = *(int *)(pweapon + 0x2500);
 	int chargeTime = *(int *)(pweapon + 0x2508);
 	int *chargeRT = (int *)(pweapon + 0x250C);
-	if (chargeType == 2 || chargeType == 3) {
+	if (reloadPadType == 2 || reloadPadType == 3) {
 		if (chargeTime > 0) {
 			if (*curAmmo > 0 && *curAmmo < maxAmmo && !ROFCount) {
 				if (*chargeRT <= 0) {

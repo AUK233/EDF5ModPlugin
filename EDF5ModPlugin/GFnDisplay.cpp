@@ -32,6 +32,7 @@ extern "C" {
 extern int displayDamageIndex;
 extern int displayDamageStatus;
 extern int ModLogStatus;
+extern int HUDEnhanceStatus;
 }
 /*
 struct DamageString {
@@ -128,9 +129,9 @@ uintptr_t __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor, uintptr_t
 // __forceinline
 size_t __fastcall TextForFormatFloatNumber(const float number, WCHAR *destination, size_t len) {
 	std::wstring wstr;
-	if (number >= 1000.0f) {
+	if (number >= 100.0f) {
 		wstr = std::format(L"{:.0f}", number);
-	} else if (number >= 100.0f) {
+	} else if (number >= 10.0f) {
 		wstr = std::format(L"{:.1f}", number);
 	} else {
 		wstr = std::format(L"{:.2f}", number);
@@ -170,23 +171,46 @@ size_t __fastcall TextForFormatFloatNumber2(const float number, WCHAR *destinati
 }
 
 constexpr float WeaponReloadTimeColor[4] = {1.0f, 0.0f, 0.0f, 1.0f};
+constexpr float WeaponChargeColor[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
+constexpr float WeaponReloadPercentColor[4] = { 1.0f, 1.0f, 1.0f, 0.5f };
 
 size_t __fastcall eTextForWeaponReloadTime(EDFWeaponStruct *pweapon, WCHAR *destination, EDFColor4Pointer *pcolor) {
 	ZeroMemory(destination, 16U);
+
+	if (pweapon->reloadType == 1) {
+		if (pweapon->reloadTimeCount == pweapon->reloadTime) {
+			pcolor->a = 0;
+			return 1;
+		}
+		else {
+			goto ReloadTimeBlock;
+		}
+	}
+
+	if (pweapon->reloadType == 2) {
+		memcpy(pcolor, WeaponReloadPercentColor, 16U);
+		float reloadProgress = pweapon->reloadTime - pweapon->reloadTimeCount;
+		reloadProgress /= pweapon->reloadTime;
+		reloadProgress *= 100.0f;
+		wchar_t textS[] = L"ге";
+		memcpy(destination + 8, textS, 4U);
+		return TextForFormatFloatNumber2(reloadProgress, destination, 7);
+	}
+
+	if (pweapon->EnergyChargeRequire > 0.0f) {
+		memcpy(pcolor, WeaponChargeColor, 16U);
+		float chargeProgress = pweapon->EnergyChargeRequire - pweapon->EnergyChargeCount;
+		chargeProgress /= pweapon->EnergyChargeRequire;
+		chargeProgress *= 100.0f;
+		wchar_t textS[] = L"ге";
+		memcpy(destination + 8, textS, 4U);
+		return TextForFormatFloatNumber2(chargeProgress, destination, 7);
+	}
+
+	ReloadTimeBlock:
 	memcpy(pcolor, WeaponReloadTimeColor, 16U);
 	float remainTime = pweapon->reloadTimeCount / 60.0f;
-	wchar_t textS[] = L"s";
-	memcpy(destination + 8, textS, 4U);
-	return TextForFormatFloatNumber2(remainTime, destination, 7);
-}
-
-void __fastcall dhaihdiwa(HUiHudWeaponPointer* p)
-{
-	HUiHudTextContentPointer* pText = ASMgetHUiHudTextContentPointer(p->TextDamage->addr228h);
-	float test = rand() / float(RAND_MAX);
-	test *= 10000000.0f;
-	memcpy(pText->text, DMGstrSpace16, 32U);
-	TextForFormatFloatNumber(test, pText->text, 15U);
+	return TextForFormatFloatNumber(remainTime, destination, 7);
 }
 
 extern "C" {
@@ -232,22 +256,30 @@ uintptr_t __fastcall GetPlayerAddress() {
 }
 
 // set damage display duration (short)
-constexpr int DAMAGE_DISPLAY_TIME_S = 61;
+constexpr int DAMAGE_DISPLAY_TIME_S = 3.6 * 100;
+// set rechargeable damage display duration (short)
+constexpr int DAMAGE_CHARGE_TIME_S = 0.5 * 100;
+
 // set damage display duration (long)
 constexpr int DAMAGE_DISPLAY_TIME_L = 71;
-// set rechargeable damage display duration (short)
-constexpr int DAMAGE_CHARGE_TIME_S = 10;
 // set rechargeable damage display duration (long)
 constexpr int DAMAGE_CHARGE_TIME_L = 15;
-struct Damage {
+struct GetDamageStruct {
 	float value;
 	int time;
-	uintptr_t align;
+	int status;
+	UINT32 align;
+};
+union ShowDamageStruct
+{
+	BYTE on[8];
+	UINT64 status;
 };
 // separate damage
-Damage damageNumber;
+GetDamageStruct damageNumber;
 // damage group
-Damage dmgNumGroup[8];
+GetDamageStruct dmgNumGroup[8];
+ShowDamageStruct dmgCheckGroup;
 
 void __fastcall displayWeaponDamageClear() {
 	
@@ -336,7 +368,8 @@ void __fastcall setChagreDamageTime(int time) {
 		damageNumber.value -= damageTempValue[0];
 	}
 	damageNumber.time = time;
-	ASMresetPlayerDamageTemp(&damageTempValue[0], 0);
+	damageTempValue[0] = 0;
+	damageTempValue[1] = 0;
 }
 
 void __fastcall setDamageDisplayTime(int vstart, int vend, int time) {
@@ -344,10 +377,12 @@ void __fastcall setDamageDisplayTime(int vstart, int vend, int time) {
 		if (dmgNumGroup[i + 1].time > 0) {
 			dmgNumGroup[i].value = dmgNumGroup[i + 1].value;
 			dmgNumGroup[i].time = dmgNumGroup[i + 1].time;
+			dmgCheckGroup.on[i] = 1;
 		}
 	}
 	dmgNumGroup[vend].value = damageNumber.value;
-	dmgNumGroup[vend].time = time + 30;
+	dmgNumGroup[vend].time = time;
+	dmgCheckGroup.on[vend] = 1;
 }
 
 void __fastcall displayWeaponDamageA1() {
@@ -625,31 +660,218 @@ void __fastcall displayWeaponDamageNull() {
 	displayWeaponDamageReset();
 }
 
-extern "C" {
-void __fastcall ASMhookSleep();
-uintptr_t hookSleepRet;
-//
-uintptr_t rva9C6E40;
-uintptr_t rva27380;
-// IncreaseTextLength
-uintptr_t rva27570;
-// Int2WString(void* dst, int)
-uintptr_t rvaB7220;
-// Int to WString?
-uintptr_t rva4D86D0;
-// UpdateText
-uintptr_t rva4CA990;
-void __fastcall ASMreadHUiHudWeapon();
-void __fastcall ASMHUiHudWeaponUpdateAmmoText();
-}
-
 void __fastcall hookSleep(DWORD time) {
 	Sleep(time);
+}
+
+void WINAPI fawfawfawfaw() {
+	while (1) {
+		playerAddress = GetPlayerAddress();
+
+		if (playerAddress > 0xFFFF) {
+			if ((UINT32)damageTempValue[1]) {
+				if (damageNumber.time < 1) {
+					damageNumber.value = -damageTempValue[0];
+				}
+				else {
+					damageNumber.value -= damageTempValue[0];
+				}
+				damageNumber.time = DAMAGE_CHARGE_TIME_S;
+				damageNumber.status = 1;
+				damageTempValue[0] = 0;
+				damageTempValue[1] = 0;
+			}
+
+			if (damageNumber.time > 0) {
+				damageNumber.time += -1;
+			} else if (damageNumber.status) {
+				setDamageDisplayTime(0, 6, DAMAGE_DISPLAY_TIME_S);
+				damageNumber.status = 0;
+			} else {
+				damageNumber.value = 0;
+			}
+
+			for (int i = 0; i < 7; i++) {
+				if (dmgNumGroup[i].time > 0) {
+					dmgNumGroup[i].time += -1;
+				}
+				else {
+					dmgNumGroup[i].value = 0;
+					dmgCheckGroup.on[i] = 0;
+				}
+			}
+		}
+		else {
+			damageNumber.time = 0;
+			damageNumber.status = 0;
+			dmgCheckGroup.status = 0;
+		}
+
+		Sleep(10);
+	}
+}
+
+void __fastcall eDisplaySoldierWeaponDamage(HUiHudWeaponPointer* p)
+{
+	// Soldier
+	if (p->Weapon->addr1452 == 0) {
+		p->TextDamage->font_color.a = 0;
+		if (p->TextDamageUP) {
+			p->TextDamageUP->font_color.a = 0;
+		}
+		return;
+	}
+
+	if (damageNumber.time > 0) {
+		p->TextDamage->font_color.a = 1.0f;
+		HUiHudTextContentPointer* pText = ASMgetHUiHudTextContentPointer(p->TextDamage->addr228h);
+		float fontSize = damageNumber.time / 50.0f;
+		fontSize += p->damageFontSize.x;
+		pText->fontSize.x = fontSize;
+		pText->fontSize.y = fontSize;
+
+		memcpy(pText->text, DMGstrSpace16, 32U);
+		std::wstring displayText = FormatDamageNumber(damageNumber.value);
+		size_t strofs = 0;
+		size_t strsize = 30;
+		if (displayText.size() < 15) {
+			strofs = (15 - displayText.size()) / 4;
+			strsize = displayText.size() * 2;
+		}
+		memcpy((pText->text + strofs), displayText.c_str(), strsize);
+	}
+	else {
+		p->TextDamage->font_color.a = 0;
+	}
+
+	if (p->TextDamageUP) {
+		if (dmgCheckGroup.status) {
+			p->TextDamageUP->font_color.a = 1.0f;
+			HUiHudTextContentPointer* pText = ASMgetHUiHudTextContentPointer(p->TextDamageUP->addr228h);
+
+			memcpy(pText->text, DMGstrSpace112, 224U);
+
+			for (int i = 0; i < 7; i++) {
+				if (dmgNumGroup[i].time > 0) {
+
+					std::wstring displayText = FormatDamageNumber(dmgNumGroup[i].value);
+
+					size_t strofs = 0;
+					size_t strsize = 30;
+					if (displayText.size() < 15) {
+						strofs = (15 - displayText.size()) / 2;
+						strsize = displayText.size() * 2;
+					}
+					/*
+					std::wstring displayText = L"1234567.7654321";
+					size_t strofs = 0;
+					size_t strsize = 30;*/
+					strofs += (size_t)i * 16;
+					memcpy((pText->text + strofs), displayText.c_str(), strsize);
+				}
+			}
+			// end
+		}
+		else {
+			p->TextDamageUP->font_color.a = 0;
+		}
+	}
+	// Soldier end
+}
+
+void __fastcall eDisplayVehicleWeaponDamage(HUiHudWeaponPointer* p)
+{
+	// Vehicle
+	if (damageNumber.time > 0) {
+		p->TextDamage->font_color.a = 1.0f;
+		HUiHudTextContentPointer* pText = ASMgetHUiHudTextContentPointer(p->TextDamage->addr228h);
+		float fontSize = damageNumber.time / 50.0f;
+		fontSize *= p->damageFontSize.x;
+		fontSize += p->damageFontSize.x;
+		pText->fontSize.x = fontSize;
+		pText->fontSize.y = fontSize;
+
+		memcpy(pText->text, DMGstrSpace16, 32U);
+		std::wstring displayText = FormatDamageNumber(damageNumber.value);
+		size_t strofs = 0;
+		size_t strsize = 30;
+		if (displayText.size() < 15) {
+			strsize = displayText.size() * 2;
+		}
+		memcpy((pText->text + strofs), displayText.c_str(), strsize);
+	}
+	else {
+		p->TextDamage->font_color.a = 0;
+	}
+
+	if (p->TextDamageUP) {
+		if (dmgCheckGroup.status) {
+			p->TextDamageUP->font_color.a = 1.0f;
+			HUiHudTextContentPointer* pText = ASMgetHUiHudTextContentPointer(p->TextDamageUP->addr228h);
+
+			memcpy(pText->text, DMGstrSpace112, 224U);
+
+			for (int i = 0; i < 7; i++) {
+				if (dmgNumGroup[i].time > 0) {
+
+					std::wstring displayText = FormatDamageNumber(dmgNumGroup[i].value);
+
+					size_t strofs = 0;
+					size_t strsize = 30;
+					if (displayText.size() < 15) {
+						strsize = displayText.size() * 2;
+					}
+					strofs += (size_t)i * 16;
+					memcpy((pText->text + strofs), displayText.c_str(), strsize);
+				}
+			}
+			// end
+		}
+		else {
+			p->TextDamageUP->font_color.a = 0;
+		}
+	}
+	// Vehicle end
+}
+
+extern "C" {
+	void __fastcall ASMhookSleep();
+	uintptr_t hookSleepRet;
+	//
+	uintptr_t rva9C6E40;
+	uintptr_t rva27380;
+	// IncreaseTextLength
+	uintptr_t rva27570;
+	// Int2WString(void* dst, int)
+	uintptr_t rvaB7220;
+	// Int to WString?
+	uintptr_t rva4D86D0;
+	// UpdateText
+	uintptr_t rva4CA990;
+	void __fastcall ASMreadHUiHudWeapon();
+	void __fastcall ASMHUiHudWeaponUpdateVehicleText();
+	uintptr_t HUiHudWeaponUpdateVehicleTextRet;
+	void __fastcall ASMHUiHudWeaponUpdateAmmoText();
 }
 
 void hookHUDEnhancement() {
 	//hookGameBlock((void*)(hmodEXE + 0x60FDEA), (uint64_t)ASMhookSleep);
 	//hookSleepRet = (uintptr_t)(hmodEXE + 0x60FE0F);
+
+	HUDEnhanceStatus = 1;
+	playerDmgRetAddress = (uintptr_t)(hmodEXE + 0x2DB659);
+	hookGameBlock((void*)(hmodEXE + 0x2DB641), (uint64_t)ASMrecordPlayerDamage);
+	WriteHookToProcess((void*)(hmodEXE + 0x2DB641 + 12), (void*)&nop4, 4U);
+	//
+	HANDLE tempHND = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)fawfawfawfaw, NULL, NULL, NULL);
+	if (tempHND) {
+		CloseHandle(tempHND);
+	}
+	//
+	WriteHookToProcess((void*)(hmodEXE + 0xECB740), (void*)L"lyt_HudWeaponGuagL1.sgo", 48U);
+	WriteHookToProcess((void*)(hmodEXE + 0xECB820), (void*)L"lyt_HudWeaponGuagR1.sgo", 48U);
+	WriteHookToProcess((void*)(hmodEXE + 0xECB7D0), (void*)L"lyt_HudEnergyGuageR1.sgo", 48U);
+	WriteHookToProcess((void*)(hmodEXE + 0xEC8F90), (void*)L"lyt_HudWeaponGuageVehicl1.sgo", 60U);
 	
 	// EDF5.exe+3532C8
 	// this has problem, since EDF5.exe+34C8EA
@@ -664,7 +886,7 @@ void hookHUDEnhancement() {
 
 	int newWeaponSize = 0xE00;
 	static_assert(sizeof(HUiHudWeaponPointer) < 0xE00);
-	WriteHookToProcess((void *)(hmodEXE + 0x4D1017 + 1), &newWeaponSize, 4U);
+	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x4D1017 + 1), &newWeaponSize, 4U);
 	rva9C6E40 = (uintptr_t)(hmodEXE + 0x9C6E40);
 	rva27380 = (uintptr_t)(hmodEXE + 0x27380);
 	rva27570 = (uintptr_t)(hmodEXE + 0x27570);
@@ -674,8 +896,12 @@ void hookHUDEnhancement() {
 	// EDF5.exe+4D1C32
 	hookGameBlock((void *)(hmodEXE + 0x4D1C32), (uint64_t)ASMreadHUiHudWeapon);
 	WriteHookToProcess((void *)(hmodEXE + 0x4D1C32 + 12), (void *)&nop6, 6U);
+	// EDF5.exe+4D370C
+	hookGameBlock((void *)(hmodEXE + 0x4D370C), (uint64_t)ASMHUiHudWeaponUpdateVehicleText);
+	WriteHookToProcess((void*)(hmodEXE + 0x4D370C + 12), (void*)&nop6, 6U);
+	HUiHudWeaponUpdateVehicleTextRet = (uintptr_t)(hmodEXE + 0x4D371E);
 	// EDF5.exe+4D7110
-	hookGameBlock((void *)(hmodEXE + 0x4D7110), (uint64_t)ASMHUiHudWeaponUpdateAmmoText);
+	hookGameBlock((void*)(hmodEXE + 0x4D7110), (uint64_t)ASMHUiHudWeaponUpdateAmmoText);
 	BYTE _r14_ = 0x4C;
 	WriteHookToProcess((void *)(hmodEXE + 0x4D70B5), &_r14_, 1U);
 	WriteHookToProcess((void *)(hmodEXE + 0x4D70E2), &_r14_, 1U);

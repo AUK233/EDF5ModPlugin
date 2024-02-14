@@ -207,7 +207,9 @@
       <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
     </ClCompile>
     <ClCompile Include="proxy.c" />
-    <ClCompile Include="utiliy.cpp" />
+    <ClCompile Include="utiliy.cpp">
+      <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdcpp20</LanguageStandard>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMammoInsectBullet.asm" />

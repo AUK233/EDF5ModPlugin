@@ -1,4 +1,6 @@
 .data
+extern Vehicle403TankMainFireRetAddr : qword
+
 extern playerDmgRetAddress : qword
 extern displayDamageIndex : dword
 extern damageTempValue : dword
@@ -7,8 +9,8 @@ extern playerAddress : qword
 .code
 ASMrecordPlayerDamage proc
 
-        cmp displayDamageIndex, 1
-        jl ofs2DAA59
+        ;cmp displayDamageIndex, 1
+        ;jl ofs2DAA59
         mov rax, [rsi+10h]
         cmp rax, playerAddress
         je getDamageBlock
@@ -22,9 +24,12 @@ ASMrecordPlayerDamage proc
         movd ecx, xmm0
         addss xmm0, damageTempValue
         movd eax, xmm0
-        xchg damageTempValue, eax
+        mov damageTempValue, eax
         inc eax
-        xchg damageTempValue+4, eax
+        mov damageTempValue+4, eax
+        ;xchg damageTempValue, eax
+        ;inc eax
+        ;xchg damageTempValue+4, eax
         ;movss damageTempValue, xmm0
         movd xmm0, ecx
 
@@ -43,5 +48,29 @@ ASMresetPlayerDamageTemp proc
     ret
 
 ASMresetPlayerDamageTemp ENDP
+
+ASMVehicle403TankMainFire proc
+
+        mov r11, [rdi+448h]
+        mov eax, r8d
+        lea r10, [rax+rax*8]
+        mov rax, [r11+r10*8+8]
+        test rax, rax
+        je ofs3385FF
+        cmp dword ptr [rax+8], 0
+        je ofs3385FF
+        mov rax, [r11+r10*8+10h]
+        mov byte ptr [rax+0D9h], 1
+        ; check ExtraShotType
+        cmp dword ptr [rax+2510h], 1
+        jne ofs3385FF
+        mov rax, [r11+r10*8+58h]
+        test rax, rax
+        je ofs3385FF
+        mov byte ptr [rax+0D9h], 1
+    ofs3385FF:
+        jmp Vehicle403TankMainFireRetAddr
+
+ASMVehicle403TankMainFire ENDP
 
 END

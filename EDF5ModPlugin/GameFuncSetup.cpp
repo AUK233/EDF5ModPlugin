@@ -12,6 +12,7 @@
 #include "utiliy.h"
 
 #include "GameFuncSetup.h"
+#include <commonNOP.h>
 
 extern PBYTE hmodEXE;
 extern int weaponEnhance;
@@ -245,6 +246,10 @@ void __fastcall ASMeFencerBoostAndDash();
 // General
 void __fastcall ASMeAccessoryEnhancement();
 uintptr_t eAccessoryEnhancementRetAddr;
+
+// Railgun
+void __fastcall ASMVehicle403TankMainFire();
+uintptr_t Vehicle403TankMainFireRetAddr;
 }
 
 void hookEDFClassFunctions() {
@@ -337,6 +342,12 @@ void hookEDFClassFunctions() {
 	hookGameBlock((void *)(hmodEXE + 0x3049B4), (uint64_t)ASMeAccessoryEnhancement);
 	WriteHookToProcess((void *)(hmodEXE + 0x3049B4 + 12), (void *)&intNOP32, 2U);
 	eAccessoryEnhancementRetAddr = (uintptr_t)(hmodEXE + 0x3049C2);
+
+	// EDF5.exe+3391D5
+	// Enable Railgun to be dual weapons
+	Vehicle403TankMainFireRetAddr = (uintptr_t)(hmodEXE + 0x3391FF);
+	hookGameBlock((void*)(hmodEXE + 0x3391D5), (uint64_t)ASMVehicle403TankMainFire);
+	WriteHookToProcess((void*)(hmodEXE + 0x3391D5 + 12), (void*)&nop2, 2U);
 }
 
 
@@ -458,79 +469,79 @@ void ReallocateWeaponMemory() {
 	// start:0x2500, size:0x20, function: extra reload types.
 
 	// Weapon_Accessory 0x11E0
-	WriteHookToProcess((void *)(hmodEXE + 0x398018), &newWeaponSize, 4U);
+	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x398018), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x398268 + 1), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0xC65789 + 1), &newWeaponSize, 4U);
 	// Weapon_BasicShoot 0x1200
-	WriteHookToProcess((void *)(hmodEXE + 0x398588), &newWeaponSize, 4U);
+	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x398588), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x399269 + 1), &newWeaponSize, 4U);
 	// Weapon_BasicSemiAuto 0x1200
-	WriteHookToProcess((void *)(hmodEXE + 0x39863D), &newWeaponSize, 4U);
+	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x39863D), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0xC657F9 + 1), &newWeaponSize, 4U);
 	// Weapon_ChargeShoot 0x14D0
-	WriteHookToProcess((void *)(hmodEXE + 0x3997F8), &newWeaponSize, 4U);
+	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x3997F8), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x399E19 + 1), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0xC65919 + 1), &newWeaponSize, 4U);
 	// Weapon_PreChargeShoot 0x1310
-	WriteHookToProcess((void *)(hmodEXE + 0x3A3E48), &newWeaponSize, 4U);
+	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x3A3E48), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x3A3FC6 + 1), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0xC65BC9 + 1), &newWeaponSize, 4U);
 	// Weapon_RadioContact 0x1500
-	WriteHookToProcess((void *)(hmodEXE + 0x3A4368), &newWeaponSize, 4U);
+	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x3A4368), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x26D359 + 1), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x3A4949 + 1), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0xC65C19 + 1), &newWeaponSize, 4U);
 	// Weapon_Shield 0x1230
-	WriteHookToProcess((void *)(hmodEXE + 0x3A6858), &newWeaponSize, 4U);
+	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x3A6858), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x3A6BE7 + 1), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0xC65CF9 + 1), &newWeaponSize, 4U);
 	// Weapon_VehicleMaser 0x1FF0
-	WriteHookToProcess((void *)(hmodEXE + 0x3A9438), &newWeaponSize, 4U);
+	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x3A9438), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x3AAB99 + 1), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0xC65DC9 + 1), &newWeaponSize, 4U);
 	// Weapon_HomingShoot 0x11F0
-	WriteHookToProcess((void *)(hmodEXE + 0x46A398), &newWeaponSize, 4U);
+	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x46A398), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x3ABB86 + 1), &newWeaponSize, 4U);
 	// Weapon_Throw 0x1200
-	WriteHookToProcess((void *)(hmodEXE + 0x46A3E8), &newWeaponSize, 4U);
+	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x46A3E8), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x3A8D57 + 1), &newWeaponSize, 4U);
 	// Weapon_Swing 0x1210
-	WriteHookToProcess((void *)(hmodEXE + 0x46A438), &newWeaponSize, 4U);
+	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x46A438), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x3A8547 + 1), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x353589 + 1), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0xC6EE99 + 1), &newWeaponSize, 4U);
 	// Weapon_PileBanker 0x11F0
-	WriteHookToProcess((void *)(hmodEXE + 0x46A488), &newWeaponSize, 4U);
+	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x46A488), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x398A17 + 1), &newWeaponSize, 4U);
 	// Weapon_ImpactHammer 0x1320
-	WriteHookToProcess((void *)(hmodEXE + 0x46A4D8), &newWeaponSize, 4U);
+	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x46A4D8), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x39D057 + 1), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0xC6EEB9 + 1), &newWeaponSize, 4U);
 	// Weapon_HeavyShoot 0x1260
-	WriteHookToProcess((void *)(hmodEXE + 0x46A528), &newWeaponSize, 4U);
+	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x46A528), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x39BC87 + 1), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0xC6EED9 + 1), &newWeaponSize, 4U);
 
 	// Weapon_Gatling 0x1290
-	WriteHookToProcess((void *)(hmodEXE + 0x46A578), &newWeaponSize, 4U);
+	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x46A578), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x39AEC9 + 1), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0xC6EEF9 + 1), &newWeaponSize, 4U);
 	// start:0x1400, size:0x20, function: set pre-heat type.
 
 	// Weapon_LaserMarker 0x1460
-	WriteHookToProcess((void *)(hmodEXE + 0x46A5C8), &newWeaponSize, 4U);
+	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x46A5C8), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x3A0868 + 1), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0xC6EF19 + 1), &newWeaponSize, 4U);
 	// Weapon_LaserMarkerCallFire 0x1AB0
-	WriteHookToProcess((void *)(hmodEXE + 0x46A618), &newWeaponSize, 4U);
+	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x46A618), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x3A0FF6 + 1), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0xC6EF39 + 1), &newWeaponSize, 4U);
 	// Weapon_MarkerShooter 0x11F0
-	WriteHookToProcess((void *)(hmodEXE + 0x46A66D), &newWeaponSize, 4U);
+	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x46A66D), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0xC6EE79 + 1), &newWeaponSize, 4U);
 	// Weapon_VehicleShoot 0x11F0
-	WriteHookToProcess((void *)(hmodEXE + 0x46A6D8), &newWeaponSize, 4U);
+	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x46A6D8), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x3A3817 + 1), &newWeaponSize, 4U);
 	// Weapon_VehicleRailGun 0x11F0
-	WriteHookToProcess((void *)(hmodEXE + 0x46A72D), &newWeaponSize, 4U);
+	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x46A72D), &newWeaponSize, 4U);
 }

@@ -1,5 +1,7 @@
 .data
 
+extern HUDEnhanceStatus : dword
+
 extern edf2E0270Address : qword
 extern edf2E07C0Address : qword
 extern edf2E18A0Address : qword
@@ -22,6 +24,9 @@ eSoldierCallSupport db 115,0,117,0,112,0,112,0,111,0,114,0,116,0,95,0,99,0,97,0,
 ; L"app:/ui/lyt_HudSubWeaponGuageR.sgo"
 lyt_HudSubWeaponGuageR1 db 61h, 00h, 70h, 00h, 70h, 00h, 3Ah, 00h, 2Fh, 00h, 75h, 00h, 69h, 00h, 2Fh, 00h, 6Ch, 00h, 79h, 00h, 74h, 00h, 5Fh, 00h, 48h, 00h, 75h, 00h, 64h, 00h, 53h, 00h
 db 75h, 00h, 62h, 00h, 57h, 00h, 65h, 00h, 61h, 00h, 70h, 00h, 6Fh, 00h, 6Eh, 00h, 47h, 00h, 75h, 00h, 61h, 00h, 67h, 00h, 65h, 00h, 52h, 00h, 2Eh, 00h, 73h, 00h, 67h, 00h, 6Fh, 00h, 00h, 00h
+; L"app:/ui/lyt_HudSubWeaponGuageR_E.sgo"
+lyt_HudSubWeaponGuageR1E db 97,0,112,0,112,0,58,0,47,0,117,0,105,0,47,0,108,0,121,0,116,0,95,0,72,0,117,0,100,0,83,0,117,0,98,0,87,0,101,0,97,0,112,0
+db 111,0,110,0,71,0,117,0,97,0,103,0,101,0,82,0,95,0,69,0,46,0,115,0,103,0,111,0,0,0
 ; L"app:/ui/lyt_HudSubWeaponGuageR2.sgo"
 lyt_HudSubWeaponGuageR2 db 97,0,112,0,112,0,58,0,47,0,117,0,105,0,47,0,108,0,121,0,116,0,95,0,72,0,117,0,100,0,83,0,117,0,98,0,87,0,101,0,97,0
 db 112,0,111,0,110,0,71,0,117,0,97,0,103,0,101,0,82,0,50,0,46,0,115,0,103,0,111,0,0,0
@@ -180,8 +185,18 @@ ASMhudShowSupportSlot2 proc
         lea rdx, qword ptr [rbp+48h]
         cmp ebx, 1
         je ShowSupportSlot2
-
+        cmp HUDEnhanceStatus, 0
+        jne SupportSlot1Enhance
         lea r8, lyt_HudSubWeaponGuageR1
+        jmp hudShowSupportSlot2RetAddr
+    SupportSlot1Enhance:
+        test rbx, rbx
+        jne SupportSlot1Enhance2
+        mov rax, [r15+1590h]
+        mov rax, [rax+r10*8]
+        mov dword ptr [rax+2510h], 16 ; use_extraShotType
+    SupportSlot1Enhance2:
+        lea r8, lyt_HudSubWeaponGuageR1E
         jmp hudShowSupportSlot2RetAddr
     ShowSupportSlot2:
         lea r8, lyt_HudSubWeaponGuageR2

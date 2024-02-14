@@ -18,6 +18,8 @@ wReloadInit db 82,0,101,0,108,0,111,0,97,0,100,0,73,0,110,0,105,0,116,0,0,0
 wReloadPadType db 82,0,101,0,108,0,111,0,97,0,100,0,80,0,97,0,100,0,84,0,121,0,112,0,101,0,0,0
 ; 0.99f
 wReloadInitFloat dd 3F7D70A4h
+; L"use_extraShotType"
+wUseExtraShotType db 117,0,115,0,101,0,95,0,101,0,120,0,116,0,114,0,97,0,83,0,104,0,111,0,116,0,84,0,121,0,112,0,101,0,0,0
 
 .code
 
@@ -89,16 +91,16 @@ ASMweaponReloadEX proc
     ofsNewFN:
     ; initialize memory
         xorps xmm0, xmm0
-        movups [rsi+2500h], xmm0
-        ;mov qword ptr [rsi+2500h], 0
-        ;mov qword ptr [rsi+2508h], 0
+        movaps [rsi+2500h], xmm0
+        movaps [rsi+2510h], xmm0
+
     ; read new function "ReloadPadType"
         lea rdx, wReloadPadType
         mov rcx, r14
         call edf5BDF30
         movsxd rcx, eax
         cmp ecx, -1
-        je EndBlock ; if node does not exist, jump
+        je extraShotTypeBlock ; if node does not exist, jump
     ; read ptr in node
         mov rax, qword ptr [r14]
         movsxd rdx, dword ptr [rax+12]
@@ -118,6 +120,21 @@ ASMweaponReloadEX proc
         mov eax, [rax+rcx+32]
         mov [rsi+2508h], eax ; charge interval
         mov [rsi+250Ch], eax
+
+    ;use_extraShotType
+    extraShotTypeBlock:
+        lea rdx, wUseExtraShotType
+        mov rcx, r14
+        call edf5BDF30
+        movsxd rcx, eax
+        cmp ecx, -1
+        je EndBlock ; if node does not exist, jump
+        mov rax, qword ptr [r14]
+        movsxd rdx, dword ptr [rax+12]
+        add rdx, rax
+        lea rcx, qword ptr [rcx+rcx*2]
+        mov rax, qword ptr [rdx+rcx*4+8]
+        mov [rsi+2510h], eax ; use_extraShotType
 
     EndBlock:
         jmp weaponReloadEXRetAddr

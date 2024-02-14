@@ -20,7 +20,12 @@ typedef struct EDFVector4Struct {
 } EDFVector4Pointer;
 
 typedef struct EDFWeaponStruct {
-	BYTE pad1[0xE0];
+	BYTE pad0[0xD9];
+	// When it's 1, weapon will fire
+	BYTE fireWeapon;
+	// To be verified
+	BYTE fireCheck;
+	BYTE pad1[5];
 	BYTE addr224;
 	BYTE pad2[0xBF];
 	int reloadType;
@@ -58,7 +63,11 @@ typedef struct EDFWeaponStruct {
 	int extraReloadTime;
 	int chargeTime;
 	int chargeTimeCount;
+	// 1 is fire together,
+	int use_extraShotType;
 } EDFWeaponPointer;
+static_assert(offsetof(EDFWeaponStruct, fireWeapon) == 0xD9);
+static_assert(offsetof(EDFWeaponStruct, fireCheck) == 0xDA);
 static_assert(offsetof(EDFWeaponStruct, addr224) == 0xE0);
 static_assert(offsetof(EDFWeaponStruct, reloadType) == 0x1A0);
 static_assert(offsetof(EDFWeaponStruct, reloadTime) == 0x1A4);
@@ -77,6 +86,7 @@ static_assert(offsetof(EDFWeaponStruct, reloadPadType) == 0x2500);
 static_assert(offsetof(EDFWeaponStruct, extraReloadTime) == 0x2504);
 static_assert(offsetof(EDFWeaponStruct, chargeTime) == 0x2508);
 static_assert(offsetof(EDFWeaponStruct, chargeTimeCount) == 0x250C);
+static_assert(offsetof(EDFWeaponStruct, use_extraShotType) == 0x2510);
 
 typedef struct HUiHudTextContentStruct {
 	BYTE pad1[0x18];
@@ -105,14 +115,22 @@ static_assert(offsetof(HUiHudTextStruct, addr228h) == 0x228);
 static_assert(offsetof(HUiHudTextStruct, font_color) == 0x270);
 
 typedef struct HUiHudWeaponStruct {
-	BYTE pad1[0xA18];
+	BYTE pad1[0x7E8];
+	//  vehicle may not have it.
+	EDFWeaponPointer* Weapon;
+	BYTE pad11[0x228];
 	HUiHudTextPointer *TextNumeric;
 	void *TextNumericCheck;
 	HUiHudTextPointer *TextWingEnergy;
 	void *TextWingEnergyCheck;
 	HUiHudTextPointer *WingChargeGuage;
 	void *WingChargeGuageCheck;
-	BYTE pad2[0x2B8];
+	BYTE pad2[0x1E8];
+	// 0 is soldiers
+	BYTE IsVehicle;
+	// 0 is no?
+	BYTE HasVehicleWeaponUI;
+	BYTE pad3[0xCE];
 	// new
 	HUiHudTextPointer *TextNumericType2;
 	void *TextNumericType2Check;
@@ -125,12 +143,15 @@ typedef struct HUiHudWeaponStruct {
 	void* TextDamageUPCheck;
 	BYTE padEnd[0x10];
 } HUiHudWeaponPointer;
+static_assert(offsetof(HUiHudWeaponStruct, Weapon) == 0x7E8);
 static_assert(offsetof(HUiHudWeaponStruct, TextNumeric) == 0xA18);
 static_assert(offsetof(HUiHudWeaponStruct, TextNumericCheck) == 0xA20);
 static_assert(offsetof(HUiHudWeaponStruct, TextWingEnergy) == 0xA28);
 static_assert(offsetof(HUiHudWeaponStruct, TextWingEnergyCheck) == 0xA30);
 static_assert(offsetof(HUiHudWeaponStruct, WingChargeGuage) == 0xA38);
 static_assert(offsetof(HUiHudWeaponStruct, WingChargeGuageCheck) == 0xA40);
+static_assert(offsetof(HUiHudWeaponStruct, IsVehicle) == 0xC30);
+static_assert(offsetof(HUiHudWeaponStruct, HasVehicleWeaponUI) == 0xC31);
 static_assert(offsetof(HUiHudWeaponStruct, TextNumericType2) == 0xD00);
 static_assert(offsetof(HUiHudWeaponStruct, TextNumericType2Check) == 0xD08);
 static_assert(offsetof(HUiHudWeaponStruct, TextNumericType2Color) == 0xD10);

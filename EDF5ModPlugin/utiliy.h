@@ -11,16 +11,18 @@ uintptr_t sigscan(const std::wstring name, const char *sig, const char *mask);
 uintptr_t GetPointerAddress(const uintptr_t base, std::initializer_list<int> offsets);
 void *AllocatePageNearAddress(void *targetAddr);
 // Injects hook into game process
-void WriteHookToProcess(void *addr, void *data, size_t len);
-// update game's original functions
-void hookGameBlock(void *targetAddr, uint64_t hookAddr);
-// update game's original functions
-void hookGameBlockWithCall(void* targetAddr, uint64_t hookAddr);
+void __fastcall WriteHookToProcess(void *addr, void *data, size_t len);
+// This will check if the previous address is ecx
+void __fastcall WriteHookToProcessCheckECX(void* addr, void* data, size_t len);
+// update game's original functions, need 12bytes
+void __fastcall hookGameBlock(void *targetAddr, uint64_t hookAddr);
+// update game's original functions with call, need 12bytes
+void __fastcall hookGameBlockWithCall(void* targetAddr, uint64_t hookAddr);
 // update game's original functions with 14 bytes
-void hookGameBlock14(void *targetAddr, uint64_t hookAddr);
+void __fastcall hookGameBlock14(void *targetAddr, uint64_t hookAddr);
 // Search the address of the target
-intptr_t SundaySearch(const byte *target, int tLen, const byte *pattern, int pLen);
+intptr_t __fastcall SundaySearch(const byte *target, int tLen, const byte *pattern, int pLen);
 // Search the address of the target
-intptr_t ScanPattern(HANDLE hProcess, byte *pattern, int pLen, uintptr_t minAddr, uintptr_t maxAddr);
+intptr_t __fastcall ScanPattern(HANDLE hProcess, byte *pattern, int pLen, uintptr_t minAddr, uintptr_t maxAddr);
 // Search the address of the target
-intptr_t ScanPattern(HANDLE hProcess, byte *pattern, int pLen, uintptr_t addr);
+intptr_t __fastcall ScanPattern(HANDLE hProcess, byte *pattern, int pLen, uintptr_t addr);

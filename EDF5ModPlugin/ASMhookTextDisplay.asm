@@ -6,9 +6,11 @@ extern hookSleep : proto
 
 extern setDamageString : proto
 extern eTextForWeaponReloadTime : proto
-extern dhaihdiwa : proto
+extern eDisplaySoldierWeaponDamage : proto
+extern eDisplayVehicleWeaponDamage : proto
 
 extern hookTextDisplayRetAddr : qword
+extern HUiHudWeaponUpdateVehicleTextRet : qword
 extern hookSleepRet : qword
 extern rva9C6E40 : qword
 extern rva27380 : qword
@@ -283,19 +285,36 @@ ASMreadHUiHudWeapon proc
 
 ASMreadHUiHudWeapon ENDP
 
+ASMHUiHudWeaponUpdateVehicleText proc
+
+        cmp qword ptr [rdi+0D20h], 0
+        je ofs4D2AF0
+        mov rcx, rdi
+        call eDisplayVehicleWeaponDamage
+    ofs4D2AF0:
+        mov rbx, [rdi+0C50h]
+        mov qword ptr [rbp+98h], 7
+        jmp HUiHudWeaponUpdateVehicleTextRet
+
+ASMHUiHudWeaponUpdateVehicleText ENDP
+
 ASMHUiHudWeaponUpdateAmmoText proc
 
         mov rdi, [rsi+0D08h]
         mov r14, [rsi+0D00h]
         test rdi, rdi
-        je ShowDamage
+        je showDamage
         ; get weapon pointer
         mov rax, [rsi+7E8h]
+        ; check use_extraShotType
+        cmp dword ptr [rax+2510h], 16
+        je AmmoToStr
+        ; check current
         cmp byte ptr [rax+5ACh], 0
         jne AmmoToStr
         ; no text alpha
         mov dword ptr [r14+27Ch], 0
-        jmp ShowDamage
+        jmp showDamage
     AmmoToStr:
         xorps xmm0, xmm0
         movups [rbp-49h], xmm0
@@ -334,21 +353,18 @@ ASMHUiHudWeaponUpdateAmmoText proc
         call rva4CA990
         mov rdx, [rbp+17h] ; check text length
         cmp rdx, 8
-        jb ShowDamage
+        jb showDamage
         inc rdx
         mov r8d, 2
         mov rcx, [rbp-1h]
         call rva27570
-    
-    ShowDamage:
-        cmp qword ptr [rsi+0D28h], 0
-        je original
-        mov rax, [rsi+7E8h]
-        cmp byte ptr [rax+5ACh], 0
+
+    showDamage:
+        cmp qword ptr [rsi+0D20h], 0
         je original
         mov rcx, rsi
-        ;call dhaihdiwa
-
+        call eDisplaySoldierWeaponDamage
+        
     original:
         mov rcx, qword ptr [rbp+3Fh]
         xor rcx, rsp

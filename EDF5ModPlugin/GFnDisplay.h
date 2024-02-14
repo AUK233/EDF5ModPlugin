@@ -11,7 +11,8 @@ uintptr_t __fastcall setDamageString(uintptr_t pstr, uintptr_t pcolor, uintptr_t
 size_t __fastcall TextForFormatFloatNumber(const float number, WCHAR *destination, size_t len);
 size_t __fastcall TextForFormatFloatNumber2(const float number, WCHAR *destination, size_t len);
 size_t __fastcall eTextForWeaponReloadTime(EDFWeaponStruct *pweapon, WCHAR *destination, EDFColor4Pointer *pcolor);
-void __fastcall dhaihdiwa(HUiHudWeaponPointer* destination);
+void __fastcall eDisplaySoldierWeaponDamage(HUiHudWeaponPointer* p);
+void __fastcall eDisplayVehicleWeaponDamage(HUiHudWeaponPointer* p);
 }
 
 // get player weapon damage

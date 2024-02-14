@@ -175,7 +175,7 @@ void *AllocatePageNearAddress(void *targetAddr) {
 }
 
 // Injects hook into game process
-void WriteHookToProcess(void *addr, void *data, size_t len) {
+void __fastcall WriteHookToProcess(void *addr, void *data, size_t len) {
 	DWORD oldProtect;
 	VirtualProtect(addr, len, PAGE_EXECUTE_READWRITE, &oldProtect);
 	memcpy(addr, data, len);
@@ -184,8 +184,23 @@ void WriteHookToProcess(void *addr, void *data, size_t len) {
 	//FlushInstructionCache(handleEXE, addr, len);
 }
 
+// This will check if the previous address is ecx
+void __fastcall WriteHookToProcessCheckECX(void* addr, void* data, size_t len)
+{
+	if (*((BYTE*)addr - 1) == 0xB9) {
+		return WriteHookToProcess(addr, data, len);
+	}
+	else {
+		std::wstring message = L"Wrong address: +0x";
+		uintptr_t rva = (uintptr_t)addr - (uintptr_t)hmodEXE;
+		message += std::format(L"{:0X}", rva);
+		MessageBoxW(NULL, message.c_str(), L"warning", MB_OK);
+		return;
+	}
+}
+
 // update game's original functions
-void hookGameBlock(void *targetAddr, uint64_t dataAddr) {
+void __fastcall hookGameBlock(void *targetAddr, uint64_t dataAddr) {
 	uint8_t hookFunction[] = {
 	    0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // mov rax, addr
 	    0xFF, 0xE0                                                  // jmp rax
@@ -196,7 +211,7 @@ void hookGameBlock(void *targetAddr, uint64_t dataAddr) {
 }
 
 // update game's original functions
-void hookGameBlockWithCall(void* targetAddr, uint64_t dataAddr) {
+void __fastcall hookGameBlockWithCall(void* targetAddr, uint64_t dataAddr) {
 	uint8_t hookFunction[] = {
 		0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // mov rax, addr
 		0xFF, 0xD0                                                  // call rax
@@ -207,7 +222,7 @@ void hookGameBlockWithCall(void* targetAddr, uint64_t dataAddr) {
 }
 
 // update game's original functions with 14 bytes
-void hookGameBlock14(void *targetAddr, uint64_t dataAddr) {
+void __fastcall hookGameBlock14(void *targetAddr, uint64_t dataAddr) {
 	uint8_t hookFunction[] = {
 	    0xFF, 0x25, 0x00, 0x00, 0x00, 0x00,                        // jmp
 	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 // addr
@@ -218,7 +233,7 @@ void hookGameBlock14(void *targetAddr, uint64_t dataAddr) {
 }
 
 // Search the address of the target
-intptr_t SundaySearch(const byte *target, int tLen, const byte *pattern, int pLen) {
+intptr_t __fastcall SundaySearch(const byte *target, int tLen, const byte *pattern, int pLen) {
 	const int SHIFT_SIZE = 0x100;
 	byte shift[SHIFT_SIZE] = {0};
 
@@ -238,7 +253,7 @@ intptr_t SundaySearch(const byte *target, int tLen, const byte *pattern, int pLe
 	return -1;
 }
 
-intptr_t ScanPattern(HANDLE hProcess, byte *pattern, int pLen, uintptr_t minAddr, uintptr_t maxAddr) {
+intptr_t __fastcall ScanPattern(HANDLE hProcess, byte *pattern, int pLen, uintptr_t minAddr, uintptr_t maxAddr) {
 	const int MEM_SIZE = 0x1000;
 	byte mem[MEM_SIZE] = {0};
 
@@ -264,7 +279,7 @@ intptr_t ScanPattern(HANDLE hProcess, byte *pattern, int pLen, uintptr_t minAddr
 }
 
 // Search the address of the target
-intptr_t ScanPattern(HANDLE hProcess, byte *pattern, int pLen, uintptr_t addr) {
+intptr_t __fastcall ScanPattern(HANDLE hProcess, byte *pattern, int pLen, uintptr_t addr) {
 	SYSTEM_INFO sysInfo;
 	GetSystemInfo(&sysInfo);
 

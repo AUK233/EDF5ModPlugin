@@ -87,6 +87,7 @@ int playerViewIndex = 0;
 int displayDamageIndex = 0;
 int displayDamageStatus = 0;
 int ModLogStatus = 0;
+int HUDEnhanceStatus = 0;
 }
 //HANDLE ddThread;
 int weaponEnhance = 0;
