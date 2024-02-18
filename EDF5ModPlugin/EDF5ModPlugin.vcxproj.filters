@@ -104,6 +104,9 @@
     <MASM Include="ASMxgsArmySoldier.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
+    <MASM Include="ASMxgsOCvehicle501FortressRobo.asm">
+      <Filter>Assembly Files</Filter>
+    </MASM>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PluginAPI.h">

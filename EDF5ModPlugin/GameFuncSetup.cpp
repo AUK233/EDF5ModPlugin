@@ -250,6 +250,8 @@ uintptr_t eAccessoryEnhancementRetAddr;
 // Railgun
 void __fastcall ASMVehicle403TankMainFire();
 uintptr_t Vehicle403TankMainFireRetAddr;
+// Barga
+void __fastcall ASMVehicle501AnimationEvent();
 }
 
 void hookEDFClassFunctions() {
@@ -348,6 +350,11 @@ void hookEDFClassFunctions() {
 	Vehicle403TankMainFireRetAddr = (uintptr_t)(hmodEXE + 0x3391FF);
 	hookGameBlock((void*)(hmodEXE + 0x3391D5), (uint64_t)ASMVehicle403TankMainFire);
 	WriteHookToProcess((void*)(hmodEXE + 0x3391D5 + 12), (void*)&nop2, 2U);
+
+	// EDF5.exe+33D000
+	// Allow Barga to use the weapon
+	hookGameBlock((void*)(hmodEXE + 0x33D000), (uint64_t)ASMVehicle501AnimationEvent);
+	WriteHookToProcess((void*)(hmodEXE + 0x33D000 + 12), (void*)&nop4, 4U);
 }
 
 

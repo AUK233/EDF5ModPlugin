@@ -36,7 +36,11 @@ typedef struct EDFWeaponStruct {
 	float EnergyChargeOriginal;
 	float EnergyChargePercent;
 	int maxAmmo;
-	BYTE pad4[0x3D8];
+	BYTE pad4[0x11C];
+	int FireSpreadType;
+	float FireSpreadWidth;
+	int FireCount;
+	BYTE pad401[0x2B0];
 	// current weapon?
 	BYTE addr1452;
 	BYTE pad41[0x327];
@@ -74,6 +78,9 @@ static_assert(offsetof(EDFWeaponStruct, reloadTime) == 0x1A4);
 static_assert(offsetof(EDFWeaponStruct, reloadTime2) == 0x1A8);
 static_assert(offsetof(EDFWeaponStruct, EnergyChargeRequire) == 0x1C4);
 static_assert(offsetof(EDFWeaponStruct, maxAmmo) == 0x1D0);
+static_assert(offsetof(EDFWeaponStruct, FireSpreadType) == 0x2F0);
+static_assert(offsetof(EDFWeaponStruct, FireSpreadWidth) == 0x2F4);
+static_assert(offsetof(EDFWeaponStruct, FireCount) == 0x2F8);
 static_assert(offsetof(EDFWeaponStruct, addr1452) == 0x5AC);
 static_assert(offsetof(EDFWeaponStruct, reloadPhase) == 0x8D4);
 static_assert(offsetof(EDFWeaponStruct, curAmmo) == 0x8E8);
@@ -87,6 +94,18 @@ static_assert(offsetof(EDFWeaponStruct, extraReloadTime) == 0x2504);
 static_assert(offsetof(EDFWeaponStruct, chargeTime) == 0x2508);
 static_assert(offsetof(EDFWeaponStruct, chargeTimeCount) == 0x250C);
 static_assert(offsetof(EDFWeaponStruct, use_extraShotType) == 0x2510);
+
+// +1BA0
+typedef struct FencerBoostAndDashStruct {
+	int BoostRecoveryTime;
+	int BoostMaxCount;
+	int BoostCurrentCount;
+	float BoostSpeed;
+	int DashRecoveryTime;
+	float DashInterval;
+	int DashMaxCount;
+	int DashCurrentCount;
+} FencerBoostAndDashPointer;
 
 typedef struct HUiHudTextContentStruct {
 	BYTE pad1[0x18];
@@ -160,3 +179,36 @@ static_assert(offsetof(HUiHudWeaponStruct, TextDamageCheck) == 0xD28);
 static_assert(offsetof(HUiHudWeaponStruct, damageFontSize) == 0xD30);
 static_assert(offsetof(HUiHudWeaponStruct, TextDamageUP) == 0xD40);
 static_assert(offsetof(HUiHudWeaponStruct, TextDamageUPCheck) == 0xD48);
+
+typedef struct HUiHudPowerGuageStruct {
+	BYTE pad1[0x7E8];
+	//  vehicle may not have it.
+	EDFWeaponPointer* Weapon;
+	BYTE pad11[0x130];
+	// aka Current HP
+	HUiHudTextPointer* PowText;
+	void* PowTextCheck;
+	// aka Max HP
+	HUiHudTextPointer* DefText;
+	void* DefTextCheck;
+	BYTE pad2[0x2C0];
+	// new
+	HUiHudTextPointer* TextFencerDash;
+	void* TextFencerDashCheck;
+	EDFColor4Pointer TextFencerDashColor;
+	HUiHudTextPointer* TextFencerBoost;
+	void* TextFencerBoostCheck;
+	EDFColor4Pointer TextFencerBoostColor;
+	BYTE padEnd[0x10];
+} HUiHudPowerGuagePointer;
+static_assert(offsetof(HUiHudPowerGuageStruct, Weapon) == 0x7E8);
+static_assert(offsetof(HUiHudPowerGuageStruct, PowText) == 0x920);
+static_assert(offsetof(HUiHudPowerGuageStruct, PowTextCheck) == 0x928);
+static_assert(offsetof(HUiHudPowerGuageStruct, DefText) == 0x930);
+static_assert(offsetof(HUiHudPowerGuageStruct, DefTextCheck) == 0x938);
+static_assert(offsetof(HUiHudPowerGuageStruct, TextFencerDash) == 0xC00);
+static_assert(offsetof(HUiHudPowerGuageStruct, TextFencerDashCheck) == 0xC08);
+static_assert(offsetof(HUiHudPowerGuageStruct, TextFencerDashColor) == 0xC10);
+static_assert(offsetof(HUiHudPowerGuageStruct, TextFencerBoost) == 0xC20);
+static_assert(offsetof(HUiHudPowerGuageStruct, TextFencerBoostCheck) == 0xC28);
+static_assert(offsetof(HUiHudPowerGuageStruct, TextFencerBoostColor) == 0xC30);

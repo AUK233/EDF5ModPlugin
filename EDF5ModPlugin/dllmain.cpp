@@ -77,15 +77,15 @@ static UINT WEOpen = 1;
 static UINT RTRead = 0;
 static UINT DisplayDamage = 1;
 static UINT PlayerView = 0;
+static UINT HUDEnhance = 0;
 // Old configuration
-static BOOL Redirect = TRUE;
+static BOOL Redirect = FALSE;
 static BOOL LoadPluginsB = FALSE;
 static BOOL GameLog = FALSE;
 
 extern "C" {
 int playerViewIndex = 0;
 int displayDamageIndex = 0;
-int displayDamageStatus = 0;
 int ModLogStatus = 0;
 int HUDEnhanceStatus = 0;
 }
@@ -346,12 +346,6 @@ void ReadINIconfig() {
 		break;
 	}
 
-	// Add damage display
-	/*
-	if (!displayDamageStatus) {
-		CloseHandle(ddThread);
-	}
-	*/
 
 	switch (DisplayDamage) {
 	case 1: {
@@ -359,71 +353,10 @@ void ReadINIconfig() {
 			displayDamageIndex = 1;
 		}
 
-		if (!displayDamageStatus && displayDamageIndex == 1) {
-			HANDLE tempHND = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageA1, NULL, NULL, NULL);
-			if (tempHND) {
-				CloseHandle(tempHND);
-			}
-			displayDamageStatus = 1;
-
-			if (ModLogStatus == 1) {
-				PLOG_INFO << "Display damage number on rader";
-			}
-		}
-		break;
-	}
-	case 2: {
-		if (displayDamageIndex != 11) {
-			displayDamageIndex = 11;
+		if (ModLogStatus == 1) {
+			PLOG_INFO << "Display damage number on weapon (with charge)";
 		}
 
-		if (!displayDamageStatus && displayDamageIndex == 11) {
-			HANDLE tempHND = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageA2, NULL, NULL, NULL);
-			if (tempHND) {
-				CloseHandle(tempHND);
-			}
-			displayDamageStatus = 1;
-
-			if (ModLogStatus == 1) {
-				PLOG_INFO << "Display damage number on rader (with charge)";
-			}
-		}
-		break;
-	}
-	case 3: {
-		if (displayDamageIndex != 2) {
-			displayDamageIndex = 2;
-		}
-
-		if (!displayDamageStatus && displayDamageIndex == 2) {
-			HANDLE tempHND = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageB1, NULL, NULL, NULL);
-			if (tempHND) {
-				CloseHandle(tempHND);
-			}
-			displayDamageStatus = 1;
-
-			if (ModLogStatus == 1) {
-				PLOG_INFO << "Display damage number on weapon";
-			}
-		}
-		break;
-	}
-	case 4: {
-		if (displayDamageIndex != 21) {
-			displayDamageIndex = 21;
-		}
-
-		if (!displayDamageStatus && displayDamageIndex == 21) {
-			HANDLE tempHND = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageB2, NULL, NULL, NULL);
-			if (tempHND) {
-				CloseHandle(tempHND);
-			}
-			displayDamageStatus = 1;
-
-			if (ModLogStatus == 1) {
-				PLOG_INFO << "Display damage number on weapon (with charge)";
-			}
-		}
 		break;
 	}
 	default:
@@ -431,26 +364,16 @@ void ReadINIconfig() {
 			displayDamageIndex = 0;
 		}
 
-		if (!displayDamageStatus && displayDamageIndex == 0) {
-			// reset values in real-time read
-			if (RTRead) {
-				HANDLE tempHND = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)displayWeaponDamageNull, NULL, NULL, NULL);
-				if (tempHND) {
-					CloseHandle(tempHND);
-				}
-				displayDamageStatus = 1;
-			}
-
-			if (ModLogStatus == 1) {
-				PLOG_INFO << "Unable to display damage number";
-			}
+		if (ModLogStatus == 1) {
+			PLOG_INFO << "Unable to display damage number";
 		}
+
 		break;
 	}
 	// End
 }
 
-void ReadINILoop() {
+void WINAPI ReadINILoop() {
 	// wait 30s
 	Sleep(30000);
 
@@ -499,9 +422,9 @@ static void __fastcall initterm_hook2(_PVFV *unk1, _PVFV *unk2) {
 		// Read config
 		ReadINIconfig();
 		// Now inject only when needed, for crash rate reduction
-		hookHUDEnhancement();
-		if (DisplayDamage || RTRead) {
-			hookGetPlayerDamage();
+		
+		if (HUDEnhance || RTRead) {
+			hookHUDEnhancement();
 		}
 		// It needs to be right here
 		if (RTRead) {
@@ -545,6 +468,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		// Read configuration
 		ModLog = GetPrivateProfileIntW(L"ModOption", L"ModLog", ModLog, iniPath);
 		WEOpen = GetPrivateProfileIntW(L"ModOption", L"EnhancedWP", WEOpen, iniPath);
+		HUDEnhance = GetPrivateProfileIntW(L"ModOption", L"HUDEnhance", HUDEnhance, iniPath);
 		//LoadPluginsB = GetPrivateProfileBoolW(L"ModOption", L"LoadPlugins", LoadPluginsB, iniPath);
 		//Redirect = GetPrivateProfileBoolW(L"ModOption", L"Redirect", Redirect, iniPath);
 		//GameLog = GetPrivateProfileBoolW(L"ModOption", L"GameLog", GameLog, iniPath);

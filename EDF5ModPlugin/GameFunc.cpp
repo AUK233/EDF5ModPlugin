@@ -57,6 +57,19 @@ uintptr_t vedf125ABA0;
 //
 uintptr_t eGetAccessoryValueAddr;
 uintptr_t eGetAccessoryINT32Addr;
+//
+uintptr_t rva9C6E40;
+uintptr_t rva27380;
+// IncreaseTextLength
+uintptr_t rva27570;
+// Int2WString(void* dst, int)
+uintptr_t rvaB7220;
+// Int to WString?
+uintptr_t rva4D86D0;
+// UpdateText
+uintptr_t rva4CA990;
+//
+uintptr_t rva344F30;
 }
 
 // get game function address
@@ -99,6 +112,16 @@ void GetGameFunctions() {
 	// 
 	eGetAccessoryValueAddr = (uintptr_t)(hmodEXE + 0x307400);
 	eGetAccessoryINT32Addr = (uintptr_t)(hmodEXE + 0x3072F0);
+
+	//
+	rva9C6E40 = (uintptr_t)(hmodEXE + 0x9C6E40);
+	rva27380 = (uintptr_t)(hmodEXE + 0x27380);
+	rva27570 = (uintptr_t)(hmodEXE + 0x27570);
+	rvaB7220 = (uintptr_t)(hmodEXE + 0xB7220);
+	rva4D86D0 = (uintptr_t)(hmodEXE + 0x4D86D0);
+	rva4CA990 = (uintptr_t)(hmodEXE + 0x4CA990);
+	rva344F30 = (uintptr_t)(hmodEXE + 0x344F30);
+
 	// get ammo function address
 	GetAmmoFunctions();
 }

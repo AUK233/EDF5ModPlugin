@@ -222,6 +222,7 @@
     <MASM Include="ASMxgsOCdragonSmall.asm" />
     <MASM Include="ASMxgsOCgiantBee.asm" />
     <MASM Include="ASMxgsOCgiantSpider.asm" />
+    <MASM Include="ASMxgsOCvehicle501FortressRobo.asm" />
     <MASM Include="ASMxgsWGatling.asm" />
     <MASM Include="ASMpickupBoxRange.asm" />
     <MASM Include="ASMhookTextDisplay.asm" />

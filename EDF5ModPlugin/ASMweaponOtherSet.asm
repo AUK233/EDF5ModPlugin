@@ -9,8 +9,8 @@ extern playerAddress : qword
 .code
 ASMrecordPlayerDamage proc
 
-        ;cmp displayDamageIndex, 1
-        ;jl ofs2DAA59
+        cmp displayDamageIndex, 1
+        jne ofs2DAA59
         mov rax, [rsi+10h]
         cmp rax, playerAddress
         je getDamageBlock
@@ -41,13 +41,6 @@ ASMrecordPlayerDamage proc
         int 3
 
 ASMrecordPlayerDamage ENDP
-
-ASMresetPlayerDamageTemp proc
-
-    xchg [rcx], rdx
-    ret
-
-ASMresetPlayerDamageTemp ENDP
 
 ASMVehicle403TankMainFire proc
 

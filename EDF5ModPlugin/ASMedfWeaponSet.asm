@@ -1,7 +1,7 @@
 .data
 ; Use other asm functions
-extern edf8C8C0 : proto
-extern edf5BDF30 : proto
+extern edf8C8C0Address : qword
+extern edf5BDF30Address : qword
 extern edfSoldierWeaponCharge : proto
 
 extern debugGetWeaponName : proto
@@ -44,7 +44,7 @@ ASMweaponReloadEX proc
     ; add star to "ReloadInit"
         lea rdx, wReloadInit
         mov rcx, r14
-        call edf5BDF30
+        call edf5BDF30Address
         movsxd rcx, eax
         cmp ecx, -1
         jne ofs38E2F9
@@ -55,20 +55,19 @@ ASMweaponReloadEX proc
         mov rax, qword ptr [r14]
         movsxd rdx, dword ptr [rax+0Ch]
         add rdx, rax
-        ;lea rcx, qword ptr [rcx+rcx*2] ; old
-        ;lea rax, qword ptr [rdx+rcx*4] ; old
         lea rcx, qword ptr [rcx+rcx*2]
+        ;lea rcx, qword ptr [rcx+rcx*2] ; old
         lea rdx, qword ptr [rdx+rcx*4]
     ofs38E30B:
         ;movss xmm1, dword ptr [rax+8] ; old
         ; backup start
         movups xmm6, xmmword ptr [rbp+200h]
-        movups xmm0, xmmword ptr [rbp+210h]
+        xorps xmm0, xmm0
         movups xmmword ptr [rbp+200h], xmm0
         ; backup end
         mov r8, r12
         lea rcx, qword ptr [rbp+200h] ; note that it cannot be replaced here
-        call edf8C8C0
+        call edf8C8C0Address
         movss xmm1, dword ptr [rax] ; get value
         movups xmmword ptr [rbp+200h], xmm6 ; recovery
         ; old line
@@ -84,10 +83,10 @@ ASMweaponReloadEX proc
     ofs38E33C:
         mov dword ptr [rsi+590h], 3F800000h
     ; debug
-        cmp ModLogStatus, 1
-        jne ofsNewFN
-        mov rcx, [rsi+148h]
-        call debugGetWeaponName
+        ;cmp ModLogStatus, 1
+        ;jne ofsNewFN
+        ;mov rcx, [rsi+148h]
+        ;call debugGetWeaponName
     ofsNewFN:
     ; initialize memory
         xorps xmm0, xmm0
@@ -97,7 +96,7 @@ ASMweaponReloadEX proc
     ; read new function "ReloadPadType"
         lea rdx, wReloadPadType
         mov rcx, r14
-        call edf5BDF30
+        call edf5BDF30Address
         movsxd rcx, eax
         cmp ecx, -1
         je extraShotTypeBlock ; if node does not exist, jump
@@ -125,7 +124,7 @@ ASMweaponReloadEX proc
     extraShotTypeBlock:
         lea rdx, wUseExtraShotType
         mov rcx, r14
-        call edf5BDF30
+        call edf5BDF30Address
         movsxd rcx, eax
         cmp ecx, -1
         je EndBlock ; if node does not exist, jump
