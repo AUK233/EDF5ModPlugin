@@ -65,7 +65,7 @@
     <MASM Include="ASMhookTextDisplay.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
-    <MASM Include="ASMpickupBoxRange.asm">
+    <MASM Include="ASMhookGameSystem.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
     <MASM Include="ASMxgsWGatling.asm">
@@ -105,6 +105,12 @@
       <Filter>Assembly Files</Filter>
     </MASM>
     <MASM Include="ASMxgsOCvehicle501FortressRobo.asm">
+      <Filter>Assembly Files</Filter>
+    </MASM>
+    <MASM Include="ASMammoRocketBullet01.asm">
+      <Filter>Assembly Files</Filter>
+    </MASM>
+    <MASM Include="ASMammoSolidPelletBullet01.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
   </ItemGroup>

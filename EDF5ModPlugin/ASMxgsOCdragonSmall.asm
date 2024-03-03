@@ -21,21 +21,27 @@ extern edf150AD0Address : qword
 ; L"dragon_AttackBulletType"
 dragonBulletType db 100,0,114,0,97,0,103,0,111,0,110,0,95,0,65,0,116,0,116,0,97,0,99,0,107
 db 0,66,0,117,0,108,0,108,0,101,0,116,0,84,0,121,0,112,0,101,0,0,0
+align 16
 ; L"dragon_ChangeModelParam"
 dragonChangeModel db 100,0,114,0,97,0,103,0,111,0,110,0,95,0,67,0,104,0,97,0,110,0,103,0,101,0
 db 77,0,111,0,100,0,101,0,108,0,80,0,97,0,114,0,97,0,109,0,0,0
+align 16
 ; L"dragon_AttackBulletAlive"
 dragonBulletAlive db 100,0,114,0,97,0,103,0,111,0,110,0,95,0,65,0,116,0,116,0,97,0,99,0,107
 db 0,66,0,117,0,108,0,108,0,101,0,116,0,65,0,108,0,105,0,118,0,101,0,0,0
+align 16
 ; L"dragon_AttackBulletColor"
 dragonBulletColor db 100,0,114,0,97,0,103,0,111,0,110,0,95,0,65,0,116,0,116,0,97,0,99,0,107
 db 0,66,0,117,0,108,0,108,0,101,0,116,0,67,0,111,0,108,0,111,0,114,0,0,0
+align 16
 ; L"dragon_AttackBulletExSet"
 dragonBulletExSet db 100,0,114,0,97,0,103,0,111,0,110,0,95,0,65,0,116,0,116,0,97,0,99,0,107
 db 0,66,0,117,0,108,0,108,0,101,0,116,0,69,0,120,0,83,0,101,0,116,0,0,0
+align 16
 ; L"dragon_CustomBulletParam"
 dragonCustomBulletParam db 100,0,114,0,97,0,103,0,111,0,110,0,95,0,67,0,117,0,115,0,116,0,111,0
 db 109,0,66,0,117,0,108,0,108,0,101,0,116,0,80,0,97,0,114,0,97,0,109,0,0,0
+align 16
 
 ; ASMxgsOCdragonSmallAmmoSet jump table
 dragonAmmoTypeTable dq setDragonAcidBullet01, setDragonLightningBullet01, setDragonPlasmaBullet01, setDragonSolidBullet01, setDragonPulseBullet01, setDragonSolidExpBullet01, setDragonHomingLaserBullet01, setDragonLaserBullet02, 0
@@ -191,8 +197,11 @@ ASMxgsOCdragonSmall proc
         mov rsp, r11
         pop rdi
         ret 
+        int 3
 
 ASMxgsOCdragonSmall endp
+
+align 16
 
 ASMxgsOCdragonSmallAmmo proc
 
@@ -218,6 +227,8 @@ ASMxgsOCdragonSmallAmmo proc
         int 3
 
 ASMxgsOCdragonSmallAmmo ENDP
+
+align 16
 
 ASMxgsOCdragonSmallAmmoSet proc
 

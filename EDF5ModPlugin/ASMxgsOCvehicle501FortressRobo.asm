@@ -30,8 +30,11 @@ ASMVehicle501AEWeaponFire proc
     returnAddress:
         pop rsi
         ret 
+        int 3
 
 ASMVehicle501AEWeaponFire ENDP
+
+align 16
 
 ASMVehicle501AnimationEvent proc
         lea rax, ASMVehicle501AEWeaponFire
@@ -72,6 +75,7 @@ ASMVehicle501AnimationEvent proc
         pop r14
         pop rbp
         ret 
+        int 3
 
 ASMVehicle501AnimationEvent ENDP
 

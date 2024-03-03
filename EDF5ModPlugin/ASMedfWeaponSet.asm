@@ -9,17 +9,27 @@ extern ModLogStatus : dword
 
 extern rva391230 : qword
 
-extern weaponReloadEXRetAddr : qword
+extern readWeaponSgoNodeRetAddr : qword
 extern weaponStartReloadRetAddr : qword
 
 ; L"ReloadInit"
 wReloadInit db 82,0,101,0,108,0,111,0,97,0,100,0,73,0,110,0,105,0,116,0,0,0
+align 16
 ; L"ReloadPadType"
 wReloadPadType db 82,0,101,0,108,0,111,0,97,0,100,0,80,0,97,0,100,0,84,0,121,0,112,0,101,0,0,0
+align 4
 ; 0.99f
 wReloadInitFloat dd 3F7D70A4h
+align 16
 ; L"use_extraShotType"
 wUseExtraShotType db 117,0,115,0,101,0,95,0,101,0,120,0,116,0,114,0,97,0,83,0,104,0,111,0,116,0,84,0,121,0,112,0,101,0,0,0
+align 16
+; L"AmmoIsFriendlyFire"
+wAmmoIsFriendlyFire db 65,0,109,0,109,0,111,0,73,0,115,0,70,0,114,0,105,0,101,0,110,0,100,0,108,0,121,0,70,0,105,0,114,0,101,0,0,0
+align 16
+; L"AmmoIsFriendlyNonCollision"
+wAmmoIsFriendlyNonCollision db 65,0,109,0,109,0,111,0,73,0,115,0,70,0,114,0,105,0,101,0,110,0,100,0,108,0,121,0
+db 78,0,111,0,110,0,67,0,111,0,108,0,108,0,105,0,115,0,105,0,111,0,110,0,0,0
 
 .code
 
@@ -38,9 +48,12 @@ ASMrva391230 proc
         xor eax, eax
         pop rdi
         ret
+        int 3
 ASMrva391230 ENDP
 
-ASMweaponReloadEX proc
+align 16
+
+ASMreadWeaponSgoNode proc
     ; add star to "ReloadInit"
         lea rdx, wReloadInit
         mov rcx, r14
@@ -60,16 +73,12 @@ ASMweaponReloadEX proc
         lea rdx, qword ptr [rdx+rcx*4]
     ofs38E30B:
         ;movss xmm1, dword ptr [rax+8] ; old
-        ; backup start
-        movups xmm6, xmmword ptr [rbp+200h]
         xorps xmm0, xmm0
         movups xmmword ptr [rbp+200h], xmm0
-        ; backup end
         mov r8, r12
         lea rcx, qword ptr [rbp+200h] ; note that it cannot be replaced here
         call edf8C8C0Address
         movss xmm1, dword ptr [rax] ; get value
-        movups xmmword ptr [rbp+200h], xmm6 ; recovery
         ; old line
         movss xmm0, wReloadInitFloat
         comiss xmm0, xmm1
@@ -83,17 +92,51 @@ ASMweaponReloadEX proc
     ofs38E33C:
         mov dword ptr [rsi+590h], 3F800000h
     ; debug
-        ;cmp ModLogStatus, 1
-        ;jne ofsNewFN
+        cmp ModLogStatus, 1
+        jne ofsNewFN
         ;mov rcx, [rsi+148h]
-        ;call debugGetWeaponName
+        mov rcx, rsi
+        call debugGetWeaponName
+
     ofsNewFN:
-    ; initialize memory
+        ; initialize memory
         xorps xmm0, xmm0
         movaps [rsi+2500h], xmm0
         movaps [rsi+2510h], xmm0
+        mov dword ptr [rsi+2514h], 1
+
+    AmmoIsFriendlyFireBlock:
+        lea rdx, wAmmoIsFriendlyFire
+        mov rcx, r14
+        call edf5BDF30Address
+        movsxd rcx, eax
+        cmp ecx, -1
+        je AmmoIsFriendlyNonCollisionBlock ; if node does not exist, jump
+        mov rax, qword ptr [r14]
+        movsxd rdx, dword ptr [rax+12]
+        add rdx, rax
+        lea rcx, qword ptr [rcx+rcx*2]
+        mov eax, [rdx+rcx*4+8]
+        mov [rsi+2514h], eax ; AmmoFriendlyFireType
+        
+    AmmoIsFriendlyNonCollisionBlock:
+        lea rdx, wAmmoIsFriendlyNonCollision
+        mov rcx, r14
+        call edf5BDF30Address
+        movsxd rcx, eax
+        cmp ecx, -1
+        je ReloadPadTypeBlock ; if node does not exist, jump
+        mov rax, qword ptr [r14]
+        movsxd rdx, dword ptr [rax+12]
+        add rdx, rax
+        lea rcx, qword ptr [rcx+rcx*2]
+        lea rax, qword ptr [rdx+rcx*4]
+        cmp dword ptr [rax+8], 0
+        setne al
+        mov [rsi+6AEh], al
 
     ; read new function "ReloadPadType"
+    ReloadPadTypeBlock:
         lea rdx, wReloadPadType
         mov rcx, r14
         call edf5BDF30Address
@@ -131,19 +174,21 @@ ASMweaponReloadEX proc
         mov rax, qword ptr [r14]
         movsxd rdx, dword ptr [rax+12]
         add rdx, rax
-        lea rcx, qword ptr [rcx+rcx*2]
-        mov rax, qword ptr [rdx+rcx*4+8]
+        lea rcx, [rcx+rcx*2]
+        mov eax, [rdx+rcx*4+8]
         mov [rsi+2510h], eax ; use_extraShotType
 
     EndBlock:
-        jmp weaponReloadEXRetAddr
+        jmp readWeaponSgoNodeRetAddr
         int 3
 
-ASMweaponReloadEX ENDP
+ASMreadWeaponSgoNode ENDP
+
+align 16
 
 ASMweaponStartReload proc
 
-        mov eax, dword ptr [rbx+2500h]
+        mov eax, [rbx+2500h]
         cmp eax, 0
         je originalBlock
         cmp eax, 3 ; no manual reload

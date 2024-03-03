@@ -1,5 +1,6 @@
 .data
 
+extern readMissileBullet01RetAddr : qword
 extern ammoMissileBullet01BlastRetAddr : qword
 extern edf1AE7A0Address : qword
 extern edf1AD970Address : qword
@@ -10,6 +11,36 @@ extern _Common_F5P0 : dword
 extern _CommonRVA_EE7550 : xmmword
 
 .code
+
+ASMreadMissileBullet01 proc
+
+        movsxd rax, dword ptr [rbx+8]
+        mov ecx, [rax+rbx+8]
+        mov [rdi+0AA0h], ecx ; missile type
+        cmp ecx, 2
+        jle newBlock
+        cmp ecx, 4
+        jg newBlock
+        or word ptr [rdi+20Ch], 8 ; no explosion destruction FX
+
+    newBlock:
+        mov ecx, [rax+rbx+12+8]
+        cmp ecx, 10
+        jne ofs160306
+        mov dword ptr [rdi+400h], 1 ; no explosive knockout
+
+    ofs160306:
+        movsxd rax, dword ptr [rbx+8]
+        mov r13d, [rax+rbx+24+8]
+
+        lea rdx, [rbx+24h]
+        add rdx, rax
+        jmp readMissileBullet01RetAddr
+        int 3
+
+ASMreadMissileBullet01 ENDP
+
+align 16
 
 ; set explosion fx
 ASMammoMissileBullet01Blast proc

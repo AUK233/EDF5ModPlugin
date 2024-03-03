@@ -21,17 +21,31 @@ ASMammoLaserBullet02 proc
         jne type4
         or word ptr [rsi+20Ch], 8
         mov dword ptr [rsi+404h], 3
-        jmp ammoLaserBullet02RetAddr
+        jmp newFuncBlock
+
     type4:
         cmp eax, 4
-        jne ofs15669D
+        jne newFuncBlock
         or word ptr [rsi+20Ch], 8 ; no explosion destruction FX
         mov dword ptr [rsi+404h], 3 ; delayed damage
+
+    newFuncBlock:
+        mov r13, qword ptr [rdi+0C8h] ; get Ammo_CustomParameter
+        cmp dword ptr [r13+4], 1
+        jle ofs15669D ; if <= 1, because this is 2nd parameter
+        movsxd rdx, dword ptr [r13+8]
+        mov eax, [rdx+r13+12+8] ; get node1
+        test eax, eax
+        je ofs15669D ; if = 0
+        mov dword ptr [rsi+400h], 1 ; no explosive knockout
+
     ofs15669D:
         jmp ammoLaserBullet02RetAddr
         int 3
 
 ASMammoLaserBullet02 ENDP
+
+align 16
 
 ; set delayed explosion fx
 ASMammoLaserBullet02Blast proc

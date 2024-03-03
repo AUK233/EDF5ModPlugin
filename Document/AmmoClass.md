@@ -4,9 +4,11 @@ The following values are available for Ammo_CustomParameter when AmmoClass is X.
 ## AmmoClass 's value:
 - [SolidBullet01](#SolidBullet01)
 - [SolidExpBullet01](#SolidExpBullet01)
+- [SolidPelletBullet01](#SolidPelletBullet01)
 - [LaserBullet01](#LaserBullet01)
 - [LaserBullet02](#LaserBullet02)
 - [MissileBullet01](#MissileBullet01)
+- [RocketBullet01](#RocketBullet01)
 
 ### SolidBullet01
 Its Ammo_CustomParameter has a maximum of 3 parameters.
@@ -36,6 +38,19 @@ Its Ammo_CustomParameter has a maximum of 3 parameters, minimum 1 parameter requ
 
 #### [Return to Index](#index)
 
+### SolidPelletBullet01
+Its Ammo_CustomParameter has a maximum of 4 parameters, minimum 1 parameter required.
+
+| node index | value type | function | value description |
+|---|---|---|---|
+|0|int|penetration time|time that bullet is able to penetrate, should be greater than 1|
+|1|float|hit FX adjust|adjusting FX when bullet hit, default 1.0|
+|2|float|hit FX time adjust|adjusting FX time when bullet hit, default 1.0|
+|3|int or ptr|no PT ammo color (new)|when it is int, only R/B is exchanged|
+|-|-|-|when it is ptr, setting RGBA of bullet when there is no penetration|
+
+#### [Return to Index](#index)
+
 ### LaserBullet01
 Its Ammo_CustomParameter has a maximum of 13 parameters, minimum 11 parameters required.
 
@@ -59,7 +74,7 @@ Its Ammo_CustomParameter has a maximum of 13 parameters, minimum 11 parameters r
 #### [Return to Index](#index)
 
 ### LaserBullet02
-Its Ammo_CustomParameter has a maximum of 1 parameter, minimum 1 parameter required.
+Its Ammo_CustomParameter has a maximum of 2 parameter, minimum 1 parameter required.
 
 | node index | value type | function | value description |
 |---|---|---|---|
@@ -67,6 +82,7 @@ Its Ammo_CustomParameter has a maximum of 1 parameter, minimum 1 parameter requi
 |-|-|-|2 is delayed explosion laser|
 |-|-|-|3 is no explosion effect|
 |-|-|-|(new)4 is delayed normal explosion|
+|1|int|knock out type (new)|0 is knock out, 1 is no knock out|
 
 #### [Return to Index](#index)
 
@@ -78,5 +94,26 @@ Its Ammo_CustomParameter has a maximum of 12 parameter, minimum 11 parameter req
 |0|int|ammo type|0,1,2 is almost no difference|
 |-|-|-|(new)3 is genocide explosion effect|
 |-|-|-|(new)4 is genocide horizontal explosion|
+|1|int|unknown|(new)10 is no explosive knockout|
+|2|int|tail smoke length|it will be multiplied by 0.9 and 1.1 respectively|
+|4|float|acceleration||
+|5|float|guide performance||
+|6|float|max speed||
+
+#### [Return to Index](#index)
+
+### RocketBullet01
+Its Ammo_CustomParameter has a maximum of 4 parameter, minimum 3 parameter (or 0) required.
+
+| node index | value type | function | value description |
+|---|---|---|---|
+|0|int|ammo type|0,1,2|
+|-|-|-|2 is genocide explosion effect with no gravity|
+|1|int|tail flame length||
+|2|int|tail smoke length||
+|3|float|acceleration|can only be used as acceleration, not as deceleration|
+|4|int|hit type (new)|0 is default|
+|-|-|-|1 is no explosive knockout|
+|-|-|-|2 is no knockout and building destruction|
 
 #### [Return to Index](#index)

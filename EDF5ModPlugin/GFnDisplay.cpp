@@ -8,6 +8,7 @@
 #include <format>
 #include <stdexcept>
 #include <list>
+#include <cstdlib>
 
 #include <plog/Log.h>
 #include <plog/Initializers/RollingFileInitializer.h>
@@ -19,8 +20,8 @@
 extern PBYTE hmodEXE;
 
 
-const wchar_t DMGstrSpace16[] = L"               ";
-const wchar_t DMGstrSpace112[] = L"               \n               \n               \n               \n               \n               \n                ";
+__declspec(align(16)) const wchar_t DMGstrSpace16[] = L"               ";
+__declspec(align(16)) const wchar_t DMGstrSpace112[] = L"               \n               \n               \n               \n               \n               \n                ";
 
 extern "C" {
 extern int displayDamageIndex;
@@ -29,12 +30,13 @@ extern int HUDEnhanceStatus;
 }
 
 
-void __fastcall debugGetWeaponName(uintptr_t pstr) {
-	// int addr = *(int *)(hmodEXE + 0x469AD8);
-	wchar_t str[64];
-	wcscpy_s(str, (wchar_t *)pstr);
-	// PLOG_INFO << "weapon name: " << str << " Weapon_VehicleShoot: " << std::hex << addr;
-	PLOG_INFO << "weapon name: " << str;
+void __fastcall debugGetWeaponName(EDFWeaponPointer* pWeapon) {
+	wchar_t wstr[64];
+	wcscpy_s(wstr, pWeapon->WeaponName);
+	PLOG_INFO << "weapon name: " << wstr;
+
+	size_t MemerySize = _aligned_msize(pWeapon, 0x10, 0);
+	PLOG_INFO << "allocated memory size: 0x" << std::hex << MemerySize;
 }
 
 // __forceinline
@@ -105,7 +107,7 @@ size_t __fastcall eTextForWeaponReloadTime(EDFWeaponStruct *pweapon, WCHAR *dest
 	ZeroMemory(destination, 16U);
 
 	if (pweapon->reloadType == 1) {
-		if (pweapon->reloadTimeCount == pweapon->reloadTime) {
+		if (pweapon->reloadTime== -1 || pweapon->reloadTimeCount == pweapon->reloadTime) {
 			pcolor->a = 0;
 			return 1;
 		}
@@ -251,17 +253,17 @@ void WINAPI getPlayerWeaponDamage() {
 		playerAddress = GetPlayerAddress();
 
 		if (playerAddress > 0xFFFF) {
-			if ((UINT32)damageTempValue[1]) {
+			if (damageTempValue[0]) {
 				if (damageNumber.time < 1) {
-					damageNumber.value = -damageTempValue[0];
+					damageNumber.value = damageTempValue[0];
 				}
 				else {
-					damageNumber.value -= damageTempValue[0];
+					damageNumber.value += damageTempValue[0];
 				}
 				damageNumber.time = DAMAGE_CHARGE_TIME_S;
 				damageNumber.status = 1;
 				damageTempValue[0] = 0;
-				damageTempValue[1] = 0;
+				//damageTempValue[1] = 0;
 			}
 
 			if (damageNumber.time > 0) {
@@ -445,9 +447,10 @@ void hookHUDEnhancement() {
 
 
 	HUDEnhanceStatus = 1;
-	playerDmgRetAddress = (uintptr_t)(hmodEXE + 0x2DB659);
-	hookGameBlock((void*)(hmodEXE + 0x2DB641), (uintptr_t)ASMrecordPlayerDamage);
-	WriteHookToProcess((void*)(hmodEXE + 0x2DB641 + 12), (void*)&nop4, 4U);
+	// EDF5.exe+2DB61F
+	hookGameBlock((void*)(hmodEXE + 0x2DB61F), (uintptr_t)ASMrecordPlayerDamage);
+	WriteHookToProcess((void*)(hmodEXE + 0x2DB61F + 12), (void*)&nop6, 6U);
+	playerDmgRetAddress = (uintptr_t)(hmodEXE + 0x2DB77C);
 	//
 	HANDLE tempHND = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)getPlayerWeaponDamage, NULL, NULL, NULL);
 	if (tempHND) {

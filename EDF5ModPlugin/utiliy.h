@@ -12,8 +12,11 @@ uintptr_t GetPointerAddress(const uintptr_t base, std::initializer_list<int> off
 void *AllocatePageNearAddress(void *targetAddr);
 // Injects hook into game process
 void __fastcall WriteHookToProcess(void *addr, void *data, size_t len);
+void __fastcall ThrowsProblemAddressInformation(void* addr);
 // This will check if the previous address is ecx
 void __fastcall WriteHookToProcessCheckECX(void* addr, void* data, size_t len);
+// This will check if the previous address is edx
+void __fastcall WriteHookToProcessCheckEDX(void* addr, void* data, size_t len);
 // update game's original functions, need 12bytes
 void __fastcall hookGameBlock(void *targetAddr, uint64_t hookAddr);
 // update game's original functions with call, need 12bytes

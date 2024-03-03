@@ -164,9 +164,11 @@ ASMeFencerJetSetup proc
         pop rdi
         pop rsi
         ret 
+        int 3
 
 ASMeFencerJetSetup ENDP
 
+align 16
 ; next - active
 
 ASMeFencerBoostAndDash proc

@@ -22,6 +22,7 @@
 
 extern PBYTE hmodEXE;
 extern HANDLE handleEXE;
+extern "C" extern int ModLogStatus;
 
 static std::vector<void *> hooks; // Holds all original hooked functions
 static const char hmodGameName[] = "EDF5.exe";
@@ -184,6 +185,18 @@ void __fastcall WriteHookToProcess(void *addr, void *data, size_t len) {
 	//FlushInstructionCache(handleEXE, addr, len);
 }
 
+void __fastcall ThrowsProblemAddressInformation(void* addr)
+{
+	uintptr_t rva = (uintptr_t)addr - (uintptr_t)hmodEXE;
+	if (ModLogStatus == 1) {
+		PLOG_ERROR << "Wrong address: +0x" << std::hex << rva;
+	} else {
+		std::wstring message = L"Wrong address: +0x";
+		message += std::format(L"{:0X}", rva);
+		MessageBoxW(NULL, message.c_str(), L"warning", MB_OK);
+	}
+}
+
 // This will check if the previous address is ecx
 void __fastcall WriteHookToProcessCheckECX(void* addr, void* data, size_t len)
 {
@@ -191,11 +204,18 @@ void __fastcall WriteHookToProcessCheckECX(void* addr, void* data, size_t len)
 		return WriteHookToProcess(addr, data, len);
 	}
 	else {
-		std::wstring message = L"Wrong address: +0x";
-		uintptr_t rva = (uintptr_t)addr - (uintptr_t)hmodEXE;
-		message += std::format(L"{:0X}", rva);
-		MessageBoxW(NULL, message.c_str(), L"warning", MB_OK);
-		return;
+		return ThrowsProblemAddressInformation(addr);
+	}
+}
+
+// This will check if the previous address is edx
+void __fastcall WriteHookToProcessCheckEDX(void* addr, void* data, size_t len)
+{
+	if (*((BYTE*)addr - 1) == 0xBA) {
+		return WriteHookToProcess(addr, data, len);
+	}
+	else {
+		return ThrowsProblemAddressInformation(addr);
 	}
 }
 

@@ -1,16 +1,20 @@
 .data
 ; Use other asm functions
-extern edf5BDF30 : proto
+extern edf5BDF30Address : qword
 ;extern edf6136C0 : proto
 
 ; L"ant_BulletClass"
 antBulletClass db 97,0,110,0,116,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,67,0,108,0,97,0,115,0,115,0,0,0
+align 16
 ; L"ant_BulletAlive"
 antBulletAlive db 97,0,110,0,116,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,65,0,108,0,105,0,118,0,101,0,0,0
+align 16
 ; L"ant_BulletColor"
 antBulletColor db 97,0,110,0,116,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,67,0,111,0,108,0,111,0,114,0,0,0
+align 16
 ; L"ant_BulletExSet"
 antBulletExSet db 97,0,110,0,116,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,69,0,120,0,83,0,101,0,116,0,0,0
+align 16
 ; L"ant_BulletFireHeight"
 antBulletHeight db 97,0,110,0,116,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,70,0,105,0,114,0,101,0,72,0,101,0,105,0,103,0,104,0,116,0,0,0
 
@@ -21,7 +25,7 @@ ASMxgsOCgiantAnt proc
     AmmoAliveBlock:
         lea rdx, antBulletAlive
         mov rcx, rsi
-        call edf5BDF30 ; read sgo node
+        call edf5BDF30Address ; read sgo node
         cmp eax, -1
         je AmmoColorBlock ; if node does not exist, jump
         ; read int in node 
@@ -36,7 +40,7 @@ ASMxgsOCgiantAnt proc
     AmmoColorBlock:
         lea rdx, antBulletColor
         mov rcx, rsi
-        call edf5BDF30 ; read sgo node
+        call edf5BDF30Address ; read sgo node
         cmp eax, -1
         je AmmoExSetBlock ; if node does not exist, jump
         ; read ptr in node
@@ -60,7 +64,7 @@ ASMxgsOCgiantAnt proc
     AmmoExSetBlock:
         lea rdx, antBulletExSet
         mov rcx, rsi
-        call edf5BDF30 ; read sgo node
+        call edf5BDF30Address ; read sgo node
         cmp eax, -1
         je ShotHeightBlock ; if node does not exist, jump
         ; read ptr in node
@@ -118,7 +122,7 @@ ASMxgsOCgiantAnt proc
     ShotHeightBlock:
         lea rdx, antBulletHeight
         mov rcx, rsi
-        call edf5BDF30 ; read sgo node
+        call edf5BDF30Address ; read sgo node
         cmp eax, -1
         je OriginalEndBlock ; if node does not exist, jump
         ; read float in node 
@@ -131,16 +135,17 @@ ASMxgsOCgiantAnt proc
         movss dword ptr [rbx+1320h], xmm0 ; shot height
 
     OriginalEndBlock:
-        movups xmm6, xmmword ptr [rsp+90h]
+        movaps xmm6, xmmword ptr [rsp+90h]
         add rsp, 0A8h
         pop rsi
         pop rbx
         ret
+        int 3
 
 ; Useless
 ;lea rdx, antBulletClass
 ;mov rcx, rsi
-;call edf5BDF30 ; read sgo node
+;call edf5BDF30Address ; read sgo node
 ;cmp eax, -1
 ;je AmmoAliveBlock
 ;mov r8, [rsi]

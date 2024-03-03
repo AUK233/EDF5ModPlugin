@@ -5,6 +5,7 @@ extern ammoLaserBullet01HitRetAddr : qword
 
 ;L"Particle3_k.dds"
 aLaserBullet01t01 DB 50h, 0, 61h, 0, 72h, 0, 74h, 0, 69h, 0, 63h, 0, 6Ch, 0, 65h, 0, 33h, 0, 5Fh, 0, 6Bh, 0, 2Eh, 0, 64h, 0, 64h, 0, 73h, 0, 0, 0
+align 16
 ;L"火炎_02.dds"
 aLaserBullet01t02 DB 6Bh, 70h, 8Eh, 70h, 5Fh, 0, 30h, 0, 32h, 0, 2Eh, 0, 64h, 0, 64h, 0, 73h, 0, 0, 0
 
@@ -40,6 +41,8 @@ ASMammoLaserBullet01 proc
         int 3
 
 ASMammoLaserBullet01 ENDP
+
+align 16
 
 ASMammoLaserBullet01Hit proc
     ; check flag

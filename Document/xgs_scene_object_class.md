@@ -15,6 +15,7 @@ Added the following values available for SGO node names.
 |---|---|---|---|
 |ReloadInit|float or ptr|initial load progress|now supports using star for it|
 |ReloadPadType|ptr|midsection reload type|[parameters](#EDFWeapon-ReloadPadType), all parameters must be present|
+|use_extraShotType|int||now used only as a marker for multi-weapon fire, only 1|
 
 | xgs_scene_object_class's value | custom_parameter's ptr value |
 |---|---|

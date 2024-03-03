@@ -1,8 +1,6 @@
 .data
-; Use other asm functions
-extern edf3AE530 : proto
-extern edf5BDF30 : proto
-;extern edf6136C0 : proto
+
+extern edf5BDF30Address : qword
 
 extern InsectAmmoType : qword
 
@@ -12,10 +10,13 @@ extern giantBeeAmmoRetAddr : qword
 
 ;L"bee_BulletSet"
 beeBulletSet db 98,0,101,0,101,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,83,0,101,0,116,0,0,0
+align 16
 ; L"bee_BulletAccuracy"
 beeBulletAccuracy db 98,0,101,0,101,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,65,0,99,0,99,0,117,0,114,0,97,0,99,0,121,0,0,0
+align 16
 ; L"bee_BulletAlive"
 beeBulletAlive db 98,0,101,0,101,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,65,0,108,0,105,0,118,0,101,0,0,0
+align 16
 ; L"bee_BulletExSet"
 beeBulletExSet db 98,0,101,0,101,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,69,0,120,0,83,0,101,0,116,0,0,0
 
@@ -28,7 +29,7 @@ ASMxgsOCgiantBee proc
     AmmoSetBlock:
         lea rdx, beeBulletSet
         lea rcx, [rbx+0B0h]
-        call edf5BDF30 ; read sgo node
+        call edf5BDF30Address ; read sgo node
         cmp eax, -1
         je AmmoAliveBlock ; if node does not exist, jump
         ; read ptr in node
@@ -56,7 +57,7 @@ ASMxgsOCgiantBee proc
     AmmoAliveBlock:
         lea rdx, beeBulletAlive
         lea rcx, [rbx+0B0h]
-        call edf5BDF30 ; read sgo node
+        call edf5BDF30Address ; read sgo node
         cmp eax, -1
         je AmmoAccuracyBlock ; if node does not exist, jump
         ; read int in node 
@@ -71,7 +72,7 @@ ASMxgsOCgiantBee proc
     AmmoAccuracyBlock:
         lea rdx, beeBulletAccuracy
         lea rcx, [rbx+0B0h]
-        call edf5BDF30 ; read sgo node
+        call edf5BDF30Address ; read sgo node
         cmp eax, -1
         je AmmoExSetBlock ; if node does not exist, jump
         ; read int in node 
@@ -86,7 +87,7 @@ ASMxgsOCgiantBee proc
     AmmoExSetBlock:
         lea rdx, beeBulletExSet
         lea rcx, [rbx+0B0h]
-        call edf5BDF30 ; read sgo node
+        call edf5BDF30Address ; read sgo node
         cmp eax, -1
         je OriginalEndBlock ; if node does not exist, jump
         ; read ptr in node
@@ -143,8 +144,8 @@ ASMxgsOCgiantBee proc
 
     OriginalEndBlock:
         mov rbx, qword ptr [rsp+78h]
-        movups xmm6, xmmword ptr [rsp+50h]
-        movups xmm8, xmmword ptr [rsp+40h]
+        movaps xmm6, xmmword ptr [rsp+50h]
+        movaps xmm8, xmmword ptr [rsp+40h]
         add rsp, 60h
         pop rdi
         ret 
@@ -155,6 +156,7 @@ ASMxgsOCgiantBee proc
 
 ASMxgsOCgiantBee ENDP
 
+align 16
 ; set ammo
 
 ASMxgsOCgiantBeeAmmo proc

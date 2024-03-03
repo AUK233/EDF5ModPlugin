@@ -1,6 +1,5 @@
 .data
 
-
 extern giantBeeAmmoSetRetAddr : qword
 extern aligned_mallocAddr : qword
 extern edf136890Address : qword
@@ -61,6 +60,8 @@ ASMInsectPlasmaBullet01 proc
 
 ASMInsectPlasmaBullet01 ENDP
 
+align 16
+
 ASMInsectSolidBullet01 proc
 
         mov rax, rsp
@@ -103,6 +104,8 @@ ASMInsectSolidBullet01 proc
         int 3
 
 ASMInsectSolidBullet01 ENDP
+
+align 16
 
 ASMInsectPulseBullet01 proc
 
@@ -147,6 +150,8 @@ ASMInsectPulseBullet01 proc
 
 ASMInsectPulseBullet01 ENDP
 
+align 16
+
 ASMInsectSolidExpBullet01 proc
 
         mov rax, rsp
@@ -189,6 +194,8 @@ ASMInsectSolidExpBullet01 proc
         int 3
 
 ASMInsectSolidExpBullet01 ENDP
+
+align 16
 
 ASMInsectHomingLaserBullet01 proc
 
@@ -233,6 +240,8 @@ ASMInsectHomingLaserBullet01 proc
 
 ASMInsectHomingLaserBullet01 ENDP
 
+align 16
+
 ASMInsectLaserBullet02 proc
 
         mov rax, rsp
@@ -275,6 +284,8 @@ ASMInsectLaserBullet02 proc
         int 3
 
 ASMInsectLaserBullet02 ENDP
+
+align 16
 
 ASMInsectLightningBullet01 proc
 
@@ -319,6 +330,8 @@ ASMInsectLightningBullet01 proc
 
 ASMInsectLightningBullet01 ENDP
 
+align 16
+
 ASMInsectLaserBullet01 proc
 
         mov rax, rsp
@@ -362,6 +375,8 @@ ASMInsectLaserBullet01 proc
 
 ASMInsectLaserBullet01 ENDP
 
+align 16
+
 ASMInsectRocketBullet01 proc
 
         mov rax, rsp
@@ -404,6 +419,8 @@ ASMInsectRocketBullet01 proc
         int 3
 
 ASMInsectRocketBullet01 ENDP
+
+align 16
 
 ASMInsectBeamBullet01 proc
 

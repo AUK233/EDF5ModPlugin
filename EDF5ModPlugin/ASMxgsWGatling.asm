@@ -59,6 +59,7 @@ ASMweaponGatlingSetup proc
 
 ASMweaponGatlingSetup ENDP
 
+align 16
 ; next
 
 ASMweaponGatlingShot proc
@@ -117,6 +118,7 @@ ASMweaponGatlingShot proc
     returnBlock:
         add rsp, 38h
         ret 
+        int 3
 
 ASMweaponGatlingShot ENDP
 

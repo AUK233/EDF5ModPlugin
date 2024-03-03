@@ -9,38 +9,46 @@ extern playerAddress : qword
 .code
 ASMrecordPlayerDamage proc
 
+        test cl, 10
+        jne ofs2DAA61
+        mulss xmm0, dword ptr [rdi+294h]
+        movss xmm1, dword ptr [rsp+30h] ; armor is 0, other is 1
+        comiss xmm1, xmm6
+        je checkDamageShow
+        mulss xmm0, xmm7 ; x "friendly damage rate"
+    checkDamageShow:
         cmp displayDamageIndex, 1
-        jne ofs2DAA59
+        jne ofs2DAA41
         mov rax, [rsi+10h]
         cmp rax, playerAddress
         je getDamageBlock
         cmp dword ptr [rsi+24h], 0
-        jne ofs2DAA59
+        jne ofs2DAA41
         mov rcx, playerAddress
         mov rcx, [rcx+1168h]
         cmp rax, rcx
-        jne ofs2DAA59
+        jne ofs2DAA41
     getDamageBlock:
-        movd ecx, xmm0
-        addss xmm0, damageTempValue
-        movd eax, xmm0
-        mov damageTempValue, eax
-        inc eax
-        mov damageTempValue+4, eax
-        ;xchg damageTempValue, eax
-        ;inc eax
-        ;xchg damageTempValue+4, eax
-        ;movss damageTempValue, xmm0
-        movd xmm0, ecx
+        movaps xmm2, xmm0
+        addss xmm2, damageTempValue
+        movss damageTempValue, xmm2
 
-    ofs2DAA59:
-        addss xmm0, dword ptr [rdi+1FCh]
-        minss xmm0, dword ptr [rdi+1F8h]
-        maxss xmm0, dword ptr [rdi+1F4h]
+    ofs2DAA41:
+        comiss xmm1, xmm6
+        je ofs2DAA61
+        mulss xmm0, xmm1
+        movss xmm1, dword ptr [rdi+1FCh]
+        subss xmm1, xmm0
+        minss xmm1, dword ptr [rdi+1F8h]
+        maxss xmm1, dword ptr [rdi+1F4h]
+        movss dword ptr [rdi+1FCh], xmm1
+    ofs2DAA61:
         jmp playerDmgRetAddress
         int 3
 
 ASMrecordPlayerDamage ENDP
+
+align 16
 
 ASMVehicle403TankMainFire proc
 
@@ -63,6 +71,7 @@ ASMVehicle403TankMainFire proc
         mov byte ptr [rax+0D9h], 1
     ofs3385FF:
         jmp Vehicle403TankMainFireRetAddr
+        int 3
 
 ASMVehicle403TankMainFire ENDP
 

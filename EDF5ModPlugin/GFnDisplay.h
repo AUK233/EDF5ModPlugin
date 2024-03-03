@@ -6,7 +6,7 @@ extern "C" {
 HUiHudTextContentPointer* __fastcall ASMgetHUiHudTextContentPointer(void* pText);
 
 void __fastcall hookSleep(DWORD time);
-void __fastcall debugGetWeaponName(uintptr_t pstr);
+void __fastcall debugGetWeaponName(EDFWeaponPointer* pWeapon);
 size_t __fastcall TextForFormatFloatNumber(const float number, WCHAR *destination, size_t len);
 size_t __fastcall TextForFormatFloatNumber2(const float number, WCHAR *destination, size_t len);
 size_t __fastcall TextForFormatIntNumber(const int number, WCHAR* destination, size_t len);

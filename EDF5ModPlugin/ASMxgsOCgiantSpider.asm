@@ -1,19 +1,23 @@
 .data
 ; Use other asm functions
 extern edf3AE530 : proto
-extern edf5BDF30 : proto
+extern edf5BDF30Address : qword
 extern edf6136C0 : proto
 
 extern vedf125AB68 : qword
 
 ;L"spd_ChangeModelParam"
 spdChangeModel db 115,0,112,0,100,0,95,0,67,0,104,0,97,0,110,0,103,0,101,0,77,0,111,0,100,0,101,0,108,0,80,0,97,0,114,0,97,0,109,0,0,0
+align 16
 ;L"spd_AmmoAlive"
 spdAmmoAlive db 115,0,112,0,100,0,95,0,65,0,109,0,109,0,111,0,65,0,108,0,105,0,118,0,101,0,0,0
+align 16
 ;L"spd_AmmoClass"
 spdAmmoClass db 115,0,112,0,100,0,95,0,65,0,109,0,109,0,111,0,67,0,108,0,97,0,115,0,115,0,0,0
+align 16
 ;L"spd_AmmoColor"
 spdAmmoColor db 115,0,112,0,100,0,95,0,65,0,109,0,109,0,111,0,67,0,111,0,108,0,111,0,114,0,0,0
+align 16
 ;L"spd_AmmoExSet"
 spdAmmoExSet db 115,0,112,0,100,0,95,0,65,0,109,0,109,0,111,0,69,0,120,0,83,0,101,0,116,0,0,0
 
@@ -25,7 +29,7 @@ ASMxgsOCgiantSpider proc
     ; new
         lea rdx, spdChangeModel
         lea rcx, [rdi+0B0h]
-        call edf5BDF30 ; read sgo node
+        call edf5BDF30Address ; read sgo node
         cmp eax, -1
         je AmmoAliveBlock
         mov r8, [rdi+0B0h]
@@ -40,7 +44,7 @@ ASMxgsOCgiantSpider proc
         ;AmmoClassBlock:
         ;lea rdx, spdAmmoClass
         ;lea rcx, [rdi+0B0h]
-        ;call edf5BDF30 ; read sgo node
+        ;call edf5BDF30Address ; read sgo node
         ;cmp eax, -1
         ;je AmmoAliveBlock
         ;mov r8, [rdi+0B0h]
@@ -59,7 +63,7 @@ ASMxgsOCgiantSpider proc
     AmmoAliveBlock:
         lea rdx, spdAmmoAlive
         lea rcx, [rdi+0B0h]
-        call edf5BDF30 ; read sgo node
+        call edf5BDF30Address ; read sgo node
         cmp eax, -1
         je AmmoColorBlock ; if node does not exist, jump
         ; read int in node 
@@ -74,7 +78,7 @@ ASMxgsOCgiantSpider proc
     AmmoColorBlock:
         lea rdx, spdAmmoColor
         lea rcx, [rdi+0B0h]
-        call edf5BDF30 ; read sgo node
+        call edf5BDF30Address ; read sgo node
         cmp eax, -1
         je AmmoExSetBlock ; if node does not exist, jump
         ; read ptr in node
@@ -98,7 +102,7 @@ ASMxgsOCgiantSpider proc
     AmmoExSetBlock:
         lea rdx, spdAmmoExSet
         lea rcx, [rdi+0B0h]
-        call edf5BDF30 ; read sgo node
+        call edf5BDF30Address ; read sgo node
         cmp eax, -1
         je OriginalEndBlock ; if node does not exist, jump
         ; read ptr in node
@@ -139,13 +143,14 @@ ASMxgsOCgiantSpider proc
         ;lea r11, qword ptr [rsp+90h]
         ;mov rsi, qword ptr [r11+38h]
         ;movaps xmm6, xmmword ptr [r11-10h]
-        movups xmm6, xmmword ptr [rsp+80h]
+        movaps xmm6, xmmword ptr [rsp+80h]
         ;mov rsp, r11
         add rsp, 90h
         pop r15
         pop r14
         pop rdi
         ret
+        int 3
 
 ASMxgsOCgiantSpider ENDP
 
