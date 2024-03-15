@@ -197,11 +197,11 @@ ASMhudShowSupportSlot2 proc
         lea r8, lyt_HudSubWeaponGuageR1
         jmp hudShowSupportSlot2RetAddr
     SupportSlot1Enhance:
-        test rbx, rbx
-        jne SupportSlot1Enhance2
-        mov rax, [r15+1590h]
-        mov rax, [rax+r10*8]
-        mov dword ptr [rax+2510h], 16 ; use_extraShotType
+        ;test rbx, rbx
+        ;jne SupportSlot1Enhance2
+        ;mov rax, [r15+1590h]
+        ;mov rax, [rax+r10*8]
+        ;mov dword ptr [rax+2510h], 16 ; use_extraShotType
     SupportSlot1Enhance2:
         lea r8, lyt_HudSubWeaponGuageR1E
         jmp hudShowSupportSlot2RetAddr

@@ -20,6 +20,8 @@ typedef struct EDFVector4Struct {
 } EDFVector4Pointer;
 
 typedef struct EDFWeaponStruct {
+	// 140 is custom_parameter
+	// 6e8 is Ammo_CustomParameter
 	BYTE pad0[0xD9];
 	// When it's 1, weapon will fire
 	BYTE fireWeapon;

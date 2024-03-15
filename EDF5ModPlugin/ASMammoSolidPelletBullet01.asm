@@ -1,5 +1,8 @@
 .data
 
+extern vftable_SolidPelletBullet01 : qword
+extern rva186330 : qword
+
 .code
 
 ASMreadSolidPelletBullet01 proc
@@ -11,10 +14,15 @@ ASMreadSolidPelletBullet01 proc
 
         cmp dword ptr [rdi+4], 3 ; this is 4th node
         jle noColorChange ; so if <= 3, jump
+        
         mov eax, [rdx+rdi+36+8]
         test eax, eax
         je noColorChange ; = 0 no colour change
         mov dword ptr [rbx+5D0h], 10
+        ;
+        lea r8, vftable_SolidPelletBullet01+8 ; load new virtual table
+        mov [rbx], r8
+        ;
         lea rcx, [rdx+rdi+36]
         cmp dword ptr [rcx], 1 ; check node type
         jne ptrNode
@@ -50,6 +58,13 @@ align 16
 
 ASMammoSolidPelletBullet01CheckPT proc
 
+        push rbx
+        sub rsp, 20h
+        mov rbx, rcx
+        call rva186330
+        mov edx, [rbx+710h]
+        lea eax, [rdx-1]
+        mov [rbx+710h], eax
         test edx, edx ; remain time
         jg ofs185C98
         xor eax, eax

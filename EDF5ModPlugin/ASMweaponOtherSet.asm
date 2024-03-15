@@ -7,13 +7,45 @@ extern damageTempValue : dword
 extern playerAddress : qword
 
 .code
+
+ASMgetPlayerAddress proc
+
+        mov r8, 10000h
+        mov rax, [rcx]
+        cmp rax, r8
+        jb returnZero
+        mov rax, [rax+238h]
+        cmp rax, r8
+        jb returnZero
+        mov rax, [rax+290h]
+        cmp rax, r8
+        jb returnZero
+        mov rax, [rax+10h]
+        cmp rax, r8
+        jb returnZero
+        mov [rdx], rax
+        mov rcx, [rax+1168h]
+        mov [rdx+8], rcx
+        ret
+        
+    returnZero:
+        xor rax, rax
+        mov [rdx], rax
+        mov [rdx+8], rax
+        ret
+        int 3
+
+ASMgetPlayerAddress ENDP
+
+align 16
+
 ASMrecordPlayerDamage proc
 
-        test cl, 10
+        test cl, 10h
         jne ofs2DAA61
         mulss xmm0, dword ptr [rdi+294h]
         movss xmm1, dword ptr [rsp+30h] ; armor is 0, other is 1
-        comiss xmm1, xmm6
+        comiss xmm1, xmm6 ; if = 0
         je checkDamageShow
         mulss xmm0, xmm7 ; x "friendly damage rate"
     checkDamageShow:
@@ -24,9 +56,9 @@ ASMrecordPlayerDamage proc
         je getDamageBlock
         cmp dword ptr [rsi+24h], 0
         jne ofs2DAA41
-        mov rcx, playerAddress
-        mov rcx, [rcx+1168h]
-        cmp rax, rcx
+        ;mov rcx, playerAddress
+        ;mov rcx, [rcx+1168h]
+        cmp rax, playerAddress+8
         jne ofs2DAA41
     getDamageBlock:
         movaps xmm2, xmm0
@@ -34,8 +66,8 @@ ASMrecordPlayerDamage proc
         movss damageTempValue, xmm2
 
     ofs2DAA41:
-        comiss xmm1, xmm6
-        je ofs2DAA61
+        ;comiss xmm1, xmm6
+        ;je ofs2DAA61
         mulss xmm0, xmm1
         movss xmm1, dword ptr [rdi+1FCh]
         subss xmm1, xmm0

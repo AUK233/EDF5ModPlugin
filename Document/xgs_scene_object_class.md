@@ -19,7 +19,8 @@ Added the following values available for SGO node names.
 
 | xgs_scene_object_class's value | custom_parameter's ptr value |
 |---|---|
-|Weapon_Gatling|[parameters](#Weapon_Gatling-custom_parameter), min 9 nodes, max 11 nodes|
+|Weapon_HeavyShoot|[parameters](#Weapon_HeavyShoot-custom_parameter), min 9 nodes, max 11 nodes|
+|Weapon_Gatling|[parameters](#Weapon_Gatling-custom_parameter), min 10 nodes, max 11 nodes|
 |Weapon_Accessory|[new available values](#Weapon_Accessory-custom_parameter)|
 
 #### EDFWeapon ReloadPadType
@@ -32,11 +33,39 @@ Added the following values available for SGO node names.
 |2|int|charge time, after a period of time 1 ammo will be added|
 | - | - |but note that as long as ammo is not full, it will start|
 
+##### [Return to EDFWeapon](###EDFWeapon)
+
+#### Weapon_HeavyShoot custom_parameter
+| node index | value type | value description |
+|---|---|---|
+|0|string|animation name|
+|1|int||
+|2|int|animation application options, it is recommended to refer to the original version|
+|3|float|animation speed|
+|4|int||
+|5|ptr|equipment weight effect|
+| - | - |float0 is move speed adjust|
+| - | - |float1 is rotation speed adjust|
+| - | - |float2 is sight speed adjust|
+|6|ptr|this has 3 floats?|
+|7|float|speed adjust in firing?|
+|8|ptr|sight recoil|
+| - | - |float0 is down(+) or up(-)|
+| - | - |float1 is left(+) or right(-)|
+| - | - |float2 is no effect?|
+|9|float|sight recoil adjust?|
+|new| - | - |
+|10|int|extra sight display type, 0 is original|
+| - | - |1 is laser sight|
+
+##### [Return to EDFWeapon](###EDFWeapon)
+
 #### Weapon_Gatling custom_parameter
 | node index | value type | value description |
 |---|---|---|
 |4|ptr|this has 4 floats, but it uses 3?|
 |7|int|preheat time, must > 0|
+|new| - | - |
 |9|ptr|some interval multiplier on preheat, all defaults are 1|
 | - | - |node0's int is shot delay, is min fire time|
 | - | - |node1's float is max ROF scale, node2 is min|
@@ -44,6 +73,8 @@ Added the following values available for SGO node names.
 |10|int|preheat type, 0 is original|
 | - | - |1 is gradually increase ROF, will use node9's data|
 | - | - |2 is gradually increase accuracy at the same time|
+
+##### [Return to EDFWeapon](###EDFWeapon)
 
 #### Weapon_Accessory custom_parameter
 | type int | value type | value description |
@@ -57,13 +88,13 @@ Added the following values available for SGO node names.
 |1052|float|> 0, multiply this factor by weapon's explosion radius|
 |1060|float|> 0, multiply this factor by weapon's bullet size|
 |1150|float|> 0, multiply this factor by weapon's -damage|
-| - | - |fencer only|
+|fencer only| - | - |
 |1300|int|0 or 1, 1 is switch dash to boost|
 |1301|int|0 or 1, 1 is switch boost to dash|
 |1310|int|1 is switch zoom to boost, 2 is to dash|
 |1311|int|1 is switch shield reflect to boost, 2 is to dash|
 
-##### [Return to Index](#index)
+##### [Return to EDFWeapon](###EDFWeapon)
 
 ### GiantAnt
 | sgo node name | value type | function | value description |

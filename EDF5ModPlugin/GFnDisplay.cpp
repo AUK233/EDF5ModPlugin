@@ -29,14 +29,22 @@ extern int ModLogStatus;
 extern int HUDEnhanceStatus;
 }
 
+void __fastcall hookSleep(DWORD time) {
+	Sleep(time);
+}
+
+void __fastcall debugAllocateMemorySize(void* ptr)
+{
+	size_t MemerySize = _aligned_msize(ptr, 0x10, 0);
+	PLOG_INFO << "allocated memory size: 0x" << std::hex << MemerySize;
+}
 
 void __fastcall debugGetWeaponName(EDFWeaponPointer* pWeapon) {
 	wchar_t wstr[64];
 	wcscpy_s(wstr, pWeapon->WeaponName);
 	PLOG_INFO << "weapon name: " << wstr;
 
-	size_t MemerySize = _aligned_msize(pWeapon, 0x10, 0);
-	PLOG_INFO << "allocated memory size: 0x" << std::hex << MemerySize;
+	return debugAllocateMemorySize(pWeapon);
 }
 
 // __forceinline
@@ -180,23 +188,9 @@ void __fastcall ASMhookTextDisplay();
 
 void __fastcall ASMrecordPlayerDamage();
 uintptr_t playerDmgRetAddress;
-uintptr_t playerAddress = 0;
+uintptr_t playerAddress[2] = {0,0};
 float damageTempValue[2] = {0,0};
 void __fastcall ASMresetPlayerDamageTemp(float* ptr, UINT64 Zero);
-}
-
-// fast get address
-uintptr_t __fastcall GetPlayerAddress() {
-	uintptr_t out = (uintptr_t)hmodEXE;
-	std::initializer_list<int> offsets = {0x125AB68, 0x238, 0x290, 0x10};
-	const int *it = offsets.begin();
-	for (int i = 0; i < offsets.size(); i++) {
-		out = *(uintptr_t *)(out + *(it + i));
-		if (out <= 0xffff) {
-			return 0;
-		}
-	}
-	return out;
 }
 
 // set damage display duration (short)
@@ -244,15 +238,11 @@ void __fastcall setDamageDisplayTime(int vstart, int vend, int time) {
 	dmgCheckGroup.on[vend] = 1;
 }
 
-void __fastcall hookSleep(DWORD time) {
-	Sleep(time);
-}
-
 void WINAPI getPlayerWeaponDamage() {
 	while (1) {
-		playerAddress = GetPlayerAddress();
+		ASMgetPlayerAddress((uintptr_t)(hmodEXE + 0x125AB68), &playerAddress);
 
-		if (playerAddress > 0xFFFF) {
+		if (playerAddress[0] > 0xFFFF || playerAddress[1] > 0xFFFF) {
 			if (damageTempValue[0]) {
 				if (damageNumber.time < 1) {
 					damageNumber.value = damageTempValue[0];

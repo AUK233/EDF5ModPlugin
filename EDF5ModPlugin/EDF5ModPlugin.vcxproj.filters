@@ -39,6 +39,9 @@
     <ClCompile Include="GFnDisplay.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GameFunc_vftable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMxgsOCgiantAnt.asm">
@@ -113,6 +116,12 @@
     <MASM Include="ASMammoSolidPelletBullet01.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
+    <MASM Include="ASMxgsWHeavyShoot.asm">
+      <Filter>Assembly Files</Filter>
+    </MASM>
+    <MASM Include="ASMvftShotIndicator.asm">
+      <Filter>Assembly Files</Filter>
+    </MASM>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PluginAPI.h">
@@ -146,6 +155,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="commonNOP.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFunc_vftable.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFunctionInASM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

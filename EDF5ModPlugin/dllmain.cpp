@@ -21,9 +21,11 @@
 #include "PluginAPI.h"
 #include "LoggerTweaks.h"
 
+#include "GameFunctionInASM.h"
 #include "utiliy.h"
 #include "GameFunc.h"
 #include "GameFuncSetup.h"
+#include "GameFunc_vftable.h"
 #include "GFnDisplay.h"
 
 typedef struct {
@@ -419,6 +421,7 @@ static void __fastcall initterm_hook2(_PVFV *unk1, _PVFV *unk2) {
 		GetGameFunctions();
 		hookGameFunctionsC();
 		hookGameFunctions();
+		CreateNewVirtualTables((uintptr_t)hmodEXE);
 		// Read config
 		ReadINIconfig();
 		// Now inject only when needed, for crash rate reduction

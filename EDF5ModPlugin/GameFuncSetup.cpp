@@ -23,6 +23,9 @@ static const unsigned char Interruptions32[] = {0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0x
 extern "C" {
 uintptr_t __RTDynamicCastAddr;
 uintptr_t aligned_mallocAddr;
+uintptr_t aligned_freeAddr;
+uintptr_t __sqrtfAddr;
+uintptr_t __sinfAddr;
 //
 void __fastcall ASMplayerViewChange();
 uintptr_t playerViewRetAddr;
@@ -45,6 +48,9 @@ void hookGameFunctions() {
 	OverwriteGameFunctions();
 	__RTDynamicCastAddr = (uintptr_t)(hmodEXE + 0x9C8228);
 	aligned_mallocAddr = (uintptr_t)_aligned_malloc;
+	aligned_freeAddr = (uintptr_t)_aligned_free;
+	__sqrtfAddr = (uintptr_t)sqrtf;
+	__sinfAddr = (uintptr_t)sinf;
 	// allows switching of views, offset is 0x2DA490
 	hookGameBlock((void *)(hmodEXE + 0x2DB090), (uintptr_t)ASMplayerViewChange);
 	playerViewRetAddr = (uintptr_t)(hmodEXE + 0x2DB0D1);
@@ -288,17 +294,23 @@ void hookEDFClassFunctions() {
 
 	// wing diver!
 	// Flying Speed, default is 0.4f
-	unsigned char newWDFlying[] = {0x51, 0xE5};
-	float WDspeedFly = 0.27f;
+	//unsigned char newWDFlying[] = {0x51, 0xE5};
+	//float WDspeedFly = 0.27f;
+	// up to 2x
+	unsigned char newWDFlying[] = { 0xB9, 0xE5 };
+	float WDspeedFly = 0.55f;
 	WriteHookToProcess((void *)(hmodEXE + 0x2F6F65 + 7), &WDspeedFly, 4U);
 	WriteHookToProcess((void *)(hmodEXE + 0x2F848B + 4), &newWDFlying[0], 1U);
 	// Takeoff Speed, default is 0.007f
-	float WDspeedTakeoff = 0.005f;
-	WriteHookToProcess((void *)(hmodEXE + 0x2F6F7B + 7), &WDspeedTakeoff, 4U);
-	WriteHookToProcess((void *)(hmodEXE + 0x2F84D3 + 4), &newWDFlying[1], 1U);
+	// float WDspeedTakeoff = 0.005f;
+	//WriteHookToProcess((void *)(hmodEXE + 0x2F6F7B + 7), &WDspeedTakeoff, 4U);
+	//WriteHookToProcess((void *)(hmodEXE + 0x2F84D3 + 4), &newWDFlying[1], 1U);
+
 	// Flight Consumption, default is 0.25f
 	// now it is 0.2f
-	unsigned char newWDFlyEnergy[] = {0x51, 0x9A};
+	//unsigned char newWDFlyEnergy[] = {0x51, 0x9A
+	// up to 0.4f
+	unsigned char newWDFlyEnergy[] = { 0xB1, 0xFA };
 	WriteHookToProcess((void *)(hmodEXE + 0x2F7263 + 4), &newWDFlyEnergy[0], 1U);
 	WriteHookToProcess((void *)(hmodEXE + 0x2F861A + 4), &newWDFlyEnergy[1], 1U);
 	// Emergency Charge, default is 0.2f
@@ -377,6 +389,8 @@ void __fastcall ASMreadWeaponSgoNode();
 uintptr_t readWeaponSgoNodeRetAddr;
 void __fastcall ASMweaponStartReload();
 uintptr_t weaponStartReloadRetAddr;
+// Weapon_HeavyShoot
+void __fastcall ASMweaponHeavyShootSetup();
 // Weapon_Gatling
 uintptr_t wGatlingSetupRetAddr;
 void __fastcall ASMweaponGatlingSetup();
@@ -417,14 +431,20 @@ void hookWeaponFunctions() {
 	WriteHookToProcess((void *)(hmodEXE + 0x3911CB + 12), (void *)&nop2, 2U);
 	weaponStartReloadRetAddr = (uintptr_t)(hmodEXE + 0x3911DF);
 
+	// heavy shoot setup, EDF5.exe+39BC26
+	// start:0x12A0, size:0x10, function: set laser sight.
+	hookGameBlock((void*)(hmodEXE + 0x39BC26), (uint64_t)ASMweaponHeavyShootSetup);
+	WriteHookToProcess((void*)(hmodEXE + 0x39BC26 + 12), (void*)&nop10, 10U);
+
 	// gatling setup, offset is 0x39A0C5
-	wGatlingSetupRetAddr = (uintptr_t)(hmodEXE + 0x39ACE0);
+	// start:0x1400, size:0x20, function: set pre-heat type.
 	hookGameBlock((void *)(hmodEXE + 0x39ACC5), (uint64_t)ASMweaponGatlingSetup);
 	WriteHookToProcess((void *)(hmodEXE + 0x39ACC5 + 12), (void *)&nop8, 8U);
+	wGatlingSetupRetAddr = (uintptr_t)(hmodEXE + 0x39ACE0);
 	// gatling shot, offset is 0x39A7AA
-	wGatlingShotRetAddr = (uintptr_t)(hmodEXE + 0x39B3B8);
 	hookGameBlock((void *)(hmodEXE + 0x39B3AA), (uint64_t)ASMweaponGatlingShot);
 	//WriteHookToProcess((void *)(hmodEXE + 0x39B3AA + 12), (void *)&intNOP32, 2U);
+	wGatlingShotRetAddr = (uintptr_t)(hmodEXE + 0x39B3B8);
 }
 
 extern "C" {
@@ -435,7 +455,6 @@ uintptr_t ammoSolidExpBullet01RetAddr;
 void __fastcall ASMammoSolidExpBullet01();
 //
 void __fastcall ASMreadSolidPelletBullet01();
-void __fastcall ASMammoSolidPelletBullet01CheckPT();
 
 uintptr_t ammoLaserBullet01RetAddr;
 void __fastcall ASMammoLaserBullet01();
@@ -485,9 +504,6 @@ void hookAmmoFunctions() {
 	// UP to 0x730
 	int newSolidPelletBullet01Size = 0x730;
 	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x18543C + 1), &newSolidPelletBullet01Size, 4U);
-	// Check bullet penetration. EDF5.exe+18688D
-	hookGameBlock((void*)(hmodEXE + 0x18688D), (uintptr_t)ASMammoSolidPelletBullet01CheckPT);
-	WriteHookToProcess((void*)(hmodEXE + 0x18688D + 12), (void*)&nop4, 4U);
 
 	// hook LaserBullet01
 	// offset is 0x155421
@@ -542,8 +558,8 @@ void ReallocateWeaponMemory() {
 	// New size must be larger than largest of them all
 	// Safe size at least 0x2500
 	// Must be an integer multiple of 0x10
-	int newWeaponSize = 0x2600;
 	// start:0x2500, size:0x20, function: extra reload types.
+	int newWeaponSize = 0x2600;
 
 	// Weapon_Accessory 0x11E0
 	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x398018), &newWeaponSize, 4U);
@@ -590,16 +606,18 @@ void ReallocateWeaponMemory() {
 	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x46A4D8), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x39D057 + 1), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0xC6EEB9 + 1), &newWeaponSize, 4U);
+
 	// Weapon_HeavyShoot 0x1260
+	// start:0x12A0, size:0x10, function: set laser sight.
 	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x46A528), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x39BC87 + 1), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0xC6EED9 + 1), &newWeaponSize, 4U);
 
 	// Weapon_Gatling 0x1290
+	// start:0x1400, size:0x20, function: set pre-heat type.
 	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x46A578), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0x39AEC9 + 1), &newWeaponSize, 4U);
 	//WriteHookToProcess((void *)(hmodEXE + 0xC6EEF9 + 1), &newWeaponSize, 4U);
-	// start:0x1400, size:0x20, function: set pre-heat type.
 
 	// Weapon_LaserMarker 0x1460
 	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x46A5C8), &newWeaponSize, 4U);
