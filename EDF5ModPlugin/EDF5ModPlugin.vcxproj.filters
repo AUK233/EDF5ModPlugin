@@ -163,5 +163,11 @@
     <ClInclude Include="GameFunctionInASM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Resource\snd_ShotIndicatorCircle.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\LoadShaders.hpp">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

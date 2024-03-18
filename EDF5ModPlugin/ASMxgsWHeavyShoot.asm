@@ -19,14 +19,16 @@ extern ASMrva38A960mod: proto
 extern vftable_WeaponIndicatorLine : qword
 
 extern rva3B67C0 : qword
-extern rva3B4F40 : qword
+;extern rva3B4F40 : qword
+extern ASMrva3B4F40mod: proto
 extern _CommonRVA_EE7460 : xmmword
 extern rva3B5460 : qword
+
 
 extern _Common_F0P01 : dword
 extern _Common_F0P025 : dword
 extern _Common_F1P0 : dword
-extern _Common_F70P0 : dword
+extern _Common_F5P0 : dword
 extern _Common_F3600P0 : dword
 
 extern jmp_Umbra_Object_set : qword
@@ -69,7 +71,9 @@ ASMweaponHeavyShootSetup proc
         mov [rbx], r8
 
         movsxd rcx, dword ptr [rbp+8]
-        mov eax, [rcx+rbp+120+8] ; 12-bytes per node
+        mov eax, [rcx+rbp+120+8] ; 12-bytes per node, get value
+        cmp dword ptr [rcx+rbp+120], 2 ;check node type
+        je indicatorCircleFixedRange ; if is float
         cmp eax, 1
         jne indicator ; if = 1, enable laser sight
     ; laser sight start
@@ -152,10 +156,26 @@ ASMweaponHeavyShootSetup proc
         call rva38B100
         jmp rspAdd10h
     ; laser sight end
+
+    indicatorCircleFixedRange:
+        test eax, eax
+        mov edx, _Common_F5P0 ; get default
+        cmovne edx, eax ; if eax != 0
+        mov rcx, rbx
+        call ASMweaponHeavyShootSetupIndicator
+        jmp indicatorEnter
     
     indicator:
         cmp eax, 2
         jne ofs39B026
+    indicatorCircle:
+        mov edx, [rbx+6A8h] ; AmmoExplosion
+        test edx, edx
+        je indicatorEnter ; check is 0
+        mov rcx, rbx
+        call ASMweaponHeavyShootSetupIndicator
+    ; indicator
+    indicatorEnter:
         sub rsp, 10h
         mov edx, 10h
         mov ecx, 140h+10h ; set extra memory
@@ -190,7 +210,7 @@ ASMweaponHeavyShootSetup proc
         mov dword ptr [rdi+130h], eax
     indicator3AB13D:
         mov dword ptr [rbx+12E8h], 3DCCCCCDh
-    ; get AmmoAlive
+        ; get AmmoAlive
         mov eax, [rbx+698h]
         mov edx, 180
         cmp eax, edx
@@ -206,12 +226,7 @@ ASMweaponHeavyShootSetup proc
         ; +148 is collision length
         lea rdx, vftable_WeaponIndicatorLine+8
         mov [rdi], rdx
-    indicatorCircle:
-        cmp [rbx+6A8h], r14d ; check is 0
-        je rspAdd10h
-        mov rcx, rbx
-        call ASMweaponHeavyShootSetupIndicator
-
+    ; indicator end
     rspAdd10h:
         add rsp, 10h
 
@@ -233,9 +248,11 @@ align 16
 ASMweaponHeavyShootSetupIndicator proc
 
         push rbx
-        sub rsp, 50h
+        sub rsp, 60h
 
+        mov [rsp+50h], edx
         mov rbx, rcx
+
         mov edx, 10h
         mov ecx, 210h
         call aligned_mallocAddr
@@ -243,14 +260,13 @@ ASMweaponHeavyShootSetupIndicator proc
         test rax, rax
         je returnFunc
         mov rcx, rax
-        call rva3B4F40
+        call ASMrva3B4F40mod
 
         movaps xmm0, _CommonRVA_EE7460
         movaps [rsp+30h], xmm0
         movaps [rsp+40h], xmm0
         mov byte ptr [rsp+20h], 1 ; no horizontal
-        ;movss xmm3, _Common_F70P0
-        movss xmm3, dword ptr [rbx+6A8h] ; AmmoExplosion
+        movss xmm3, dword ptr [rsp+50h]
         movaps xmm0, xmm3
         mulss xmm0, dword ptr [rbx+308h] ; FireAccuracy
         addss xmm3, xmm0
@@ -259,14 +275,8 @@ ASMweaponHeavyShootSetupIndicator proc
         mov rcx, [rbx+12F0h]
         call rva3B5460
         
-        mov rcx, [rbx+12F0h]
-        mov byte ptr [rcx+1D4h], 0 ; => +150
-        mov byte ptr [rcx+1D5h], 0 ; no scroll animation
-        mov byte ptr [rcx+1D6h], 0 ; is not a ring.
-        mov dword ptr [rcx+1D8h+0Ch], 3E4CCCCDh ; 0.2f
-        ; +1c8 is g_edge_size => +148
     returnFunc:
-        add rsp, 50h
+        add rsp, 60h
         pop rbx
         ret 
         int 3

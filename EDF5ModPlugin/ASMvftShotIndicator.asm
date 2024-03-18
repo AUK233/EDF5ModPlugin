@@ -1,8 +1,42 @@
 .data
 
+extern snd_ShotIndicatorCircle : byte
+
+extern rva616F30 : qword
+extern vedfEBBFB8 : qword
+
 extern rva94A70 : qword
 extern _CommonRVA_EE7320 : xmmword
 extern rva6170C0 : qword
+extern vedf125B080 : qword
+extern jmp_Umbra_Object_create : qword
+extern jmp_Umbra_ReferenceCount_release : qword
+extern jmp_Umbra_ReferenceCount_setUserPointer : qword
+extern jmp_Umbra_Object_setBitmask : qword
+extern jmp_Umbra_Object_setCell : qword
+extern jmp_Umbra_Object_setRenderCost : qword
+extern jmp_Umbra_Object_set : qword
+extern _CommonRVA_EE80E0 : xmmword
+extern _CommonRVA_EE7DE0 : xmmword
+extern _CommonRVA_EE79C0 : xmmword
+extern _CommonRVA_EE7C10 : xmmword
+extern _CommonRVA_EE7DD0 : xmmword
+extern _CommonRVA_EE7940 : xmmword
+extern _Common_F1P0N : dword
+extern rva5E0660 : qword
+extern _CommonRVA_EE7AB0 : xmmword
+extern __sqrtfAddr : qword
+extern rva42460 : qword
+extern vedf1259680 : qword
+extern rva5CC830 : qword
+extern rva27570 : qword
+extern vedf1153550 : qword
+extern vedf1256BD0 : qword
+extern rva5EE9E0 : qword
+extern _Common_F0P05 : dword
+extern _ShotIndicatorCircleColor1 : xmmword
+extern _ShotIndicatorCircleColor2 : xmmword
+extern _ShotIndicatorCircleEdgeColor : xmmword
 
 extern vedf125AB68 : qword
 extern _CommonRVA_EE7700 : xmmword
@@ -22,7 +56,258 @@ extern rva9DD10 : qword
 extern m4x4_118C710 : qword
 extern rva5EE2A0 : qword
 
+; L"_Shot_Indicator_Circle_"
+_ShotIndicatorCircle db 95,0,83,0,104,0,111,0,116,0,95,0,73,0,110,0,100,0,105,0,99,0,97,0,116,0,111,0,114,0,95,0,67,0,105,0,114,0,99,0,108,0,101,0,95,0,0,0
+
 .code
+
+ASMrva3B4F40mod proc
+
+        mov rax, rsp
+        push rbp
+        push r12
+        push r13
+        push r14
+        push r15
+        lea rbp, [rsp-60h]
+        sub rsp, 160h
+        mov qword ptr [rbp-80], -2
+        mov [rax+10h], rbx
+        mov [rax+18h], rsi
+        mov [rax+20h], rdi
+        movaps [rax-38h], xmm6
+        mov rbx, rcx
+        mov [rbp-78h], rcx
+        call rva616F30
+        mov rax, vedfEBBFB8
+        mov [rbx], rax
+        ;
+        xor r12d, r12d
+        xorps xmm6, xmm6
+        mov [rbx+68h], r12
+        mov [rbx+70h], r12
+        mov [rbx+78h], r12
+        mov qword ptr [rbx+80h], 3F800000h
+        mov [rbx+88h], r12
+        mov [rbx+90h], r12d
+        mov qword ptr [rbx+94h], 3F800000h
+        mov [rbx+9Ch], r12d
+        mov [rbx+0A0h], r12
+        mov dword ptr [rbx+0A8h], 3F800000h
+        mov [rbx+0B4h], r12
+        mov [rbx+0ACh], r12
+        mov dword ptr [rbx+0BCh], 3F800000h
+        mov [rbx+0C0h], r12
+        mov [rbx+0C8h], r12
+        mov [rbx+0E8h], r12
+        mov [rbx+0F0h], r12
+        mov [rbx+0F8h], r12
+        mov [rbx+108h], r12
+        mov qword ptr [rbx+100h], 3F800000h
+        mov [rbx+110h], r12d
+        mov qword ptr [rbx+114h], 3F800000h
+        mov [rbx+11Ch], r12d
+        mov [rbx+120h], r12
+        mov dword ptr [rbx+128h], 3F800000h
+        mov [rbx+12Ch], r12
+        mov [rbx+134h], r12
+        mov dword ptr [rbx+13Ch], 3F800000h
+        mov [rbx+190h], r12
+        mov [rbx+198h], r12
+        mov [rbx+1A0h], r12
+        mov [rbx+1A8h], r12
+        mov [rbx+1B0h], r12
+        mov [rbx+1B8h], r12
+
+        mov qword ptr [rsp+40h], 3F800000h
+        mov [rsp+48h], r12
+        mov [rsp+50h], r12d
+        mov qword ptr [rsp+54h], 3F800000h
+        mov [rsp+5Ch], r12d
+        mov [rsp+60h], r12
+        mov dword ptr [rsp+68h], 3F800000h
+        mov [rsp+6Ch], r12
+        mov [rsp+74h], r12
+        mov dword ptr [rsp+7Ch], 3F800000h
+        ; end
+        mov rcx, vedf125AB68
+        mov r13, [rcx]
+        mov rdx, vedf125B080
+        mov rax, [rdx]
+        mov rcx, [rax+50h]
+        call jmp_Umbra_Object_create
+
+        mov r14, rax
+        mov rcx, [rbx+10h]
+        test rcx, rcx
+        je ofs3B450A
+        call jmp_Umbra_ReferenceCount_release
+        mov [rbx+10h], r12
+    ofs3B450A:
+        test r14, r14
+        je ofs3B4513
+        mov [rbx+10h], r14
+    ofs3B4513:
+        mov rdx, rbx
+        mov rcx, [rbx+10h]
+        call jmp_Umbra_ReferenceCount_setUserPointer
+        mov dword ptr [rbx+20h], 10000000h
+        lea rdx, [rsp+40h]
+        mov rcx, rbx
+        call rva6170C0
+        mov edx, [rbx+20h]
+        mov rcx, [rbx+10h]
+        call jmp_Umbra_Object_setBitmask
+        mov rdx, [r13+20h]
+        mov rcx, [rbx+10h]
+        call jmp_Umbra_Object_setCell
+        and dword ptr [rbx+20h], 0EFFFFFFFh
+        mov edx, [rbx+20h]
+        mov rcx, [rbx+10h]
+        call jmp_Umbra_Object_setBitmask
+        or dword ptr [rbx+20h], 20000000h
+        mov edx, [rbx+20h]
+        mov rcx, [rbx+10h]
+        call jmp_Umbra_Object_setBitmask
+        mov edx, 1
+        mov rcx, [rbx+10h]
+        call jmp_Umbra_Object_setRenderCost
+        xor r8d, r8d
+        mov r13d, 2
+        mov edx, r13d
+        mov rcx, [rbx+10h]
+        call jmp_Umbra_Object_set
+        xor r8d, r8d
+        xor edx, edx
+        mov rcx, [rbx+10h]
+        call jmp_Umbra_Object_set
+        ;
+        movaps xmm0, _CommonRVA_EE80E0
+        movaps [rbp-40h], xmm0
+        movaps xmm1, _CommonRVA_EE7DE0
+        movaps [rbp-30h], xmm1
+        movaps xmm0, _CommonRVA_EE79C0
+        movaps [rbp-20h], xmm0
+        movaps xmm1, _CommonRVA_EE7C10
+        movaps [rbp-10h], xmm1
+        movaps xmm0, _CommonRVA_EE7DD0
+        movaps [rbp], xmm0
+        movaps xmm1, _CommonRVA_EE7940
+        movaps [rbp+10h], xmm1
+        xorps xmm0, xmm0
+        movaps [rbp+20h], xmm0
+        movss xmm1, _Common_F1P0N
+        movss dword ptr [rbp+30h], xmm1
+        lea ecx, [r13+2]
+        mov dword ptr [rbp+34h], 0
+        mov dword ptr [rbp-70h], 40000h
+        mov dword ptr [rbp-6Ch], 10001h
+        mov dword ptr [rbp-68h], 30004h
+        mov dword ptr [rbp-64h], 40003h
+        mov dword ptr [rbp-60h], 20002h
+        mov dword ptr [rbp-5Ch], ecx
+        mov dword ptr [rbp-58h], 20000h
+        mov dword ptr [rbp-54h], 10001h
+        mov dword ptr [rbp-50h], 30002h
+        mov dword ptr [rsp+30h], ecx
+        mov dword ptr [rsp+28h], 12h
+        lea rax, [rbp-70h]
+        mov qword ptr [rsp+20h], rax
+        ; end
+        lea r9d, [r13+3]
+        lea r8, [rbp-40h]
+        lea rcx, [rbx+0C0h]
+        call rva5E0660
+
+        movaps xmm0, _CommonRVA_EE7AB0
+        movaps xmm1, xmm0
+        shufps xmm1, xmm0, 055h
+        addss xmm1, xmm0
+        shufps xmm0, xmm0, 0AAh
+        addss xmm1, xmm0
+        ucomiss xmm1, xmm6
+        jp ofs3B4691
+        je ofs3B469C
+    ofs3B4691:
+        movaps xmm0, xmm1
+        call __sqrtfAddr
+        movaps xmm6, xmm0
+    ofs3B469C:
+        movss dword ptr [rbx+1CCh], xmm6
+        mov dword ptr [rbx+1D0h], 41080000h
+        lea rdx, _ShotIndicatorCircle
+        lea rcx, [rbp-70h]
+        call rva42460
+
+        mov rdx, vedf1259680
+        mov rax, [rdx]
+        add rax, 550h
+        mov [rsp+20h], rax
+        lea r9, snd_ShotIndicatorCircle
+        lea r8, [rbp-70h]
+        lea rcx, [rbx+1A8h]
+        call rva5CC830
+
+        mov rdx, [rbp-58h]
+        cmp rdx, 8
+        jb ofs3B4702
+        inc rdx
+        mov r8, r13
+        mov rcx, [rbp-70h]
+        call rva27570
+
+    ofs3B4702:
+        mov r10, [rbx+1B0h]
+        mov rax, [r10]
+        mov rdx, [rax+58h]
+        mov rax, [rdx+8h]
+        imul r8, [rax+20h], 0B8h
+        mov rax, [r10]
+        add r8, [rax+0B8h]
+        mov rdx, [r8+20h]
+        mov rax, [r8+30h]
+        mov [rsp+28h], rax
+        mov [rsp+20h], rdx
+        mov r9d, r13d
+        mov r8, vedf1153550
+        mov rdx, vedf1256BD0
+        lea rcx, [rbx+190h]
+        call rva5EE9E0
+        ;
+        mov dword ptr [rbx+0D8h], r12d
+        mov dword ptr [rbx+1C0h], 41A00000h
+        mov dword ptr [rbx+1C4h], 3F000000h
+        mov eax, _Common_F0P05
+        mov [rbx+1C8h], eax ; +1C8 is g_edge_size => +148
+        ;mov byte ptr [rbx+1D4h], 0 ; => +150
+        ;mov byte ptr [rbx+1D5h], 0 ; no scroll animation
+        ;mov byte ptr [rbx+1D6h], 0 ; is not a ring.
+        mov [rbx+1D4h], r12d
+        movaps xmm0, _ShotIndicatorCircleColor1
+        movups [rbx+1D8h], xmm0
+        movaps xmm1, _ShotIndicatorCircleColor2
+        movups [rbx+1E8h], xmm1
+        movaps xmm2, _ShotIndicatorCircleEdgeColor
+        movups [rbx+1F8h], xmm2
+        ; end
+        mov rax, rbx
+        lea r11, [rsp+160h]
+        mov rbx, [r11+38h]
+        mov rsi, [r11+40h]
+        mov rdi, [r11+48h]
+        movaps xmm6, [r11-10h]
+        mov rsp, r11
+        pop r15
+        pop r14
+        pop r13
+        pop r12
+        pop rbp
+        ret 
+        int 3
+
+ASMrva3B4F40mod ENDP
+
+align 16
 
 ASMrva38A960mod proc
 
@@ -88,13 +373,21 @@ ASMrva38A960mod proc
         movaps [rbp-49h], xmm7
         movss dword ptr [rbp-3Dh], xmm9
         movss dword ptr [rbp-5Dh], xmm8
-
+    ; check collision
         mov rdx, r12
         lea rcx, [rbp-69h]
         call ASMLaserCollisionDetection
         test eax, eax
         mov [r14+144h], eax ; hit status
-        jne ofs389E28
+        je ofs389E18
+        sub r13, rdi
+        cmp r13d, 1
+        jg ofs389E28
+        add r13, 2
+        movaps [r12+10h], xmm6
+        movaps [r12+20h], xmm6
+        mov [r14+78h], r13
+        jmp ofs389E28
 
     ofs389E18:
         sub rdi, 1
@@ -102,9 +395,8 @@ ASMrva38A960mod proc
         movaps xmm6, [rbp-69h]
         movaps xmm7, [rbp-49h]
         jmp ofs389DC2
-
+        
     ofs389E28:
-        sub r13, rdi
         mov [r14+148h], r13d ; collision length
         movaps xmm5, [r15]
         movss xmm4, dword ptr [rbp-61h]

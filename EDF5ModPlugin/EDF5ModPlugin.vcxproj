@@ -253,6 +253,8 @@
     <ClInclude Include="LoggerTweaks.h" />
     <ClInclude Include="PluginAPI.h" />
     <ClInclude Include="proxy.h" />
+    <ClInclude Include="Resource\LoadShaders.hpp" />
+    <ClInclude Include="Resource\snd_ShotIndicatorCircle.h" />
     <ClInclude Include="utiliy.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -13,6 +13,10 @@
 
 #include "GameFunc_vftable.h"
 #include <commonNOP.h>
+#include "Resource/LoadShaders.hpp"
+
+#include <fstream>
+#include <vector>
 
 // size is 0x60
 extern "C" {
@@ -72,6 +76,18 @@ void __fastcall CreateNewVirtualTablesOfOther(uintptr_t hmodEXE)
 extern "C" {
 // void __cdecl Umbra::Object::set(enum Umbra::Object::Property, bool)
 uintptr_t jmp_Umbra_Object_set;
+// static class Umbra::Object * __cdecl Umbra::Object::create(class Umbra::Model *)
+uintptr_t jmp_Umbra_Object_create;
+// void __cdecl Umbra::Object::setBitmask(unsigned int)
+uintptr_t jmp_Umbra_Object_setBitmask;
+// void __cdecl Umbra::Object::setCell(class Umbra::Cell *)
+uintptr_t jmp_Umbra_Object_setCell;
+// void __cdecl Umbra::Object::setRenderCost(enum Umbra::Object::RenderCost)
+uintptr_t jmp_Umbra_Object_setRenderCost;
+// void __cdecl Umbra::ReferenceCount::release(void) const>
+uintptr_t jmp_Umbra_ReferenceCount_release;
+// void __cdecl Umbra::ReferenceCount::setUserPointer(void *)
+uintptr_t jmp_Umbra_ReferenceCount_setUserPointer;
 
 // laser sight +0
 uintptr_t rva38B6A0;
@@ -90,12 +106,23 @@ uintptr_t rvaABED0;
 uintptr_t rva10EA000;
 // havok
 uintptr_t hktCEAF78;
+
+// only test
+uintptr_t testDhaihfiahfia;
 }
+
+std::vector<char> afawfawfwafw;
 
 void __fastcall CreateNewVirtualTables(uintptr_t hmodEXE)
 {
 	// initialization required
 	jmp_Umbra_Object_set = *(uintptr_t*)(hmodEXE + 0xC97FD0);
+	jmp_Umbra_Object_create = *(uintptr_t*)(hmodEXE + 0xC98058);
+	jmp_Umbra_Object_setBitmask = *(uintptr_t*)(hmodEXE + 0xC97FC0);
+	jmp_Umbra_Object_setCell = *(uintptr_t*)(hmodEXE + 0xC980D8);
+	jmp_Umbra_Object_setRenderCost = *(uintptr_t*)(hmodEXE + 0xC980E8);
+	jmp_Umbra_ReferenceCount_release = *(uintptr_t*)(hmodEXE + 0xC980E0);
+	jmp_Umbra_ReferenceCount_setUserPointer = *(uintptr_t*)(hmodEXE + 0xC980D0);
 
 	// laser sight 
 	rva38B6A0 = (uintptr_t)(hmodEXE + 0x38B6A0);
@@ -117,4 +144,23 @@ void __fastcall CreateNewVirtualTables(uintptr_t hmodEXE)
 	CreateNewVirtualTablesOfAmmo(hmodEXE);
 	CreateNewVirtualTablesOfWeapon(hmodEXE);
 	CreateNewVirtualTablesOfOther(hmodEXE);
+
+	/*
+	std::ifstream file(L"snd_test.sgo", std::ios::binary | std::ios::ate | std::ios::in);
+
+	std::streamsize size = file.tellg();
+	file.seekg(0, std::ios::beg);
+
+	afawfawfwafw.resize(size);
+	if (file.read(afawfawfwafw.data(), size)) {
+		testDhaihfiahfia = (uintptr_t)afawfawfwafw.data();
+		
+		// EDF5.exe+3B52D1
+		unsigned char dawdawfawf= 0x8B;
+		WriteHookToProcess((void*)(hmodEXE + 0x3B52D1 + 1), &dawdawfawf, 1U);
+		uintptr_t dafawf = (uintptr_t)afawfawfwafw.data();
+		WriteHookToProcess((void*)(hmodEXE + 0x114B650), &dafawf, 8U);
+		
+	}
+	file.close();*/
 }

@@ -56,7 +56,8 @@ Added the following values available for SGO node names.
 |9|float|sight recoil adjust?|
 |new| - | - |
 |10|int|extra sight display type, 0 is original|
-| - | - |1 is laser sight|
+| - | - |1 is laser sight, 2 is shot indicator circle|
+| - | - |if it is float, set fixed indicator circle radius|
 
 ##### [Return to EDFWeapon](###EDFWeapon)
 
