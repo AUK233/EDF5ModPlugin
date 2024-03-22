@@ -157,7 +157,10 @@ void OverwriteGameFunctions() {
 
 extern "C" {
 // xgs_scene_object_class
+// giant ant
 void __fastcall ASMxgsOCgiantAnt();
+void __fastcall ASMGiantAntUpdateAttack();
+//
 void __fastcall ASMxgsOCgiantSpider();
 // giant bee
 void __fastcall ASMxgsOCgiantBee();
@@ -173,12 +176,44 @@ uintptr_t dragonSmallAmmoSetRetAddr;
 void __fastcall ASMxgsOCdragonSmallAmmo();
 // monster501
 void __fastcall ASMxgsOCmonster501();
+
+void __fastcall ASMGiantAntNormalShot();
+uintptr_t GiantAntNormalShotRetAddr;
+uintptr_t GiantAntNormalShotFireRetAddr;
 }
 
 void hookMonsterFunctions() {
-	// hook GiantAnt extra features, offset is 0x1FF113
-	hookGameBlock((void *)(hmodEXE + 0x1FFD13), (uintptr_t)ASMxgsOCgiantAnt);
-	WriteHookToProcess((void *)(hmodEXE + 0x1FFD13 + 12), (void *)&Interruptions32, 6U);
+	// hook GiantAnt extra features, EDF5.exe+46A0E8
+	unsigned char jmpToGiantAntInit[] = {
+		0xFF, 0x25, 0xBA, 0xFF, 0xFF, 0xFF
+	};
+	WriteHookToProcess((void*)(hmodEXE + 0x46A0E8), &jmpToGiantAntInit, 6U);
+	uintptr_t GiantAntInitaddr = (uintptr_t)ASMxgsOCgiantAnt;
+	WriteHookToProcess((void*)(hmodEXE + 0x46A0A8), &GiantAntInitaddr, 8U);
+	// old is 0x1930
+	int newGiantAntSize = 0x1950;
+	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x46A0C7 + 1), &newGiantAntSize, 4U);
+	// EDF5.exe+1FFD13 [rax+18h], Includes difficulty update object strength.
+	hookGameBlock((void *)(hmodEXE + 0x1FFD13), (uintptr_t)ASMGiantAntUpdateAttack);
+	WriteHookToProcess((void *)(hmodEXE + 0x1FFD13 + 12), (void *)&nop3, 3U);
+	// EDF5.exe+20024D, allows modify normal shot accuracy.
+	// movss xmm6, dword ptr [rsi+1940h]
+	unsigned char AntShotAccuracy[] = {
+		0xF3, 0x0F, 0x10, 0xB6, 0x40, 0x19, 0x00, 0x00
+	};
+	// EDF5.exe+2002EB, allows modify normal shot ammo.
+	hookGameBlock14((void *)(hmodEXE + 0x2002EB), (uintptr_t)ASMGiantAntNormalShot);
+	WriteHookToProcess((void *)(hmodEXE + 0x2002EB + 14), (void *)&nop6, 6U);
+	GiantAntNormalShotRetAddr = (uintptr_t)(hmodEXE + 0x200304);
+	GiantAntNormalShotFireRetAddr = (uintptr_t)(hmodEXE + 0x205041);
+	WriteHookToProcess((void*)(hmodEXE + 0x20024D), &AntShotAccuracy, 8U);
+	// EDF5.exe+1FFD3D, allows modify continuous shot count.
+	unsigned char AntBurstCount[] = {
+		0x8B, 0x81, 0x44, 0x19, 0x00, 0x00, // mov eax, [rcx+1944h]
+		0x89, 0x81, 0xB0, 0x13, 0x00, 0x00, // mov [rcx+13B0h], eax
+		0xC3								// ret
+	};
+	WriteHookToProcess((void*)(hmodEXE + 0x1FFD3D), &AntBurstCount, 13U);
 
 	// hook GiantSpider extra features, offset is 0x21E48A
 	hookGameBlock((void *)(hmodEXE + 0x21F08A), (uintptr_t)ASMxgsOCgiantSpider);
@@ -433,6 +468,7 @@ void hookWeaponFunctions() {
 
 	// heavy shoot setup, EDF5.exe+39BC26
 	// start:0x12A0, size:0x10, function: set laser sight.
+	// start:0x12D0, size:0x30, function: set indicator circle.
 	hookGameBlock((void*)(hmodEXE + 0x39BC26), (uint64_t)ASMweaponHeavyShootSetup);
 	WriteHookToProcess((void*)(hmodEXE + 0x39BC26 + 12), (void*)&nop10, 10U);
 

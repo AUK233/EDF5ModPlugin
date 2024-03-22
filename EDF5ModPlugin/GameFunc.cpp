@@ -12,7 +12,6 @@
 #include "utiliy.h"
 
 #include "GameFunc.h"
-#include "CommonData.h"
 
 extern PBYTE hmodEXE;
 extern int weaponEnhance;
@@ -182,34 +181,6 @@ void GetGameFunctions() {
 }
 
 extern "C" {
-// AcidBullet01
-uintptr_t edf136890Address;
-// FlameBullet01
-uintptr_t edf14DE20Address;
-// PlasmaBullet01
-uintptr_t edf16DBB0Address;
-// SolidBullet01
-uintptr_t edf185510Address;
-// SpiderStringBullet01
-uintptr_t edf18AE10Address;
-// SpiderStringBullet02
-uintptr_t edf18DF30Address;
-// PulseBullet01
-uintptr_t edf171140Address;
-// LaserBullet02
-uintptr_t edf156FF0Address;
-// SolidExpBullet01
-uintptr_t edf187EC0Address;
-// HomingLaserBullet01
-uintptr_t edf150AD0Address;
-// LightningBullet01
-uintptr_t edf15FD90Address;
-// LaserBullet01
-uintptr_t edf155B80Address;
-// RocketBullet01
-uintptr_t edf1727E0Address;
-// BeamBullet01
-uintptr_t edf139950Address;
 // Set insect ammo type
 uintptr_t InsectAmmoType[14 + 1];
 uintptr_t giantBeeAmmoSetRetAddr;
@@ -233,21 +204,6 @@ uintptr_t edf1AD970Address;
 }
 // get ammo function address
 void GetAmmoFunctions() {
-	edf136890Address = (uintptr_t)(hmodEXE + 0x136890);
-	edf14DE20Address = (uintptr_t)(hmodEXE + 0x14DE20);
-	edf16DBB0Address = (uintptr_t)(hmodEXE + 0x16DBB0);
-	edf185510Address = (uintptr_t)(hmodEXE + 0x185510);
-	edf18AE10Address = (uintptr_t)(hmodEXE + 0x18AE10);
-	edf18DF30Address = (uintptr_t)(hmodEXE + 0x18DF30);
-	edf171140Address = (uintptr_t)(hmodEXE + 0x171140);
-	edf156FF0Address = (uintptr_t)(hmodEXE + 0x156FF0);
-	edf187EC0Address = (uintptr_t)(hmodEXE + 0x187EC0);
-	edf150AD0Address = (uintptr_t)(hmodEXE + 0x150AD0);
-	edf15FD90Address = (uintptr_t)(hmodEXE + 0x15FD90);
-	edf155B80Address = (uintptr_t)(hmodEXE + 0x155B80);
-	edf1727E0Address = (uintptr_t)(hmodEXE + 0x1727E0);
-	edf139950Address = (uintptr_t)(hmodEXE + 0x139950);
-
 	// Set insect ammo type
 	InsectAmmoType[0] = 0;
 	// Get insect ammo return address
