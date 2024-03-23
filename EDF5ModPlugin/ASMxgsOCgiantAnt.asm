@@ -1,18 +1,28 @@
 .data
 ; Use other asm functions
 extern edf5BDF30Address : qword
-extern InsectAmmoType_Func : qword
-extern InsectAmmoType_Size : dword
 ;extern edf6136C0 : proto
 extern vedf125AB68 : qword
 extern GiantAntNormalShotRetAddr : qword
 extern InsectAmmoType : qword
 
+extern _AnimationEvent_BurstFire : word
+extern _AnimationEvent_BurstFireStop : word
+extern rva27380 : qword
+extern rva204EA0 : qword
+extern rva27570 : qword
+extern GiantAntAnimationEventRetAddr : qword
+
 extern aligned_mallocAddr : qword
 extern GiantAntNormalShotFireRetAddr : qword
 
+extern GiantAntNormalShotAddr : qword
+
 ; L"ant_BulletClass"
 antBulletClass db 97,0,110,0,116,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,67,0,108,0,97,0,115,0,115,0,0,0
+align 16
+; L"ant_BulletParam"
+antBulletParam db 97,0,110,0,116,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,80,0,97,0,114,0,97,0,109,0,0,0
 align 16
 ; L"ant_BulletAlive"
 antBulletAlive db 97,0,110,0,116,0,95,0,66,0,117,0,108,0,108,0,101,0,116,0,65,0,108,0,105,0,118,0,101,0,0,0
@@ -55,9 +65,9 @@ ASMGiantAntInitEX proc
         ; initialization
         xor rax, rax
         mov [rcx+1930h], rax ; ammo call address
-        mov [rcx+1938h], rax ; ammo size
-        mov dword ptr [rcx+1940h], 3DCCCCCDh ; accuracy, 0.1f
-        mov dword ptr [rcx+1944h], 90 ; burst count
+        mov dword ptr [rcx+1938h], 90 ; burst count
+        mov dword ptr [rcx+193Ch], 3DCCCCCDh ; accuracy, 0.1f
+        mov [rcx+1940h], rax
         mov [rcx+1948h], rax
         ; end
     AmmoTypeBlock:
@@ -68,7 +78,7 @@ ASMGiantAntInitEX proc
         je ReturnAddress
         mov r8, [rsi]
         cdqe ; eax => rax
-        movsxd rdx, dword ptr [r8+0Ch]
+        movsxd rdx, dword ptr [r8+12]
         lea rcx, [rax+rax*2]
         lea rax, [r8+rdx]
         lea rdx, [rax+rcx*4]
@@ -76,18 +86,31 @@ ASMGiantAntInitEX proc
         add rdx, rax
         ; node 0 is ammo type
         movsxd rcx, dword ptr [rdx+8]
-        lea rax, InsectAmmoType_Func
+        lea rax, InsectAmmoType
         mov rax, [rax+rcx*8]
         mov [rbx+1930h], rax ; address
-        lea rax, InsectAmmoType_Size
-        mov eax, [rax+rcx*4]
-        mov [rbx+1938h], eax ; size
         ; node 1 is accuracy
         mov eax, dword ptr [rdx+12+8]
-        mov [rbx+1940h], eax
+        mov [rbx+193Ch], eax
         ; node 2 is burst count
         mov eax, dword ptr [rdx+24+8]
-        mov [rbx+1944h], eax
+        mov [rbx+1938h], eax
+        ; node 3 is new shot count
+        mov eax, dword ptr [rdx+36+8]
+        mov [rbx+1948h], eax
+    ; It is only activated when +12A0==1, so we have to reactivate it
+        lea rdx, antBulletParam
+        mov rcx, rsi
+        call edf5BDF30Address ; read sgo node
+        cmp eax, -1
+        je ReturnAddress
+        mov r8, [rsi]
+        cdqe ; eax => rax
+        movsxd rdx, dword ptr [r8+12]
+        lea rcx, [rax+rax*2]
+        lea rax, [r8+rdx]
+        lea rax, [rax+rcx*4]
+        mov [rbx+1328h], rax
         
     ReturnAddress:
         add rsp, 50h
@@ -226,6 +249,99 @@ ASMGiantAntUpdateAttack ENDP
 
 align 16
 
+ASMGiantAntBurstFire proc
+
+        mov dword ptr [rcx+1940h], 1 ; set burst
+        mov eax, [rcx+1938h]
+        mov [rcx+1944h], eax ; set max count
+        mov eax, [rcx+1948h]
+        cmp eax, 0
+        jle ReturnAddress
+        mov [rcx+13B0h], eax ; set new shot count
+    ReturnAddress:
+        ret 
+        int 3
+
+ASMGiantAntBurstFire ENDP
+
+align 16
+
+ASMGiantAntBurstStop proc
+
+        xor rax, rax
+        mov [rcx+1940h], rax
+        ret 
+        int 3
+
+ASMGiantAntBurstStop ENDP
+
+align 16
+
+ASMGiantAntAnimationEvent proc
+
+    BurstFireBlock:
+        lea rax, ASMGiantAntBurstFire
+        mov [rbp-50h], rax
+        mov [rbp-48h], edi
+        mov [rbp-40h], di
+        mov [rbp-30h], rdi
+        mov qword ptr [rbp-28h], 7
+        mov r8d, 9 ; string length
+        lea rdx, _AnimationEvent_BurstFire ; BurstFire
+        lea rcx, [rbp-40h]
+        call rva27380
+        movdqa xmm0, [rbp-50h]
+        movdqa [rbp-50h], xmm0
+        lea r9, [rbp-50h]
+        mov r8, rsi
+        lea rdx, [rbp-40h]
+        mov rcx, r15
+        call rva204EA0
+        mov rdx, [rbp-28h]
+        cmp rdx, 8
+        jb BurstStopBlock
+        mov rcx, [rbp-40h]
+        inc rdx
+        mov r8d, 2
+        call rva27570
+
+    BurstStopBlock:
+        lea rax, ASMGiantAntBurstStop
+        mov [rbp-50h], rax
+        mov [rbp-48h], edi
+        mov [rbp-40h], di
+        mov [rbp-30h], rdi
+        mov qword ptr [rbp-28h], 7
+        mov r8d, 14 ; string length
+        lea rdx, _AnimationEvent_BurstFireStop ; BurstFire
+        lea rcx, [rbp-40h]
+        call rva27380
+        movdqa xmm0, [rbp-50h]
+        movdqa [rbp-50h], xmm0
+        lea r9, [rbp-50h]
+        mov r8, rsi
+        lea rdx, [rbp-40h]
+        mov rcx, r15
+        call rva204EA0
+        mov rdx, [rbp-28h]
+        cmp rdx, 8
+        jb ofs1FD6BB
+        mov rcx, [rbp-40h]
+        inc rdx
+        mov r8d, 2
+        call rva27570
+
+    ofs1FD6BB:
+        mov r12d, [rsi+430h]
+        mov r8d, edi
+        mov r14, [rsi+7B0h]
+        jmp GiantAntAnimationEventRetAddr
+        int 3
+
+ASMGiantAntAnimationEvent ENDP
+
+align 16
+
 ASMGiantAntNormalShot proc
 
         mov rax, vedf125AB68
@@ -235,8 +351,8 @@ ASMGiantAntNormalShot proc
         mov rcx, [rax]
         cmp qword ptr [rsi+1930h], 0
         je ofs1FF6FF
-        mov [rsp+20h], rsi
-        call ASMGiantAntNormalShotFire
+        ;mov [rsp+20h], rsi
+        call qword ptr [rsi+1930h]
         jmp GiantAntNormalShotRetAddr
     ofs1FF6FF:
         call InsectAmmoType+8;AcidBullet01
@@ -244,6 +360,32 @@ ASMGiantAntNormalShot proc
         int 3
 
 ASMGiantAntNormalShot ENDP
+
+align 16
+
+ASMGiantAntBurstShot proc
+
+        cmp [rbx+1940h], r14d ; if == 0
+        je ofs1FDEEA
+        mov eax, [rbx+1944h]
+        cmp eax, r14d ; if <= 0
+        jle ofs1FDEEA
+        dec eax
+        mov rcx, rbx
+        mov [rbx+1944h], eax
+        call GiantAntNormalShotAddr
+    ofs1FDEEA:
+        lea r11, [rsp+90h]
+        mov rbx, [r11+10h]
+        mov rsi, [r11+18h]
+        mov rdi, [r11+20h]
+        mov r14, [r11+28h]
+        mov rsp, r11
+        pop rbp
+        ret 
+        int 3
+
+ASMGiantAntBurstShot ENDP
 
 align 16
 
@@ -273,7 +415,7 @@ ASMGiantAntNormalShotFire proc
         lea rax, [rax-58h]
         mov [r9+20h], rax
         mov edx, 10h
-        mov ecx, [r15+1938h] ; get size
+        mov ecx, 1000h
         call aligned_mallocAddr
         mov [rsp+0A0h], rax
         test rax, rax

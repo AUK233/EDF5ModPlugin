@@ -160,6 +160,13 @@ extern "C" {
 // giant ant
 void __fastcall ASMxgsOCgiantAnt();
 void __fastcall ASMGiantAntUpdateAttack();
+void __fastcall ASMGiantAntAnimationEvent();
+uintptr_t GiantAntAnimationEventRetAddr;
+void __fastcall ASMGiantAntNormalShot();
+uintptr_t GiantAntNormalShotRetAddr;
+uintptr_t GiantAntNormalShotFireRetAddr;
+void __fastcall ASMGiantAntBurstShot();
+uintptr_t GiantAntNormalShotAddr;
 //
 void __fastcall ASMxgsOCgiantSpider();
 // giant bee
@@ -176,10 +183,6 @@ uintptr_t dragonSmallAmmoSetRetAddr;
 void __fastcall ASMxgsOCdragonSmallAmmo();
 // monster501
 void __fastcall ASMxgsOCmonster501();
-
-void __fastcall ASMGiantAntNormalShot();
-uintptr_t GiantAntNormalShotRetAddr;
-uintptr_t GiantAntNormalShotFireRetAddr;
 }
 
 void hookMonsterFunctions() {
@@ -191,29 +194,41 @@ void hookMonsterFunctions() {
 	uintptr_t GiantAntInitaddr = (uintptr_t)ASMxgsOCgiantAnt;
 	WriteHookToProcess((void*)(hmodEXE + 0x46A0A8), &GiantAntInitaddr, 8U);
 	// old is 0x1930
+	// +1930h(8-Bytes) is ammo call address
+	// +1938h(4-Bytes) is burst count, +193Ch(4-Bytes) is accuracy
+	// +1940h(4-Bytes) is burst state (0 or 1), +1944h(4-Bytes) is current burst count
+	// +1948h(4-Bytes) is shot count in new burst.
 	int newGiantAntSize = 0x1950;
 	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x46A0C7 + 1), &newGiantAntSize, 4U);
 	// EDF5.exe+1FFD13 [rax+18h], Includes difficulty update object strength.
 	hookGameBlock((void *)(hmodEXE + 0x1FFD13), (uintptr_t)ASMGiantAntUpdateAttack);
 	WriteHookToProcess((void *)(hmodEXE + 0x1FFD13 + 12), (void *)&nop3, 3U);
+	// EDF5.exe+1FE2BB, Update animation events
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x1FE2BB), (uintptr_t)ASMGiantAntAnimationEvent);
+	WriteHookToProcess((void*)(hmodEXE + 0x1FE2BB + 15), (void*)&nop2, 2U);
+	GiantAntAnimationEventRetAddr = (uintptr_t)(hmodEXE + 0x1FE2CC);
 	// EDF5.exe+20024D, allows modify normal shot accuracy.
-	// movss xmm6, dword ptr [rsi+1940h]
+	// movss xmm6, dword ptr [rsi+193Ch]
 	unsigned char AntShotAccuracy[] = {
-		0xF3, 0x0F, 0x10, 0xB6, 0x40, 0x19, 0x00, 0x00
+		0xF3, 0x0F, 0x10, 0xB6, 0x3C, 0x19, 0x00, 0x00
 	};
 	// EDF5.exe+2002EB, allows modify normal shot ammo.
-	hookGameBlock14((void *)(hmodEXE + 0x2002EB), (uintptr_t)ASMGiantAntNormalShot);
-	WriteHookToProcess((void *)(hmodEXE + 0x2002EB + 14), (void *)&nop6, 6U);
+	hookGameBlockWithInt3((void *)(hmodEXE + 0x2002EB), (uintptr_t)ASMGiantAntNormalShot);
+	WriteHookToProcess((void *)(hmodEXE + 0x2002EB + 15), (void *)&nop10, 10U);
 	GiantAntNormalShotRetAddr = (uintptr_t)(hmodEXE + 0x200304);
 	GiantAntNormalShotFireRetAddr = (uintptr_t)(hmodEXE + 0x205041);
 	WriteHookToProcess((void*)(hmodEXE + 0x20024D), &AntShotAccuracy, 8U);
 	// EDF5.exe+1FFD3D, allows modify continuous shot count.
 	unsigned char AntBurstCount[] = {
-		0x8B, 0x81, 0x44, 0x19, 0x00, 0x00, // mov eax, [rcx+1944h]
+		0x8B, 0x81, 0x38, 0x19, 0x00, 0x00, // mov eax, [rcx+1938h]
 		0x89, 0x81, 0xB0, 0x13, 0x00, 0x00, // mov [rcx+13B0h], eax
 		0xC3								// ret
 	};
 	WriteHookToProcess((void*)(hmodEXE + 0x1FFD3D), &AntBurstCount, 13U);
+	// EDF5.exe+1FEAEA, set new continuous shot.
+	hookGameBlockWithInt3((void *)(hmodEXE + 0x1FEAEA), (uintptr_t)ASMGiantAntBurstShot);
+	WriteHookToProcess((void *)(hmodEXE + 0x1FEAEA + 15), (void *)&nop5, 5U);
+	GiantAntNormalShotAddr = (uintptr_t)(hmodEXE + 0x1FFF40);
 
 	// hook GiantSpider extra features, offset is 0x21E48A
 	hookGameBlock((void *)(hmodEXE + 0x21F08A), (uintptr_t)ASMxgsOCgiantSpider);

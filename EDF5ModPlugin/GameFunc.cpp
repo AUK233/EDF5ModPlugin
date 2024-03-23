@@ -82,6 +82,7 @@ uintptr_t rva5EE9E0;
 //
 uintptr_t rva344F30;
 uintptr_t rva186330;
+uintptr_t rva204EA0;
 // Initialize laser sighting
 uintptr_t rva38AEF0;
 uintptr_t rva399760;
@@ -167,6 +168,7 @@ void GetGameFunctions() {
 	rva4CA990 = (uintptr_t)(hmodEXE + 0x4CA990);
 	rva344F30 = (uintptr_t)(hmodEXE + 0x344F30);
 	rva186330 = (uintptr_t)(hmodEXE + 0x186330);
+	rva204EA0 = (uintptr_t)(hmodEXE + 0x204EA0);
 	rva5CC830 = (uintptr_t)(hmodEXE + 0x5CC830);
 	rva5EE9E0 = (uintptr_t)(hmodEXE + 0x5EE9E0);
 

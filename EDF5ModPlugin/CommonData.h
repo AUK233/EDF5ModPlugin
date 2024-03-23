@@ -47,4 +47,7 @@ __declspec(align(16)) float _CommonRVA_EE7AB0[4] = { 1.0f, 18.0625f, 0.0f, 18.06
 __declspec(align(16)) float _ShotIndicatorCircleColor1[4] = { 0.3f, 0.0f, 0.0f, 0.8f };
 __declspec(align(16)) float _ShotIndicatorCircleColor2[4] = { 0.2f, 0.0f, 0.0f, 0.2f };
 __declspec(align(16)) float _ShotIndicatorCircleEdgeColor[4] = { 0.3f, 0.0f, 0.0f, 0.3f };
+
+__declspec(align(16)) WCHAR _AnimationEvent_BurstFire[] = L"BurstFire";
+__declspec(align(16)) WCHAR _AnimationEvent_BurstFireStop[] = L"BurstFire_Stop";
 }

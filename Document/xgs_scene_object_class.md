@@ -100,18 +100,36 @@ Added the following values available for SGO node names.
 ### GiantAnt
 | sgo node name | value type | function | value description |
 |---|---|---|---|
-|ant_BulletAlive|int|change acid alive time|bulletType = 0, default 180; = 1, 240|
+|ant_BulletAlive|int|change acid alive time|ant_BulletType = 0, default 180; = 1, 240|
+|ant_BulletClass|ptr|change ant ammo|[ammo parameters](#GiantAnt-BulletClass), all parameters must be present|
 |ant_BulletColor|ptr|change ant acid color|[color parameters](#GiantAnt-BulletColor), all parameters must be present|
 |ant_BulletExSet|ptr|change ant acid detail|[exset parameters](#GiantAnt-BulletExSet), all parameters must be present|
 |ant_BulletFireHeight|float|change acid launch height||
 
+#### GiantAnt BulletClass
+| node index | value type | value description |
+|---|---|---|
+|0|int|ammo type, only when ant_BulletType = 0, 0 is default|
+| - | - |1 is AcidBullet01, 2 is FlameBullet01|
+| - | - |3 is PlasmaBullet01, 4 is SolidBullet01|
+| - | - |5 is PulseBullet01, 6 is SolidExpBullet01|
+| - | - |7 is HomingLaserBullet01, 8 is LaserBullet02|
+| - | - |9 is FlameBullet02, 10 is NeedleBullet01|
+| - | - |11 is LightningBullet01, 12 is LaserBullet01|
+| - | - |13 is RocketBullet01, 14 is BeamBullet01|
+|1|float|normal shot accuracy, default 0.1|
+|2|int|set continuous firing count, default 90|
+| - | - |able to use animation event "BurstFire" to start new continuous fire|
+| - | - |animation event "BurstFire_Stop" to stop new continuous fire|
+|3|int|overriding original singly shot count in new continuous firings when > 0|
+
 #### GiantAnt BulletColor
 | node index | value type | value description |
 |---|---|---|
-|0|float|red channel. bulletType = 0, default 4.5; = 1, 3|
-|1|float|green channel. bulletType = 0, default 2.25; = 1, 1.5|
-|2|float|blue channel. bulletType = 0, default 1.5; = 1, 1.05|
-|3|float|alpha channel. bulletType = 0, default 1; = 1, 1|
+|0|float|red channel. ant_BulletType = 0, default 4.5; = 1, 3|
+|1|float|green channel. ant_BulletType = 0, default 2.25; = 1, 1.5|
+|2|float|blue channel. ant_BulletType = 0, default 1.5; = 1, 1.05|
+|3|float|alpha channel. ant_BulletType = 0, default 1; = 1, 1|
 
 #### GiantAnt BulletExSet
 | node index | value type | value description |
@@ -165,7 +183,7 @@ Added the following values available for SGO node names.
 ### GiantBee
 | sgo node name | value type | function | value description |
 |---|---|---|---|
-|bee_BulletAccuracy|int|change shot accuracy|default 0.7|
+|bee_BulletAccuracy|float|change shot accuracy|default 0.7|
 |bee_BulletAlive|int|change ammo alive time|insectbase_Type = 0, default 180; = 1, 300|
 |bee_BulletExSet|ptr|change ammo detail|[exset parameters](#GiantBee-BulletExSet), all parameters must be present|
 |bee_BulletSet|ptr|change ammo type and color|[set parameters](#GiantBee-BulletSet), all parameters must be present|

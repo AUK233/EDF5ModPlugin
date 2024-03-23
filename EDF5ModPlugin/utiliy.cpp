@@ -230,24 +230,36 @@ void __fastcall hookGameBlock(void *targetAddr, uint64_t dataAddr) {
 	WriteHookToProcess(targetAddr, hookFunction, sizeof(hookFunction));
 }
 
-// update game's original functions
-void __fastcall hookGameBlockWithCall(void* targetAddr, uint64_t dataAddr) {
+// update game's original functions with 14 bytes
+void __fastcall hookGameBlock14(void* targetAddr, uint64_t dataAddr) {
+	uint8_t hookFunction[] = {
+		0xFF, 0x25, 0x00, 0x00, 0x00, 0x00,                        // jmp
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 // addr
+	};
+	memcpy(&hookFunction[6], &dataAddr, sizeof(dataAddr));
+
+	WriteHookToProcess(targetAddr, hookFunction, sizeof(hookFunction));
+}
+
+// update game's original functions with interruption, need 15 bytes
+void __fastcall hookGameBlockWithInt3(void* targetAddr, uint64_t dataAddr) {
+	uint8_t hookFunction[] = {
+		0xFF, 0x25, 0x01, 0x00, 0x00, 0x00,				// jmp
+		0xCC,											// int3
+		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00  // addr
+	};
+	memcpy(&hookFunction[7], &dataAddr, sizeof(dataAddr));
+
+	WriteHookToProcess(targetAddr, hookFunction, sizeof(hookFunction));
+}
+
+// update game's original functions with call, need 12bytes
+void __fastcall CallGameBlock(void* targetAddr, uint64_t dataAddr) {
 	uint8_t hookFunction[] = {
 		0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // mov rax, addr
 		0xFF, 0xD0                                                  // call rax
 	};
 	memcpy(&hookFunction[2], &dataAddr, sizeof(dataAddr));
-
-	WriteHookToProcess(targetAddr, hookFunction, sizeof(hookFunction));
-}
-
-// update game's original functions with 14 bytes
-void __fastcall hookGameBlock14(void *targetAddr, uint64_t dataAddr) {
-	uint8_t hookFunction[] = {
-	    0xFF, 0x25, 0x00, 0x00, 0x00, 0x00,                        // jmp
-	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 // addr
-	};
-	memcpy(&hookFunction[6], &dataAddr, sizeof(dataAddr));
 
 	WriteHookToProcess(targetAddr, hookFunction, sizeof(hookFunction));
 }

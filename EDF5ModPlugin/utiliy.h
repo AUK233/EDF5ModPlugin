@@ -19,10 +19,12 @@ void __fastcall WriteHookToProcessCheckECX(void* addr, void* data, size_t len);
 void __fastcall WriteHookToProcessCheckEDX(void* addr, void* data, size_t len);
 // update game's original functions, need 12bytes
 void __fastcall hookGameBlock(void *targetAddr, uint64_t hookAddr);
-// update game's original functions with call, need 12bytes
-void __fastcall hookGameBlockWithCall(void* targetAddr, uint64_t hookAddr);
 // update game's original functions with 14 bytes
 void __fastcall hookGameBlock14(void *targetAddr, uint64_t hookAddr);
+// update game's original functions with interruption, need 15 bytes
+void __fastcall hookGameBlockWithInt3(void* targetAddr, uint64_t hookAddr);
+// update game's original functions with call, need 12bytes
+void __fastcall CallGameBlock(void* targetAddr, uint64_t hookAddr);
 // Search the address of the target
 intptr_t __fastcall SundaySearch(const byte *target, int tLen, const byte *pattern, int pLen);
 // Search the address of the target
