@@ -122,6 +122,7 @@ Added the following values available for SGO node names.
 | - | - |able to use animation event "BurstFire" to start new continuous fire|
 | - | - |animation event "BurstFire_Stop" to stop new continuous fire|
 |3|int|overriding original singly shot count in new continuous firings when > 0|
+|4|int|new continuous fire interval|
 
 #### GiantAnt BulletColor
 | node index | value type | value description |
@@ -187,6 +188,7 @@ Added the following values available for SGO node names.
 |bee_BulletAlive|int|change ammo alive time|insectbase_Type = 0, default 180; = 1, 300|
 |bee_BulletExSet|ptr|change ammo detail|[exset parameters](#GiantBee-BulletExSet), all parameters must be present|
 |bee_BulletSet|ptr|change ammo type and color|[set parameters](#GiantBee-BulletSet), all parameters must be present|
+|bee_BurstShot|ptr|continuous shot parameters|[burst parameters](#GiantBee-BurstShot), all parameters must be present|
 
 #### GiantBee BulletExSet
 | node index | value type | value description |
@@ -215,6 +217,15 @@ Added the following values available for SGO node names.
 |2|float|color green channel|
 |3|float|color blue channel|
 |4|float|color alpha channel|
+
+#### GiantBee BurstShot
+| node index | value type | value description |
+|---|---|---|
+|0|int|set continuous firing count, default 0|
+| - | - |able to use animation event "BurstFire" to start continuous fire|
+| - | - |animation event "BurstFire_Stop" to stop continuous fire|
+|1|int|overriding original singly shot count in continuous firings when > 0|
+|2|int|continuous fire interval|
 
 ##### [Return to Index](#index)
 

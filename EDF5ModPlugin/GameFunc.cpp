@@ -79,10 +79,13 @@ uintptr_t rva4CA990;
 uintptr_t rva5CC830;
 // read shader?
 uintptr_t rva5EE9E0;
-//
-uintptr_t rva344F30;
 uintptr_t rva186330;
+// add barga animation event
+uintptr_t rva344F30;
+// add giant ant animation event
 uintptr_t rva204EA0;
+// add giant bee animation event
+uintptr_t rva211070;
 // Initialize laser sighting
 uintptr_t rva38AEF0;
 uintptr_t rva399760;
@@ -166,11 +169,14 @@ void GetGameFunctions() {
 	rvaB7220 = (uintptr_t)(hmodEXE + 0xB7220);
 	rva4D86D0 = (uintptr_t)(hmodEXE + 0x4D86D0);
 	rva4CA990 = (uintptr_t)(hmodEXE + 0x4CA990);
-	rva344F30 = (uintptr_t)(hmodEXE + 0x344F30);
 	rva186330 = (uintptr_t)(hmodEXE + 0x186330);
-	rva204EA0 = (uintptr_t)(hmodEXE + 0x204EA0);
 	rva5CC830 = (uintptr_t)(hmodEXE + 0x5CC830);
 	rva5EE9E0 = (uintptr_t)(hmodEXE + 0x5EE9E0);
+
+	// Add Animation Event
+	rva344F30 = (uintptr_t)(hmodEXE + 0x344F30);
+	rva204EA0 = (uintptr_t)(hmodEXE + 0x204EA0);
+	rva211070 = (uintptr_t)(hmodEXE + 0x211070);
 
 	// Initialize laser sighting
 	rva38AEF0 = (uintptr_t)(hmodEXE + 0x38AEF0);

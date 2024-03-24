@@ -165,15 +165,18 @@ uintptr_t GiantAntAnimationEventRetAddr;
 void __fastcall ASMGiantAntNormalShot();
 uintptr_t GiantAntNormalShotRetAddr;
 uintptr_t GiantAntNormalShotFireRetAddr;
-void __fastcall ASMGiantAntBurstShot();
+void __fastcall ASMGiantAntFuncP10();
 uintptr_t GiantAntNormalShotAddr;
 //
 void __fastcall ASMxgsOCgiantSpider();
 // giant bee
 void __fastcall ASMxgsOCgiantBee();
-uintptr_t giantBeeAmmoNextAddr;
-uintptr_t giantBeeAmmoRetAddr;
-void __fastcall ASMxgsOCgiantBeeAmmo();
+void __fastcall ASMGiantBeeNormalShot();
+uintptr_t GiantBeeNormalShotRetAddr;
+void __fastcall ASMGiantBeeAnimationEvent();
+uintptr_t GiantBeeAnimationEventRetAddr;
+void __fastcall ASMGiantBeeFuncP10();
+uintptr_t GiantBeeNormalShotAddr;
 // dragon small
 void __fastcall ASMxgsOCdragonSmall();
 uintptr_t dragonSmallAmmoNextAddr;
@@ -186,6 +189,8 @@ void __fastcall ASMxgsOCmonster501();
 }
 
 void hookMonsterFunctions() {
+
+
 	// hook GiantAnt extra features, EDF5.exe+46A0E8
 	unsigned char jmpToGiantAntInit[] = {
 		0xFF, 0x25, 0xBA, 0xFF, 0xFF, 0xFF
@@ -197,8 +202,9 @@ void hookMonsterFunctions() {
 	// +1930h(8-Bytes) is ammo call address
 	// +1938h(4-Bytes) is burst count, +193Ch(4-Bytes) is accuracy
 	// +1940h(4-Bytes) is burst state (0 or 1), +1944h(4-Bytes) is current burst count
-	// +1948h(4-Bytes) is shot count in new burst.
-	int newGiantAntSize = 0x1950;
+	// +1948h(4-Bytes) is shot count in new burst
+	// +194Ch(4-Bytes) is burst interval, +1950h(4-Bytes) is burst interval count
+	int newGiantAntSize = 0x1960;
 	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x46A0C7 + 1), &newGiantAntSize, 4U);
 	// EDF5.exe+1FFD13 [rax+18h], Includes difficulty update object strength.
 	hookGameBlock((void *)(hmodEXE + 0x1FFD13), (uintptr_t)ASMGiantAntUpdateAttack);
@@ -212,12 +218,12 @@ void hookMonsterFunctions() {
 	unsigned char AntShotAccuracy[] = {
 		0xF3, 0x0F, 0x10, 0xB6, 0x3C, 0x19, 0x00, 0x00
 	};
+	WriteHookToProcess((void*)(hmodEXE + 0x20024D), &AntShotAccuracy, 8U);
 	// EDF5.exe+2002EB, allows modify normal shot ammo.
 	hookGameBlockWithInt3((void *)(hmodEXE + 0x2002EB), (uintptr_t)ASMGiantAntNormalShot);
 	WriteHookToProcess((void *)(hmodEXE + 0x2002EB + 15), (void *)&nop10, 10U);
 	GiantAntNormalShotRetAddr = (uintptr_t)(hmodEXE + 0x200304);
 	GiantAntNormalShotFireRetAddr = (uintptr_t)(hmodEXE + 0x205041);
-	WriteHookToProcess((void*)(hmodEXE + 0x20024D), &AntShotAccuracy, 8U);
 	// EDF5.exe+1FFD3D, allows modify continuous shot count.
 	unsigned char AntBurstCount[] = {
 		0x8B, 0x81, 0x38, 0x19, 0x00, 0x00, // mov eax, [rcx+1938h]
@@ -226,7 +232,7 @@ void hookMonsterFunctions() {
 	};
 	WriteHookToProcess((void*)(hmodEXE + 0x1FFD3D), &AntBurstCount, 13U);
 	// EDF5.exe+1FEAEA, set new continuous shot.
-	hookGameBlockWithInt3((void *)(hmodEXE + 0x1FEAEA), (uintptr_t)ASMGiantAntBurstShot);
+	hookGameBlockWithInt3((void *)(hmodEXE + 0x1FEAEA), (uintptr_t)ASMGiantAntFuncP10);
 	WriteHookToProcess((void *)(hmodEXE + 0x1FEAEA + 15), (void *)&nop5, 5U);
 	GiantAntNormalShotAddr = (uintptr_t)(hmodEXE + 0x1FFF40);
 
@@ -240,17 +246,32 @@ void hookMonsterFunctions() {
 	// hook GiantBee extra features, offset is 0x20A0B0
 	hookGameBlock((void *)(hmodEXE + 0x20ACB0), (uintptr_t)ASMxgsOCgiantBee);
 	WriteHookToProcess((void *)(hmodEXE + 0x20ACB0 + 12), (void *)&Interruptions32, 10U);
-	// hook GiantBee Ammo, offset is 0x20A6D3
-	giantBeeAmmoNextAddr = (uintptr_t)(hmodEXE + 0x20B2E0);
-	giantBeeAmmoRetAddr = (uintptr_t)(hmodEXE + 0x20B2F9);
-	hookGameBlock((void *)(hmodEXE + 0x20B2D3), (uintptr_t)ASMxgsOCgiantBeeAmmo);
-	WriteHookToProcess((void *)(hmodEXE + 0x20B2D3 + 12), (void *)&intNOP32, 1U);
+	// old is 0x1C40, EDF5.exe+46A167
+	// +1C40h(8-Bytes) is ammo call address
+	// +1C48h(4-Bytes) is shot count in burst, +1C4Ch(4-Bytes) is accuracy
+	// +1C50h(4-Bytes) is burst state (0 or 1)
+	// +1C54h(4-Bytes) is current burst count, +1C58h(4-Bytes) is burst count
+	// +1C5Ch(4-Bytes) is burst interval, +1C60h(4-Bytes) is burst interval count
+	int newGiantBeeSize = 0x1C70;
+	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x46A167 + 1), &newGiantBeeSize, 4U);
+	// hook GiantBee shot, EDF5.exe+20B2E0
+	hookGameBlockWithInt3((void *)(hmodEXE + 0x20B2E0), (uintptr_t)ASMGiantBeeNormalShot);
+	WriteHookToProcess((void *)(hmodEXE + 0x20B2E0 + 15), (void *)&nop10, 10U);
+	GiantBeeNormalShotRetAddr = (uintptr_t)(hmodEXE + 0x20B2F9);
 	// allows adjustment of shot accuracy, offset is 0x20A642
+	// movss xmm9, dword ptr [r14+1C4Ch]
 	unsigned char beeAccuracy[] = {
-		0xF3, 0x45, 0x0F, 0x10, 0x8E, 0xA4, 0x12, 0x00, 0x00, 
-		0x0F, 0x1F, 0x44, 0x00, 0x00, 0xC7, 0x44
+		0xF3, 0x45, 0x0F, 0x10, 0x8E, 0x4C, 0x1C, 0x00, 0x00
 	};
-	WriteHookToProcess((void *)(hmodEXE + 0x20B242), &beeAccuracy, 16U);
+	WriteHookToProcess((void *)(hmodEXE + 0x20B242), &beeAccuracy, 9U);
+	// EDF5.exe+208EBB, update animation events
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x208EBB), (uintptr_t)ASMGiantBeeAnimationEvent);
+	WriteHookToProcess((void*)(hmodEXE + 0x208EBB + 15), (void*)&nop1, 1U);
+	GiantBeeAnimationEventRetAddr = (uintptr_t)(hmodEXE + 0x208ECB);
+	// EDF5.exe+209EC8, set continuous shot.
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x209EC8), (uintptr_t)ASMGiantBeeFuncP10);
+	WriteHookToProcess((void*)(hmodEXE + 0x209EC8 + 15), (void*)&nop6, 6U);
+	GiantBeeNormalShotAddr = (uintptr_t)(hmodEXE + 0x20B430);
 
 	// hook DragonSmall extra features, offset is 0x1EC496
 	hookGameBlock((void *)(hmodEXE + 0x1ED096), (uintptr_t)ASMxgsOCdragonSmall);

@@ -67,8 +67,10 @@ ASMGiantAntInitEX proc
         mov [rcx+1930h], rax ; ammo call address
         mov dword ptr [rcx+1938h], 90 ; burst count
         mov dword ptr [rcx+193Ch], 3DCCCCCDh ; accuracy, 0.1f
-        mov [rcx+1940h], rax
-        mov [rcx+1948h], rax
+        mov [rcx+1940h], rax ; burst state, current burst count
+        mov [rcx+1948h], rax ; shot count in new burst, burst interval
+        mov [rcx+1950h], rax ; burst interval count,
+        mov [rcx+1958h], rax
         ; end
     AmmoTypeBlock:
         lea rdx, antBulletClass
@@ -98,6 +100,9 @@ ASMGiantAntInitEX proc
         ; node 3 is new shot count
         mov eax, dword ptr [rdx+36+8]
         mov [rbx+1948h], eax
+        ; node 4 is burst interval
+        mov eax, dword ptr [rdx+48+8]
+        mov [rbx+194Ch], eax
     ; It is only activated when +12A0==1, so we have to reactivate it
         lea rdx, antBulletParam
         mov rcx, rsi
@@ -251,12 +256,14 @@ align 16
 
 ASMGiantAntBurstFire proc
 
+        xor edx, edx
+        mov [rcx+1950h], edx ; set burst interval count to 0
         mov dword ptr [rcx+1940h], 1 ; set burst
         mov eax, [rcx+1938h]
         mov [rcx+1944h], eax ; set max count
         mov eax, [rcx+1948h]
-        cmp eax, 0
-        jle ReturnAddress
+        cmp eax, edx
+        jle ReturnAddress ; if <= 0
         mov [rcx+13B0h], eax ; set new shot count
     ReturnAddress:
         ret 
@@ -270,6 +277,7 @@ ASMGiantAntBurstStop proc
 
         xor rax, rax
         mov [rcx+1940h], rax
+        mov [rcx+1950h], eax
         ret 
         int 3
 
@@ -290,7 +298,7 @@ ASMGiantAntAnimationEvent proc
         lea rdx, _AnimationEvent_BurstFire ; BurstFire
         lea rcx, [rbp-40h]
         call rva27380
-        movdqa xmm0, [rbp-50h]
+        movaps xmm0, [rbp-50h]
         movdqa [rbp-50h], xmm0
         lea r9, [rbp-50h]
         mov r8, rsi
@@ -349,10 +357,11 @@ ASMGiantAntNormalShot proc
         lea r8, [rbp-80h]
         lea rdx, [rsp+40h]
         mov rcx, [rax]
-        cmp qword ptr [rsi+1930h], 0
+        mov rax, [rsi+1930h]
+        test rax, rax
         je ofs1FF6FF
         ;mov [rsp+20h], rsi
-        call qword ptr [rsi+1930h]
+        call rax
         jmp GiantAntNormalShotRetAddr
     ofs1FF6FF:
         call InsectAmmoType+8;AcidBullet01
@@ -363,16 +372,27 @@ ASMGiantAntNormalShot ENDP
 
 align 16
 
-ASMGiantAntBurstShot proc
+ASMGiantAntFuncP10 proc
 
         cmp [rbx+1940h], r14d ; if == 0
-        je ofs1FDEEA
+        je ofs1FDEEA ; if == 0
+        ; check current burst count
         mov eax, [rbx+1944h]
-        cmp eax, r14d ; if <= 0
-        jle ofs1FDEEA
+        cmp eax, r14d
+        jle ofs1FDEEA ; if <= 0
+        ; check burst interval count
+        mov ecx, [rbx+1950h]
+        cmp ecx, r14d
+        jle FireBlock ; if <= 0
+        dec ecx
+        mov [rbx+1950h], ecx
+        jmp ofs1FDEEA
+    FireBlock:
         dec eax
-        mov rcx, rbx
         mov [rbx+1944h], eax
+        mov eax, [rbx+194Ch]
+        mov [rbx+1950h], eax
+        mov rcx, rbx
         call GiantAntNormalShotAddr
     ofs1FDEEA:
         lea r11, [rsp+90h]
@@ -385,7 +405,7 @@ ASMGiantAntBurstShot proc
         ret 
         int 3
 
-ASMGiantAntBurstShot ENDP
+ASMGiantAntFuncP10 ENDP
 
 align 16
 
