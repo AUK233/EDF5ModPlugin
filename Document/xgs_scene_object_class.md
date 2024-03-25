@@ -150,6 +150,7 @@ Added the following values available for SGO node names.
 | sgo node name | value type | function | value description |
 |---|---|---|---|
 |spd_AmmoAlive|int|change ammo alive time|default 300|
+|spd_AmmoClass|ptr|change ant ammo|[ammo parameters](#GiantSpider-BulletClass), all parameters must be present|
 |spd_AmmoColor|ptr|change ammo color|[color parameters](#GiantSpider-BulletColor), all parameters must be present|
 |spd_AmmoExSet|ptr|change ammo detail|[exset parameters](#GiantSpider-BulletExSet), all parameters must be present|
 |spd_ChangeModelParam|ptr|change model color|same as ant_ChangeModelParam|
@@ -162,6 +163,24 @@ Added the following values available for SGO node names.
 |0|float|multiply this factor by original bullet size|
 |1|float|multiply this factor by original bullet speed|
 |2|float|multiply this factor by original bullet damage|
+
+#### GiantSpider BulletClass
+| node index | value type | value description |
+|---|---|---|
+|0|int|ammo type, 0 is default|
+| - | - |1 is AcidBullet01, 2 is FlameBullet01|
+| - | - |3 is PlasmaBullet01, 4 is SolidBullet01|
+| - | - |5 is PulseBullet01, 6 is SolidExpBullet01|
+| - | - |7 is HomingLaserBullet01, 8 is LaserBullet02|
+| - | - |9 is FlameBullet02, 10 is NeedleBullet01|
+| - | - |11 is LightningBullet01, 12 is LaserBullet01|
+| - | - |13 is RocketBullet01, 14 is BeamBullet01|
+|1|float|normal shot accuracy, default 0.1|
+|2|int|set continuous firing count, default 0|
+| - | - |able to use animation event "BurstFire" to start continuous fire|
+| - | - |animation event "BurstFire_Stop" to stop continuous fire|
+|3|int|overriding original singly shot count in continuous firings when > 0|
+|4|int|continuous fire interval|
 
 #### GiantSpider BulletColor
 | node index | value type | value description |

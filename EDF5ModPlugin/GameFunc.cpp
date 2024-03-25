@@ -84,6 +84,8 @@ uintptr_t rva186330;
 uintptr_t rva344F30;
 // add giant ant animation event
 uintptr_t rva204EA0;
+// add giant spider animation event
+uintptr_t rva225C80;
 // add giant bee animation event
 uintptr_t rva211070;
 // Initialize laser sighting
@@ -177,6 +179,7 @@ void GetGameFunctions() {
 	rva344F30 = (uintptr_t)(hmodEXE + 0x344F30);
 	rva204EA0 = (uintptr_t)(hmodEXE + 0x204EA0);
 	rva211070 = (uintptr_t)(hmodEXE + 0x211070);
+	rva225C80 = (uintptr_t)(hmodEXE + 0x225C80);
 
 	// Initialize laser sighting
 	rva38AEF0 = (uintptr_t)(hmodEXE + 0x38AEF0);
@@ -202,6 +205,7 @@ void __fastcall ASMInsectLightningBullet01();
 void __fastcall ASMInsectLaserBullet01();
 void __fastcall ASMInsectRocketBullet01();
 void __fastcall ASMInsectBeamBullet01();
+uintptr_t InsectSpiderStringBullet02;
 
 // Delayed explosion
 uintptr_t edf47D950Address;
@@ -244,6 +248,8 @@ void GetAmmoFunctions() {
 	InsectAmmoType[13] = (uintptr_t)ASMInsectRocketBullet01;
 	// BeamBullet01
 	InsectAmmoType[14] = (uintptr_t)ASMInsectBeamBullet01;
+
+	InsectSpiderStringBullet02 = (uintptr_t)(hmodEXE + 0x225DA0);
 
 	// Delayed explosion
 	edf47D950Address = (uintptr_t)(hmodEXE + 0x47D950);

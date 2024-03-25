@@ -167,8 +167,15 @@ uintptr_t GiantAntNormalShotRetAddr;
 uintptr_t GiantAntNormalShotFireRetAddr;
 void __fastcall ASMGiantAntFuncP10();
 uintptr_t GiantAntNormalShotAddr;
-//
+// giant spider
 void __fastcall ASMxgsOCgiantSpider();
+void __fastcall ASMGiantSpiderUpdateAttack();
+void __fastcall ASMGiantSpiderNormalShot();
+uintptr_t GiantSpiderNormalShotRetAddr;
+void __fastcall ASMGiantSpiderAnimationEvent();
+uintptr_t GiantSpiderAnimationEventRetAddr;
+void __fastcall ASMGiantSpiderFuncP10();
+uintptr_t GiantSpiderNormalShotAddr;
 // giant bee
 void __fastcall ASMxgsOCgiantBee();
 void __fastcall ASMGiantBeeNormalShot();
@@ -186,10 +193,11 @@ uintptr_t dragonSmallAmmoSetRetAddr;
 void __fastcall ASMxgsOCdragonSmallAmmo();
 // monster501
 void __fastcall ASMxgsOCmonster501();
+
+
 }
 
 void hookMonsterFunctions() {
-
 
 	// hook GiantAnt extra features, EDF5.exe+46A0E8
 	unsigned char jmpToGiantAntInit[] = {
@@ -236,12 +244,44 @@ void hookMonsterFunctions() {
 	WriteHookToProcess((void *)(hmodEXE + 0x1FEAEA + 15), (void *)&nop5, 5U);
 	GiantAntNormalShotAddr = (uintptr_t)(hmodEXE + 0x1FFF40);
 
-	// hook GiantSpider extra features, offset is 0x21E48A
-	hookGameBlock((void *)(hmodEXE + 0x21F08A), (uintptr_t)ASMxgsOCgiantSpider);
-	WriteHookToProcess((void *)(hmodEXE + 0x21F08A + 12), (void *)&Interruptions32, 10U);
-	// removal GiantSpider change ammo color, offset is 0x21F8FB
-	unsigned char noSpiderColorChange[] = {0xEB, 0x4F};
-	WriteHookToProcess((void *)(hmodEXE + 0x2204FB), &noSpiderColorChange, 2U);
+	// hook GiantSpider extra features, EDF5.exe+46A138
+	unsigned char jmpToGiantSpiderInit[] = {
+		0xFF, 0x25, 0xBA, 0xFF, 0xFF, 0xFF
+	};
+	WriteHookToProcess((void*)(hmodEXE + 0x46A138), &jmpToGiantSpiderInit, 6U);
+	uintptr_t GiantSpiderInitaddr = (uintptr_t)ASMxgsOCgiantSpider;
+	WriteHookToProcess((void*)(hmodEXE + 0x46A0F8), &GiantSpiderInitaddr, 8U);
+	// old is 0x1C40, EDF5.exe+46A117
+	// +1C40h(8-Bytes) is ammo call address
+	// +1C48h(4-Bytes) is shot count in burst, +1C4Ch(4-Bytes) is accuracy
+	// +1C50h(4-Bytes) is burst state (0 or 1)
+	// +1C54h(4-Bytes) is current burst count, +1C58h(4-Bytes) is burst count
+	// +1C5Ch(4-Bytes) is burst interval, +1C60h(4-Bytes) is burst interval count
+	int newGiantSpiderSize = 0x1C70;
+	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x46A117 + 1), &newGiantSpiderSize, 4U);
+	// EDF5.exe+21F092 [rax+18h], Includes difficulty update object strength.
+	hookGameBlock14((void*)(hmodEXE + 0x21F092), (uintptr_t)ASMGiantSpiderUpdateAttack);
+	// EDF5.exe+220498, allows modify normal shot accuracy.
+	// movss xmm6, dword ptr [rbx+1C4Ch]
+	unsigned char SpiderShotAccuracy[] = {
+		0xF3, 0x0F, 0x10, 0xB3, 0x4C, 0x1C, 0x00, 0x00
+	};
+	WriteHookToProcess((void*)(hmodEXE + 0x220498), &SpiderShotAccuracy, 8U);
+	// EDF5.exe+2204FB, removal GiantSpider change ammo color
+	//unsigned char noSpiderColorChange[] = { 0xEB, 0x4F };
+	//WriteHookToProcess((void*)(hmodEXE + 0x2204FB), &noSpiderColorChange, 2U);
+	// EDF5.exe+2204FB, allows modify shot ammo.
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x2204FB), (uintptr_t)ASMGiantSpiderNormalShot);
+	WriteHookToProcess((void*)(hmodEXE + 0x2204FB + 15), (void*)&nop4, 4U);
+	GiantSpiderNormalShotRetAddr = (uintptr_t)(hmodEXE + 0x22059A);
+	// EDF5.exe+21F354, Update animation events
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x21F354), (uintptr_t)ASMGiantSpiderAnimationEvent);
+	WriteHookToProcess((void*)(hmodEXE + 0x21F354 + 15), (void*)&nop2, 2U);
+	GiantSpiderAnimationEventRetAddr = (uintptr_t)(hmodEXE + 0x21F365);
+	// EDF5.exe+21FA95, set continuous shot.
+	hookGameBlock14((void*)(hmodEXE + 0x21F9CD), (uintptr_t)ASMGiantSpiderFuncP10);
+	hookGameBlock14((void*)(hmodEXE + 0x21FA95), (uintptr_t)ASMGiantSpiderFuncP10);
+	GiantSpiderNormalShotAddr = (uintptr_t)(hmodEXE + 0x220650);
 
 	// hook GiantBee extra features, offset is 0x20A0B0
 	hookGameBlock((void *)(hmodEXE + 0x20ACB0), (uintptr_t)ASMxgsOCgiantBee);

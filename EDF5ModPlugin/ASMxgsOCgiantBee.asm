@@ -37,7 +37,7 @@ ASMxgsOCgiantBee proc
         ;mov dword ptr [rbx+12A0h], 0 ; ammo type
         ; initialization
         xor rax, rax
-        mov [rcx+1C40h], rax ; ammo call address
+        mov [rbx+1C40h], rax ; ammo call address
         mov [rbx+1C48h], eax ; shot count in burst
         mov dword ptr [rbx+1C4Ch], 3F333333h ; shot accuracy, 0.7f
         mov [rbx+1C50h], rax ; burst state, current burst count
