@@ -26,6 +26,8 @@ uintptr_t aligned_mallocAddr;
 uintptr_t aligned_freeAddr;
 uintptr_t __sqrtfAddr;
 uintptr_t __sinfAddr;
+uintptr_t RtlEnterCriticalSection;
+uintptr_t RtlLeaveCriticalSection;
 //
 void __fastcall ASMplayerViewChange();
 uintptr_t playerViewRetAddr;
@@ -44,6 +46,7 @@ void __fastcall ASMwww();
 }
 
 void hookGameFunctions() {
+	//EDF5.exe+613a12
 	// first overwrite original
 	OverwriteGameFunctions();
 	__RTDynamicCastAddr = (uintptr_t)(hmodEXE + 0x9C8228);
@@ -51,6 +54,8 @@ void hookGameFunctions() {
 	aligned_freeAddr = (uintptr_t)_aligned_free;
 	__sqrtfAddr = (uintptr_t)sqrtf;
 	__sinfAddr = (uintptr_t)sinf;
+	RtlEnterCriticalSection = (uintptr_t)EnterCriticalSection;
+	RtlLeaveCriticalSection = (uintptr_t)LeaveCriticalSection;
 	// allows switching of views, offset is 0x2DA490
 	hookGameBlock((void *)(hmodEXE + 0x2DB090), (uintptr_t)ASMplayerViewChange);
 	playerViewRetAddr = (uintptr_t)(hmodEXE + 0x2DB0D1);

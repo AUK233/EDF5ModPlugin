@@ -9,6 +9,7 @@ The following values are available for Ammo_CustomParameter when AmmoClass is X.
 - [LaserBullet02](#LaserBullet02)
 - [MissileBullet01](#MissileBullet01)
 - [RocketBullet01](#RocketBullet01)
+- [Volcanicrock01](#Volcanicrock01)
 
 ### SolidBullet01
 Its Ammo_CustomParameter has a maximum of 3 parameters.
@@ -115,5 +116,32 @@ Its Ammo_CustomParameter has a maximum of 4 parameter, minimum 3 parameter (or 0
 |4|int|hit type (new)|0 is default|
 |-|-|-|1 is no explosive knockout|
 |-|-|-|2 is no knockout and building destruction|
+
+#### [Return to Index](#index)
+
+### Volcanicrock01
+Its Ammo_CustomParameter has a maximum of 5 parameter, minimum 5 parameters required.
+
+| node index | value type | function | value description |
+|---|---|---|---|
+|0|int|ammo type|1 is delayed explosion and bounce|
+|1|float|bounce strength|< 0.001 is no bounce|
+|2|float|ammo rotation speed|initial velocity of forward rotation|
+|3|float|ammo rotation damping|should be 0.98|
+|4|ptr|ammo material update|[all parameters must be present](#Volcanicrock01-Node4)|
+
+#### Volcanicrock01 Node4
+| node index | value type | value description |
+|---|---|---|
+|0|str|material name in mdb|
+|1|str|shader parameter name in mdb|
+|2|ptr|initial color, [all parameters must be present](#Volcanicrock01-Node4-parameter)|
+|3|ptr|transitional color, [all parameters must be present](#Volcanicrock01-Node4-parameter)|
+
+##### Volcanicrock01 Node4 parameter
+| node index | value type | value description |
+|---|---|---|
+|0|int|required time|
+|1|ptr|color|
 
 #### [Return to Index](#index)

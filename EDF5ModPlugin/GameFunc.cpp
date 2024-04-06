@@ -40,8 +40,6 @@ uintptr_t edf1ACA80Address;
 uintptr_t edf6E160Address;
 uintptr_t edf6E0D0Address;
 uintptr_t edf70730Address;
-uintptr_t RtlEnterCriticalSection;
-uintptr_t RtlLeaveCriticalSection;
 uintptr_t vedfE940C0;
 uintptr_t vedfE94130;
 uintptr_t edf5C8410Address;
@@ -65,6 +63,9 @@ uintptr_t eGetAccessoryINT32Addr;
 //
 uintptr_t rva9C6E40;
 uintptr_t rva27380;
+uintptr_t rva6E010;
+uintptr_t rva79390;
+uintptr_t rva9C850;
 // IncreaseTextLength
 uintptr_t rva27570;
 //
@@ -139,8 +140,6 @@ void GetGameFunctions() {
 	edf6E160Address = (uintptr_t)(hmodEXE + 0x6E160);
 	edf6E0D0Address = (uintptr_t)(hmodEXE + 0x6E0D0);
 	edf70730Address = (uintptr_t)(hmodEXE + 0x70730);
-	RtlEnterCriticalSection = (uintptr_t)EnterCriticalSection;
-	RtlLeaveCriticalSection = (uintptr_t)LeaveCriticalSection;
 	vedfE940C0 = (uintptr_t)(hmodEXE + 0xE940C0);
 	vedfE94130 = (uintptr_t)(hmodEXE + 0xE94130);
 	edf5C8410Address = (uintptr_t)(hmodEXE + 0x5C8410);
@@ -168,6 +167,9 @@ void GetGameFunctions() {
 	rva27380 = (uintptr_t)(hmodEXE + 0x27380);
 	rva27570 = (uintptr_t)(hmodEXE + 0x27570);
 	rva42460 = (uintptr_t)(hmodEXE + 0x42460);
+	rva6E010 = (uintptr_t)(hmodEXE + 0x6E010);
+	rva79390 = (uintptr_t)(hmodEXE + 0x79390);
+	rva9C850 = (uintptr_t)(hmodEXE + 0x9C850);
 	rvaB7220 = (uintptr_t)(hmodEXE + 0xB7220);
 	rva4D86D0 = (uintptr_t)(hmodEXE + 0x4D86D0);
 	rva4CA990 = (uintptr_t)(hmodEXE + 0x4CA990);
@@ -195,16 +197,27 @@ extern "C" {
 // Set insect ammo type
 uintptr_t InsectAmmoType[14 + 1];
 uintptr_t giantBeeAmmoSetRetAddr;
+uintptr_t AVSceneObjectAddress;
 void __fastcall ASMInsectPlasmaBullet01();
+uintptr_t AVPlasmaBullet01Address;
 void __fastcall ASMInsectSolidBullet01();
+uintptr_t AVSolidBullet01Address;
 void __fastcall ASMInsectPulseBullet01();
+uintptr_t AVPulseBullet01Address;
 void __fastcall ASMInsectSolidExpBullet01();
+uintptr_t AVSolidExpBullet01Address;
 void __fastcall ASMInsectHomingLaserBullet01();
+uintptr_t AVHomingLaserBullet01Address;
 void __fastcall ASMInsectLaserBullet02();
+uintptr_t AVLaserBullet02Address;
 void __fastcall ASMInsectLightningBullet01();
+uintptr_t AVLightningBullet01Address;
 void __fastcall ASMInsectLaserBullet01();
+uintptr_t AVLaserBullet01Address;
 void __fastcall ASMInsectRocketBullet01();
+uintptr_t AVRocketBullet01Address;
 void __fastcall ASMInsectBeamBullet01();
+uintptr_t AVBeamBullet01Address;
 uintptr_t InsectSpiderStringBullet02;
 
 // Delayed explosion
@@ -220,37 +233,47 @@ void GetAmmoFunctions() {
 	InsectAmmoType[0] = 0;
 	// Get insect ammo return address
 	giantBeeAmmoSetRetAddr = (uintptr_t)(hmodEXE + 0x21120C);
+	AVSceneObjectAddress = (uintptr_t)(hmodEXE + 0x11A49C0);
 	// AcidBullet01
 	InsectAmmoType[1] = (uintptr_t)(hmodEXE + 0x204FC0);
 	// FlameBullet01
 	InsectAmmoType[2] = (uintptr_t)(hmodEXE + 0x1F77F0);
 	// PlasmaBullet01
 	InsectAmmoType[3] = (uintptr_t)ASMInsectPlasmaBullet01;
+	AVPlasmaBullet01Address = (uintptr_t)(hmodEXE + 0x11AA2B8);
 	// SolidBullet01
 	InsectAmmoType[4] = (uintptr_t)ASMInsectSolidBullet01;
+	AVSolidBullet01Address = (uintptr_t)(hmodEXE + 0x11A9740);
 	// PulseBullet01
 	InsectAmmoType[5] = (uintptr_t)ASMInsectPulseBullet01;
+	AVPulseBullet01Address = (uintptr_t)(hmodEXE + 0x11AA380);
 	// SolidExpBullet01
 	InsectAmmoType[6] = (uintptr_t)ASMInsectSolidExpBullet01;
+	AVSolidExpBullet01Address = (uintptr_t)(hmodEXE + 0x11AAD98);
 	// HomingLaserBullet01
 	InsectAmmoType[7] = (uintptr_t)ASMInsectHomingLaserBullet01;
+	AVHomingLaserBullet01Address = (uintptr_t)(hmodEXE + 0x11A9C10);
 	// LaserBullet02
 	InsectAmmoType[8] = (uintptr_t)ASMInsectLaserBullet02;
+	AVLaserBullet02Address = (uintptr_t)(hmodEXE + 0x11A9D40);
 	// FlameBullet02
 	InsectAmmoType[9] = (uintptr_t)(hmodEXE + 0x205220);
 	// NeedleBullet01
 	InsectAmmoType[10] = (uintptr_t)(hmodEXE + 0x211190);
 	// LightningBullet01
 	InsectAmmoType[11] = (uintptr_t)ASMInsectLightningBullet01;
+	AVLightningBullet01Address = (uintptr_t)(hmodEXE + 0x11AA000);
 	// LaserBullet01
 	InsectAmmoType[12] = (uintptr_t)ASMInsectLaserBullet01;
+	AVLaserBullet01Address = (uintptr_t)(hmodEXE + 0x11A9CB8);
 	// RocketBullet01
 	InsectAmmoType[13] = (uintptr_t)ASMInsectRocketBullet01;
+	AVRocketBullet01Address = (uintptr_t)(hmodEXE + 0x11AA3D0);
 	// BeamBullet01
 	InsectAmmoType[14] = (uintptr_t)ASMInsectBeamBullet01;
+	AVBeamBullet01Address = (uintptr_t)(hmodEXE + 0x11A9538);
 
 	InsectSpiderStringBullet02 = (uintptr_t)(hmodEXE + 0x225DA0);
-
 	// Delayed explosion
 	edf47D950Address = (uintptr_t)(hmodEXE + 0x47D950);
 	edf1AE7A0Address = (uintptr_t)(hmodEXE + 0x1AE7A0);
