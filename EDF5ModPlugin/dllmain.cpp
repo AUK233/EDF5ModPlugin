@@ -25,6 +25,7 @@
 #include "utiliy.h"
 #include "GameFunc.h"
 #include "GameFuncSetup.h"
+#include "GameFuncStartup.h"
 #include "GameFunc_vftable.h"
 #include "GFnDisplay.h"
 
@@ -626,6 +627,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		// Add internal logging hook
 		SetupHook(pointers[3], (PVOID*)&gamelog_orig, gamelog_hook, "Interal logging hook", GameLog);
 
+		// Set startup behavior
+		GameStartupInitialization(hmodEXE);
 		// End, change game title
 		std::wstring GameTitle = L"EDF5 for PC in MOD Mode";
 		WriteHookToProcess(hmodEXE + 0xebcbd0, (void *)GameTitle.c_str(), 48U);

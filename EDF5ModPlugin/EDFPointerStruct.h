@@ -27,7 +27,9 @@ typedef struct EDFWeaponStruct {
 	BYTE fireWeapon;
 	// To be verified
 	BYTE fireCheck;
-	BYTE pad1[5];
+	// When it's 1, use SecondaryFire
+	BYTE secondaryFire;
+	BYTE pad1[4];
 	BYTE addr224;
 	BYTE pad2[0x67];
 	WCHAR* WeaponName;
@@ -44,7 +46,9 @@ typedef struct EDFWeaponStruct {
 	int FireSpreadType;
 	float FireSpreadWidth;
 	int FireCount;
-	BYTE pad401[0x2B0];
+	BYTE pad401[0x204];
+	int SecondaryFire_Type;
+	BYTE pad402[0xA8];
 	// current weapon?
 	BYTE addr1452;
 	BYTE pad43[0xEC];
@@ -97,6 +101,7 @@ typedef struct EDFWeaponStruct {
 } EDFWeaponPointer;
 static_assert(offsetof(EDFWeaponStruct, fireWeapon) == 0xD9);
 static_assert(offsetof(EDFWeaponStruct, fireCheck) == 0xDA);
+static_assert(offsetof(EDFWeaponStruct, secondaryFire) == 0xDB);
 static_assert(offsetof(EDFWeaponStruct, addr224) == 0xE0);
 static_assert(offsetof(EDFWeaponStruct, WeaponName) == 0x148);
 static_assert(offsetof(EDFWeaponStruct, reloadType) == 0x1A0);
@@ -107,6 +112,7 @@ static_assert(offsetof(EDFWeaponStruct, maxAmmo) == 0x1D0);
 static_assert(offsetof(EDFWeaponStruct, FireSpreadType) == 0x2F0);
 static_assert(offsetof(EDFWeaponStruct, FireSpreadWidth) == 0x2F4);
 static_assert(offsetof(EDFWeaponStruct, FireCount) == 0x2F8);
+static_assert(offsetof(EDFWeaponStruct, SecondaryFire_Type) == 0x500);
 static_assert(offsetof(EDFWeaponStruct, addr1452) == 0x5AC);
 static_assert(offsetof(EDFWeaponStruct, AmmoDamage) == 0x69C);
 static_assert(offsetof(EDFWeaponStruct, AmmoDamageReduceMin) == 0x6A0);

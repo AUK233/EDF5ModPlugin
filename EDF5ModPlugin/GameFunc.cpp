@@ -49,33 +49,13 @@ uintptr_t edf1BCDF0Address;
 uintptr_t edf5C6C80Address;
 uintptr_t edf5C8660Address;
 //
-uintptr_t vedf125AB68;
-uintptr_t vedf125ABA0;
-uintptr_t vedf125AB30;
-uintptr_t vedf1259640;
-uintptr_t vedf1259680;
-uintptr_t vedf125B080;
-uintptr_t vedf1153550;
-uintptr_t vedf1256BD0;
-//
 uintptr_t eGetAccessoryValueAddr;
 uintptr_t eGetAccessoryINT32Addr;
 //
 uintptr_t rva9C6E40;
-uintptr_t rva27380;
 uintptr_t rva6E010;
 uintptr_t rva79390;
 uintptr_t rva9C850;
-// IncreaseTextLength
-uintptr_t rva27570;
-//
-uintptr_t rva42460;
-// Int2WString(void* dst, int)
-uintptr_t rvaB7220;
-// Int to WString?
-uintptr_t rva4D86D0;
-// UpdateText
-uintptr_t rva4CA990;
 //
 uintptr_t rva5CC830;
 // read shader?
@@ -149,30 +129,15 @@ void GetGameFunctions() {
 	edf5C6C80Address = (uintptr_t)(hmodEXE + 0x5C6C80);
 	edf5C8660Address = (uintptr_t)(hmodEXE + 0x5C8660);
 
-	//
-	vedf125AB68 = (uintptr_t)(hmodEXE + 0x125AB68);
-	vedf125ABA0 = (uintptr_t)(hmodEXE + 0x125ABA0);
-	vedf125AB30 = (uintptr_t)(hmodEXE + 0x125AB30);
-	vedf1259640 = (uintptr_t)(hmodEXE + 0x1259640);
-	vedf1259680 = (uintptr_t)(hmodEXE + 0x1259680);
-	vedf125B080 = (uintptr_t)(hmodEXE + 0x125B080);
-	vedf1153550 = (uintptr_t)(hmodEXE + 0x1153550);
-	vedf1256BD0 = (uintptr_t)(hmodEXE + 0x1256BD0);
 	// 
 	eGetAccessoryValueAddr = (uintptr_t)(hmodEXE + 0x307400);
 	eGetAccessoryINT32Addr = (uintptr_t)(hmodEXE + 0x3072F0);
 
 	//
 	rva9C6E40 = (uintptr_t)(hmodEXE + 0x9C6E40);
-	rva27380 = (uintptr_t)(hmodEXE + 0x27380);
-	rva27570 = (uintptr_t)(hmodEXE + 0x27570);
-	rva42460 = (uintptr_t)(hmodEXE + 0x42460);
 	rva6E010 = (uintptr_t)(hmodEXE + 0x6E010);
 	rva79390 = (uintptr_t)(hmodEXE + 0x79390);
 	rva9C850 = (uintptr_t)(hmodEXE + 0x9C850);
-	rvaB7220 = (uintptr_t)(hmodEXE + 0xB7220);
-	rva4D86D0 = (uintptr_t)(hmodEXE + 0x4D86D0);
-	rva4CA990 = (uintptr_t)(hmodEXE + 0x4CA990);
 	rva186330 = (uintptr_t)(hmodEXE + 0x186330);
 	rva5CC830 = (uintptr_t)(hmodEXE + 0x5CC830);
 	rva5EE9E0 = (uintptr_t)(hmodEXE + 0x5EE9E0);

@@ -7,13 +7,15 @@ extern edf11B1AB0Address : qword
 extern edf3983B0Address : qword
 extern edf3982A0Address : qword
 
+extern _Common_F1P0 : dword
+
 extern ofs3073C0JmpAddr : qword
 extern ofs2E4070JmpAddr : qword
 extern ofs2E42C0JmpAddr : qword
 extern ofs2E43E0JmpAddr : qword
 extern ofs2E4500JmpAddr : qword
 
-fencerBoostSpeed dd 3F800000h
+extern ofs2E4500JmpAddr : qword
 
 .code
 
@@ -66,7 +68,7 @@ ASMeFencerJetSetup proc
     toValueBlockFix:
         movd esi, xmm6
         cmp esi, 0 ; if it is still 0 when checked
-        cmove esi, fencerBoostSpeed ; set it to default
+        cmove esi, _Common_F1P0 ; set it to default
         mov dword ptr [rbx+1BACh], esi ; boost speed
         mov edi, r14d
 

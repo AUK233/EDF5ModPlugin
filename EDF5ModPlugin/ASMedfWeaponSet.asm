@@ -11,6 +11,7 @@ extern rva391230 : qword
 
 extern readWeaponSgoNodeRetAddr : qword
 extern weaponStartReloadRetAddr : qword
+extern weaponSetShotStatusRetAddr : qword
 
 ; L"ReloadInit"
 wReloadInit db 82,0,101,0,108,0,111,0,97,0,100,0,73,0,110,0,105,0,116,0,0,0
@@ -227,5 +228,36 @@ ASMweaponStartReload proc
         int 3
 
 ASMweaponStartReload ENDP
+
+align 16
+
+ASMweaponSetShotStatus proc
+
+        mov rax, [rbx+30h]
+        mov rcx, [rax]
+        test r14d, r14d
+        mov byte ptr [rcx+0D9h], 1 ; set fire
+        jne otherArm ; if it's other arm.
+        or dword ptr [rdi+11A8h], edx
+        jmp weaponSetShotStatusRetAddr
+
+    otherArm:
+        cmp dword ptr [rcx+2510h], 256
+        je otherArmFire ; Check if need to AI both hands to fire
+    ofs308107:
+        or dword ptr [rdi+11A8h], 20h
+        jmp weaponSetShotStatusRetAddr
+        
+    otherArmFire:
+        mov rax, [rbx+30h-0A8h]
+        mov rdx, [rax]
+        cmp dword ptr [rdx+2510h], 256
+        jne ofs308107 ; double-check
+        mov byte ptr [rdx+0D9h], 1
+        or dword ptr [rdi+11A8h], 30h
+        jmp weaponSetShotStatusRetAddr
+        int 3
+
+ASMweaponSetShotStatus ENDP
 
 END

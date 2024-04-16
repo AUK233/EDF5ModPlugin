@@ -103,6 +103,17 @@ void OverwriteGameFunctions() {
 	unsigned char password2[] = {0xDC, 0x78};
 	WriteHookToProcess((void *)(hmodEXE + 0x582035 + 3), &password2, 2U);
 
+	// remove clear limit
+	WriteHookToProcess((void*)(hmodEXE + 0x3E32A1), (void*)&nop2, 2U);
+	/*
+	unsigned char clearLimit1 = 0xEB;
+	WriteHookToProcess((void*)(hmodEXE + 0x51230E), &clearLimit1, 1U);
+	unsigned char clearLimit2[] = {
+		0xE9, 0x0E, 0x01, 0x00, 0x00, 0x90
+	};
+	WriteHookToProcess((void*)(hmodEXE + 0x5123CF), &clearLimit2, 6U);
+	*/
+
 	// minimum building destruction blast radius
 	// offset is 0x141AA5
 	// 3.0f to 5.0f
@@ -505,13 +516,15 @@ void __fastcall ASMreadWeaponSgoNode();
 uintptr_t readWeaponSgoNodeRetAddr;
 void __fastcall ASMweaponStartReload();
 uintptr_t weaponStartReloadRetAddr;
+void __fastcall ASMweaponSetShotStatus();
+uintptr_t weaponSetShotStatusRetAddr;
 // Weapon_HeavyShoot
 void __fastcall ASMweaponHeavyShootSetup();
 // Weapon_Gatling
-uintptr_t wGatlingSetupRetAddr;
 void __fastcall ASMweaponGatlingSetup();
-uintptr_t wGatlingShotRetAddr;
+uintptr_t wGatlingSetupRetAddr;
 void __fastcall ASMweaponGatlingShot();
+uintptr_t wGatlingShotRetAddr;
 }
 
 void hookWeaponFunctions() {
@@ -546,6 +559,9 @@ void hookWeaponFunctions() {
 	hookGameBlock((void *)(hmodEXE + 0x3911CB), (uint64_t)ASMweaponStartReload);
 	WriteHookToProcess((void *)(hmodEXE + 0x3911CB + 12), (void *)&nop2, 2U);
 	weaponStartReloadRetAddr = (uintptr_t)(hmodEXE + 0x3911DF);
+	// allows AI both hands to fire, EDF5.exe+308CFD
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x308CFD), (uint64_t)ASMweaponSetShotStatus);
+	weaponSetShotStatusRetAddr = (uintptr_t)(hmodEXE + 0x308D1C);
 
 	// heavy shoot setup, EDF5.exe+39BC26
 	// start:0x12A0, size:0x10, function: set laser sight.

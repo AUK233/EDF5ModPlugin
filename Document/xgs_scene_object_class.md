@@ -155,7 +155,16 @@ Added the following values available for SGO node names.
 |spd_AmmoExSet|ptr|change ammo detail|[exset parameters](#GiantSpider-BulletExSet), all parameters must be present|
 |spd_ChangeModelParam|ptr|change model color|same as ant_ChangeModelParam|
 | - | - |original function|
+|spd_AiSetting|ptr|ai range|[ai parameters](#GiantSpider-spdAiSetting), all parameters must be present|
 |spd_Ammo|ptr|change ammo|[ammo parameters](#GiantSpider-spdammo), all parameters must be present|
+
+#### GiantSpider spdAiSetting
+| node index | value type | value description |
+|---|---|---|
+|0|int|extra value|
+|1|int|base value|
+|2|float|extra search range?|
+|3|float|base search range?|
 
 #### GiantSpider spdammo
 | node index | value type | value description |

@@ -7,6 +7,7 @@ The following values are available for Ammo_CustomParameter when AmmoClass is X.
 - [SolidPelletBullet01](#SolidPelletBullet01)
 - [LaserBullet01](#LaserBullet01)
 - [LaserBullet02](#LaserBullet02)
+- [LightningBullet01](#LightningBullet01)
 - [MissileBullet01](#MissileBullet01)
 - [RocketBullet01](#RocketBullet01)
 - [Volcanicrock01](#Volcanicrock01)
@@ -84,6 +85,22 @@ Its Ammo_CustomParameter has a maximum of 2 parameter, minimum 1 parameter requi
 |-|-|-|3 is no explosion effect|
 |-|-|-|(new)4 is delayed normal explosion|
 |1|int|knock out type (new)|0 is knock out, 1 is no knock out|
+
+#### [Return to Index](#index)
+
+### LightningBullet01
+Its Ammo_CustomParameter has a maximum of 8 parameter, minimum 5 parameter required.
+
+| node index | value type | function | value description |
+|---|---|---|---|
+|0|float|||
+|1|float|||
+|2|float|||
+|3|float|bounce strength|0 will move with ground|
+|4|int|factor|greater will make it faster|
+|5|float|lightning speed|extra speed? greater will make it straighter and faster. default is 0|
+|6|float||default is 0.5|
+|7|float|lightning size|adjusts the extra size of lightning. default is 0.005|
 
 #### [Return to Index](#index)
 

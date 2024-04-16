@@ -199,6 +199,7 @@
       <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AssemblyAndSourceCode</AssemblerOutput>
     </ClCompile>
     <ClCompile Include="GameFuncSetup.cpp" />
+    <ClCompile Include="GameFuncStartup.cpp" />
     <ClCompile Include="GameFunc_vftable.cpp" />
     <ClCompile Include="GFnDisplay.cpp">
       <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -221,6 +222,7 @@
     <MASM Include="ASMammoSolidBullet01.asm" />
     <MASM Include="ASMammoSolidExpBullet01.asm" />
     <MASM Include="ASMammoSolidPelletBullet01.asm" />
+    <MASM Include="ASMgameStartup.asm" />
     <MASM Include="ASMvftShotIndicator.asm" />
     <MASM Include="ASMxgsArmySoldier.asm" />
     <MASM Include="ASMxgsOCdragonSmall.asm" />
@@ -247,6 +249,7 @@
     <ClInclude Include="EDFPointerStruct.h" />
     <ClInclude Include="GameFunc.h" />
     <ClInclude Include="GameFuncSetup.h" />
+    <ClInclude Include="GameFuncStartup.h" />
     <ClInclude Include="GameFunctionInASM.h" />
     <ClInclude Include="GameFunc_vftable.h" />
     <ClInclude Include="GFnDisplay.h" />

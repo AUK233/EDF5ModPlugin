@@ -42,6 +42,9 @@
     <ClCompile Include="GameFunc_vftable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GameFuncStartup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMxgsOCgiantAnt.asm">
@@ -122,6 +125,9 @@
     <MASM Include="ASMvftShotIndicator.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
+    <MASM Include="ASMgameStartup.asm">
+      <Filter>Assembly Files</Filter>
+    </MASM>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PluginAPI.h">
@@ -168,6 +174,9 @@
     </ClInclude>
     <ClInclude Include="Resource\LoadShaders.hpp">
       <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFuncStartup.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
