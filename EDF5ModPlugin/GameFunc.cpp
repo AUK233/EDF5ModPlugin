@@ -271,8 +271,10 @@ void __fastcall eAccessoryEnhancement(const uintptr_t p_Class) {
 	uintptr_t p_weapon = *(uintptr_t *)(p_Class + 0x1590);
 	uintptr_t num_weapon = *(uintptr_t *)(p_Class + 0x15A0);
 	uintptr_t p_weaponValue;
+	EDFWeaponPointer* pWeapon;
 	float getScale;
 	int getIntValue;
+
 	// Update AmmoCount
 	getScale = ASMeGetAccessoryValue(p_Class, 1001, 1.0f, 0);
 	if (getScale != 1.0f) {
@@ -422,6 +424,34 @@ void __fastcall eAccessoryEnhancement(const uintptr_t p_Class) {
 	if (getScale != 1.0f) {
 		p_weaponValue = p_Class + 0x169C;
 		*(float *)p_weaponValue *= getScale;
+	}
+	
+	// change LockonTargetType to 0
+	getIntValue = ASMeGetAccessoryINT32(p_Class, 1012, 0, 0);
+	if (getIntValue > 0) {
+		for (uintptr_t i = p_weapon; i != (p_weapon + (num_weapon * 8)); i += 8) {
+			p_weaponValue = *(uintptr_t*)i;
+			pWeapon = (EDFWeaponPointer*)p_weaponValue;
+			pWeapon->LockonTargetType = 0;
+		}
+	}
+	// Update LockonAngle width
+	getScale = ASMeGetAccessoryValue(p_Class, 912, 1.0f, 0);
+	if (getScale != 1.0f) {
+		for (uintptr_t i = p_weapon; i != (p_weapon + (num_weapon * 8)); i += 8) {
+			p_weaponValue = *(uintptr_t*)i;
+			pWeapon = (EDFWeaponPointer*)p_weaponValue;
+			pWeapon->LockonAngle.x *= getScale;
+		}
+	}
+	// Update LockonAngle height
+	getScale = ASMeGetAccessoryValue(p_Class, 913, 1.0f, 0);
+	if (getScale != 1.0f) {
+		for (uintptr_t i = p_weapon; i != (p_weapon + (num_weapon * 8)); i += 8) {
+			p_weaponValue = *(uintptr_t*)i;
+			pWeapon = (EDFWeaponPointer*)p_weaponValue;
+			pWeapon->LockonAngle.y *= getScale;
+		}
 	}
 }
 

@@ -17,17 +17,21 @@ void __fastcall ThrowsProblemAddressInformation(void* addr);
 void __fastcall WriteHookToProcessCheckECX(void* addr, void* data, size_t len);
 // This will check if the previous address is edx
 void __fastcall WriteHookToProcessCheckEDX(void* addr, void* data, size_t len);
-// update game's original functions, need 12bytes
-void __fastcall hookGameBlock(void *targetAddr, uint64_t hookAddr);
+// update game's original functions, need 12 bytes
+void __fastcall hookGameBlock(void *targetAddr, uint64_t dataAddr);
+// update game's original functions use RAX with interruption, need 13 bytes
+void __fastcall hookGameBlockRAXWithInt3(void* targetAddr, uint64_t dataAddr);
 // update game's original functions with 14 bytes
-void __fastcall hookGameBlock14(void *targetAddr, uint64_t hookAddr);
+void __fastcall hookGameBlock14(void *targetAddr, uint64_t dataAddr);
 // update game's original functions with interruption, need 15 bytes
-void __fastcall hookGameBlockWithInt3(void* targetAddr, uint64_t hookAddr);
+void __fastcall hookGameBlockWithInt3(void* targetAddr, uint64_t dataAddr);
 // update game's original functions with call, need 12bytes
-void __fastcall CallGameBlock(void* targetAddr, uint64_t hookAddr);
+void __fastcall CallGameBlock(void* targetAddr, uint64_t dataAddr);
 // Search the address of the target
 intptr_t __fastcall SundaySearch(const byte *target, int tLen, const byte *pattern, int pLen);
 // Search the address of the target
 intptr_t __fastcall ScanPattern(HANDLE hProcess, byte *pattern, int pLen, uintptr_t minAddr, uintptr_t maxAddr);
 // Search the address of the target
 intptr_t __fastcall ScanPattern(HANDLE hProcess, byte *pattern, int pLen, uintptr_t addr);
+// Force the game to end if the user is not responding for a long time
+void __fastcall ForceCrashGame();

@@ -22,7 +22,9 @@ typedef struct EDFVector4Struct {
 typedef struct EDFWeaponStruct {
 	// 140 is custom_parameter
 	// 6e8 is Ammo_CustomParameter
-	BYTE pad0[0xD9];
+	BYTE pad0[0xC0];
+	void* pPlayer;
+	BYTE pad0111[0x11];
 	// When it's 1, weapon will fire
 	BYTE fireWeapon;
 	// To be verified
@@ -48,7 +50,23 @@ typedef struct EDFWeaponStruct {
 	int FireCount;
 	BYTE pad401[0x204];
 	int SecondaryFire_Type;
-	BYTE pad402[0xA8];
+	BYTE pad402[4];
+	void* SecondaryFire_Parameter;
+	int LockonType;
+	int LockonTargetType;
+	int Lockon_DistributionType;
+	BYTE Lockon_AutoTimeOut;
+	BYTE Lockon_FireEndToClear;
+	BYTE pad403[2];
+	EDFVector4Pointer LockonAngle;
+	float LockonRange;
+	// int to float
+	float LockonTime;
+	// int to float
+	float LockonHoldTime;
+	BYTE pad404[4];
+	int LockonFailedTime;
+	BYTE pad405[0x68];
 	// current weapon?
 	BYTE addr1452;
 	BYTE pad43[0xEC];
@@ -99,6 +117,7 @@ typedef struct EDFWeaponStruct {
 	// 0 is none, 1 is has
 	int AmmoFriendlyFireType;
 } EDFWeaponPointer;
+static_assert(offsetof(EDFWeaponStruct, pPlayer) == 0xC0);
 static_assert(offsetof(EDFWeaponStruct, fireWeapon) == 0xD9);
 static_assert(offsetof(EDFWeaponStruct, fireCheck) == 0xDA);
 static_assert(offsetof(EDFWeaponStruct, secondaryFire) == 0xDB);
@@ -113,6 +132,17 @@ static_assert(offsetof(EDFWeaponStruct, FireSpreadType) == 0x2F0);
 static_assert(offsetof(EDFWeaponStruct, FireSpreadWidth) == 0x2F4);
 static_assert(offsetof(EDFWeaponStruct, FireCount) == 0x2F8);
 static_assert(offsetof(EDFWeaponStruct, SecondaryFire_Type) == 0x500);
+static_assert(offsetof(EDFWeaponStruct, SecondaryFire_Parameter) == 0x508);
+static_assert(offsetof(EDFWeaponStruct, LockonType) == 0x510);
+static_assert(offsetof(EDFWeaponStruct, LockonTargetType) == 0x514);
+static_assert(offsetof(EDFWeaponStruct, Lockon_DistributionType) == 0x518);
+static_assert(offsetof(EDFWeaponStruct, Lockon_AutoTimeOut) == 0x51C);
+static_assert(offsetof(EDFWeaponStruct, Lockon_FireEndToClear) == 0x51D);
+static_assert(offsetof(EDFWeaponStruct, LockonAngle) == 0x520);
+static_assert(offsetof(EDFWeaponStruct, LockonRange) == 0x530);
+static_assert(offsetof(EDFWeaponStruct, LockonTime) == 0x534);
+static_assert(offsetof(EDFWeaponStruct, LockonHoldTime) == 0x538);
+static_assert(offsetof(EDFWeaponStruct, LockonFailedTime) == 0x540);
 static_assert(offsetof(EDFWeaponStruct, addr1452) == 0x5AC);
 static_assert(offsetof(EDFWeaponStruct, AmmoDamage) == 0x69C);
 static_assert(offsetof(EDFWeaponStruct, AmmoDamageReduceMin) == 0x6A0);
@@ -156,6 +186,7 @@ typedef struct HUiHudTextContentStruct {
 	BYTE pad1[0x18];
 	EDFVector2Pointer fontSize;
 	BYTE pad2[0x40];
+	// maybe is wstring
 	WCHAR* text;
 	BYTE pad3[0x18];
 	size_t textLength;

@@ -4,4 +4,7 @@ void GameStartupInitialization(PBYTE hmodEXE);
 void GetGameGlobalPointer(PBYTE hmodEXE);
 void GameStartupHook(PBYTE hmodEXE);
 
-extern "C" void __fastcall LoadNewVoiceFilesCPP(void* pAudio);
+extern "C" {
+void __fastcall LoadNewVoiceFilesCPP(void* pAudio);
+void __fastcall ThrowInvalidSGOFilenameCPP(std::wstring filename);
+}

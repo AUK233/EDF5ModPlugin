@@ -193,6 +193,12 @@ void __fastcall ThrowsProblemAddressInformation(void* addr)
 	} else {
 		std::wstring message = L"Wrong address: +0x";
 		message += std::format(L"{:0X}", rva);
+
+		HANDLE tempHND = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ForceCrashGame, NULL, NULL, NULL);
+		if (tempHND) {
+			CloseHandle(tempHND);
+		}
+
 		MessageBoxW(NULL, message.c_str(), L"warning", MB_OK);
 	}
 }
@@ -224,6 +230,18 @@ void __fastcall hookGameBlock(void *targetAddr, uint64_t dataAddr) {
 	uint8_t hookFunction[] = {
 	    0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // mov rax, addr
 	    0xFF, 0xE0                                                  // jmp rax
+	};
+	memcpy(&hookFunction[2], &dataAddr, sizeof(dataAddr));
+
+	WriteHookToProcess(targetAddr, hookFunction, sizeof(hookFunction));
+}
+
+void __fastcall hookGameBlockRAXWithInt3(void* targetAddr, uint64_t dataAddr)
+{
+	uint8_t hookFunction[] = {
+		   0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // mov rax, addr
+		   0xFF, 0xE0, // jmp rax
+		   0xCC        // int3
 	};
 	memcpy(&hookFunction[2], &dataAddr, sizeof(dataAddr));
 
@@ -316,4 +334,11 @@ intptr_t __fastcall ScanPattern(HANDLE hProcess, byte *pattern, int pLen, uintpt
 	GetSystemInfo(&sysInfo);
 
 	return ScanPattern(hProcess, pattern, pLen, addr, (uint64_t)sysInfo.lpMaximumApplicationAddress);
+}
+
+// Force the game to end if the user is not responding for a long time
+void __fastcall ForceCrashGame()
+{
+	Sleep(60000);
+	*(int*)0 = 0;
 }

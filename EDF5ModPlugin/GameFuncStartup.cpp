@@ -79,14 +79,18 @@ void GetGameGlobalPointer(PBYTE hmodEXE)
 extern "C" {
 void __fastcall ASMgameStartupReadVoiceFile();
 uintptr_t gameStartupReadVoiceFileRetAddr;
+void __fastcall ASMgameReadInvalidSGO();
 }
 
 void GameStartupHook(PBYTE hmodEXE)
 {
-	// EDF5.exe+3D6E8E
+	// EDF5.exe+3D6E8E, Load new voice files
 	hookGameBlockWithInt3((void*)(hmodEXE + 0x3D6E8E), (uintptr_t)ASMgameStartupReadVoiceFile);
 	WriteHookToProcess((void*)(hmodEXE + 0x3D6E8E + 15), (void*)&nop10, 10U);
 	gameStartupReadVoiceFileRetAddr = (uintptr_t)(hmodEXE + 0x3D6EA7);
+
+	// EDF5.exe+613A12, Throw invalid filename
+	hookGameBlockRAXWithInt3((void*)(hmodEXE + 0x613A12), (uintptr_t)ASMgameReadInvalidSGO);
 }
 
 void __fastcall LoadNewVoiceFilesCPP(void* pAudio)
@@ -108,4 +112,25 @@ void __fastcall LoadNewVoiceFilesCPP(void* pAudio)
 			PLOG_INFO << "No EDF4.1 voice file is loaded";
 		}
 	}
+}
+
+void __fastcall ThrowInvalidSGOFilenameCPP(std::wstring filename)
+{
+	if (ModLogStatus == 1) {
+		PLOG_ERROR << "SGO File: " << filename << " doesn't exist";
+	}
+	else {
+		std::wstring message = L"SGO File doesn't exist: ";
+		message += filename;
+		message += L"\nGame will crash!";
+
+		HANDLE tempHND = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ForceCrashGame, NULL, NULL, NULL);
+		if (tempHND) {
+			CloseHandle(tempHND);
+		}
+
+		MessageBoxW(NULL, message.c_str(), L"error", MB_OK);
+	}
+	// crash!
+	*(int*)0 = 0;
 }

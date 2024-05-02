@@ -81,9 +81,12 @@ Added the following values available for SGO node names.
 | type int | value type | value description |
 |---|---|---|
 |909|float|> 0, multiply this factor by recoil|
+|912|float|> 0, multiply this factor by LockonAngle's node0|
+|913|float|> 0, multiply this factor by LockonAngle's node1|
 |1001|float|> 0, multiply this factor by weapon's ammo amount|
 |1002|float|> 0, multiply this factor by weapon's reload time|
 |1003|float|> 0, multiply this factor by weapon's rate of fire|
+|1012|int|0 or 1, 1 is set LockonTargetType to 0|
 |1050|float|> 0, multiply this factor by weapon's damage|
 |1051|float|> 0, multiply this factor by weapon's bullet speed|
 |1052|float|> 0, multiply this factor by weapon's explosion radius|

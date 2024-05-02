@@ -340,8 +340,11 @@ ASMweaponHeavyShootFuncP0Indicator proc
 
         mov rbx, rcx
         mov rsi, [rcx+12E0h]
+        mov rdx, [rcx+0C0h] ; get player pointer
         mov rcx, rsi
         xor eax, eax
+        cmp [rdx+1644h], al
+        je ofs3AB1FE ; check is no dash
         cmp [rbx+8E8h], eax
         jle ofs3AB1FE
         cmp [rbx+0B94h], al

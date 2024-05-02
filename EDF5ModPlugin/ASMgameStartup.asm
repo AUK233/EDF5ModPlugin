@@ -4,6 +4,8 @@ extern vedf125AB90 : qword
 extern gameStartupReadVoiceFileRetAddr : qword
 extern LoadNewVoiceFilesCPP : proto
 
+extern ThrowInvalidSGOFilenameCPP : proto
+
 .code
 
 ASMgameStartupReadVoiceFile proc
@@ -18,5 +20,15 @@ ASMgameStartupReadVoiceFile proc
         int 3
 
 ASMgameStartupReadVoiceFile ENDP
+
+align 16
+
+ASMgameReadInvalidSGO proc
+
+        lea rcx, qword ptr [rbp+7]
+        call ThrowInvalidSGOFilenameCPP
+        int 3
+
+ASMgameReadInvalidSGO ENDP
 
 END
