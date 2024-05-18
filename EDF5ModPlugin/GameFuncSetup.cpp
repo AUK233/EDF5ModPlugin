@@ -354,6 +354,7 @@ void hookMonsterFunctions() {
 
 extern "C" {
 // ranger!
+void __fastcall ASMeAssultSoldierInitialization();
 void __fastcall ASMeArmySoldierUseAuxiliary();
 uintptr_t eArmySoldierUseAuxiliaryRetAddr;
 // vehicle_call
@@ -395,8 +396,20 @@ void __fastcall ASMVehicle501AnimationEvent();
 }
 
 void hookEDFClassFunctions() {
+	// input
+	// EDF5.exe+48D7B is hold on a button
+	// next is press a button
+	// EDF5.exe+6dc70 releasing a pointer that is no longer useful
+	
 	// ranger!
-	// offset is 0x2DF417
+	int newRangerSize = 0x2000;
+	// AssultSoldier 0x1BD0
+	// start: 0x1BE0, size: 8, function: throw button timer.
+	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x2DF9C7 + 1), &newRangerSize, 4U);
+	// EDF5.exe+2DFD0D
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x2DFD0D), (uint64_t)ASMeAssultSoldierInitialization);
+	WriteHookToProcess((void*)(hmodEXE + 0x2DFD0D + 15), (void*)&nop1, 1U);
+	// EDF5.exe+2E0017
 	eArmySoldierUseAuxiliaryRetAddr = (uintptr_t)(hmodEXE + 0x2E00C1);
 	hookGameBlock((void *)(hmodEXE + 0x2E0017), (uint64_t)ASMeArmySoldierUseAuxiliary);
 	WriteHookToProcess((void *)(hmodEXE + 0x2E0017 + 12), (void *)&intNOP32, 8U);
@@ -515,7 +528,9 @@ extern "C" {
 void __fastcall ASMreadWeaponSgoNode();
 uintptr_t readWeaponSgoNodeRetAddr;
 void __fastcall ASMweaponStartReload();
-uintptr_t weaponStartReloadRetAddr;
+uintptr_t RVA393D10;
+void __fastcall ASMweaponReloadActive();
+uintptr_t weaponReloadActiveRetAddr;
 void __fastcall ASMweaponSetShotStatus();
 uintptr_t weaponSetShotStatusRetAddr;
 // Weapon_HeavyShoot
@@ -524,6 +539,7 @@ void __fastcall ASMweaponHeavyShootSetup();
 void __fastcall ASMweaponGatlingSetup();
 uintptr_t wGatlingSetupRetAddr;
 void __fastcall ASMweaponGatlingShot();
+
 uintptr_t wGatlingShotRetAddr;
 }
 
@@ -556,9 +572,12 @@ void hookWeaponFunctions() {
 	};
 	WriteHookToProcess((void*)(hmodEXE + 0x312318), (void*)&weaponSetFriendlyFire, 61U);
 	// allows midsection reload, offset is 0x3905CB
-	hookGameBlock((void *)(hmodEXE + 0x3911CB), (uint64_t)ASMweaponStartReload);
-	WriteHookToProcess((void *)(hmodEXE + 0x3911CB + 12), (void *)&nop2, 2U);
-	weaponStartReloadRetAddr = (uintptr_t)(hmodEXE + 0x3911DF);
+	hookGameBlockWithInt3((void *)(hmodEXE + 0x3911CB), (uint64_t)ASMweaponStartReload);
+	WriteHookToProcess((void *)(hmodEXE + 0x3911CB + 15), (void *)&nop5, 5U);
+	RVA393D10 = (uintptr_t)(hmodEXE + 0x393D10);
+	// updated reload check, EDF5.exe+39059F
+	hookGameBlock((void*)(hmodEXE + 0x39059F), (uint64_t)ASMweaponReloadActive);
+	weaponReloadActiveRetAddr = (uintptr_t)(hmodEXE + 0x3905B4);
 	// allows AI both hands to fire, EDF5.exe+308CFD
 	hookGameBlockWithInt3((void*)(hmodEXE + 0x308CFD), (uint64_t)ASMweaponSetShotStatus);
 	weaponSetShotStatusRetAddr = (uintptr_t)(hmodEXE + 0x308D1C);
@@ -606,9 +625,19 @@ uintptr_t ammoMissileBullet01BlastRetAddr;
 
 void __fastcall ASMammoRocketBullet01();
 uintptr_t ammoRocketBullet01RetAddr;
+
+void __fastcall ASMammoSentryGunBulletOpen01();
+uintptr_t ammoSentryGunBullet01Initialize;
+uintptr_t ammoSentryGunBullet01FuncP0;
+void __fastcall ASMammoSentryGunBulletOpen01Init();
+uintptr_t ammoSentryGunBulletOpen01InitRetAddr;
+void __fastcall ASMammoSentryGunBulletOpen01Shot();
+uintptr_t ammoSentryGunBulletOpen01ShotTRetAddr;
+uintptr_t ammoSentryGunBulletOpen01ShotFRetAddr;
 }
 
 void hookAmmoFunctions() {
+
 	// hook SolidExpBullet01, can't use it now
 	// offset is 0x184BE2
 	ammoSolidBullet01RetAddr = (uintptr_t)(hmodEXE + 0x1857F0);
@@ -629,13 +658,22 @@ void hookAmmoFunctions() {
 	// particle speed x3.0f to x0.75f
 	unsigned char hitFxSpeed[] = {0xB1, 0xD6};
 	WriteHookToProcess((void *)(hmodEXE + 0x188CF3 + 4), &hitFxSpeed, 2U);
+	// EDF5.exe+188A1A, remove hit brightness judgment
+	unsigned char hitLightness[] = {
+		0xF3, 0x0F, 0x11, 0x93, 0xD8, 0x06, 0x00, 0x00, // movss dword ptr [rbx+6D8], xmm2
+		0xEB, 0x1B,										// jmp
+		0x66, 0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x66, 0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x0F, 0x1F, 0x80, 0x00, 0x00, 0x00, 0x00
+	};
+	WriteHookToProcess((void*)(hmodEXE + 0x188A1A), &hitLightness, 37U);
 
 	// hook SolidPelletBullet01
 	// EDF5.exe+185485
 	hookGameBlock((void*)(hmodEXE + 0x185485), (uintptr_t)ASMreadSolidPelletBullet01);
 	WriteHookToProcess((void*)(hmodEXE + 0x185485 + 12), (void*)&nop9, 9U);
 	// UP to 0x730
-	int newSolidPelletBullet01Size = 0x730;
+	int newSolidPelletBullet01Size = 0x730+0x210;
 	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x18543C + 1), &newSolidPelletBullet01Size, 4U);
 
 	// hook LaserBullet01
@@ -683,6 +721,24 @@ void hookAmmoFunctions() {
 	hookGameBlock((void*)(hmodEXE + 0x17292F), (uintptr_t)ASMammoRocketBullet01);
 	WriteHookToProcess((void*)(hmodEXE + 0x17292F + 12), (void*)&nop2, 2U);
 	ammoRocketBullet01RetAddr = (uintptr_t)(hmodEXE + 0x172959);
+
+	// hook SentryGunBullet_Open01
+	// EDF5.exe+46AF60
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x46AF60), (uintptr_t)ASMammoSentryGunBulletOpen01);
+	ammoSentryGunBullet01Initialize = (uintptr_t)(hmodEXE + 0x1736C0);
+	ammoSentryGunBullet01FuncP0 = (uintptr_t)(hmodEXE + 0x173C50);
+	// old is 0xB70
+	int newSentryGunBulletOpen01Size = 0xB80;
+	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x1747D1 + 1), &newSentryGunBulletOpen01Size, 4U);
+	// EDF5.exe+17526C
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x17526C), (uintptr_t)ASMammoSentryGunBulletOpen01Init);
+	WriteHookToProcess((void*)(hmodEXE + 0x17526C + 15), (void*)&nop3, 3U);
+	ammoSentryGunBulletOpen01InitRetAddr = (uintptr_t)(hmodEXE + 0x17527E);
+	// EDF5.exe+1756EF
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x1756EF), (uintptr_t)ASMammoSentryGunBulletOpen01Shot);
+	WriteHookToProcess((void*)(hmodEXE + 0x1756EF + 15), (void*)&nop3, 3U);
+	ammoSentryGunBulletOpen01ShotTRetAddr = (uintptr_t)(hmodEXE + 0x175713);
+	ammoSentryGunBulletOpen01ShotFRetAddr = (uintptr_t)(hmodEXE + 0x1757A1);
 }
 
 // new functions require more memory

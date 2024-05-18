@@ -11,6 +11,9 @@ ASMammoSolidExpBullet01 proc
     ; read base damage
         movss xmm1, dword ptr [rdi+200h]
         movaps xmm0, xmm1
+    ; copy hit brightness
+        mov eax, [rdi+6E8h]
+        mov [rdi+6DCh], eax ; ammo brightness
     ; check damage settings
         cmp dword ptr [r14+4], 2
         jle ofs187642 ; if <= 2, because this is 3rd parameter
@@ -27,6 +30,11 @@ ASMammoSolidExpBullet01 proc
         movss xmm6, dword ptr [rax+rcx+20]
         mulss xmm0, xmm6
         movss dword ptr [rdi+5D4h], xmm0
+        ; get new ammo hit brightness
+        cmp dword ptr [rax+4], 2
+        jle ofs187662 ; if <= 2, because this is 3rd parameter
+        mov edx, [rax+rcx+8+24]
+        mov [rdi+6DCh], edx
         ; return
         jmp ammoSolidExpBullet01RetAddr
 
@@ -35,6 +43,7 @@ ASMammoSolidExpBullet01 proc
         movss dword ptr [rdi+5D4h], xmm0 ; explosion damage
         mulss xmm1, _Common_F0P2
         movss dword ptr [rdi+200h], xmm1 ; hit damage
+    ofs187662:
         jmp ammoSolidExpBullet01RetAddr
         int 3
 

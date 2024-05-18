@@ -2,21 +2,21 @@
 
 extern ammoSolidBullet01RetAddr : qword
 
-extern edf1BCBA0Address : qword
-extern edf1ACA80Address : qword
-extern edf6E160Address : qword
-extern edf6E0D0Address : qword
-extern edf70730Address : qword
+extern rva1BCBA0 : qword
+extern rva1ACA80 : qword
+extern rva6E160 : qword
+extern rva6E0D0 : qword
+extern rva70730 : qword
 extern RtlEnterCriticalSection : qword
 extern RtlLeaveCriticalSection : qword
 extern vedfE940C0 : qword
 extern vedfE94130 : qword
-extern edf5C8410Address : qword
-extern edf707B0Address : qword
-extern edf70850Address : qword
-extern edf1BCDF0Address : qword
-extern edf5C6C80Address : qword
-extern edf5C8660Address : qword
+extern rva5C8410 : qword
+extern rva707B0 : qword
+extern rva70850 : qword
+extern rva1BCDF0 : qword
+extern rva5C6C80 : qword
+extern rva5C8660 : qword
 extern vedf125AB68 : qword
 
 sb01smoke DB 59h, 71h, 5Fh, 00h, 30h, 00h, 31h, 00h, 2Eh, 00h, 64h, 00h, 64h, 00h, 73h, 00h, 00h, 00h
@@ -42,7 +42,7 @@ ASMammoSolidBullet01t proc
         lea rbp, [rsp+100h]
     ; 14F361
         lea rcx, qword ptr [rbp-30h]
-        call edf1BCBA0Address
+        call rva1BCBA0
 
         mov eax, 60
         mov dword ptr [rbp-2Ch],eax
@@ -81,7 +81,7 @@ ASMammoSolidBullet01t proc
         lea rdx, [rbp-70h]
         mov rcx, vedf125AB68
         mov rcx, [rcx]
-        call edf1ACA80Address
+        call rva1ACA80
         mov rbx, rax
         lea rcx, qword ptr [rbp+0A0h]
         mov rax, qword ptr [rbp+0A0h]
@@ -90,12 +90,12 @@ ASMammoSolidBullet01t proc
         mov qword ptr [rbp+0A8h], rax
         lea rdx, qword ptr [rbx+10h]
         lea rcx, qword ptr [rbp+0B0h]
-        call edf6E160Address
+        call rva6E160
         lea rdx, qword ptr [rbx+20h]
         lea rcx, qword ptr [rbp+0C0h]
-        call edf6E0D0Address
+        call rva6E0D0
         lea rcx, qword ptr [rbp+0D0h]
-        call edf70730Address
+        call rva70730
         mov rax, qword ptr [rbx+30h]
         mov qword ptr [rbp+0D0h], rax
         mov rbx, qword ptr [rbx+38h]
@@ -115,36 +115,36 @@ ASMammoSolidBullet01t proc
         mov rbx, vedfE940C0
         mov qword ptr [rbp-70h], rbx
         lea rcx, qword ptr [rbp-40h]
-        call edf70730Address
+        call rva70730
         mov rax, vedfE94130
         mov qword ptr [rbp-70h], rax
         mov rcx, qword ptr [rbp-68h]
         test rcx, rcx
         je ofs14F579
         lea rdx, qword ptr [rbp-60h]
-        call edf5C8410Address
+        call rva5C8410
         lea rdx, qword ptr [rbp-50h]
         mov rcx, qword ptr [rbp-68h]
-        call edf5C8660Address
+        call rva5C8660
         mov qword ptr [rbp-68h], 0
     ofs14F579:
         lea rcx, qword ptr [rbp-50h]
-        call edf707B0Address
+        call rva707B0
         lea rcx, qword ptr [rbp-60h]
-        call edf70850Address
+        call rva70850
         mov dword ptr [rbp+0E8h], 0
         mov dword ptr [rbp+0ECh], 3F000000h
         mov dword ptr [rbp+0F4h], 0
         mov byte ptr [rbp+0F8h], 1
         lea rdx, qword ptr [rbp-30h]
         lea rcx, qword ptr [rdi+630h]
-        call edf1BCDF0Address
+        call rva1BCDF0
         ;mov byte ptr [rdi+878h],1
         mov qword ptr [rbp+0A0h], rbx
         lea rcx, qword ptr [rbp+0D0h]
-        call edf70730Address
+        call rva70730
         lea rcx, qword ptr [rbp+0A0h]
-        call edf5C6C80Address
+        call rva5C6C80
         
         add rsp, 200h
         pop rbx

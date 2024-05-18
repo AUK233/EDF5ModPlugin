@@ -18,12 +18,19 @@ constexpr UINT32 BeamBullet01Size = 0x710;
 constexpr UINT32 NeedleBullet01Size = 0x760;
 
 extern "C" {
+float _Common_F0P004 = 0.004f;
+float _Common_F0P005 = 0.005f;
+float _Common_F0P015 = 0.015f;
 float _Common_F0P01 = 0.01f;
 float _Common_F0P025 = 0.025f;
 float _Common_F0P05 = 0.05f;
+float _Common_F0P1 = 0.1f;
 float _Common_F0P2 = 0.2f;
+float _Common_F0P3 = 0.3f;
 float _Common_F0P8 = 0.8f;
+float _Common_F0P9 = 0.9f;
 float _Common_F1P0 = 1.0f;
+float _Common_F1P1 = 1.1f;
 float _Common_F5P0 = 5.0f;
 float _Common_2PI = 6.28319f;
 float _Common_F8P0 = 8.0f;
@@ -32,7 +39,11 @@ float _Common_F70P0 = 70.0f;
 float _Common_F3600P0 = 3600.0f;
 float _Common_F1P0N = -1.0f;
 
-__declspec(align(16)) float _CommonRVA_EE7700[4] = { 1.0f, 0.001f, 0.001f, 0.001f };
+__declspec(align(16)) float _CommonRVA_EE7700[4] = { 0.001f, 0.001f, 0.001f, 1.0f};
+__declspec(align(16)) float _CommonRVA_EE80D0[4] = { -1.0f, -1.0f, -1.0f, -1.0f };
+__declspec(align(16)) float _CommonRVA_EE7350[4] = { 1.0f, 1.0f, 1.0f, 0.5f };
+__declspec(align(16)) float _CommonRVA_EE6BE0[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
+// Maybe it needs to be fixed.
 __declspec(align(16)) float _CommonRVA_EE7550[4] = {0.0f, 1.0f, 0.0f, 1.0f};
 __declspec(align(16)) float _CommonRVA_EE7460[4] = {0.0f, 0.0f, 0.0f, 1.0f};
 __declspec(align(16)) float _CommonRVA_EE7320[4] = { 0.5f, 0.5f, 0.5f, 0.5f };

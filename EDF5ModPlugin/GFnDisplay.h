@@ -13,6 +13,7 @@ size_t __fastcall TextForFormatFloatNumber2(const float number, WCHAR *destinati
 size_t __fastcall TextForFormatIntNumber(const int number, WCHAR* destination, size_t len);
 
 size_t __fastcall eTextForWeaponReloadTime(EDFWeaponStruct *pweapon, WCHAR *destination, EDFColor4Pointer *pcolor);
+//void __fastcall eDisplaySoldierWeaponAmmo(HUiHudWeaponPointer* p);
 void __fastcall eDisplayFencerBoostAndDash(HUiHudPowerGuagePointer* p, FencerBoostAndDashStruct* fencer);
 
 void __fastcall eDisplaySoldierWeaponDamage(HUiHudWeaponPointer* p);

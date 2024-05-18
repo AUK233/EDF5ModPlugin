@@ -1,5 +1,8 @@
 .data
 
+extern rva9C6E40 : qword
+
+extern noThrowAnime : dword
 extern HUDEnhanceStatus : dword
 
 extern edf2E0270Address : qword
@@ -36,10 +39,68 @@ db 112,0,111,0,110,0,71,0,117,0,97,0,103,0,101,0,82,0,50,0,46,0,115,0,103,0,111,
 
 .code
 
+ASMeAssultSoldierInitialization proc
+
+    ; initialize memory
+        xorps xmm0, xmm0
+        movaps [rbx+1BE0h], xmm0
+    ofs2DF10D:
+        mov rcx, qword ptr [rsp+68h]
+        xor rcx, rsp
+        call rva9C6E40
+        mov rax, rbx
+        mov rbx, qword ptr [rsp+0A0h]
+        add rsp, 70h
+        pop rdi
+        pop rsi
+        pop rbp
+        ret 
+        int 3
+
+ASMeAssultSoldierInitialization ENDP
+
+align 16
+
 ASMeArmySoldierUseAuxiliary proc
 
-        cmp byte ptr [rbx+0B5Dh], 0
+        cmp byte ptr [rbx+0B5Eh], 0 ; old is +B5D, but we now need the hold-on version
+        mov eax, [rbx+1BE0h] ; throw button timer
+        je throwTimer
+        inc eax
+        mov [rbx+1BE0h], eax
+        cmp eax, 20
+        jbe ofs2DF473
+        mov dword ptr [rbx+1BE0h], 0
+        ;Get a weapon with support slot 1
+        mov rax, qword ptr [rbx+1600h]
+        movsxd rcx, dword ptr [rax]
+        cmp ecx, dword ptr [rbx+15A0h]
+        jge ofs2DF473
+        test ecx, ecx
+        js ofs2DF473
+        mov rax, qword ptr [rbx+1590h]
+        mov rcx, qword ptr [rax+rcx*8]
+        test rcx, rcx
         je ofs2DF473
+        cmp dword ptr [rcx+2500h], -1
+        jne ofs2DF473
+        mov dword ptr [rbx+1BE4h], 10 ; throw button cd
+        mov rax, [rcx]
+        call qword ptr [rax+80h] ; Request to reload
+        jmp ofs2DF473
+
+    throwCD:
+        dec dword ptr [rbx+1BE4h]
+        jmp ofs2DF473
+
+    throwTimer:
+        cmp dword ptr [rbx+1BE4h], 0
+        jg throwCD
+        test eax, eax
+        je ofs2DF473
+        mov dword ptr [rbx+1BE0h], 0 ; clear timer
+        cmp eax, 10
+        ja ofs2DF473 ; if it <= 10
         cmp qword ptr [rbx+1610h], 0
         jbe ofs2DF4C1
         ;Get a weapon with support slot 1
@@ -60,8 +121,14 @@ ASMeArmySoldierUseAuxiliary proc
         cmp dword ptr [rdx+8E8h], 0
         jbe ofs2DF4C1
         ; use support slot 1
+        cmp noThrowAnime, 0
+        jne noThrowAnimeBlock
         lea rax, ASMeSoldierCallSupport
         jmp ofs2DF496
+    noThrowAnimeBlock:
+        mov byte ptr [rdx+0D9h], 1
+        jmp ofs2DF4C1
+
     ofs2DF473:
         cmp byte ptr [rbx+0B5Bh], 0
         je ofs2DF4C1
@@ -98,12 +165,12 @@ ASMeArmySoldierUseAuxiliary proc
         ; use dash
         mov rax, edf2E07C0Address
     ofs2DF496:
-        mov qword ptr [rbp-69h], rax
-        lea rcx, qword ptr [rbx+1A00h]
+        mov [rbp-69h], rax
+        lea rcx, [rbx+1A00h]
         cmp qword ptr [rcx+28h], 0
         mov dword ptr [rbp-61h], 0
-        movaps xmm0, xmmword ptr [rbp-69h]
-        movdqa xmmword ptr [rbp-69h], xmm0
+        movaps xmm0, [rbp-69h]
+        movdqa [rbp-69h], xmm0
         je ofs2DF4C1
         lea rdx, qword ptr [rbp-69h]
         call edf2E18A0Address
@@ -124,36 +191,50 @@ ASMeSoldierCallSupport proc
         jne ofs2DF768
         mov dword ptr [rcx+420h], 81h
         xor r8d, r8d
-        mov eax, dword ptr [rcx+1050h]
+        mov eax, [rcx+1050h]
         imul rdx, rax, 1A0h
-        mov rax, qword ptr [rcx+9D0h]
-        mov qword ptr [rsp+48h], rsi
-        mov r10, qword ptr [rdx+rax+118h]
-        mov r9d, dword ptr [r10+4h]
+        mov rax, [rcx+9D0h]
+        mov [rsp+48h], rsi
+        mov r10, [rdx+rax+118h]
+        mov r9d, [r10+4]
         test r9d, r9d
         je ofs2DF73E
-        movsxd r11, dword ptr [r10+8h]
-        mov qword ptr [rsp+40h], rbp
+        movsxd r11, dword ptr [r10+8]
+        mov [rsp+40h], rbp
         lea rbp, eSoldierCallSupport
         
+        align 16
     ofs2DF6D0:
         lea rcx, qword ptr [r8+r8*8]
         lea rax, qword ptr [r11+rcx*4]
         add rax, r10
         movsxd rdx, dword ptr [rax]
         add rdx, rax
-        or rcx, -1
+        ;or rcx, -1
+        mov rcx, -4
 
+        align 16
     ofs2DF6F0:
-        movzx eax, word ptr [rdx+rcx*2+2]
-        cmp ax, word ptr [rbp+rcx*2+2]
-        jne ofs2DF711
-        add rcx, 2
-        cmp rcx, 13
-        je ofs2DF71B
-        movzx eax, word ptr [rdx+rcx*2]
-        cmp ax, word ptr [rbp+rcx*2]
+        ;movzx eax, word ptr [rdx+rcx*2+2]
+        ;cmp ax, word ptr [rbp+rcx*2+2]
+        ;jne ofs2DF711
+        ;add rcx, 2
+        ;cmp rcx, 13
+        ;je ofs2DF71B
+        ;movzx eax, word ptr [rdx+rcx*2]
+        ;cmp ax, word ptr [rbp+rcx*2]
+        ;je ofs2DF6F0
+
+        add rcx, 4
+        cmp rcx, 12
+        jge checkNull
+        mov eax, [rdx+rcx*2]
+        cmp eax, [rbp+rcx*2]
         je ofs2DF6F0
+    checkNull:
+        movzx eax, word ptr [rdx+rcx*2]
+        test eax, eax
+        je ofs2DF71B
 
     ofs2DF711:
         inc r8d
@@ -163,17 +244,17 @@ ASMeSoldierCallSupport proc
     ofs2DF71B:
         cmp r8d, -1
         je ofs2DF739
-        mov edx, dword ptr [rbx+1050h]
-        lea rcx, qword ptr [rbx+970h]
+        mov edx, [rbx+1050h]
+        lea rcx, [rbx+970h]
         mov r9d, 1
         call edf5F8C40Address
     ofs2DF739:
-        mov rbp,qword ptr [rsp+40h]
+        mov rbp, [rsp+40h]
     ofs2DF73E:
-        mov eax, dword ptr [rbx+1050h]
-        mov rsi, qword ptr [rsp+48h]
+        mov eax, [rbx+1050h]
+        mov rsi, [rsp+48h]
         imul rcx, rax, 1A0h
-        mov rax, qword ptr [rbx+9D0h]
+        mov rax, [rbx+9D0h]
         mov dword ptr [rcx+rax+138h], 3F800000h
         add rsp, 30h
         pop rbx
@@ -235,8 +316,14 @@ ASMeEngineerUseAuxiliary proc
         cmp dword ptr [rdx+8E8h], 0
         jbe ofs2E19FC
         ; use support slot 1
+        cmp noThrowAnime, 0
+        jne noThrowAnimeBlock
         lea rax, ASMeSoldierCallSupport
         jmp common
+    noThrowAnimeBlock:
+        mov byte ptr [rdx+0D9h], 1
+        jmp ofs2E19FC
+
     use2Slot:
         ;Get a weapon with support slot 2
         cmp byte ptr [rbx+0B5Bh], 0

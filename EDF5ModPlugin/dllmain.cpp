@@ -91,6 +91,7 @@ int playerViewIndex = 0;
 int displayDamageIndex = 0;
 int ModLogStatus = 0;
 int HUDEnhanceStatus = 0;
+UINT noThrowAnime = 0;
 }
 //HANDLE ddThread;
 int weaponEnhance = 0;
@@ -457,7 +458,7 @@ static void __fastcall initterm_hook2(_PVFV *unk1, _PVFV *unk2) {
 // x64 cannot use inline assembly, you have to create asm files.
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
 	static plog::RollingFileAppender<eml::TxtFormatter<ModLoaderStr>> mlLogOutput("1Mod.log");
-	static plog::RollingFileAppender<eml::TxtFormatter<nullptr>> gameLogOutput("game.log");
+	static plog::RollingFileAppender<eml::TxtFormatter<nullptr>> gameLogOutput("1game.log");
 
 	switch (ul_reason_for_call) {
 	case DLL_PROCESS_ATTACH: {
@@ -473,12 +474,14 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		ModLog = GetPrivateProfileIntW(L"ModOption", L"ModLog", ModLog, iniPath);
 		WEOpen = GetPrivateProfileIntW(L"ModOption", L"EnhancedWP", WEOpen, iniPath);
 		HUDEnhance = GetPrivateProfileIntW(L"ModOption", L"HUDEnhance", HUDEnhance, iniPath);
+		noThrowAnime = GetPrivateProfileIntW(L"ModOption", L"NoThrowAnime", 0, iniPath);
 		//LoadPluginsB = GetPrivateProfileBoolW(L"ModOption", L"LoadPlugins", LoadPluginsB, iniPath);
 		//Redirect = GetPrivateProfileBoolW(L"ModOption", L"Redirect", Redirect, iniPath);
 		//GameLog = GetPrivateProfileBoolW(L"ModOption", L"GameLog", GameLog, iniPath);
 
 		// Open Log file
 		if (ModLog) {
+			GameLog = TRUE;
 			ModLogStatus = 1;
 			DeleteFileW(L"1Mod.log");
 #ifdef NDEBUG
@@ -489,7 +492,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		}
 		// game log, but not now
 		if (GameLog) {
-			DeleteFileW(L"game.log");
+			DeleteFileW(L"1game.log");
 			plog::init<1>(plog::info, &gameLogOutput);
 		}
 
@@ -497,7 +500,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		PluginInfo *selfInfo = new PluginInfo;
 		selfInfo->infoVersion = PluginInfo::MaxInfoVer;
 		selfInfo->name = "EDF5 Mod Plugin";
-		selfInfo->version = PLUG_VER(0, 4, 3, 0);
+		selfInfo->version = PLUG_VER(0, 4, 5, 0);
 		PluginData *selfData = new PluginData;
 		selfData->info = selfInfo;
 		selfData->module = hModule;

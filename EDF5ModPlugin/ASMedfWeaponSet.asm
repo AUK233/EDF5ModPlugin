@@ -8,9 +8,10 @@ extern debugGetWeaponName : proto
 extern ModLogStatus : dword
 
 extern rva391230 : qword
+extern weaponReloadActiveRetAddr : qword
 
 extern readWeaponSgoNodeRetAddr : qword
-extern weaponStartReloadRetAddr : qword
+extern RVA393D10 : qword
 extern weaponSetShotStatusRetAddr : qword
 
 ; L"ReloadInit"
@@ -191,7 +192,7 @@ ASMweaponStartReload proc
 
         mov eax, [rbx+2500h]
         cmp eax, 0
-        je originalBlock
+        jle originalBlock
         cmp eax, 3 ; no manual reload
         je ofs3905EC
         ; current reload time = (totalAmmo - remainAmmo) * reloadTime  / totalAmmo
@@ -220,7 +221,10 @@ ASMweaponStartReload proc
     originalBlock:
         mov dword ptr [rbx+8E8h], 0
         mov dword ptr [rbx+0B40h], 4
-        jmp weaponStartReloadRetAddr
+        mov rcx, rbx
+        add rsp, 20h
+        pop rbx
+        jmp RVA393D10
     ofs3905EC:
         add rsp, 20h
         pop rbx
@@ -228,6 +232,22 @@ ASMweaponStartReload proc
         int 3
 
 ASMweaponStartReload ENDP
+
+align 16
+
+ASMweaponReloadActive proc
+
+        movzx edx, dl
+        mov [rsi+8D4h], r13d
+        cmp [rsi+1A0h], r13d ; if == 0
+        jne ofs38F9B4
+        cmp dword ptr [rsi+2500h], -1
+        je ofs38F9B4
+        mov edx, r15d
+    ofs38F9B4:
+        jmp weaponReloadActiveRetAddr
+
+ASMweaponReloadActive ENDP
 
 align 16
 

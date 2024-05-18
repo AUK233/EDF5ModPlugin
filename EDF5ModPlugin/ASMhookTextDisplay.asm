@@ -5,6 +5,7 @@ extern ftimeEndPeriod : proto
 extern hookSleep : proto
 
 extern eTextForWeaponReloadTime : proto
+;extern eDisplaySoldierWeaponAmmo : proto
 extern eDisplaySoldierWeaponDamage : proto
 extern eDisplayVehicleWeaponDamage : proto
 extern eDisplayFencerBoostAndDash : proto
@@ -287,6 +288,11 @@ ASMHUiHudWeaponUpdateAmmoText proc
         mov r14, [rsi+0D00h]
         test rdi, rdi
         je showDamage
+
+        ;mov rcx, rsi
+        ;call eDisplaySoldierWeaponAmmo
+        ;jmp showDamage
+
         ; get weapon pointer
         mov rax, [rsi+7E8h]
         ; check use_extraShotType

@@ -34,20 +34,27 @@ uintptr_t edf6136C0Address;
 uintptr_t edf3983B0Address;
 // get Weapon_Accessory data (float)
 uintptr_t edf3982A0Address;
+// Initialize Tail Texture
+uintptr_t rva1BCD40;
+uintptr_t rva1BCBA0;
+// 
+uintptr_t rva1BD600;
+uintptr_t rva5C0C50;
+uintptr_t rva1BDC20;
+uintptr_t rva1BDA30;
 //
-uintptr_t edf1BCBA0Address;
-uintptr_t edf1ACA80Address;
-uintptr_t edf6E160Address;
-uintptr_t edf6E0D0Address;
-uintptr_t edf70730Address;
+uintptr_t rva1ACA80;
+uintptr_t rva6E160;
+uintptr_t rva6E0D0;
+uintptr_t rva70730;
 uintptr_t vedfE940C0;
 uintptr_t vedfE94130;
-uintptr_t edf5C8410Address;
-uintptr_t edf707B0Address;
-uintptr_t edf70850Address;
-uintptr_t edf1BCDF0Address;
-uintptr_t edf5C6C80Address;
-uintptr_t edf5C8660Address;
+uintptr_t rva5C8410;
+uintptr_t rva5C8660;
+uintptr_t rva707B0;
+uintptr_t rva70850;
+uintptr_t rva1BCDF0;
+uintptr_t rva5C6C80;
 //
 uintptr_t eGetAccessoryValueAddr;
 uintptr_t eGetAccessoryINT32Addr;
@@ -114,20 +121,28 @@ void GetGameFunctions() {
 	edf3983B0Address = (uintptr_t)(hmodEXE + 0x3983B0);
 	// get Weapon_Accessory data (float)
 	edf3982A0Address = (uintptr_t)(hmodEXE + 0x3982A0);
+	// Initialize Tail Texture
+	rva1BCD40 = (uintptr_t)(hmodEXE + 0x1BCD40);
+	rva1BCBA0 = (uintptr_t)(hmodEXE + 0x1BCBA0);
+	//
+	rva1BD600 = (uintptr_t)(hmodEXE + 0x1BD600);
+	rva5C0C50 = (uintptr_t)(hmodEXE + 0x5C0C50);
+	rva1BDC20 = (uintptr_t)(hmodEXE + 0x1BDC20);
+	rva1BDA30 = (uintptr_t)(hmodEXE + 0x1BDA30);
+	//
+	rva1ACA80 = (uintptr_t)(hmodEXE + 0x1ACA80);
+	rva6E160 = (uintptr_t)(hmodEXE + 0x6E160);
+	rva6E0D0 = (uintptr_t)(hmodEXE + 0x6E0D0);
+	rva70730 = (uintptr_t)(hmodEXE + 0x70730);
 	// error
-	edf1BCBA0Address = (uintptr_t)(hmodEXE + 0x1BCBA0);
-	edf1ACA80Address = (uintptr_t)(hmodEXE + 0x1ACA80);
-	edf6E160Address = (uintptr_t)(hmodEXE + 0x6E160);
-	edf6E0D0Address = (uintptr_t)(hmodEXE + 0x6E0D0);
-	edf70730Address = (uintptr_t)(hmodEXE + 0x70730);
 	vedfE940C0 = (uintptr_t)(hmodEXE + 0xE940C0);
 	vedfE94130 = (uintptr_t)(hmodEXE + 0xE94130);
-	edf5C8410Address = (uintptr_t)(hmodEXE + 0x5C8410);
-	edf707B0Address = (uintptr_t)(hmodEXE + 0x707B0);
-	edf70850Address = (uintptr_t)(hmodEXE + 0x70850);
-	edf1BCDF0Address = (uintptr_t)(hmodEXE + 0x1BCDF0);
-	edf5C6C80Address = (uintptr_t)(hmodEXE + 0x5C6C80);
-	edf5C8660Address = (uintptr_t)(hmodEXE + 0x5C8660);
+	rva5C8410 = (uintptr_t)(hmodEXE + 0x5C8410);
+	rva707B0 = (uintptr_t)(hmodEXE + 0x707B0);
+	rva70850 = (uintptr_t)(hmodEXE + 0x70850);
+	rva1BCDF0 = (uintptr_t)(hmodEXE + 0x1BCDF0);
+	rva5C6C80 = (uintptr_t)(hmodEXE + 0x5C6C80);
+	rva5C8660 = (uintptr_t)(hmodEXE + 0x5C8660);
 
 	// 
 	eGetAccessoryValueAddr = (uintptr_t)(hmodEXE + 0x307400);

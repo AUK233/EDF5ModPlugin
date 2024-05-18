@@ -150,6 +150,28 @@ size_t __fastcall eTextForWeaponReloadTime(EDFWeaponStruct *pweapon, WCHAR *dest
 	return TextForFormatFloatNumber(remainTime, destination, 7);
 }
 
+/*
+void __fastcall eDisplaySoldierWeaponAmmo(HUiHudWeaponPointer* p)
+{
+	EDFWeaponPointer* pWeapon = p->Weapon;
+	HUiHudTextPointer* pTextNumeric = p->TextNumericType2;
+	if (pWeapon->use_extraShotType == 16 || pWeapon->addr1452) {
+		if (pWeapon->curAmmo > 0) {
+			pTextNumeric->font_color = p->TextNumericType2Color;
+			HUiHudTextContentPointer* pText = ASMgetHUiHudTextContentPointer(pTextNumeric->addr228h);
+			pText->text = std::format(L"{0}", pWeapon->curAmmo);
+			pText->textLength = pText->text.size();
+		}
+		else {
+
+		}
+	}
+	else {
+		pTextNumeric->font_color.a = 0;
+	}
+}
+*/
+
 void __fastcall eDisplayFencerBoostAndDash(HUiHudPowerGuagePointer* p, FencerBoostAndDashStruct* fencer)
 {
 	HUiHudTextPointer* pDash = p->TextFencerDash;
@@ -303,7 +325,6 @@ void __fastcall eDisplaySoldierWeaponDamage(HUiHudWeaponPointer* p)
 		fontSize += p->damageFontSize.x;
 		pText->fontSize.x = fontSize;
 		pText->fontSize.y = fontSize;
-
 		memcpy(pText->text, DMGstrSpace16, 32U);
 		std::wstring displayText = FormatDamageNumber(damageNumber.value);
 		size_t strofs = 0;

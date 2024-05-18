@@ -22,15 +22,32 @@
 // size is 0x60
 extern "C" {
 	uintptr_t vftable_SolidPelletBullet01[12] = { 0 };
+	void __fastcall ASMammoSolidPelletBullet01t1d1();
 	void __fastcall ASMammoSolidPelletBullet01CheckPT();
+	uintptr_t dawfawfawfawf = 0;
+	uintptr_t vftable_SolidPelletBullet01Ammo[3] = { 0 };
+	void __fastcall dawfawfwaf();
+	uintptr_t awfafwfwaawff = 0;
+
+	uintptr_t vftable_SentryGunBulletOpen01[13] = { 0 };
+	void __fastcall ASMammoSentryGunBulletOpen01FuncP0();
 }
 
 void __fastcall CreateNewVirtualTablesOfAmmo(uintptr_t hmodEXE)
 {
+	memcpy(&vftable_SentryGunBulletOpen01[0], (void*)(hmodEXE + 0xE9B138 - 8), 0x68);
+	vftable_SentryGunBulletOpen01[1] = (uintptr_t)ASMammoSentryGunBulletOpen01FuncP0;
+
 	memcpy(&vftable_SolidPelletBullet01[0], (void*)(hmodEXE + 0xE9C068 - 8), 0x60);
 	// Check bullet penetration. EDF5.exe+186870
+	vftable_SolidPelletBullet01[1] = (uintptr_t)ASMammoSolidPelletBullet01t1d1;
+	dawfawfawfawf = (uintptr_t)(hmodEXE + 0x186140);
 	// should is 0x10 + 8
 	vftable_SolidPelletBullet01[3] = (uintptr_t)ASMammoSolidPelletBullet01CheckPT;
+
+	memcpy(&vftable_SolidPelletBullet01Ammo[0], (void*)(hmodEXE + 0xE9C0F8 - 8), 0x18);
+	vftable_SolidPelletBullet01Ammo[2] = (uintptr_t)dawfawfwaf;
+	awfafwfwaawff = (uintptr_t)(hmodEXE + 0x1863FA);
 }
 
 // size is 0x110

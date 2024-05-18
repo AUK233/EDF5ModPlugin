@@ -37,6 +37,7 @@ Its Ammo_CustomParameter has a maximum of 3 parameters, minimum 1 parameter requ
 |---|---|---|
 |0|float|hit damage factor, default 0.2|
 |1|float|explosion damage factor, default 0.8|
+|2 (optional)|float|ammo hit brightness, defaults as explosion brightness's value|
 
 #### [Return to Index](#index)
 

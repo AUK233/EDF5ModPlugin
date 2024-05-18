@@ -219,6 +219,7 @@
     <MASM Include="ASMammoLaserBullet02.asm" />
     <MASM Include="ASMammoMissileBullet01.asm" />
     <MASM Include="ASMammoRocketBullet01.asm" />
+    <MASM Include="ASMammoSentryGunBullet01.asm" />
     <MASM Include="ASMammoSolidBullet01.asm" />
     <MASM Include="ASMammoSolidExpBullet01.asm" />
     <MASM Include="ASMammoSolidPelletBullet01.asm" />

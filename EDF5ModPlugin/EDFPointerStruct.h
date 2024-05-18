@@ -187,6 +187,7 @@ typedef struct HUiHudTextContentStruct {
 	EDFVector2Pointer fontSize;
 	BYTE pad2[0x40];
 	// maybe is wstring
+	//std::wstring text;
 	WCHAR* text;
 	BYTE pad3[0x18];
 	size_t textLength;
