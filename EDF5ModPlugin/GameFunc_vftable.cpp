@@ -21,33 +21,62 @@
 
 // size is 0x60
 extern "C" {
+	// SolidBullet01
+	uintptr_t vftable_SolidBullet01[12] = { 0 };
+	void __fastcall ASMammoSolidBullet01FuncP0();
+	uintptr_t ammoSolidBullet01FuncP0Ret;
+	void __fastcall ASMammoSolidBullet01FuncP10();
+	uintptr_t ammoSolidBullet01FuncP10Ret;
+	void __fastcall ASMammoSolidBullet01FuncP48();
+	uintptr_t vftable_SolidBullet01A_C0[6] = { 0 };
+	void __fastcall ASMammoSolidBullet01A_C0FuncP0();
+	uintptr_t vftable_SolidBullet01A570[3] = { 0 };
+	void __fastcall ASMammoSolidBullet01A570FuncP0();
+	uintptr_t ammoSolidBullet01A570FuncP0Ret = 0;
+	void __fastcall ASMammoSolidBullet01A570FuncP8();
+	uintptr_t ammoSolidBullet01A570FuncP8Ret = 0;
+	// SolidPelletBullet01
 	uintptr_t vftable_SolidPelletBullet01[12] = { 0 };
-	void __fastcall ASMammoSolidPelletBullet01t1d1();
 	void __fastcall ASMammoSolidPelletBullet01CheckPT();
-	uintptr_t dawfawfawfawf = 0;
-	uintptr_t vftable_SolidPelletBullet01Ammo[3] = { 0 };
-	void __fastcall dawfawfwaf();
-	uintptr_t awfafwfwaawff = 0;
-
+	// SentryGunBullet_Open01
 	uintptr_t vftable_SentryGunBulletOpen01[13] = { 0 };
 	void __fastcall ASMammoSentryGunBulletOpen01FuncP0();
 }
 
 void __fastcall CreateNewVirtualTablesOfAmmo(uintptr_t hmodEXE)
 {
-	memcpy(&vftable_SentryGunBulletOpen01[0], (void*)(hmodEXE + 0xE9B138 - 8), 0x68);
-	vftable_SentryGunBulletOpen01[1] = (uintptr_t)ASMammoSentryGunBulletOpen01FuncP0;
+	// SolidBullet01
+	memcpy(&vftable_SolidBullet01[0], (void*)(hmodEXE + 0xE9C110 - 8), 0x60);
+	// should is 0x0 + 8
+	vftable_SolidBullet01[1] = (uintptr_t)ASMammoSolidBullet01FuncP0;
+	ammoSolidBullet01FuncP0Ret = (uintptr_t)(hmodEXE + 0x186140);
+	// should is 0x10 + 8
+	vftable_SolidBullet01[3] = (uintptr_t)ASMammoSolidBullet01FuncP10;
+	ammoSolidBullet01FuncP10Ret = (uintptr_t)(hmodEXE + 0x186330);
+	// should is 0x48 + 8, Free Memory.
+	vftable_SolidBullet01[10] = (uintptr_t)ASMammoSolidBullet01FuncP48;
+	// +0xC0
+	memcpy(&vftable_SolidBullet01A_C0[0], (void*)(hmodEXE + 0xE9C170 - 8), 0x30);
+	// Free Memory.
+	vftable_SolidBullet01A_C0[1] = (uintptr_t)ASMammoSolidBullet01A_C0FuncP0;
+	// +0x570
+	memcpy(&vftable_SolidBullet01A570[0], (void*)(hmodEXE + 0xE9C1A0 - 8), 0x18);
+	// EDF5.exe+186A0C, Free Memory.
+	vftable_SolidBullet01A570[1] = (uintptr_t)ASMammoSolidBullet01A570FuncP0;
+	ammoSolidBullet01A570FuncP0Ret = (uintptr_t)(hmodEXE + 0x185A90);
+	// should is 8+8, EDF5.exe+1863FA
+	vftable_SolidBullet01A570[2] = (uintptr_t)ASMammoSolidBullet01A570FuncP8;
+	ammoSolidBullet01A570FuncP8Ret = (uintptr_t)(hmodEXE + 0x1863FA);
 
+	// SolidPelletBullet01
 	memcpy(&vftable_SolidPelletBullet01[0], (void*)(hmodEXE + 0xE9C068 - 8), 0x60);
 	// Check bullet penetration. EDF5.exe+186870
-	vftable_SolidPelletBullet01[1] = (uintptr_t)ASMammoSolidPelletBullet01t1d1;
-	dawfawfawfawf = (uintptr_t)(hmodEXE + 0x186140);
 	// should is 0x10 + 8
 	vftable_SolidPelletBullet01[3] = (uintptr_t)ASMammoSolidPelletBullet01CheckPT;
 
-	memcpy(&vftable_SolidPelletBullet01Ammo[0], (void*)(hmodEXE + 0xE9C0F8 - 8), 0x18);
-	vftable_SolidPelletBullet01Ammo[2] = (uintptr_t)dawfawfwaf;
-	awfafwfwaawff = (uintptr_t)(hmodEXE + 0x1863FA);
+	// SentryGunBullet_Open01
+	memcpy(&vftable_SentryGunBulletOpen01[0], (void*)(hmodEXE + 0xE9B138 - 8), 0x68);
+	vftable_SentryGunBulletOpen01[1] = (uintptr_t)ASMammoSentryGunBulletOpen01FuncP0;
 }
 
 // size is 0x110

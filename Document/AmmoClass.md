@@ -20,6 +20,16 @@ Its Ammo_CustomParameter has a maximum of 3 parameters.
 |0|int|ammo type|0 is normal, 1 is bounce|
 |1|float|hit FX adjust|adjusting FX when bullet hit, default 1.0|
 |2|float|hit FX time adjust|adjusting FX time when bullet hit, default 1.0|
+|new| - | - | - |
+|3|int|building destruction type|0 is none, 1 is has|
+|4|int or ptr|tail smoke length|when it is ptr, use [all parameters must be present](#SolidBullet01-Node4)|
+
+#### SolidBullet01 Node4
+| node index | value type | value description |
+|---|---|---|
+|0|int|tail smoke length|
+|1|string|tail smoke texture name|
+|2|float|tail smoke shake amplitude|
 
 #### [Return to Index](#index)
 
@@ -30,7 +40,7 @@ Its Ammo_CustomParameter has a maximum of 3 parameters, minimum 1 parameter requ
 |---|---|---|---|
 |0|int or float or ptr|explosion delay (frame)|when it is ptr, there are 2 float or int parameters|
 |1|int or float|explosion brightness|default 100.0|
-|2|ptr|hit damage (new)|[all parameters must be present](#SolidExpBullet01-Node2)|
+|2|ptr|hit damage (new)|[minimum 2 parameters](#SolidExpBullet01-Node2)|
 
 #### SolidExpBullet01 Node2
 | node index | value type | value description |

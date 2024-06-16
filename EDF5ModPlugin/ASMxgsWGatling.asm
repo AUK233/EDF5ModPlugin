@@ -13,18 +13,26 @@ ASMweaponGatlingSetup proc
         mov byte ptr [rbx+11F0h], 0
 
         ; new, set pre-heat type
-        ; initialize memory
-        mov dword ptr [rbx+1400h], 0
-        mov ecx, dword ptr [rbx+2FCh] ; store original FireInterval
-        mov dword ptr [rbx+1404h], ecx
+        ; initialize memory, r12 is 0
+        mov eax, [rbx+69Ch] ; store original AmmoDamage
+        mov [rbx+13F0h], eax
+        mov ecx, [rbx+6B4h] ; store original AmmoSize
+        mov [rbx+13F4h], ecx
+        mov eax, [rbx+6A8h] ; store original AmmoExplosion
+        mov [rbx+13F8h], eax
+        ;
+        mov [rbx+1400h], r12d
+        mov ecx, [rbx+2FCh] ; store original FireInterval
+        mov [rbx+1404h], ecx
         mov dword ptr [rbx+1410h], 1
-        movss xmm0, dword ptr [rbx+308h] ; store original FireAccuracy
-        movss dword ptr [rbx+1414h], xmm0
+        mov eax, [rbx+308h] ; store original FireAccuracy
+        mov [rbx+1414h], eax
         ; store default rate
-        mov dword ptr [rbx+1408h], 3F800000h ; max FireInterval
-        mov dword ptr [rbx+140Ch], 3F800000h ; min FireInterval
-        mov dword ptr [rbx+1418h], 3F800000h ; max FireAccuracy
-        mov dword ptr [rbx+141Ch], 3F800000h ; min FireAccuracy
+        mov dword ptr [rbx+1408h], 3F800000h ; max FireInterval | min damage factor
+        mov dword ptr [rbx+140Ch], 3F800000h ; min FireInterval | max damage
+        mov dword ptr [rbx+1418h], 3F800000h ; max FireAccuracy | min explosion factor
+        mov dword ptr [rbx+141Ch], 3F800000h ; min FireAccuracy | max explosion
+
         ; check node
         mov eax, dword ptr [rsi+4]
         cmp eax, 11
@@ -52,6 +60,7 @@ ASMweaponGatlingSetup proc
         movsxd rax, dword ptr [rsi+8]
         mov ecx, dword ptr [rax+rsi+128] ; get int
         mov dword ptr [rbx+1400h], ecx ; set pre-heat type
+
     ; return original
     ofs39A0E0:
         jmp wGatlingSetupRetAddr
@@ -64,7 +73,8 @@ align 16
 
 ASMweaponGatlingShot proc
         ; check preheat type
-        cmp dword ptr [rcx+1400h], 0
+        mov r10d, [rcx+1400h]
+        test r10d, r10d
         je ofs39A7AA
         ; check other
         cmp dword ptr [rcx+8E8h], 0 ; check ammo
@@ -72,6 +82,10 @@ ASMweaponGatlingShot proc
         mov eax, dword ptr [rbx+1410h]
         cmp dword ptr [rcx+11A4h], eax ; check delay count
         jle returnBlock
+    ; check is modify damage
+        cmp r10d, 3
+        jge checkDamageBlock
+
     ; decision to modify ROF
     checkROFBlock:
         mov eax, dword ptr [rcx+11A8h] ; total delay
@@ -79,8 +93,8 @@ ASMweaponGatlingShot proc
         jl setROFBlock ; delay count < total delay
         mov eax, dword ptr [rcx+1404h] ; get FireInterval
         mov dword ptr [rcx+2FCh], eax ; set ROF is FireInterval
-        movss xmm0, dword ptr [rbx+1414h] ; get FireAccuracy
-        movss dword ptr [rbx+308h], xmm0 ; set FireAccuracy
+        movss xmm0, dword ptr [rcx+1414h] ; get FireAccuracy
+        movss dword ptr [rcx+308h], xmm0 ; set FireAccuracy
         jmp wGatlingShotRetAddr
     setROFBlock:
         cvtsi2ss xmm0, dword ptr [rcx+11A4h] ; delay count
@@ -98,7 +112,7 @@ ASMweaponGatlingShot proc
         ;shr eax, 1 ; / 2
         mov dword ptr [rcx+2FCh], eax ; to ROF
         ; check set accuracy
-        cmp dword ptr [rcx+1400h], 2
+        cmp r10d, 2
         je setAccuracyBlock
         jmp wGatlingShotRetAddr
     setAccuracyBlock:
@@ -106,12 +120,53 @@ ASMweaponGatlingShot proc
         mulss xmm0, dword ptr [rcx+1418h] ; * max rate
         maxss xmm0, dword ptr [rcx+141Ch] ; fmaxf(min, current)
         mulss xmm0, dword ptr [rcx+1414h] ; * accuracy
-        movss dword ptr [rbx+308h], xmm0 ; set FireAccuracy
+        movss dword ptr [rcx+308h], xmm0 ; set FireAccuracy
         jmp wGatlingShotRetAddr
+
+    checkDamageBlock:
+        mov edx, [rcx+11A4h] ; delay count
+        mov eax, [rcx+11A8h] ; total delay
+        cmp edx, eax
+        jl setDamageBlock ; delay count < total delay
+        mov eax, [rcx+13F0h] ; get AmmoDamage
+        mov [rcx+69Ch], eax ; set AmmoDamage
+        mov edx, [rcx+13F4h] ; get AmmoSize
+        mov [rcx+6B4h], edx ; set AmmoSize
+        mov eax, [rcx+13F8h] ; get AmmoExplosion
+        mov [rcx+6A8h], eax ; set AmmoExplosion
+        jmp wGatlingShotRetAddr
+    setDamageBlock:
+        cvtsi2ss xmm1, edx ; delay count
+        cvtsi2ss xmm2, eax ; total delay
+        divss xmm1, xmm2 ; delay count / total delay
+        ; backup result
+        movaps xmm2, xmm1
+        ; set factor
+        mulss xmm1, dword ptr [rcx+1408h] ; * factor
+        minss xmm1, dword ptr [rcx+140Ch] ; fminf(max, current)
+        movaps xmm0, xmm1
+        ; set AmmoDamage
+        mulss xmm0, dword ptr [rcx+13F0h]
+        movss dword ptr [rcx+69Ch], xmm0
+        ; set AmmoSize
+        mulss xmm1, dword ptr [rcx+13F4h]
+        movss dword ptr [rcx+6B4h], xmm1
+        ; check set explosion
+        cmp r10d, 4
+        je setExplosionBlock
+        jmp wGatlingShotRetAddr
+    setExplosionBlock:
+        mulss xmm2, dword ptr [rcx+1418h] ; * factor
+        minss xmm2, dword ptr [rcx+141Ch] ; fminf(max, current)
+        ; set AmmoExplosion
+        mulss xmm2, dword ptr [rcx+13F8h]
+        movss dword ptr [rcx+6A8h], xmm2
+        jmp wGatlingShotRetAddr
+
     ; original
     ofs39A7AA:
-        mov eax, dword ptr [rcx+11A8h] ; total delay
-        cmp dword ptr [rcx+11A4h], eax ; delay count
+        mov eax, [rcx+11A8h] ; total delay
+        cmp [rcx+11A4h], eax ; delay count
         jl returnBlock
         jmp wGatlingShotRetAddr
     ; return

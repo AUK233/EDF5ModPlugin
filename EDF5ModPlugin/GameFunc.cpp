@@ -37,11 +37,12 @@ uintptr_t edf3982A0Address;
 // Initialize Tail Texture
 uintptr_t rva1BCD40;
 uintptr_t rva1BCBA0;
-// 
 uintptr_t rva1BD600;
 uintptr_t rva5C0C50;
 uintptr_t rva1BDC20;
 uintptr_t rva1BDA30;
+// Free Tail Memory
+uintptr_t rva140470;
 //
 uintptr_t rva1ACA80;
 uintptr_t rva6E160;
@@ -124,17 +125,18 @@ void GetGameFunctions() {
 	// Initialize Tail Texture
 	rva1BCD40 = (uintptr_t)(hmodEXE + 0x1BCD40);
 	rva1BCBA0 = (uintptr_t)(hmodEXE + 0x1BCBA0);
-	//
 	rva1BD600 = (uintptr_t)(hmodEXE + 0x1BD600);
 	rva5C0C50 = (uintptr_t)(hmodEXE + 0x5C0C50);
 	rva1BDC20 = (uintptr_t)(hmodEXE + 0x1BDC20);
 	rva1BDA30 = (uintptr_t)(hmodEXE + 0x1BDA30);
+	// Free Tail Memory
+	rva140470 = (uintptr_t)(hmodEXE + 0x140470);
 	//
 	rva1ACA80 = (uintptr_t)(hmodEXE + 0x1ACA80);
 	rva6E160 = (uintptr_t)(hmodEXE + 0x6E160);
 	rva6E0D0 = (uintptr_t)(hmodEXE + 0x6E0D0);
 	rva70730 = (uintptr_t)(hmodEXE + 0x70730);
-	// error
+	//
 	vedfE940C0 = (uintptr_t)(hmodEXE + 0xE940C0);
 	vedfE94130 = (uintptr_t)(hmodEXE + 0xE94130);
 	rva5C8410 = (uintptr_t)(hmodEXE + 0x5C8410);

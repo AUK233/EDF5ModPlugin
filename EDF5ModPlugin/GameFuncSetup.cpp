@@ -57,8 +57,12 @@ void hookGameFunctions() {
 	RtlEnterCriticalSection = (uintptr_t)EnterCriticalSection;
 	RtlLeaveCriticalSection = (uintptr_t)LeaveCriticalSection;
 	// allows switching of views, offset is 0x2DA490
-	hookGameBlock((void *)(hmodEXE + 0x2DB090), (uintptr_t)ASMplayerViewChange);
-	playerViewRetAddr = (uintptr_t)(hmodEXE + 0x2DB0D1);
+	//hookGameBlock((void *)(hmodEXE + 0x2DB090), (uintptr_t)ASMplayerViewChange);
+	//playerViewRetAddr = (uintptr_t)(hmodEXE + 0x2DB0D1);
+	// EDF5.exe+2DB070
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x2DB070), (uintptr_t)ASMplayerViewChange);
+	WriteHookToProcess((void*)(hmodEXE + 0x2DB070 + 15), (void*)&nop3, 3U);
+	//playerViewRetAddr = (uintptr_t)(hmodEXE + 0x2DB0E0);
 	// add guaranteed pickup, offset is 0x198350
 	hookGameBlock((void *)(hmodEXE + 0x198F50), (uintptr_t)ASMpickupBoxRange);
 	WriteHookToProcess((void *)(hmodEXE + 0x198F50 + 12), (void *)&nop1, 1U);
@@ -589,22 +593,21 @@ void hookWeaponFunctions() {
 	WriteHookToProcess((void*)(hmodEXE + 0x39BC26 + 12), (void*)&nop10, 10U);
 
 	// gatling setup, offset is 0x39A0C5
+	// start:0x13F0, size:0x10, function: save AmmoDamage, AmmoSize, AmmoExplosion
 	// start:0x1400, size:0x20, function: set pre-heat type.
-	hookGameBlock((void *)(hmodEXE + 0x39ACC5), (uint64_t)ASMweaponGatlingSetup);
-	WriteHookToProcess((void *)(hmodEXE + 0x39ACC5 + 12), (void *)&nop8, 8U);
+	hookGameBlockWithInt3((void *)(hmodEXE + 0x39ACC5), (uint64_t)ASMweaponGatlingSetup);
+	WriteHookToProcess((void *)(hmodEXE + 0x39ACC5 + 15), (void *)&nop5, 5U);
 	wGatlingSetupRetAddr = (uintptr_t)(hmodEXE + 0x39ACE0);
 	// gatling shot, offset is 0x39A7AA
-	hookGameBlock((void *)(hmodEXE + 0x39B3AA), (uint64_t)ASMweaponGatlingShot);
-	//WriteHookToProcess((void *)(hmodEXE + 0x39B3AA + 12), (void *)&intNOP32, 2U);
+	hookGameBlock14((void *)(hmodEXE + 0x39B3AA), (uint64_t)ASMweaponGatlingShot);
 	wGatlingShotRetAddr = (uintptr_t)(hmodEXE + 0x39B3B8);
 }
 
 extern "C" {
-uintptr_t ammoSolidBullet01RetAddr;
 void __fastcall ASMammoSolidBullet01();
 
-uintptr_t ammoSolidExpBullet01RetAddr;
 void __fastcall ASMammoSolidExpBullet01();
+uintptr_t ammoSolidExpBullet01RetAddr;
 //
 void __fastcall ASMreadSolidPelletBullet01();
 
@@ -634,15 +637,23 @@ uintptr_t ammoSentryGunBulletOpen01InitRetAddr;
 void __fastcall ASMammoSentryGunBulletOpen01Shot();
 uintptr_t ammoSentryGunBulletOpen01ShotTRetAddr;
 uintptr_t ammoSentryGunBulletOpen01ShotFRetAddr;
+
+void __fastcall ASMammoSmokeCandleBullet01ofs182060();
+uintptr_t ammoSmokeCandleBullet01justCallVeh;
+uintptr_t ammoSmokeCandleBullet01ofs182168;
+uintptr_t rva181ED0;
 }
 
 void hookAmmoFunctions() {
 
-	// hook SolidExpBullet01, can't use it now
-	// offset is 0x184BE2
-	ammoSolidBullet01RetAddr = (uintptr_t)(hmodEXE + 0x1857F0);
-	//hookGameBlock((void *)(hmodEXE + 0x1857E2), (uintptr_t)ASMammoSolidBullet01);
-	//WriteHookToProcess((void *)(hmodEXE + 0x1857E2 + 12), (void *)&intNOP32, 2U);
+	// hook SolidBullet01
+	// EDF5.exe+1852A7
+	hookGameBlockWithInt3((void *)(hmodEXE + 0x1852A7), (uintptr_t)ASMammoSolidBullet01);
+	WriteHookToProcess((void*)(hmodEXE + 0x1852A7 + 15), (void*)&nop8, 8U);
+	// old is 0x710, now up to 0xA10
+	// start:0x800, size:0x210, function: tail smoke.
+	int newSolidBullet01Size = 0xA10;
+	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x185297 + 1), &newSolidBullet01Size, 4U);
 
 	// hook SolidExpBullet01
 	// offset is 0x187637
@@ -673,7 +684,7 @@ void hookAmmoFunctions() {
 	hookGameBlock((void*)(hmodEXE + 0x185485), (uintptr_t)ASMreadSolidPelletBullet01);
 	WriteHookToProcess((void*)(hmodEXE + 0x185485 + 12), (void*)&nop9, 9U);
 	// UP to 0x730
-	int newSolidPelletBullet01Size = 0x730+0x210;
+	int newSolidPelletBullet01Size = 0x730;
 	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x18543C + 1), &newSolidPelletBullet01Size, 4U);
 
 	// hook LaserBullet01
@@ -739,6 +750,14 @@ void hookAmmoFunctions() {
 	WriteHookToProcess((void*)(hmodEXE + 0x1756EF + 15), (void*)&nop3, 3U);
 	ammoSentryGunBulletOpen01ShotTRetAddr = (uintptr_t)(hmodEXE + 0x175713);
 	ammoSentryGunBulletOpen01ShotFRetAddr = (uintptr_t)(hmodEXE + 0x1757A1);
+
+	// hook SmokeCandleBullet01
+	// EDF5.exe+182CBE, allowed to directly deploy vehicles
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x182CBE), (uintptr_t)ASMammoSmokeCandleBullet01ofs182060);
+	WriteHookToProcess((void*)(hmodEXE + 0x182CBE + 15), (void*)&nop7, 7U);
+	ammoSmokeCandleBullet01justCallVeh = (uintptr_t)(hmodEXE + 0x182CE6);
+	ammoSmokeCandleBullet01ofs182168 = (uintptr_t)(hmodEXE + 0x182D68);
+	rva181ED0 = (uintptr_t)(hmodEXE + 0x181ED0);
 }
 
 // new functions require more memory
