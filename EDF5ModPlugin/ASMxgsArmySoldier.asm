@@ -295,10 +295,66 @@ ASMhudShowSupportSlot2 ENDP
 
 align 16
 
+ASMeEngineerInitialization proc
+
+    ; initialize memory
+        xorps xmm0, xmm0
+        movaps [rbx+1AE0h], xmm0
+    ofs2E1747:
+        mov rcx, [rsp+50h]
+        xor rcx, rsp
+        call rva9C6E40
+        mov rax, rbx
+        lea r11, [rsp+60h]
+        mov rbx, [r11+20h]
+        mov rsi, [r11+28h]
+        mov rsp, r11
+        pop rdi
+        ret 
+        int 3
+
+ASMeEngineerInitialization ENDP
+
+align 16
+
 ASMeEngineerUseAuxiliary proc
     ;Get a weapon with support slot 1
-        cmp byte ptr [rbx+0B5Dh], 0
+        cmp byte ptr [rbx+0B5Eh], 0 ; old is +B5D, but we now need the hold-on version
+        mov eax, [rbx+1AE0h] ; throw button timer
+        je throwTimer
+        inc eax
+        mov [rbx+1AE0h], eax
+        cmp eax, 20
+        jbe use2Slot
+        mov dword ptr [rbx+1AE0h], 0
+        ;Get a weapon with support slot 1
+        mov rax, qword ptr [rbx+1600h]
+        movsxd rcx, dword ptr [rax]
+        cmp ecx, dword ptr [rbx+15A0h]
+        jge use2Slot
+        test ecx, ecx
+        js use2Slot
+        mov rax, qword ptr [rbx+1590h]
+        mov rcx, qword ptr [rax+rcx*8]
+        test rcx, rcx
         je use2Slot
+        cmp dword ptr [rcx+2500h], -1
+        jne use2Slot
+        mov dword ptr [rbx+1AE4h], 10 ; throw button cd
+        mov rax, [rcx]
+        call qword ptr [rax+80h] ; Request to reload
+        jmp use2Slot
+    throwCD:
+        dec dword ptr [rbx+1AE4h]
+        jmp use2Slot
+    throwTimer:
+        cmp dword ptr [rbx+1AE4h], 0
+        jg throwCD
+        test eax, eax
+        je use2Slot
+        mov dword ptr [rbx+1AE0h], 0 ; clear timer
+        cmp eax, 10
+        ja use2Slot ; if it <= 10
         test byte ptr [rbx+420h], 4
         jne ofs2E19FC
         cmp qword ptr [rbx+1610h], 0

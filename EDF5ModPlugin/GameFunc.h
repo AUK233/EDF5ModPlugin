@@ -22,6 +22,8 @@ float __fastcall ASMeGetAccessoryValue(uintptr_t p_Class, UINT32 accessoryType, 
 int __fastcall ASMeGetAccessoryINT32(uintptr_t p_Class, UINT32 accessoryType, int defaultValue, int fetchType);
 //
 void __fastcall edfSoldierWeaponCharge(EDFWeaponPointer* pweapon);
+//
+float __fastcall GetAmmoRandomDamageFactor(float minDmg, float maxDmg);
 }
 
 //typedef void *(__fastcall *fnk391230_func)(uintptr_t);

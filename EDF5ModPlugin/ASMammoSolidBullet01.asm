@@ -1,5 +1,7 @@
 .data
 
+extern GetAmmoRandomDamageFactor : proto
+
 extern edf185510Address : qword
 extern vftable_SolidBullet01 : qword
 extern vftable_SolidBullet01A_C0 : qword
@@ -102,10 +104,24 @@ ASMammoSolidBullet01Init proc
     ; node3
         cmp esi, 3 ; this is 4th node
         jle returnAddr
-        mov eax, [rdx+rdi+36+8]
+        lea r11, [rdx+rdi+36]
+        cmp dword ptr [r11], 0 ;check node type
+        mov eax, [r11+8]
+        je node3setDamage
         test eax, eax
         je node4 ; = 0 no building destruction
         or word ptr [rbx+20Ch], 3
+        jmp node4
+    node3setDamage:
+        cdqe ; eax=>rax
+        add r11, rax
+        movss xmm0, dword ptr [r11+8] ; get min damage factor
+        movss xmm1, dword ptr [r11+12+8] ; get max damage factor
+        call GetAmmoRandomDamageFactor
+        mulss xmm0, dword ptr [rbx+200h]
+        movss dword ptr [rbx+200h], xmm0 ; set random damage
+        movsxd rdx, dword ptr [rdi+8]
+
     node4:
         cmp esi, 4 ; this is 5th node
         jle returnAddr

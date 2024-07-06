@@ -374,6 +374,7 @@ uintptr_t edf5F8C40Address;
 void __fastcall ASMhudShowSupportSlot2();
 uintptr_t hudShowSupportSlot2RetAddr;
 // air raider!
+void __fastcall ASMeEngineerInitialization();
 void __fastcall ASMeEngineerUseAuxiliary();
 uintptr_t eEngineerUseAuxiliaryRetAddr;
 uintptr_t edf2E2E30Address;
@@ -430,6 +431,13 @@ void hookEDFClassFunctions() {
 	WriteHookToProcess((void *)(hmodEXE + 0x4D7A70 + 12), (void *)&intNOP32, 3U);
 
 	// air raider!
+	int newAirRaiderSize = 0x2000;
+	// Engineer 0x1A70
+	// start: 0x1AE0, size: 8, function: throw button timer.
+	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x2E2057 + 1), &newAirRaiderSize, 4U);
+	// EDF5.exe+2E2347
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x2E2347), (uint64_t)ASMeEngineerInitialization);
+	WriteHookToProcess((void*)(hmodEXE + 0x2E2347 + 15), (void*)&nop1, 1U);
 	// offset is 0x2E197A
 	eEngineerUseAuxiliaryRetAddr = (uintptr_t)(hmodEXE + 0x2E25FC);
 	hookGameBlock((void *)(hmodEXE + 0x2E257A), (uint64_t)ASMeEngineerUseAuxiliary);

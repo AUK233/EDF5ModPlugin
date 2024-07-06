@@ -93,6 +93,25 @@ void GameStartupHook(PBYTE hmodEXE)
 	hookGameBlockRAXWithInt3((void*)(hmodEXE + 0x613A12), (uintptr_t)ASMgameReadInvalidSGO);
 }
 
+extern "C" {
+	void __fastcall ASMgameStartupUnlockAllWeapon();
+	uintptr_t gameStartupUnlockAllWeaponRetAddr;
+	void __fastcall ASMgameStartupSetMinClassArmor();
+	uintptr_t gameStartupSetMinClassArmorRetAddr;
+}
+
+void GameStartupUnlock(PBYTE hmodEXE)
+{
+	// EDF5.exe+8CB20, Unlock all weapons for new players (0 stars, activate once per run)
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x8CB20), (uintptr_t)ASMgameStartupUnlockAllWeapon);
+	WriteHookToProcess((void*)(hmodEXE + 0x8CB20 + 15), (void*)&nop2, 2U);
+	gameStartupUnlockAllWeaponRetAddr = (uintptr_t)(hmodEXE + 0x8CB3F);
+	// EDF5.exe+5091F8, Set current class minimum HP to 30,000 boxes.
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x5091F8), (uintptr_t)ASMgameStartupSetMinClassArmor);
+	WriteHookToProcess((void*)(hmodEXE + 0x5091F8 + 15), (void*)&nop1, 1U);
+	gameStartupSetMinClassArmorRetAddr = (uintptr_t)(hmodEXE + 0x509208);
+}
+
 void __fastcall LoadNewVoiceFilesCPP(void* pAudio)
 {
 	if (std::filesystem::exists(L"./sound/pc/tikyuu4_voice_en.awb")) {

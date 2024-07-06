@@ -490,6 +490,17 @@ void __fastcall edfSoldierWeaponCharge(EDFWeaponPointer* pweapon) {
 	// end
 }
 
+float __fastcall GetAmmoRandomDamageFactor(float minDmg, float maxDmg)
+{
+	//UINT32 baseRandom = rand() % 10001;
+	//float baseFactor = 10000.0f / maxDmg;
+	UINT32 baseRandom = rand();
+	float baseFactor = (RAND_MAX - 0xff) / maxDmg;
+	float factor = baseRandom / baseFactor;
+	factor = fmaxf(factor, minDmg);
+	factor = fminf(factor, maxDmg);
+	return factor;
+}
 
 bool __fastcall fnk391230_hook(const uintptr_t pweapon) {
 	// ammo
