@@ -1,5 +1,12 @@
 #pragma once
 
+
+typedef struct {
+	WCHAR* text;
+	int id;
+	int size;
+} SubtitleTextStruct;
+
 typedef struct EDFColor4Struct {
 	float r;
 	float g;

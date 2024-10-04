@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <psapi.h>
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,6 +10,7 @@
 #include <stdexcept>
 #include <list>
 #include <cstdlib>
+#include "shlwapi.h"
 
 #include <plog/Log.h>
 #include <plog/Initializers/RollingFileInitializer.h>
@@ -438,6 +440,81 @@ void __fastcall eDisplayVehicleWeaponDamage(HUiHudWeaponPointer* p)
 }
 
 extern "C" {
+	char* pSubtitleFile = 0;
+	uint32_t pSubtitleIndex = 0;
+}
+
+std::vector<SubtitleTextStruct> v_SubtitleText;
+std::vector<SubtitleTextStruct> v_SubtitleName;
+
+void __fastcall GetSubtitleTextAddress(SubtitleTextStruct* startAddr, WCHAR* pAudioName, int nameSize)
+{
+	int textIndex = -1;
+	for (int i = 0; i < v_SubtitleName.size(); i++) {
+		if (v_SubtitleName[i].size == nameSize) {
+			if (!StrCmpW(v_SubtitleName[i].text, pAudioName)) {
+				textIndex = v_SubtitleName[i].id;
+				break;
+			}
+		}
+	}
+	//
+	if (textIndex == -1) {
+		startAddr->size = 0;
+	}
+	else {
+		startAddr->text = v_SubtitleText[textIndex].text;
+		startAddr->size = v_SubtitleText[textIndex].size;
+	}
+}
+
+
+void InitialiseSubtitleFile()
+{
+	std::ifstream file(L"./subtitle/voice_subtitle_CN.sgo", std::ios::binary | std::ios::ate | std::ios::in);
+	std::streamsize size = file.tellg();
+	file.seekg(0, std::ios::beg);
+	pSubtitleFile = (char*)_aligned_malloc(size, 0x10);
+	if (pSubtitleFile) {
+		file.read(pSubtitleFile, size);
+		char* p = pSubtitleFile;
+		// read sgo
+		int DataNodeCount = *(int*)(p + 8);
+		int DataNodeOffset = *(int*)(p + 0xC);
+		int DataNameCount = *(int*)(p + 0x10);
+		int DataNameOffset = *(int*)(p + 0x14);
+		int nodepos, nameoffset;
+		// read node name
+		v_SubtitleName.resize(DataNameCount);
+		for (int i = 0; i < DataNameCount; i++)
+		{
+			nodepos = DataNameOffset + (i * 0x8);
+			nameoffset = *(int*)(p + nodepos);
+
+			v_SubtitleName[i].text = (WCHAR*)(p + nodepos + nameoffset);
+			v_SubtitleName[i].id = *(int*)(p + nodepos + 4);
+			v_SubtitleName[i].size = wcslen(v_SubtitleName[i].text);
+		}
+		// read node wstring
+		int strsize, stroffset;
+		v_SubtitleText.resize(DataNodeCount);
+		for (int i = 0; i < DataNodeCount; i++) {
+			nodepos = DataNodeOffset + (i * 0xC);
+			strsize = *(int*)(p + nodepos + 4);
+			v_SubtitleText[i].size = strsize;
+			if (strsize > 0) {
+				stroffset = *(int*)(p + nodepos + 8);
+				v_SubtitleText[i].text = (WCHAR*)(p + nodepos + stroffset);
+			}
+			else {
+				v_SubtitleText[i].text = 0;
+			}
+		}
+	}
+	file.close();
+}
+
+extern "C" {
 	void __fastcall ASMhookSleep();
 	uintptr_t hookSleepRet;
 	//
@@ -450,12 +527,26 @@ extern "C" {
 	uintptr_t readHUiHudPowerGuageRet;
 	void __fastcall ASMupdateHUiHudPowerGuage();
 	uintptr_t updateHUiHudPowerGuageRet;
+
+	void __fastcall ASMscript2C_FA0();
+	uintptr_t script2C_FA0ret;
+	void __fastcall ASMscript2C_FA2();
 }
 
 void hookHUDEnhancement() {
 	//hookGameBlock((void*)(hmodEXE + 0x60FDEA), (uint64_t)ASMhookSleep);
 	//hookSleepRet = (uintptr_t)(hmodEXE + 0x60FE0F);
 
+	// EDF5.exe+127CC0
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x127CC0), (uintptr_t)ASMscript2C_FA0);
+	WriteHookToProcess((void*)(hmodEXE + 0x127CC0 + 15), (void*)&nop2, 2U);
+	script2C_FA0ret = (uintptr_t)(hmodEXE + 0x127CEF);
+
+	// EDF5.exe+116708
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x116708), (uintptr_t)ASMscript2C_FA2);
+	WriteHookToProcess((void*)(hmodEXE + 0x116708 + 15), (void*)&nop1, 1U);
+
+	InitialiseSubtitleFile();
 
 	HUDEnhanceStatus = 1;
 	// EDF5.exe+2DB61F

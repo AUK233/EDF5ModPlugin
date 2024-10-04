@@ -21,9 +21,13 @@ void __fastcall eDisplayVehicleWeaponDamage(HUiHudWeaponPointer* p);
 
 // fast get address
 void __fastcall ASMgetPlayerAddress(uintptr_t startAddr, void* target);
+// Get subtitle address
+void __fastcall GetSubtitleTextAddress(SubtitleTextStruct* startAddr, WCHAR* pAudioName, int nameSize);
 }
 void WINAPI getPlayerWeaponDamage();
 std::wstring __fastcall FormatDamageNumber(const float dmg);
 void __fastcall setDamageDisplayTime(int vstart, int vend, int time);
+
+void InitialiseSubtitleFile();
 
 void hookHUDEnhancement();

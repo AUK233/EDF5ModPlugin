@@ -21,7 +21,9 @@ Its Ammo_CustomParameter has a maximum of 3 parameters.
 |1|float|hit FX adjust|adjusting FX when bullet hit, default 1.0|
 |2|float|hit FX time adjust|adjusting FX time when bullet hit, default 1.0|
 |new| - | - | - |
-|3|int|building destruction type|0 is none, 1 is has|
+|3|int or ptr| - | - |
+| - |when it is int|building destruction type|0 is none, 1 is has|
+| - |when it is ptr|random damage|node0 float is minFactor, node1 float is maxFactor|
 |4|int or ptr|tail smoke length|when it is ptr, use [all parameters must be present](#SolidBullet01-Node4)|
 
 #### SolidBullet01 Node4

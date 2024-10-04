@@ -92,20 +92,26 @@ uintptr_t rva6170C0;
 uintptr_t rva616F30;
 uintptr_t vedfEBBFB8;
 uintptr_t rva5E0660;
+// about sound
+uintptr_t rva51960;
+uintptr_t rva51A80;
+uintptr_t rva114980;
+uintptr_t rva12D890;
+uintptr_t rva61E560;
+uintptr_t vedfE918A8;
+uintptr_t vedf125AB70;
 }
 
 // get game function address
 void GetGameFunctions() {
 
-	rva38A4F0 = (uintptr_t)(hmodEXE + 0x38A4F0);
-	rva38A960 = (uintptr_t)(hmodEXE + 0x38A960);
-	rva181DA0 = (uintptr_t)(hmodEXE + 0x181DA0);
-	rva25A20 = (uintptr_t)(hmodEXE + 0x25A20);
-	rva94A70 = (uintptr_t)(hmodEXE + 0x94A70);
-	rva6170C0 = (uintptr_t)(hmodEXE + 0x6170C0);
-	rva616F30 = (uintptr_t)(hmodEXE + 0x616F30);
-	vedfEBBFB8 = (uintptr_t)(hmodEXE + 0xEBBFB8);
-	rva5E0660 = (uintptr_t)(hmodEXE + 0x5E0660);
+	rva51960 = (uintptr_t)(hmodEXE + 0x51960);
+	rva51A80 = (uintptr_t)(hmodEXE + 0x51A80);
+	rva114980 = (uintptr_t)(hmodEXE + 0x114980);
+	rva12D890 = (uintptr_t)(hmodEXE + 0x12D890);
+	rva61E560 = (uintptr_t)(hmodEXE + 0x61E560);
+	vedfE918A8 = (uintptr_t)(hmodEXE + 0xE918A8);
+	vedf125AB70 = (uintptr_t)(hmodEXE + 0x125AB70);
 
 	// get star rating calculation function
 	edf8C8C0Address = (uintptr_t)(hmodEXE + 0x8C8C0);
@@ -170,6 +176,17 @@ void GetGameFunctions() {
 	rva399760 = (uintptr_t)(hmodEXE + 0x399760);
 	rva38B100 = (uintptr_t)(hmodEXE + 0x38B100);
 	rva949E0 = (uintptr_t)(hmodEXE + 0x949E0);
+
+	// Initialize Shot Indicator Circle
+	rva38A4F0 = (uintptr_t)(hmodEXE + 0x38A4F0);
+	rva38A960 = (uintptr_t)(hmodEXE + 0x38A960);
+	rva181DA0 = (uintptr_t)(hmodEXE + 0x181DA0);
+	rva25A20 = (uintptr_t)(hmodEXE + 0x25A20);
+	rva94A70 = (uintptr_t)(hmodEXE + 0x94A70);
+	rva6170C0 = (uintptr_t)(hmodEXE + 0x6170C0);
+	rva616F30 = (uintptr_t)(hmodEXE + 0x616F30);
+	vedfEBBFB8 = (uintptr_t)(hmodEXE + 0xEBBFB8);
+	rva5E0660 = (uintptr_t)(hmodEXE + 0x5E0660);
 
 	// get ammo function address
 	GetAmmoFunctions();
