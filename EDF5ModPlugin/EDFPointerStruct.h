@@ -3,7 +3,11 @@
 
 typedef struct {
 	WCHAR* text;
-	int id;
+	union
+	{
+		int id;
+		float posX;
+	} v;
 	int size;
 } SubtitleTextStruct;
 

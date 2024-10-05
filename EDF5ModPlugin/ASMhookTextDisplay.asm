@@ -39,6 +39,13 @@ extern _lyt_HuiSubtitleBox : word
 ;
 
 extern script2C_FA0ret : qword
+extern InitializeTalkSubtitleString : proto
+extern PushTalkSubtitleString : proto
+extern DisplayTalkSubtitleString : proto
+extern script2C_1005ret : qword
+extern script2C_1006ret : qword
+extern script2C_1007ret : qword
+extern script2C_1009ret : qword
 
 ; L"TextNumericType2"
 wstrTextNumericType2 db 84,0,101,0,120,0,116,0,78,0,117,0,109,0,101,0,114,0,105,0,99,0,84,0,121,0,112,0,101,0,50,0,0,0
@@ -573,45 +580,12 @@ ASMshowSubtitleByPlayingSoundOn proc
         mov qword ptr [rsp+40h], -2
         mov [rsp+240h], rbx
         ; save register
-        mov [rbp+0E0h], r8
-        mov r13, rcx
+        ;mov [rbp+0E0h], r8
         mov r14, rdx
-        ; check subtitles exist
+        mov r13, rcx
         xor r12d, r12d
-        mov edx, pSubtitleIndex
-        test edx, edx
-        je showSubtitle
-        call ASMshowSubtitleByPlayingSoundOff
-        mov pSubtitleIndex, r12d
         ; rcx is input
-        ; read subtitle pointer
     showSubtitle:
-        mov r8d, [rbp+0E0h]
-        mov rdx, r14
-        lea rcx, [rsp+20h]
-        call GetSubtitleTextAddress
-        mov eax, [rsp+2Ch]
-        test eax, eax
-        je ReturnAddress
-        mov r14d, eax; string length
-        mov rbx, [rsp+20h] ; string pointer
-        ;lea rbx, pSubtitleFile
-        ;mov rdx, r14
-        ;mov rcx, rbx
-        ;call edf5BDF30Address ; read sgo node
-        ;cmp eax, -1
-        ;je ReturnAddress
-        ;mov r8, [rbx]
-        ;cdqe
-        ;movsxd rdx, dword ptr [r8+12]
-        ;lea rcx, [rax+rax*2]
-        ;lea rax, [r8+rdx]
-        ;lea rbx, [rax+rcx*4]
-        ;mov r14d, [rbx+4] ; string length
-        ;movsxd rax, dword ptr [rbx+8]
-        ;test rax, rax
-        ;je ReturnAddress
-        ;add rbx, rax ; string pointer
         ; initialization
         lea rcx, [rbp-70h]
         call rva51960
@@ -633,13 +607,13 @@ ASMshowSubtitleByPlayingSoundOn proc
         mov [rsp+70h], r12w
         mov rsi, -1
         ; end
-        mov r8d, r14d ; string length
-        mov rdx, rbx ; string pointer
+        mov r8d, [r14+12] ; string length
+        mov rdx, [r14]  ; string pointer
         lea rcx, [rbp+78h]
         call rva27380
         ;
         mov dword ptr [rbp+0B8h], 18h
-        mov eax, _SubtitlePosition
+        mov eax, [r14+8] ; text hui pos x
         mov ecx, _SubtitlePosition+4
         mov rdx, vedf125AB70
         mov [rbp+0BCh], eax
@@ -726,7 +700,7 @@ ASMshowSubtitleByPlayingSoundOn proc
         lea rcx, [rbp-70h]
         call rva51A80
     ReturnAddress:
-        mov rax, [rbp+0E0h]
+        ;mov rax, [rbp+0E0h]
         mov rbx, [rsp+240h]
         add rsp, 1F0h
         pop r15
@@ -743,6 +717,47 @@ ASMshowSubtitleByPlayingSoundOn ENDP
 
 align 16
 
+ASMshowSubtitleByPlayingSoundReady proc
+
+        push rbx
+        push rsi
+        push rdi
+        sub rsp, 30h
+        ; save register
+        mov rbx, r8
+        mov rsi, rcx
+        mov rdi, rdx
+    ; check subtitles exist
+        mov edx, pSubtitleIndex
+        test edx, edx
+        je getSubtitleText
+        ; rcx is input
+        call ASMshowSubtitleByPlayingSoundOff
+        mov pSubtitleIndex, 0
+    getSubtitleText:
+        xor r9d, r9d
+        mov r8d, ebx
+        mov rdx, rdi
+        lea rcx, [rsp+20h]
+        call GetSubtitleTextAddress
+        test eax, eax
+        je ReturnAddress
+        ;
+        lea rdx, [rsp+20h]
+        mov rcx, rsi
+        call ASMshowSubtitleByPlayingSoundOn
+    ReturnAddress:
+        mov rax, rbx
+        add rsp, 30h
+        pop rdi
+        pop rsi
+        pop rbx
+        ret
+
+ASMshowSubtitleByPlayingSoundReady ENDP
+
+align 16
+
 ASMscript2C_FA0 proc
 
         mov qword ptr [rsp+40h], 7
@@ -752,6 +767,7 @@ ASMscript2C_FA0 proc
         cmp [rbx], r8w
         je ofs1270EC
         or r8, -1
+        align 16
     ofs1270E1:
         inc r8
         cmp word ptr [rbx+r8*2], 0
@@ -759,7 +775,7 @@ ASMscript2C_FA0 proc
     ofs1270EC:
         mov rdx, rbx
         mov rcx, rdi
-        call ASMshowSubtitleByPlayingSoundOn
+        call ASMshowSubtitleByPlayingSoundReady
     ;original
         mov r8, rax
         mov rdx, rbx
@@ -806,6 +822,99 @@ ASMscript2C_FA2 proc
         ret 
 
 ASMscript2C_FA2 ENDP
+
+align 16
+
+ASMscript2C_1004 proc
+
+        add rsp, 0C0h
+        pop r15
+        pop r14
+        pop rdi
+        pop rsi
+        pop rbp
+        jmp InitializeTalkSubtitleString
+        int 3
+
+ASMscript2C_1004 ENDP
+
+align 16
+
+ASMscript2C_1005 proc
+
+        mov rcx, rdi
+        call DisplayTalkSubtitleString
+        mov [rbp+2Fh], rsi
+        mov [rbp+37h], rsi
+        mov [rbp+3Fh], rsi
+        xor r8d, r8d
+        jmp script2C_1005ret
+        int 3
+
+ASMscript2C_1005 ENDP
+
+align 16
+
+ASMscript2C_1006 proc
+
+        ;mov r8, rbx
+        ;mov rdx, rsi
+        ;mov rcx, rbp
+        ;call ASMshowSubtitleByPlayingSoundReady
+        mov rdx, rbx
+        mov rcx, rsi
+        call PushTalkSubtitleString
+    ;original
+        mov r8, rbx
+        mov rdx, rsi
+        lea rcx, [rsp+38h]
+        call rva27380
+        jmp script2C_1006ret
+        int 3
+
+ASMscript2C_1006 ENDP
+
+align 16
+
+ASMscript2C_1007 proc
+
+        ;mov r8, rbx
+        ;mov rdx, rdi
+        ;mov rcx, rsi
+        ;call ASMshowSubtitleByPlayingSoundReady
+        mov rdx, rbx
+        mov rcx, rdi
+        call PushTalkSubtitleString
+    ;original
+        mov r8, rbx
+        mov rdx, rdi
+        lea rcx, [rsp+50h]
+        call rva27380
+        jmp script2C_1007ret
+        int 3
+
+ASMscript2C_1007 ENDP
+
+align 16
+
+ASMscript2C_1009 proc
+
+        ;mov r8, rbx
+        ;mov rdx, rsi
+        ;mov rcx, rbp
+        ;call ASMshowSubtitleByPlayingSoundReady
+        mov rdx, rbx
+        mov rcx, rsi
+        call PushTalkSubtitleString
+    ;original
+        mov r8, rbx
+        mov rdx, rsi
+        lea rcx, [rsp+48h]
+        call rva27380
+        jmp script2C_1009ret
+        int 3
+
+ASMscript2C_1009 ENDP
 
 align 16
 

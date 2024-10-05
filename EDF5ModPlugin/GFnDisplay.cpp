@@ -18,6 +18,7 @@
 
 #include "commonNOP.h"
 #include "GFnDisplay.h"
+#include <GameFunctionInASM.h>
 
 extern PBYTE hmodEXE;
 
@@ -446,14 +447,17 @@ extern "C" {
 
 std::vector<SubtitleTextStruct> v_SubtitleText;
 std::vector<SubtitleTextStruct> v_SubtitleName;
+std::wstring wstr_SubtitleText;
+int SubtitleTextMinSize = 0;
+int SubtitleTextSpace = 1;
 
-void __fastcall GetSubtitleTextAddress(SubtitleTextStruct* startAddr, WCHAR* pAudioName, int nameSize)
+int __fastcall GetSubtitleTextAddress(SubtitleTextStruct* startAddr, WCHAR* pAudioName, int nameSize, int noPos)
 {
 	int textIndex = -1;
 	for (int i = 0; i < v_SubtitleName.size(); i++) {
 		if (v_SubtitleName[i].size == nameSize) {
 			if (!StrCmpW(v_SubtitleName[i].text, pAudioName)) {
-				textIndex = v_SubtitleName[i].id;
+				textIndex = v_SubtitleName[i].v.id;
 				break;
 			}
 		}
@@ -461,17 +465,106 @@ void __fastcall GetSubtitleTextAddress(SubtitleTextStruct* startAddr, WCHAR* pAu
 	//
 	if (textIndex == -1) {
 		startAddr->size = 0;
+		return 0;
 	}
 	else {
+		float curPos = 320.0f;
+		if (!noPos) {
+			int curSize = v_SubtitleText[textIndex].size / 2;
+			int minSize = SubtitleTextMinSize;
+			if (curSize < minSize) {
+				float fSize = minSize - curSize;
+				float addPos = (fSize / minSize) * 640.0f;
+				curPos += addPos;
+			}
+		}
+
+		startAddr->v.posX = curPos;
 		startAddr->text = v_SubtitleText[textIndex].text;
 		startAddr->size = v_SubtitleText[textIndex].size;
+		return v_SubtitleText[textIndex].size;
 	}
 }
 
-
-void InitialiseSubtitleFile()
+void __fastcall InitializeTalkSubtitleString()
 {
-	std::ifstream file(L"./subtitle/voice_subtitle_CN.sgo", std::ios::binary | std::ios::ate | std::ios::in);
+	wstr_SubtitleText = L"";
+}
+
+void __fastcall PushTalkSubtitleString(WCHAR* pAudioName, size_t nameSize)
+{
+	SubtitleTextStruct text;
+	int size = GetSubtitleTextAddress(&text, pAudioName, nameSize, 1);
+
+	if (size > 0) {
+		if (wstr_SubtitleText != L"") {
+			wstr_SubtitleText += L"\n";
+		}
+
+		int curSize = size/2;
+		int minSize = SubtitleTextMinSize;
+		if (curSize < minSize) {
+			minSize -= curSize;
+			minSize /= SubtitleTextSpace;
+			for (int i = 0; i < minSize; i++) {
+				wstr_SubtitleText += L"¡¡";
+			}
+		}
+
+		wstr_SubtitleText += text.text;
+	}
+}
+
+void __fastcall DisplayTalkSubtitleString(void* pScript)
+{
+	uint32_t Index = pSubtitleIndex;
+	if (Index) {
+		ASMshowSubtitleByPlayingSoundOff(pScript, Index);
+	}
+
+	SubtitleTextStruct text;
+	text.v.posX = 320.0f;
+	text.size = wstr_SubtitleText.size();
+	text.text = (WCHAR*)wstr_SubtitleText.c_str();
+
+	ASMshowSubtitleByPlayingSoundOn(pScript, &text);
+}
+
+
+void InitialiseSubtitleFile(int language)
+{
+	std::wstring filePath = L"./subtitle/";
+	switch (language)
+	{
+	case 1:
+		// 86 / 2
+		filePath += L"voice_subtitle_EN.sgo";
+		SubtitleTextMinSize = 43;
+		SubtitleTextSpace = 2;
+		break;
+	case 2:
+		filePath += L"voice_subtitle_JA.sgo";
+		// 37 / 2
+		SubtitleTextMinSize = 18;
+		SubtitleTextSpace = 1;
+		break;
+	case 3:
+		filePath += L"voice_subtitle_CN.sgo";
+		// 44 / 2
+		SubtitleTextMinSize = 22;
+		SubtitleTextSpace = 1;
+		break;
+	case 4:
+		filePath += L"voice_subtitle_KR.sgo";
+		SubtitleTextMinSize = 11;
+		break;
+	default:
+		filePath += L"test.sgo";
+		SubtitleTextMinSize = 22;
+		break;
+	}
+
+	std::ifstream file(filePath.c_str(), std::ios::binary | std::ios::ate | std::ios::in);
 	std::streamsize size = file.tellg();
 	file.seekg(0, std::ios::beg);
 	pSubtitleFile = (char*)_aligned_malloc(size, 0x10);
@@ -492,7 +585,7 @@ void InitialiseSubtitleFile()
 			nameoffset = *(int*)(p + nodepos);
 
 			v_SubtitleName[i].text = (WCHAR*)(p + nodepos + nameoffset);
-			v_SubtitleName[i].id = *(int*)(p + nodepos + 4);
+			v_SubtitleName[i].v.id = *(int*)(p + nodepos + 4);
 			v_SubtitleName[i].size = wcslen(v_SubtitleName[i].text);
 		}
 		// read node wstring
@@ -515,6 +608,57 @@ void InitialiseSubtitleFile()
 }
 
 extern "C" {
+	void __fastcall ASMscript2C_FA0();
+	uintptr_t script2C_FA0ret;
+	void __fastcall ASMscript2C_FA2();
+	void __fastcall ASMscript2C_1004();
+	void __fastcall ASMscript2C_1005();
+	uintptr_t script2C_1005ret;
+	void __fastcall ASMscript2C_1006();
+	uintptr_t script2C_1006ret;
+	void __fastcall ASMscript2C_1007();
+	uintptr_t script2C_1007ret;
+	void __fastcall ASMscript2C_1009();
+	uintptr_t script2C_1009ret;
+}
+
+void hookDisplaySubtitle(int language)
+{
+	InitialiseSubtitleFile(language);
+
+	// EDF5.exe+127CC0, play voice
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x127CC0), (uintptr_t)ASMscript2C_FA0);
+	WriteHookToProcess((void*)(hmodEXE + 0x127CC0 + 15), (void*)&nop2, 2U);
+	script2C_FA0ret = (uintptr_t)(hmodEXE + 0x127CEF);
+
+	// EDF5.exe+116708, wait voice
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x116708), (uintptr_t)ASMscript2C_FA2);
+	WriteHookToProcess((void*)(hmodEXE + 0x116708 + 15), (void*)&nop1, 1U);
+
+	// talk series
+	// EDF5.exe+1280B1, talk ready
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x1280B1), (uintptr_t)ASMscript2C_1004);
+	// EDF5.exe+1281ED, play talk
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x1281ED), (uintptr_t)ASMscript2C_1005);
+	script2C_1005ret = (uintptr_t)(hmodEXE + 0x1281FC);
+
+	// EDF5.exe+12833A, talk push
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x12833A), (uintptr_t)ASMscript2C_1006);
+	WriteHookToProcess((void*)(hmodEXE + 0x12833A + 15), (void*)&nop2, 2U);
+	script2C_1006ret = (uintptr_t)(hmodEXE + 0x12834B);
+
+	// EDF5.exe+1284BA, talk push
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x1284BA), (uintptr_t)ASMscript2C_1007);
+	WriteHookToProcess((void*)(hmodEXE + 0x1284BA + 15), (void*)&nop2, 2U);
+	script2C_1007ret = (uintptr_t)(hmodEXE + 0x1284CB);
+
+	// EDF5.exe+12880A, talk push
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x12880A), (uintptr_t)ASMscript2C_1009);
+	WriteHookToProcess((void*)(hmodEXE + 0x12880A + 15), (void*)&nop2, 2U);
+	script2C_1009ret = (uintptr_t)(hmodEXE + 0x12881B);
+}
+
+extern "C" {
 	void __fastcall ASMhookSleep();
 	uintptr_t hookSleepRet;
 	//
@@ -527,26 +671,11 @@ extern "C" {
 	uintptr_t readHUiHudPowerGuageRet;
 	void __fastcall ASMupdateHUiHudPowerGuage();
 	uintptr_t updateHUiHudPowerGuageRet;
-
-	void __fastcall ASMscript2C_FA0();
-	uintptr_t script2C_FA0ret;
-	void __fastcall ASMscript2C_FA2();
 }
 
 void hookHUDEnhancement() {
 	//hookGameBlock((void*)(hmodEXE + 0x60FDEA), (uint64_t)ASMhookSleep);
 	//hookSleepRet = (uintptr_t)(hmodEXE + 0x60FE0F);
-
-	// EDF5.exe+127CC0
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x127CC0), (uintptr_t)ASMscript2C_FA0);
-	WriteHookToProcess((void*)(hmodEXE + 0x127CC0 + 15), (void*)&nop2, 2U);
-	script2C_FA0ret = (uintptr_t)(hmodEXE + 0x127CEF);
-
-	// EDF5.exe+116708
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x116708), (uintptr_t)ASMscript2C_FA2);
-	WriteHookToProcess((void*)(hmodEXE + 0x116708 + 15), (void*)&nop1, 1U);
-
-	InitialiseSubtitleFile();
 
 	HUDEnhanceStatus = 1;
 	// EDF5.exe+2DB61F
@@ -604,4 +733,3 @@ void hookHUDEnhancement() {
 	hookGameBlock((void*)(hmodEXE + 0x4CC8A6), (uintptr_t)ASMupdateHUiHudPowerGuage);
 	updateHUiHudPowerGuageRet = (uintptr_t)(hmodEXE + 0x4CC8B2);
 }
-

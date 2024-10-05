@@ -81,6 +81,7 @@ static UINT RTRead = 0;
 static UINT DisplayDamage = 1;
 static UINT PlayerView = 0;
 static UINT HUDEnhance = 0;
+static UINT DisplaySubtitle = 0;
 // Old configuration
 static BOOL Redirect = FALSE;
 static BOOL LoadPluginsB = FALSE;
@@ -432,6 +433,11 @@ static void __fastcall initterm_hook2(_PVFV *unk1, _PVFV *unk2) {
 		if (HUDEnhance || RTRead) {
 			hookHUDEnhancement();
 		}
+
+		if (DisplaySubtitle) {
+			hookDisplaySubtitle(DisplaySubtitle);
+		}
+
 		// It needs to be right here
 		if (RTRead) {
 			HANDLE tempHND = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ReadINILoop, NULL, NULL, NULL);
@@ -475,6 +481,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		ModLog = GetPrivateProfileIntW(L"ModOption", L"ModLog", ModLog, iniPath);
 		WEOpen = GetPrivateProfileIntW(L"ModOption", L"EnhancedWP", WEOpen, iniPath);
 		HUDEnhance = GetPrivateProfileIntW(L"ModOption", L"HUDEnhance", HUDEnhance, iniPath);
+		DisplaySubtitle = GetPrivateProfileIntW(L"ModOption", L"DisplaySubtitle", 0, iniPath);
 		noThrowAnime = GetPrivateProfileIntW(L"ModOption", L"NoThrowAnime", 0, iniPath);
 		newSaveDataUnlock = GetPrivateProfileIntW(L"ModOption", L"StarterKit", 0, iniPath);
 		//LoadPluginsB = GetPrivateProfileBoolW(L"ModOption", L"LoadPlugins", LoadPluginsB, iniPath);
