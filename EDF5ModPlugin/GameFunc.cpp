@@ -19,12 +19,15 @@ extern int weaponEnhance;
 static const unsigned char intNOP32[] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
 
 extern "C" {
+// allocate 0x60 bytes memory
+uintptr_t edf73240Address;
 // star rating calculation
 uintptr_t edf8C8C0Address;
 //
 uintptr_t edf3AE530Address;
 
 uintptr_t edf4738B0Address;
+uintptr_t edf4BE440Address;
 uintptr_t edf4DC190Address;
 // read sgo node name
 uintptr_t edf5BDF30Address;
@@ -100,6 +103,7 @@ uintptr_t rva12D890;
 uintptr_t rva61E560;
 uintptr_t vedfE918A8;
 uintptr_t vedf125AB70;
+uintptr_t vedf125ABD0;
 }
 
 // get game function address
@@ -112,13 +116,17 @@ void GetGameFunctions() {
 	rva61E560 = (uintptr_t)(hmodEXE + 0x61E560);
 	vedfE918A8 = (uintptr_t)(hmodEXE + 0xE918A8);
 	vedf125AB70 = (uintptr_t)(hmodEXE + 0x125AB70);
+	vedf125ABD0 = (uintptr_t)(hmodEXE + 0x125ABD0);
 
+	// allocate 0x60 bytes memory
+	edf73240Address = (uintptr_t)(hmodEXE + 0x73240);
 	// get star rating calculation function
 	edf8C8C0Address = (uintptr_t)(hmodEXE + 0x8C8C0);
 
 	edf3AE530Address = (uintptr_t)(hmodEXE + 0x3AE530);
 
 	edf4738B0Address = (uintptr_t)(hmodEXE + 0x4738B0);
+	edf4BE440Address = (uintptr_t)(hmodEXE + 0x4BE440);
 	edf4DC190Address = (uintptr_t)(hmodEXE + 0x4DC190);
 	// get read sgo node function
 	edf5BDF30Address = (uintptr_t)(hmodEXE + 0x5BDF30);

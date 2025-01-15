@@ -398,6 +398,75 @@ void __fastcall ASMVehicle403TankMainFire();
 uintptr_t Vehicle403TankMainFireRetAddr;
 // Barga
 void __fastcall ASMVehicle501AnimationEvent();
+
+//
+void __fastcall ASMmoreClassModelSelect();
+uintptr_t moreClassModelSelectRetAddr;
+uintptr_t vft_ModelIndexCivilian;
+uintptr_t vft_ModelIndexSoldier;
+
+void __fastcall ASMmoreClassModelSelect1();
+uintptr_t moreClassModelSelect1RetAddr;
+
+extern uintptr_t edf4738B0Address;
+void __fastcall ASMdwwfafaffa(void* pTarget, LPCWSTR wstr, void* pSource);
+}
+
+__declspec(align(16)) typedef struct EDFHuiChgDlgMsgButton_t {
+	void* vf_table;
+	void* pCharacter;
+	BYTE pad[0x28];
+	void* pVFTable;
+} EDFHuiChgDlgMsgButton;
+static_assert(sizeof(EDFHuiChgDlgMsgButton_t) == 0x40);
+
+__declspec(align(16)) typedef struct EDFHuiChgDlgMsgVector_t {
+	BYTE wstr[0x20];
+	BYTE pad1[0x38];
+	WCHAR* pWstring;
+	INT16 unk161;
+	BYTE pad2[0x1E];
+	void* pSize60;
+	INT64 unk641;
+} EDFHuiChgDlgMsgVector;
+static_assert(sizeof(EDFHuiChgDlgMsgVector_t) == 0x90);
+
+typedef WCHAR*(__fastcall* func_Call4738B0)(void* v125ABD0, LPCWSTR pName);
+typedef void(__fastcall* func_Call6D8D0)(void* pButtonVector, void* pVector);
+typedef void(__fastcall* func_Call9C71C0)(void* pStartButton, int eachSize, int sum, void* vf_table);
+
+extern "C" void __fastcall testFadadad(void* v125ABD0, void* pButtonVector, void* pCharacter) {
+	func_Call4738B0 getTextWString = (func_Call4738B0)edf4738B0Address;
+	WCHAR* pWstr;
+
+	EDFHuiChgDlgMsgButton button[3];
+	EDFHuiChgDlgMsgVector v_button[3];
+
+	button[0].vf_table = (void*)vft_ModelIndexCivilian;
+	button[0].pCharacter = pCharacter;
+	button[0].pVFTable = &button[0].vf_table;
+	pWstr = getTextWString(v125ABD0, L"ModelIndexChgDlgMsg");
+	ASMdwwfafaffa(&v_button[0], pWstr, &button[0]);
+
+	button[1].vf_table = (void*)vft_ModelIndexSoldier;
+	button[1].pCharacter = pCharacter;
+	button[1].pVFTable = &button[1].vf_table;
+	pWstr = getTextWString(v125ABD0, L"ModelIndexSoldier");
+	ASMdwwfafaffa(&v_button[1], pWstr, &button[1]);
+
+	button[2].vf_table = (void*)vft_ModelIndexSoldier;
+	button[2].pCharacter = pCharacter;
+	button[2].pVFTable = &button[2].vf_table;
+	pWstr = getTextWString(v125ABD0, L"ModelIndexCivilian");
+	ASMdwwfafaffa(&v_button[2], pWstr, &button[2]);
+
+	func_Call6D8D0 pushButtonToHui = (func_Call6D8D0)(hmodEXE + 0x6D8D0);
+	pushButtonToHui(pButtonVector, &v_button[0]);
+	pushButtonToHui(pButtonVector, &v_button[1]);
+	pushButtonToHui(pButtonVector, &v_button[2]);
+
+	func_Call9C71C0 clearButtonVector = (func_Call9C71C0)(hmodEXE + 0x9C71C0);
+	clearButtonVector(&v_button[0], sizeof(EDFHuiChgDlgMsgVector), 3, (hmodEXE + 0x607E0));
 }
 
 void hookEDFClassFunctions() {
@@ -405,6 +474,18 @@ void hookEDFClassFunctions() {
 	// EDF5.exe+48D7B is hold on a button
 	// next is press a button
 	// EDF5.exe+6dc70 releasing a pointer that is no longer useful
+
+
+	// EDF5.exe+52DFD8
+	//hookGameBlockWithInt3((void*)(hmodEXE + 0x52DFD8), (uintptr_t)ASMmoreClassModelSelect);
+	//WriteHookToProcess((void*)(hmodEXE + 0x52DFD8 + 15), (void*)&nop6, 6U);
+	moreClassModelSelectRetAddr = (uintptr_t)(hmodEXE + 0x52E060);
+	vft_ModelIndexCivilian = (uintptr_t)(hmodEXE + 0xED3128);
+	vft_ModelIndexSoldier = (uintptr_t)(hmodEXE + 0xED3198);
+	// EDF5.exe+52E08C
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x52E08C), (uintptr_t)ASMmoreClassModelSelect1);
+	WriteHookToProcess((void*)(hmodEXE + 0x52E08C + 15), (void*)&nop2, 2U);
+	moreClassModelSelect1RetAddr = (uintptr_t)(hmodEXE + 0x52E09D);
 	
 	// ranger!
 	int newRangerSize = 0x2000;
@@ -412,11 +493,11 @@ void hookEDFClassFunctions() {
 	// start: 0x1BE0, size: 8, function: throw button timer.
 	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x2DF9C7 + 1), &newRangerSize, 4U);
 	// EDF5.exe+2DFD0D
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x2DFD0D), (uint64_t)ASMeAssultSoldierInitialization);
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x2DFD0D), (uintptr_t)ASMeAssultSoldierInitialization);
 	WriteHookToProcess((void*)(hmodEXE + 0x2DFD0D + 15), (void*)&nop1, 1U);
 	// EDF5.exe+2E0017
 	eArmySoldierUseAuxiliaryRetAddr = (uintptr_t)(hmodEXE + 0x2E00C1);
-	hookGameBlock((void *)(hmodEXE + 0x2E0017), (uint64_t)ASMeArmySoldierUseAuxiliary);
+	hookGameBlock((void *)(hmodEXE + 0x2E0017), (uintptr_t)ASMeArmySoldierUseAuxiliary);
 	WriteHookToProcess((void *)(hmodEXE + 0x2E0017 + 12), (void *)&intNOP32, 8U);
 	//
 	edf2E0270Address = (uintptr_t)(hmodEXE + 0x2E0270);
@@ -427,7 +508,7 @@ void hookEDFClassFunctions() {
 	edf5F8C40Address = (uintptr_t)(hmodEXE + 0x5F8C40);
 	// Show 2nd support slot
 	hudShowSupportSlot2RetAddr = (uintptr_t)(hmodEXE + 0x4D7A7F);
-	hookGameBlock((void *)(hmodEXE + 0x4D7A70), (uint64_t)ASMhudShowSupportSlot2);
+	hookGameBlock((void *)(hmodEXE + 0x4D7A70), (uintptr_t)ASMhudShowSupportSlot2);
 	WriteHookToProcess((void *)(hmodEXE + 0x4D7A70 + 12), (void *)&intNOP32, 3U);
 
 	// air raider!
@@ -436,11 +517,11 @@ void hookEDFClassFunctions() {
 	// start: 0x1AE0, size: 8, function: throw button timer.
 	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x2E2057 + 1), &newAirRaiderSize, 4U);
 	// EDF5.exe+2E2347
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x2E2347), (uint64_t)ASMeEngineerInitialization);
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x2E2347), (uintptr_t)ASMeEngineerInitialization);
 	WriteHookToProcess((void*)(hmodEXE + 0x2E2347 + 15), (void*)&nop1, 1U);
 	// offset is 0x2E197A
 	eEngineerUseAuxiliaryRetAddr = (uintptr_t)(hmodEXE + 0x2E25FC);
-	hookGameBlock((void *)(hmodEXE + 0x2E257A), (uint64_t)ASMeEngineerUseAuxiliary);
+	hookGameBlock((void *)(hmodEXE + 0x2E257A), (uintptr_t)ASMeEngineerUseAuxiliary);
 	WriteHookToProcess((void *)(hmodEXE + 0x2E257A + 12), (void *)&intNOP32, 6U);
 	edf2E2E30Address = (uintptr_t)(hmodEXE + 0x2E2E30);
 
@@ -506,7 +587,7 @@ void hookEDFClassFunctions() {
 	};
 	WriteHookToProcess((void *)(hmodEXE + 0x2E43BC), &removeBoostSpeed, 48U);
 	// offset is 0x2E37BC
-	hookGameBlock((void *)(hmodEXE + 0x2E4526), (uint64_t)ASMeFencerJetSetup);
+	hookGameBlock((void *)(hmodEXE + 0x2E4526), (uintptr_t)ASMeFencerJetSetup);
 	WriteHookToProcess((void *)(hmodEXE + 0x2E4526 + 12), (void *)&Interruptions32, 20U);
 	// Swap boost and dash Activate, offset is 0x2E3C90
 	ofs3073C0JmpAddr = (uintptr_t)(hmodEXE + 0x307FC0);
@@ -514,24 +595,24 @@ void hookEDFClassFunctions() {
 	ofs2E42C0JmpAddr = (uintptr_t)(hmodEXE + 0x2E4EC0);
 	ofs2E43E0JmpAddr = (uintptr_t)(hmodEXE + 0x2E4FE0);
 	ofs2E4500JmpAddr = (uintptr_t)(hmodEXE + 0x2E5100);
-	hookGameBlock((void *)(hmodEXE + 0x2E4890), (uint64_t)ASMeFencerBoostAndDash);
+	hookGameBlock((void *)(hmodEXE + 0x2E4890), (uintptr_t)ASMeFencerBoostAndDash);
 	WriteHookToProcess((void *)(hmodEXE + 0x2E4890 + 12), (void *)&nop2, 2U);
 
 	// General
 	// Add new accessory functions, offset is 0x303DB4
-	hookGameBlock((void *)(hmodEXE + 0x3049B4), (uint64_t)ASMeAccessoryEnhancement);
+	hookGameBlock((void *)(hmodEXE + 0x3049B4), (uintptr_t)ASMeAccessoryEnhancement);
 	WriteHookToProcess((void *)(hmodEXE + 0x3049B4 + 12), (void *)&nop2, 2U);
 	eAccessoryEnhancementRetAddr = (uintptr_t)(hmodEXE + 0x3049C2);
 
 	// EDF5.exe+3391D5
 	// Enable Railgun to be dual weapons
 	Vehicle403TankMainFireRetAddr = (uintptr_t)(hmodEXE + 0x3391FF);
-	hookGameBlock((void*)(hmodEXE + 0x3391D5), (uint64_t)ASMVehicle403TankMainFire);
+	hookGameBlock((void*)(hmodEXE + 0x3391D5), (uintptr_t)ASMVehicle403TankMainFire);
 	WriteHookToProcess((void*)(hmodEXE + 0x3391D5 + 12), (void*)&nop2, 2U);
 
 	// EDF5.exe+33D000
 	// Allow Barga to use the weapon
-	hookGameBlock((void*)(hmodEXE + 0x33D000), (uint64_t)ASMVehicle501AnimationEvent);
+	hookGameBlock((void*)(hmodEXE + 0x33D000), (uintptr_t)ASMVehicle501AnimationEvent);
 	WriteHookToProcess((void*)(hmodEXE + 0x33D000 + 12), (void*)&nop4, 4U);
 }
 

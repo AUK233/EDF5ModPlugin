@@ -134,6 +134,9 @@
     <MASM Include="ASMammoSmokeCandleBullet01.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
+    <MASM Include="ASMmoreClassModel.asm">
+      <Filter>Assembly Files</Filter>
+    </MASM>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PluginAPI.h">

@@ -225,6 +225,7 @@
     <MASM Include="ASMammoSolidExpBullet01.asm" />
     <MASM Include="ASMammoSolidPelletBullet01.asm" />
     <MASM Include="ASMgameStartup.asm" />
+    <MASM Include="ASMmoreClassModel.asm" />
     <MASM Include="ASMvftShotIndicator.asm" />
     <MASM Include="ASMxgsArmySoldier.asm" />
     <MASM Include="ASMxgsOCdragonSmall.asm" />

@@ -64,6 +64,6 @@ __declspec(align(16)) float _ShotIndicatorCircleEdgeColor[4] = { 0.3f, 0.0f, 0.0
 __declspec(align(16)) float _SubtitlePosition[2] = { 320.0f, 720.0f};
 __declspec(align(16)) WCHAR _AnimationEvent_BurstFire[] = L"BurstFire";
 __declspec(align(16)) WCHAR _AnimationEvent_BurstFireStop[] = L"BurstFire_Stop";
-// 
+// lyt_HUiMessageBoxNoFocus
 __declspec(align(16)) WCHAR _lyt_HuiSubtitleBox[] = L"app:/ui/lyt_HuiSubtitleBox.sgo";
 }
