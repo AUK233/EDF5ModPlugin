@@ -25,7 +25,13 @@ uintptr_t edf73240Address;
 uintptr_t edf8C8C0Address;
 //
 uintptr_t edf3AE530Address;
-
+// do clear?
+uintptr_t edf607E0Address;
+// push button to hui vector
+uintptr_t edf6D8D0Address;
+// clear vector?
+uintptr_t edf9C71C0Address;
+//
 uintptr_t edf4738B0Address;
 uintptr_t edf4BE440Address;
 uintptr_t edf4DC190Address;
@@ -128,6 +134,11 @@ void GetGameFunctions() {
 	edf4738B0Address = (uintptr_t)(hmodEXE + 0x4738B0);
 	edf4BE440Address = (uintptr_t)(hmodEXE + 0x4BE440);
 	edf4DC190Address = (uintptr_t)(hmodEXE + 0x4DC190);
+
+	edf607E0Address = (uintptr_t)(hmodEXE + 0x607E0);
+	edf6D8D0Address = (uintptr_t)(hmodEXE + 0x6D8D0);
+	edf9C71C0Address = (uintptr_t)(hmodEXE + 0x9C71C0);
+
 	// get read sgo node function
 	edf5BDF30Address = (uintptr_t)(hmodEXE + 0x5BDF30);
 	// get get AmmoClass address function

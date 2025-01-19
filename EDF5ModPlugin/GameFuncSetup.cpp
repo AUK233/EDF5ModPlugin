@@ -12,6 +12,7 @@
 #include "utiliy.h"
 
 #include "GameFuncSetup.h"
+#include "LoadModule.hpp"
 #include <commonNOP.h>
 
 extern PBYTE hmodEXE;
@@ -398,76 +399,9 @@ void __fastcall ASMVehicle403TankMainFire();
 uintptr_t Vehicle403TankMainFireRetAddr;
 // Barga
 void __fastcall ASMVehicle501AnimationEvent();
-
-//
-void __fastcall ASMmoreClassModelSelect();
-uintptr_t moreClassModelSelectRetAddr;
-uintptr_t vft_ModelIndexCivilian;
-uintptr_t vft_ModelIndexSoldier;
-
-void __fastcall ASMmoreClassModelSelect1();
-uintptr_t moreClassModelSelect1RetAddr;
-
-extern uintptr_t edf4738B0Address;
-void __fastcall ASMdwwfafaffa(void* pTarget, LPCWSTR wstr, void* pSource);
 }
 
-__declspec(align(16)) typedef struct EDFHuiChgDlgMsgButton_t {
-	void* vf_table;
-	void* pCharacter;
-	BYTE pad[0x28];
-	void* pVFTable;
-} EDFHuiChgDlgMsgButton;
-static_assert(sizeof(EDFHuiChgDlgMsgButton_t) == 0x40);
 
-__declspec(align(16)) typedef struct EDFHuiChgDlgMsgVector_t {
-	BYTE wstr[0x20];
-	BYTE pad1[0x38];
-	WCHAR* pWstring;
-	INT16 unk161;
-	BYTE pad2[0x1E];
-	void* pSize60;
-	INT64 unk641;
-} EDFHuiChgDlgMsgVector;
-static_assert(sizeof(EDFHuiChgDlgMsgVector_t) == 0x90);
-
-typedef WCHAR*(__fastcall* func_Call4738B0)(void* v125ABD0, LPCWSTR pName);
-typedef void(__fastcall* func_Call6D8D0)(void* pButtonVector, void* pVector);
-typedef void(__fastcall* func_Call9C71C0)(void* pStartButton, int eachSize, int sum, void* vf_table);
-
-extern "C" void __fastcall testFadadad(void* v125ABD0, void* pButtonVector, void* pCharacter) {
-	func_Call4738B0 getTextWString = (func_Call4738B0)edf4738B0Address;
-	WCHAR* pWstr;
-
-	EDFHuiChgDlgMsgButton button[3];
-	EDFHuiChgDlgMsgVector v_button[3];
-
-	button[0].vf_table = (void*)vft_ModelIndexCivilian;
-	button[0].pCharacter = pCharacter;
-	button[0].pVFTable = &button[0].vf_table;
-	pWstr = getTextWString(v125ABD0, L"ModelIndexChgDlgMsg");
-	ASMdwwfafaffa(&v_button[0], pWstr, &button[0]);
-
-	button[1].vf_table = (void*)vft_ModelIndexSoldier;
-	button[1].pCharacter = pCharacter;
-	button[1].pVFTable = &button[1].vf_table;
-	pWstr = getTextWString(v125ABD0, L"ModelIndexSoldier");
-	ASMdwwfafaffa(&v_button[1], pWstr, &button[1]);
-
-	button[2].vf_table = (void*)vft_ModelIndexSoldier;
-	button[2].pCharacter = pCharacter;
-	button[2].pVFTable = &button[2].vf_table;
-	pWstr = getTextWString(v125ABD0, L"ModelIndexCivilian");
-	ASMdwwfafaffa(&v_button[2], pWstr, &button[2]);
-
-	func_Call6D8D0 pushButtonToHui = (func_Call6D8D0)(hmodEXE + 0x6D8D0);
-	pushButtonToHui(pButtonVector, &v_button[0]);
-	pushButtonToHui(pButtonVector, &v_button[1]);
-	pushButtonToHui(pButtonVector, &v_button[2]);
-
-	func_Call9C71C0 clearButtonVector = (func_Call9C71C0)(hmodEXE + 0x9C71C0);
-	clearButtonVector(&v_button[0], sizeof(EDFHuiChgDlgMsgVector), 3, (hmodEXE + 0x607E0));
-}
 
 void hookEDFClassFunctions() {
 	// input
@@ -475,18 +409,6 @@ void hookEDFClassFunctions() {
 	// next is press a button
 	// EDF5.exe+6dc70 releasing a pointer that is no longer useful
 
-
-	// EDF5.exe+52DFD8
-	//hookGameBlockWithInt3((void*)(hmodEXE + 0x52DFD8), (uintptr_t)ASMmoreClassModelSelect);
-	//WriteHookToProcess((void*)(hmodEXE + 0x52DFD8 + 15), (void*)&nop6, 6U);
-	moreClassModelSelectRetAddr = (uintptr_t)(hmodEXE + 0x52E060);
-	vft_ModelIndexCivilian = (uintptr_t)(hmodEXE + 0xED3128);
-	vft_ModelIndexSoldier = (uintptr_t)(hmodEXE + 0xED3198);
-	// EDF5.exe+52E08C
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x52E08C), (uintptr_t)ASMmoreClassModelSelect1);
-	WriteHookToProcess((void*)(hmodEXE + 0x52E08C + 15), (void*)&nop2, 2U);
-	moreClassModelSelect1RetAddr = (uintptr_t)(hmodEXE + 0x52E09D);
-	
 	// ranger!
 	int newRangerSize = 0x2000;
 	// AssultSoldier 0x1BD0
@@ -614,6 +536,9 @@ void hookEDFClassFunctions() {
 	// Allow Barga to use the weapon
 	hookGameBlock((void*)(hmodEXE + 0x33D000), (uintptr_t)ASMVehicle501AnimationEvent);
 	WriteHookToProcess((void*)(hmodEXE + 0x33D000 + 12), (void*)&nop4, 4U);
+
+	//
+	module_SetHuiMoreCharacterModel();
 }
 
 

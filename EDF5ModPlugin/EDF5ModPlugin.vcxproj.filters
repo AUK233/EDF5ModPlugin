@@ -16,6 +16,9 @@
     <Filter Include="Assembly Files">
       <UniqueIdentifier>{373b4125-dde7-4231-a08c-38a586dadab7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Module Hui">
+      <UniqueIdentifier>{6d3fed81-f550-4a57-8ef9-cb382950770e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -44,6 +47,9 @@
     </ClCompile>
     <ClCompile Include="GameFuncStartup.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\HuiMoreCharacterModel.cpp">
+      <Filter>Source Files\Module Hui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -134,8 +140,8 @@
     <MASM Include="ASMammoSmokeCandleBullet01.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
-    <MASM Include="ASMmoreClassModel.asm">
-      <Filter>Assembly Files</Filter>
+    <MASM Include="zHui\ASMHuiMoreCharacterModel.asm">
+      <Filter>Source Files\Module Hui</Filter>
     </MASM>
   </ItemGroup>
   <ItemGroup>
@@ -186,6 +192,12 @@
     </ClInclude>
     <ClInclude Include="GameFuncStartup.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadModule.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\HuiMoreCharacterModel.h">
+      <Filter>Source Files\Module Hui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
