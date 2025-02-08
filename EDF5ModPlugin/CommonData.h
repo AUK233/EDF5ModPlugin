@@ -36,6 +36,7 @@ float _Common_F5P0 = 5.0f;
 float _Common_2PI = 6.28319f;
 float _Common_F8P0 = 8.0f;
 float _Common_F10P0 = 10.0f;
+float _Common_F25P0 = 25.0f; 
 float _Common_F60P0 = 60.0f; 
 float _Common_F70P0 = 70.0f; 
 float _Common_F3600P0 = 3600.0f;

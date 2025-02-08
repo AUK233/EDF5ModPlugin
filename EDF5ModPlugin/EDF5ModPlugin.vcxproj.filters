@@ -51,6 +51,12 @@
     <ClCompile Include="zHui\HuiMoreCharacterModel.cpp">
       <Filter>Source Files\Module Hui</Filter>
     </ClCompile>
+    <ClCompile Include="GameFunc_Mission.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\HuiDisplaySubtitle.cpp">
+      <Filter>Source Files\Module Hui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMxgsOCgiantAnt.asm">
@@ -143,6 +149,12 @@
     <MASM Include="zHui\ASMHuiMoreCharacterModel.asm">
       <Filter>Source Files\Module Hui</Filter>
     </MASM>
+    <MASM Include="ASMhookMissionSeries.asm">
+      <Filter>Assembly Files</Filter>
+    </MASM>
+    <MASM Include="zHui\ASMHuiDisplaySubtitle.asm">
+      <Filter>Source Files\Module Hui</Filter>
+    </MASM>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PluginAPI.h">
@@ -172,7 +184,7 @@
     <ClInclude Include="GameFunc.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="EDFPointerStruct.h">
+    <ClInclude Include="EDFPointerStruct.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="commonNOP.h">
@@ -197,6 +209,15 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="zHui\HuiMoreCharacterModel.h">
+      <Filter>Source Files\Module Hui</Filter>
+    </ClInclude>
+    <ClInclude Include="CommonCustomStructure.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GameFunc_Mission.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\HuiDisplaySubtitle.h">
       <Filter>Source Files\Module Hui</Filter>
     </ClInclude>
   </ItemGroup>

@@ -83,7 +83,7 @@ static UINT PlayerView = 0;
 static UINT HUDEnhance = 0;
 static UINT DisplaySubtitle = 0;
 // Old configuration
-static BOOL Redirect = FALSE;
+static BOOL RedirectRead = FALSE;
 static BOOL LoadPluginsB = FALSE;
 static BOOL GameLog = FALSE;
 
@@ -92,6 +92,7 @@ int playerViewIndex = 0;
 int displayDamageIndex = 0;
 int ModLogStatus = 0;
 int HUDEnhanceStatus = 0;
+int displaySubtitleOn = 0;
 UINT noThrowAnime = 0;
 UINT newSaveDataUnlock = 0;
 }
@@ -293,13 +294,12 @@ char hmodName[MAX_PATH];
 
 void ReadINIconfig() {
 	// Read configuration
-	PlayerView = GetPrivateProfileIntW(L"ModOption", L"PlayerView", PlayerView, iniPath);
-	DisplayDamage = GetPrivateProfileIntW(L"ModOption", L"DisplayDamage", DisplayDamage, iniPath);
-	RTRead = GetPrivateProfileIntW(L"ModOption", L"RTRead", RTRead, iniPath);
+	RTRead = GetPrivateProfileIntW(L"ModOption", L"RTRead", 0, iniPath);
 
 	// playerViewIndex = PlayerView * 4
 	// It means starting with N th data in ptr data
 	// It is used in ASM, so it must be observed
+	PlayerView = GetPrivateProfileIntW(L"ModOption", L"PlayerView", 0, iniPath);
 	switch (PlayerView) {
 	case 1: {
 		if (playerViewIndex != 4) {
@@ -352,29 +352,33 @@ void ReadINIconfig() {
 		break;
 	}
 
-
-	switch (DisplayDamage) {
-	case 1: {
-		if (displayDamageIndex != 1) {
-			displayDamageIndex = 1;
-		}
-
+	// display damage
+	DisplayDamage = GetPrivateProfileIntW(L"ModOption", L"DisplayDamage", 0, iniPath);
+	if (DisplayDamage) {
+		displayDamageIndex = 1;
 		if (ModLogStatus == 1) {
 			PLOG_INFO << "Display damage number on weapon (with charge)";
 		}
-
-		break;
 	}
-	default:
-		if (displayDamageIndex != 0) {
-			displayDamageIndex = 0;
-		}
-
+	else {
+		displayDamageIndex = 0;
 		if (ModLogStatus == 1) {
 			PLOG_INFO << "Unable to display damage number";
 		}
+	}
 
-		break;
+	// display subtitle
+	DisplaySubtitle = GetPrivateProfileIntW(L"ModOption", L"DisplaySubtitle", 0, iniPath);
+	if (DisplaySubtitle) {
+		displaySubtitleOn = 1;
+		if (ModLogStatus == 1) {
+			PLOG_INFO << "Enable display subtitles";
+		}
+	} else {
+		displaySubtitleOn = 0;
+		if (ModLogStatus == 1) {
+			PLOG_INFO << "Disable display subtitles";
+		}
 	}
 	// End
 }
@@ -398,24 +402,6 @@ static void *__fastcall initterm_hook(void *unk1, void *unk2) {
 	static bool initialized = false;
 	if (!initialized) {
 		initialized = true;
-		PLOG_INFO << "Additional initialization";
-
-		// Load plugins
-		if (LoadPluginsB) {
-			LoadPlugins();
-		} else {
-			PLOG_INFO << "Plugin loading disabled";
-		}
-
-		PLOG_INFO << "Initialization finished";
-	}
-	return initterm_orig(unk1, unk2);
-}
-
-static void __fastcall initterm_hook2(_PVFV *unk1, _PVFV *unk2) {
-	static bool initialized = false;
-	if (!initialized) {
-		initialized = true;
 		if (ModLogStatus == 1) {
 			PLOG_INFO << "Additional initialization";
 		}
@@ -429,13 +415,9 @@ static void __fastcall initterm_hook2(_PVFV *unk1, _PVFV *unk2) {
 		// Read config
 		ReadINIconfig();
 		// Now inject only when needed, for crash rate reduction
-		
+
 		if (HUDEnhance || RTRead) {
 			hookHUDEnhancement();
-		}
-
-		if (DisplaySubtitle) {
-			hookDisplaySubtitle(DisplaySubtitle);
 		}
 
 		// It needs to be right here
@@ -459,7 +441,8 @@ static void __fastcall initterm_hook2(_PVFV *unk1, _PVFV *unk2) {
 			PLOG_INFO << "Initialization finished";
 		}
 	}
-	return _initterm(unk1, unk2);
+
+	return initterm_orig(unk1, unk2);
 }
 
 // x64 cannot use inline assembly, you have to create asm files.
@@ -479,9 +462,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 		// Read configuration
 		ModLog = GetPrivateProfileIntW(L"ModOption", L"ModLog", ModLog, iniPath);
-		WEOpen = GetPrivateProfileIntW(L"ModOption", L"EnhancedWP", WEOpen, iniPath);
-		HUDEnhance = GetPrivateProfileIntW(L"ModOption", L"HUDEnhance", HUDEnhance, iniPath);
-		DisplaySubtitle = GetPrivateProfileIntW(L"ModOption", L"DisplaySubtitle", 0, iniPath);
+		WEOpen = GetPrivateProfileIntW(L"ModOption", L"EnhancedWP", 1, iniPath);
+		HUDEnhance = GetPrivateProfileIntW(L"ModOption", L"HUDEnhance", 0, iniPath);
 		noThrowAnime = GetPrivateProfileIntW(L"ModOption", L"NoThrowAnime", 0, iniPath);
 		newSaveDataUnlock = GetPrivateProfileIntW(L"ModOption", L"StarterKit", 0, iniPath);
 		//LoadPluginsB = GetPrivateProfileBoolW(L"ModOption", L"LoadPlugins", LoadPluginsB, iniPath);
@@ -623,8 +605,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 		// Hook function for additional ModLoader initialization
 		// offset is 0x9C775A
-		//SetupHook(pointers[0], (PVOID*)&initterm_orig, initterm_hook, "Additional initialization", TRUE);
-		SetupHook(pointers[0], (PVOID *)&initterm_orig, initterm_hook2, "Additional initialization", TRUE);
+		SetupHook(pointers[0], (PVOID*)&initterm_orig, initterm_hook, "Additional initialization", TRUE);
 
 		//void *memoryBlock = AllocatePageNearAddress(hmodEXE + 0x9c835a);
 		//uintptr_t hookFunction = (uintptr_t)initterm_hook2;
@@ -634,7 +615,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 		// Add Mods folder redirector hook
 		fnk27380_orig = (fnk27380_func)((PBYTE)hmodEXE + pointers[2]);
-		SetupHook(pointers[1], (PVOID*)&fnk244d0_orig, fnk244d0_hook, "Mods folder redirector", Redirect);
+		SetupHook(pointers[1], (PVOID*)&fnk244d0_orig, fnk244d0_hook, "Mods folder redirector", RedirectRead);
 
 		// Add internal logging hook
 		SetupHook(pointers[3], (PVOID*)&gamelog_orig, gamelog_hook, "Interal logging hook", GameLog);

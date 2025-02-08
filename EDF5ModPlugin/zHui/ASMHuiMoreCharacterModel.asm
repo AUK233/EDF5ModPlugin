@@ -3,6 +3,7 @@
 extern module_HuiPushChaModelSelButton : proto
 
 extern vft_ModelIndexVeteran : qword
+extern vft_ModelIndexElite : qword
 extern vft_ModelIndexPioneer : qword
 
 extern vedf125AB30 : qword
@@ -63,6 +64,59 @@ ASMHuiBoxModelIndexVeteranFuncP10 proc
         int 3
 
 ASMHuiBoxModelIndexVeteranFuncP10 ENDP
+
+align 16
+
+ASMHuiBoxModelIndexEliteFuncP0 proc
+
+		test rdx, rdx
+		je ofs5309C7
+		lea rax, vft_ModelIndexElite+8
+		mov [rdx], rax
+		mov rax, [rcx+8]
+		mov [rdx+8], rax
+	ofs5309C7:
+		mov rax, rdx
+		ret 
+        int 3
+
+ASMHuiBoxModelIndexEliteFuncP0 ENDP
+
+align 16
+
+ASMHuiBoxModelIndexEliteFuncP10 proc
+
+		push rbx
+		sub rsp, 20h
+		mov rbx, [rdx]
+		mov rdx, [rcx+8]
+		mov eax, 3
+		cmp [rdx+790h], eax
+		je ofs530996
+		mov [rdx+790h], eax
+		;
+		mov eax, [rdx+818h]
+		mov [rdx+814h], eax
+		mov byte ptr [rdx+808h], 0
+		;
+		movsxd rax, dword ptr [rdx+788h]
+		mov rcx, vedf125AB30
+		mov edx, [rdx+790h]
+		imul r8, rax, 3E60h
+		mov rax, [rcx]
+		mov [r8+rax+6D50h], edx
+	ofs530996:
+		mov rax, [rbx]
+		mov rcx, rbx
+		call qword ptr [rax+38h]
+		mov rax, [rbx]
+		mov rcx, rbx
+		add rsp, 20h
+		pop rbx
+		jmp qword ptr [rax+40h]
+        int 3
+
+ASMHuiBoxModelIndexEliteFuncP10 ENDP
 
 align 16
 

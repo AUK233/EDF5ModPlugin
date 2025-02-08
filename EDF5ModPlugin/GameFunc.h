@@ -1,5 +1,5 @@
 #pragma once
-#include "EDFPointerStruct.h"
+#include "EDFPointerStruct.hpp"
 
 // get game function address
 void GetGameFunctions();

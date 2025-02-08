@@ -1,16 +1,5 @@
 #pragma once
 
-
-typedef struct {
-	WCHAR* text;
-	union
-	{
-		int id;
-		float posX;
-	} v;
-	int size;
-} SubtitleTextStruct;
-
 typedef struct EDFColor4Struct {
 	float r;
 	float g;
@@ -300,3 +289,19 @@ static_assert(offsetof(HUiHudPowerGuageStruct, TextFencerDashColor) == 0xC10);
 static_assert(offsetof(HUiHudPowerGuageStruct, TextFencerBoost) == 0xC20);
 static_assert(offsetof(HUiHudPowerGuageStruct, TextFencerBoostCheck) == 0xC28);
 static_assert(offsetof(HUiHudPowerGuageStruct, TextFencerBoostColor) == 0xC30);
+
+__declspec(align(16)) typedef struct EDF125ABD8_t {
+	BYTE pad0[0xA88];
+	// this is number of boxes currently picked up.
+	int AcquiredWeaponBox;
+	int AcquiredArmorBox;
+	// this is number of boxes inherited from failed missions.
+	int ExtraWeaponBox;
+	int ExtraArmorBox;
+	BYTE pad1110[0x40];
+	// this is max number of boxes that can be obtained.
+	int TotalWeaponBox;
+	int TotalArmorBox;
+}*Pedf125ABD8;
+static_assert(offsetof(EDF125ABD8_t, ExtraArmorBox) == 0xA94);
+static_assert(offsetof(EDF125ABD8_t, TotalArmorBox) == 0xADC);

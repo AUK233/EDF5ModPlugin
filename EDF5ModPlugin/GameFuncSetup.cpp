@@ -13,7 +13,8 @@
 
 #include "GameFuncSetup.h"
 #include "LoadModule.hpp"
-#include <commonNOP.h>
+#include "commonNOP.h"
+#include "GameFunc_Mission.h"
 
 extern PBYTE hmodEXE;
 extern int weaponEnhance;
@@ -32,13 +33,6 @@ uintptr_t RtlLeaveCriticalSection;
 //
 void __fastcall ASMplayerViewChange();
 uintptr_t playerViewRetAddr;
-//
-void __fastcall ASMpickupBoxRange();
-uintptr_t pickupBoxRangeFRetAddr;
-uintptr_t pickupBoxRangeTRetAddr;
-//
-void __fastcall ASMreadMissionSavaData();
-uintptr_t readMissionSavaDataRetAddr;
 
 /* For testing
 uintptr_t wwwRetAddr;
@@ -64,15 +58,6 @@ void hookGameFunctions() {
 	hookGameBlockWithInt3((void*)(hmodEXE + 0x2DB070), (uintptr_t)ASMplayerViewChange);
 	WriteHookToProcess((void*)(hmodEXE + 0x2DB070 + 15), (void*)&nop3, 3U);
 	//playerViewRetAddr = (uintptr_t)(hmodEXE + 0x2DB0E0);
-	// add guaranteed pickup, offset is 0x198350
-	hookGameBlock((void *)(hmodEXE + 0x198F50), (uintptr_t)ASMpickupBoxRange);
-	WriteHookToProcess((void *)(hmodEXE + 0x198F50 + 12), (void *)&nop1, 1U);
-	pickupBoxRangeFRetAddr = (uintptr_t)(hmodEXE + 0x198F5F);
-	pickupBoxRangeTRetAddr = (uintptr_t)(hmodEXE + 0x198F64);
-	// EDF5.exe+909DD
-	// Sync of offline and online mission progress
-	hookGameBlock((void*)(hmodEXE + 0x909DD), (uintptr_t)ASMreadMissionSavaData);
-	readMissionSavaDataRetAddr = (uintptr_t)(hmodEXE + 0x90A1A);
 
 	// By Features
 	hookMonsterFunctions();
@@ -82,6 +67,8 @@ void hookGameFunctions() {
 	if (weaponEnhance) {
 	hookWeaponFunctions();
 	}
+
+	HookMissionSeriesSet(hmodEXE);
 
 	/* For testing
 	wwwRetAddr = (uintptr_t)(hmodEXE + 0x);

@@ -13,7 +13,7 @@
 #include "utiliy.h"
 
 #include "HuiMoreCharacterModel.h"
-#include <commonNOP.h>
+#include "commonNOP.h"
 
 extern PBYTE hmodEXE;
 
@@ -27,6 +27,11 @@ uintptr_t HuiMoreChaModelSelButtonRetAddr;
 EDFHuiSelectButtonVFT vft_ModelIndexVeteran;
 void* __fastcall ASMHuiBoxModelIndexVeteranFuncP0(void* pSource, void* pTarget);
 void __fastcall ASMHuiBoxModelIndexVeteranFuncP10(void* pSource, void* pCharacter);
+
+// model index is 3
+EDFHuiSelectButtonVFT vft_ModelIndexElite;
+void* __fastcall ASMHuiBoxModelIndexEliteFuncP0(void* pSource, void* pTarget);
+void __fastcall ASMHuiBoxModelIndexEliteFuncP10(void* pSource, void* pCharacter);
 
 // model index is 4
 EDFHuiSelectButtonVFT vft_ModelIndexPioneer;
@@ -48,12 +53,17 @@ void module_SetHuiMoreCharacterModel()
 	// new virtual function table
 	// copy original
 	memcpy(&vft_ModelIndexVeteran, (void*)(vft_ModelIndexSoldier - 8), sizeof(EDFHuiSelectButtonVFT));
+	memcpy(&vft_ModelIndexElite, (void*)(vft_ModelIndexSoldier - 8), sizeof(EDFHuiSelectButtonVFT));
 	memcpy(&vft_ModelIndexPioneer, (void*)(vft_ModelIndexSoldier - 8), sizeof(EDFHuiSelectButtonVFT));
 
 	// set new function
 	vft_ModelIndexVeteran.copyVFT = (uintptr_t)ASMHuiBoxModelIndexVeteranFuncP0;
 	vft_ModelIndexVeteran.copyVFT8 = (uintptr_t)ASMHuiBoxModelIndexVeteranFuncP0;
 	vft_ModelIndexVeteran.activeButton = (uintptr_t)ASMHuiBoxModelIndexVeteranFuncP10;
+
+	vft_ModelIndexElite.copyVFT = (uintptr_t)ASMHuiBoxModelIndexEliteFuncP0;
+	vft_ModelIndexElite.copyVFT8 = (uintptr_t)ASMHuiBoxModelIndexEliteFuncP0;
+	vft_ModelIndexElite.activeButton = (uintptr_t)ASMHuiBoxModelIndexEliteFuncP10;
 
 	vft_ModelIndexPioneer.copyVFT = (uintptr_t)ASMHuiBoxModelIndexPioneerFuncP0;
 	vft_ModelIndexPioneer.copyVFT8 = (uintptr_t)ASMHuiBoxModelIndexPioneerFuncP0;
@@ -77,13 +87,15 @@ void __fastcall module_HuiPushChaModelSelButton(void* v125ABD0, void* pButtonVec
 	button[0].vf_table = &vft_ModelIndexVeteran.copyVFT;
 	button[0].pCharacter = pCharacter;
 	button[0].pVFTable = &button[0].vf_table;
-	pWstr = getTextWString(v125ABD0, L"ModelIndexCivilian");
+	//pWstr = getTextWString(v125ABD0, L"ModelIndexCivilian");
+	pWstr = getTextWString(v125ABD0, L"ModelIndexVeteran");
 	ASMHuiSetCharacterModelButton(&v_button[0], pWstr, &button[0]);
 
-	button[1].vf_table = (void*)vft_ModelIndexSoldier;
+	button[1].vf_table = &vft_ModelIndexElite.copyVFT;
 	button[1].pCharacter = pCharacter;
 	button[1].pVFTable = &button[1].vf_table;
-	pWstr = getTextWString(v125ABD0, L"ModelIndexSoldier");
+	//pWstr = getTextWString(v125ABD0, L"ModelIndexSoldier");
+	pWstr = getTextWString(v125ABD0, L"ModelIndexElite");
 	ASMHuiSetCharacterModelButton(&v_button[1], pWstr, &button[1]);
 
 	button[2].vf_table = &vft_ModelIndexPioneer.copyVFT;
