@@ -19,6 +19,9 @@
     <Filter Include="Source Files\Module Hui">
       <UniqueIdentifier>{6d3fed81-f550-4a57-8ef9-cb382950770e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Module EDF">
+      <UniqueIdentifier>{8b4732d8-02c6-4566-991b-71828a61863d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -57,6 +60,12 @@
     <ClCompile Include="zHui\HuiDisplaySubtitle.cpp">
       <Filter>Source Files\Module Hui</Filter>
     </ClCompile>
+    <ClCompile Include="zEDF\EDFbaseParameterSet.cpp">
+      <Filter>Source Files\Module EDF</Filter>
+    </ClCompile>
+    <ClCompile Include="zEDF\EDFCommonFunction.cpp">
+      <Filter>Source Files\Module EDF</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMxgsOCgiantAnt.asm">
@@ -89,9 +98,6 @@
     <MASM Include="ASMxgsWGatling.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
-    <MASM Include="ASMxgsHeavyArmor.asm">
-      <Filter>Assembly Files</Filter>
-    </MASM>
     <MASM Include="ASMxgsOCgiantSpider.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
@@ -117,9 +123,6 @@
       <Filter>Assembly Files</Filter>
     </MASM>
     <MASM Include="ASMammoMissileBullet01.asm">
-      <Filter>Assembly Files</Filter>
-    </MASM>
-    <MASM Include="ASMxgsArmySoldier.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
     <MASM Include="ASMxgsOCvehicle501FortressRobo.asm">
@@ -154,6 +157,18 @@
     </MASM>
     <MASM Include="zHui\ASMHuiDisplaySubtitle.asm">
       <Filter>Source Files\Module Hui</Filter>
+    </MASM>
+    <MASM Include="zEDF\ASMxgsArmySoldier.asm">
+      <Filter>Source Files\Module EDF</Filter>
+    </MASM>
+    <MASM Include="zEDF\ASMxgsHeavyArmor.asm">
+      <Filter>Source Files\Module EDF</Filter>
+    </MASM>
+    <MASM Include="zEDF\ASMxgsPaleWing.asm">
+      <Filter>Source Files\Module EDF</Filter>
+    </MASM>
+    <MASM Include="zEDF\ASMEDFCommonFunction.asm">
+      <Filter>Source Files\Module EDF</Filter>
     </MASM>
   </ItemGroup>
   <ItemGroup>
@@ -219,6 +234,12 @@
     </ClInclude>
     <ClInclude Include="zHui\HuiDisplaySubtitle.h">
       <Filter>Source Files\Module Hui</Filter>
+    </ClInclude>
+    <ClInclude Include="zEDF\EDFbaseParameterSet.h">
+      <Filter>Source Files\Module EDF</Filter>
+    </ClInclude>
+    <ClInclude Include="zEDF\EDFCommonFunction.h">
+      <Filter>Source Files\Module EDF</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

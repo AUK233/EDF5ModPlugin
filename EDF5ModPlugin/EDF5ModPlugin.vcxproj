@@ -197,7 +197,7 @@
     <ClCompile Include="..\HookLib\HookLib\HookLib\HookLib.c" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="GameFunc.cpp">
-      <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AssemblyAndSourceCode</AssemblerOutput>
+      <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NoListing</AssemblerOutput>
     </ClCompile>
     <ClCompile Include="GameFuncSetup.cpp" />
     <ClCompile Include="GameFuncStartup.cpp" />
@@ -216,6 +216,8 @@
     <ClCompile Include="utiliy.cpp">
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdcpp20</LanguageStandard>
     </ClCompile>
+    <ClCompile Include="zEDF\EDFbaseParameterSet.cpp" />
+    <ClCompile Include="zEDF\EDFCommonFunction.cpp" />
     <ClCompile Include="zHui\HuiDisplaySubtitle.cpp">
       <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AssemblyAndSourceCode</AssemblerOutput>
     </ClCompile>
@@ -235,7 +237,6 @@
     <MASM Include="ASMgameStartup.asm" />
     <MASM Include="ASMhookMissionSeries.asm" />
     <MASM Include="ASMvftShotIndicator.asm" />
-    <MASM Include="ASMxgsArmySoldier.asm" />
     <MASM Include="ASMxgsOCdragonSmall.asm" />
     <MASM Include="ASMxgsOCgiantBee.asm" />
     <MASM Include="ASMxgsOCgiantSpider.asm" />
@@ -250,8 +251,11 @@
     <MASM Include="ASMgamelog_hook.asm" />
     <MASM Include="ASMCallGameFunction.asm" />
     <MASM Include="ASMweaponOtherSet.asm" />
-    <MASM Include="ASMxgsHeavyArmor.asm" />
     <MASM Include="ASMxgsWHeavyShoot.asm" />
+    <MASM Include="zEDF\ASMEDFCommonFunction.asm" />
+    <MASM Include="zEDF\ASMxgsArmySoldier.asm" />
+    <MASM Include="zEDF\ASMxgsHeavyArmor.asm" />
+    <MASM Include="zEDF\ASMxgsPaleWing.asm" />
     <MASM Include="zHui\ASMHuiDisplaySubtitle.asm" />
     <MASM Include="zHui\ASMHuiMoreCharacterModel.asm" />
   </ItemGroup>
@@ -275,6 +279,8 @@
     <ClInclude Include="Resource\LoadShaders.hpp" />
     <ClInclude Include="Resource\snd_ShotIndicatorCircle.h" />
     <ClInclude Include="utiliy.h" />
+    <ClInclude Include="zEDF\EDFbaseParameterSet.h" />
+    <ClInclude Include="zEDF\EDFCommonFunction.h" />
     <ClInclude Include="zHui\HuiDisplaySubtitle.h" />
     <ClInclude Include="zHui\HuiMoreCharacterModel.h" />
   </ItemGroup>

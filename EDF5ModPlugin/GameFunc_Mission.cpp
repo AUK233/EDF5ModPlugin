@@ -88,8 +88,11 @@ void __fastcall CustomMissionData_InitializationMore(PCustomMissionData pData)
 	pData->Class_SpeedX = 1.0f;
 	pData->Ranger_DashSpeedX = 1.0f;
 	pData->PaleWing_WeaponChargeX = 1.0f;
+	pData->PaleWing_BoostSpeedX = 1.0f;
 	pData->AirRaider_DelayX = 1.0f;
 	pData->AirRaider_DamageX = 1.0f;
+	pData->Fencer_DashX = 1.0f;
+	pData->Fencer_BoostX = 1.0f;
 }
 
 void __fastcall CustomMissionData_initialization(PCustomMissionData pData)
@@ -139,6 +142,10 @@ void __fastcall CustomMissionData_SetToCurrentMission(uintptr_t pSGONode, int no
 			*(int*)&pData->AirRaider_CreditX = CustomMissionData_GetSGOValue(factorNode, 2);
 			*(int*)&pData->Fencer_ChargeX = CustomMissionData_GetSGOValue(factorNode, 3);
 			CustomMissionData_InitializationMore(pData);
+		}
+
+		if (nodeCount >= 4) {
+			*(int*)&pData->Class_SpeedX = CustomMissionData_GetSGOValue(SGONode, 3);
 		}
 	}
 }
@@ -212,13 +219,11 @@ float __fastcall CustomMissionData_GetCustomFactor(int index)
 	switch (index)
 	{
 	case 0:
-		return pData->Ranger_SpeedX;
-	case 1:
-		return pData->PaleWing_ChargeX;
-	case 2:
 		return pData->AirRaider_CreditX;
-	case 3:
-		return pData->Fencer_ChargeX;
+	case 1:
+		return pData->AirRaider_DamageX;
+	case 2:
+		return pData->AirRaider_DelayX;
 	default:
 		break;
 	}

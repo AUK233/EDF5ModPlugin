@@ -36,7 +36,8 @@ typedef void(__fastcall* func_Call9C71C0)(void* pStartButton, int eachSize, int 
 
 // ================================================================
 
-void module_SetHuiMoreCharacterModel();
+void module_SetHuiMoreCharacterModel(PBYTE hmodEXE);
+void module_ShareCharacterModelColor(PBYTE hmodEXE);
 
 extern "C" {
 void __fastcall module_HuiPushChaModelSelButton(void* v125ABD0, void* pButtonVector, void* pCharacter);

@@ -37,6 +37,8 @@ uintptr_t edf4BE440Address;
 uintptr_t edf4DC190Address;
 // read sgo node name
 uintptr_t edf5BDF30Address;
+//
+uintptr_t edf3AE660Address;
 // get AmmoClass address
 uintptr_t edf6136C0Address;
 // get Weapon_Accessory data (int)
@@ -65,9 +67,6 @@ uintptr_t rva707B0;
 uintptr_t rva70850;
 uintptr_t rva1BCDF0;
 uintptr_t rva5C6C80;
-//
-uintptr_t eGetAccessoryValueAddr;
-uintptr_t eGetAccessoryINT32Addr;
 //
 uintptr_t rva9C6E40;
 uintptr_t rva6E010;
@@ -101,6 +100,11 @@ uintptr_t rva6170C0;
 uintptr_t rva616F30;
 uintptr_t vedfEBBFB8;
 uintptr_t rva5E0660;
+//
+uintptr_t edf6D730Address;
+uintptr_t edf6FB40Address;
+uintptr_t edf3AF840Address;
+uintptr_t edf2FD540Address;
 // about sound
 uintptr_t rva51960;
 uintptr_t rva51A80;
@@ -128,6 +132,11 @@ void GetGameFunctions() {
 	edf73240Address = (uintptr_t)(hmodEXE + 0x73240);
 	// get star rating calculation function
 	edf8C8C0Address = (uintptr_t)(hmodEXE + 0x8C8C0);
+	//
+	edf6D730Address = (uintptr_t)(hmodEXE + 0x6D730);
+	edf6FB40Address = (uintptr_t)(hmodEXE + 0x6FB40);
+	edf3AF840Address = (uintptr_t)(hmodEXE + 0x3AF840);
+	edf2FD540Address = (uintptr_t)(hmodEXE + 0x2FD540);
 
 	edf3AE530Address = (uintptr_t)(hmodEXE + 0x3AE530);
 
@@ -141,6 +150,8 @@ void GetGameFunctions() {
 
 	// get read sgo node function
 	edf5BDF30Address = (uintptr_t)(hmodEXE + 0x5BDF30);
+	//
+	edf3AE660Address = (uintptr_t)(hmodEXE + 0x3AE660);
 	// get get AmmoClass address function
 	edf6136C0Address = (uintptr_t)(hmodEXE + 0x6136C0);
 	// get Weapon_Accessory data (int)
@@ -170,10 +181,6 @@ void GetGameFunctions() {
 	rva1BCDF0 = (uintptr_t)(hmodEXE + 0x1BCDF0);
 	rva5C6C80 = (uintptr_t)(hmodEXE + 0x5C6C80);
 	rva5C8660 = (uintptr_t)(hmodEXE + 0x5C8660);
-
-	// 
-	eGetAccessoryValueAddr = (uintptr_t)(hmodEXE + 0x307400);
-	eGetAccessoryINT32Addr = (uintptr_t)(hmodEXE + 0x3072F0);
 
 	//
 	rva9C6E40 = (uintptr_t)(hmodEXE + 0x9C6E40);
@@ -313,200 +320,12 @@ void hookGameFunctionsC() {
 		// EDF5.exe+4B96B1 is checking the sights.
 		BYTE ofs4D2802[] = { 0xE8, 0xBC, 0xDE, 0xEB, 0xFF};
 		WriteHookToProcess((void*)(hmodEXE + 0x4D3402), &ofs4D2802, 5U);
-		// allows weapons to be charged, offset is 0x390630
-		//SetupHook(0x391230, (PVOID *)&fnk391230_orig, fnk391230_hook, "Allows weapons to be charged", 1);
 		// now override a useless position.
 		hookGameBlock((void *)(hmodEXE + 0x3912C3), (uint64_t)ASMrva391230);
 	}
 }
 
-void __fastcall eAccessoryEnhancement(const uintptr_t p_Class) {
-	uintptr_t p_weapon = *(uintptr_t *)(p_Class + 0x1590);
-	uintptr_t num_weapon = *(uintptr_t *)(p_Class + 0x15A0);
-	uintptr_t p_weaponValue;
-	EDFWeaponPointer* pWeapon;
-	float getScale;
-	int getIntValue;
 
-	// Update AmmoCount
-	getScale = ASMeGetAccessoryValue(p_Class, 1001, 1.0f, 0);
-	if (getScale != 1.0f) {
-		for (uintptr_t i = p_weapon; i != (p_weapon + (num_weapon * 8)); i += 8) {
-			p_weaponValue = *(uintptr_t *)i;
-			int totalAmmo = *(int *)(p_weaponValue + 0x1D0);
-			if (totalAmmo > 0) {
-				totalAmmo *= getScale;
-				if (totalAmmo < 1) {
-					totalAmmo = 1;
-				}
-				*(int *)(p_weaponValue + 0x1D0) = totalAmmo;
-				// Current Ammo
-				*(int *)(p_weaponValue + 0x8E8) = totalAmmo;
-			}
-		}
-	}
-	// Update ReloadTime
-	getScale = ASMeGetAccessoryValue(p_Class, 1002, 1.0f, 0);
-	if (getScale != 1.0f) {
-		for (uintptr_t i = p_weapon; i != (p_weapon + (num_weapon * 8)); i += 8) {
-			p_weaponValue = *(uintptr_t *)i;
-			int reloadTime = *(int *)(p_weaponValue + 0x1A4);
-			if (reloadTime > 0) {
-				reloadTime *= getScale;
-				if (reloadTime < 1) {
-					reloadTime = 1;
-				}
-				*(int *)(p_weaponValue + 0x1A4) = reloadTime;
-				// reload time count
-				*(int *)(p_weaponValue + 0xB90) = reloadTime;
-			}
-		}
-	}
-	// Update FireInterval
-	getScale = ASMeGetAccessoryValue(p_Class, 1003, 1.0f, 0);
-	if (getScale != 1.0f) {
-		for (uintptr_t i = p_weapon; i != (p_weapon + (num_weapon * 8)); i += 8) {
-			p_weaponValue = *(uintptr_t *)i;
-			int iROF = *(int *)(p_weaponValue + 0x2FC);
-			if (iROF > 0) {
-				iROF *= getScale;
-				if (iROF < 1) {
-					iROF = 1;
-				}
-				*(int *)(p_weaponValue + 0x2FC) = iROF;
-			}
-		}
-	}
-
-	// float
-	// Update AmmoDamage
-	getScale = ASMeGetAccessoryValue(p_Class, 1050, 1.0f, 0);
-	if (getScale != 1.0f) {
-		for (uintptr_t i = p_weapon; i != (p_weapon + (num_weapon * 8)); i += 8) {
-			p_weaponValue = *(uintptr_t *)i;
-			float ammoDamage = *(float *)(p_weaponValue + 0x69C);
-			if (ammoDamage > 1.0f) {
-				ammoDamage *= getScale;
-				*(float *)(p_weaponValue + 0x69C) = ammoDamage;
-			}
-		}
-	}
-	// Update (-)AmmoDamage
-	getScale = ASMeGetAccessoryValue(p_Class, 1150, 1.0f, 0);
-	if (getScale != 1.0f) {
-		for (uintptr_t i = p_weapon; i != (p_weapon + (num_weapon * 8)); i += 8) {
-			p_weaponValue = *(uintptr_t *)i;
-			float ammoDamage = *(float *)(p_weaponValue + 0x69C);
-			if (ammoDamage < 0.0f) {
-				ammoDamage *= getScale;
-				*(float *)(p_weaponValue + 0x69C) = ammoDamage;
-			}
-		}
-	}
-	// Update AmmoSpeed
-	getScale = ASMeGetAccessoryValue(p_Class, 1051, 1.0f, 0);
-	if (getScale != 1.0f) {
-		for (uintptr_t i = p_weapon; i != (p_weapon + (num_weapon * 8)); i += 8) {
-			p_weaponValue = *(uintptr_t *)i;
-			float ammoSpeed = *(float *)(p_weaponValue + 0x694);
-			if (ammoSpeed > 0.0f) {
-				ammoSpeed *= getScale;
-				*(float *)(p_weaponValue + 0x694) = ammoSpeed;
-			}
-		}
-	}
-	// Update AmmoExplosion
-	getScale = ASMeGetAccessoryValue(p_Class, 1052, 1.0f, 0);
-	if (getScale != 1.0f) {
-		for (uintptr_t i = p_weapon; i != (p_weapon + (num_weapon * 8)); i += 8) {
-			p_weaponValue = *(uintptr_t *)i;
-			float blastRadius = *(float *)(p_weaponValue + 0x6A8);
-			if (blastRadius > 0.0f) {
-				blastRadius *= getScale;
-				*(float *)(p_weaponValue + 0x6A8) = blastRadius;
-			}
-		}
-	}
-	// Update AmmoSize
-	getScale = ASMeGetAccessoryValue(p_Class, 1060, 1.0f, 0);
-	if (getScale != 1.0f) {
-		for (uintptr_t i = p_weapon; i != (p_weapon + (num_weapon * 8)); i += 8) {
-			p_weaponValue = *(uintptr_t *)i;
-			float ammoSize = *(float *)(p_weaponValue + 0x6B4);
-			if (ammoSize > 0.0f) {
-				ammoSize *= getScale;
-				*(float *)(p_weaponValue + 0x6B4) = ammoSize;
-			}
-		}
-	}
-
-	// Special
-	// change Zoom
-	getIntValue = ASMeGetAccessoryINT32(p_Class, 1310, 0, 0);
-	if (getIntValue > 0) {
-		for (uintptr_t i = p_weapon; i != (p_weapon + (num_weapon * 8)); i += 8) {
-			p_weaponValue = *(uintptr_t *)i;
-			int sType = *(int *)(p_weaponValue + 0x500);
-			if (sType == 1) {
-				if (getIntValue == 1) {
-					*(int *)(p_weaponValue + 0x500) = 4;
-				} else {
-					*(int *)(p_weaponValue + 0x500) = 5;
-				}
-			}
-		}
-	}
-	// change Shield Reflect
-	getIntValue = ASMeGetAccessoryINT32(p_Class, 1311, 0, 0);
-	if (getIntValue > 0) {
-		for (uintptr_t i = p_weapon; i != (p_weapon + (num_weapon * 8)); i += 8) {
-			p_weaponValue = *(uintptr_t *)i;
-			int sType = *(int *)(p_weaponValue + 0x500);
-			if (sType == 6) {
-				if (getIntValue == 1) {
-					*(int *)(p_weaponValue + 0x500) = 4;
-				} else {
-					*(int *)(p_weaponValue + 0x500) = 5;
-				}
-			}
-		}
-	}
-
-	// Update Recoil
-	getScale = ASMeGetAccessoryValue(p_Class, 909, 1.0f, 0);
-	if (getScale != 1.0f) {
-		p_weaponValue = p_Class + 0x169C;
-		*(float *)p_weaponValue *= getScale;
-	}
-	
-	// change LockonTargetType to 0
-	getIntValue = ASMeGetAccessoryINT32(p_Class, 1012, 0, 0);
-	if (getIntValue > 0) {
-		for (uintptr_t i = p_weapon; i != (p_weapon + (num_weapon * 8)); i += 8) {
-			p_weaponValue = *(uintptr_t*)i;
-			pWeapon = (EDFWeaponPointer*)p_weaponValue;
-			pWeapon->LockonTargetType = 0;
-		}
-	}
-	// Update LockonAngle width
-	getScale = ASMeGetAccessoryValue(p_Class, 912, 1.0f, 0);
-	if (getScale != 1.0f) {
-		for (uintptr_t i = p_weapon; i != (p_weapon + (num_weapon * 8)); i += 8) {
-			p_weaponValue = *(uintptr_t*)i;
-			pWeapon = (EDFWeaponPointer*)p_weaponValue;
-			pWeapon->LockonAngle.x *= getScale;
-		}
-	}
-	// Update LockonAngle height
-	getScale = ASMeGetAccessoryValue(p_Class, 913, 1.0f, 0);
-	if (getScale != 1.0f) {
-		for (uintptr_t i = p_weapon; i != (p_weapon + (num_weapon * 8)); i += 8) {
-			p_weaponValue = *(uintptr_t*)i;
-			pWeapon = (EDFWeaponPointer*)p_weaponValue;
-			pWeapon->LockonAngle.y *= getScale;
-		}
-	}
-}
 
 void __fastcall edfSoldierWeaponCharge(EDFWeaponPointer* pweapon) {
 	if (pweapon->reloadPadType == 2 || pweapon->reloadPadType == 3) {

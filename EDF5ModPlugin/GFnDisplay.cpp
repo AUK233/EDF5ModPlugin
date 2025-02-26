@@ -176,7 +176,7 @@ void __fastcall eDisplaySoldierWeaponAmmo(HUiHudWeaponPointer* p)
 }
 */
 
-void __fastcall eDisplayFencerBoostAndDash(HUiHudPowerGuagePointer* p, FencerBoostAndDashStruct* fencer)
+void __fastcall eDisplayFencerBoostAndDash(HUiHudPowerGuagePointer* p, PFencerBoostAndDash fencer)
 {
 	HUiHudTextPointer* pDash = p->TextFencerDash;
 	if (pDash) {
@@ -187,7 +187,7 @@ void __fastcall eDisplayFencerBoostAndDash(HUiHudPowerGuagePointer* p, FencerBoo
 			TextForFormatIntNumber(fencer->DashCurrentCount, (WCHAR*)&pText->text, 7);
 		}else{
 			memcpy(&pDash->font_color, WeaponReloadTimeColor, 16U);
-			float remainTime = fencer->DashRecoveryTime / 60.0f;
+			float remainTime = fencer->DashRecoveryRemainTime / 60.0f;
 			TextForFormatFloatNumber(remainTime, (WCHAR*)&pText->text, 7);
 		}
 	}
@@ -202,7 +202,7 @@ void __fastcall eDisplayFencerBoostAndDash(HUiHudPowerGuagePointer* p, FencerBoo
 		}
 		else {
 			memcpy(&pBoost->font_color, WeaponReloadTimeColor, 16U);
-			float remainTime = fencer->BoostRecoveryTime / 60.0f;
+			float remainTime = fencer->BoostRecoveryRemainTime / 60.0f;
 			TextForFormatFloatNumber(remainTime, (WCHAR*)&pText->text, 7);
 		}
 	}

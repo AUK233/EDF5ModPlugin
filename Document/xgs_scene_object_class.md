@@ -97,6 +97,8 @@ Added the following values available for SGO node names.
 |fencer only| - | - |
 |1300|int|0 or 1, 1 is switch dash to boost|
 |1301|int|0 or 1, 1 is switch boost to dash|
+|1302|float|> 0, multiply this factor by dash cd|
+|1303|float|> 0, multiply this factor by boost cd|
 |1310|int|1 is switch zoom to boost, 2 is to dash|
 |1311|int|1 is switch shield reflect to boost, 2 is to dash|
 

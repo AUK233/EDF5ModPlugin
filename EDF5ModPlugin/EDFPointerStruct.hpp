@@ -19,7 +19,14 @@ typedef struct EDFVector4Struct {
 	float w;
 } EDFVector4Pointer;
 
-typedef struct EDFWeaponStruct {
+typedef struct EDFStdVector_t {
+	void* pad;
+	void* p;
+	size_t capacity;
+	size_t size;
+} *PEDFStdVector;
+
+__declspec(align(16)) typedef struct EDFWeaponStruct {
 	// 140 is custom_parameter
 	// 6e8 is Ammo_CustomParameter
 	BYTE pad0[0xC0];
@@ -170,17 +177,92 @@ static_assert(offsetof(EDFWeaponStruct, chargeTimeCount) == 0x250C);
 static_assert(offsetof(EDFWeaponStruct, use_extraShotType) == 0x2510);
 static_assert(offsetof(EDFWeaponStruct, AmmoFriendlyFireType) == 0x2514);
 
+__declspec(align(16)) typedef struct EDFBaseClass_t {
+	void* vf_table;
+	BYTE pad8[0x1E8];
+	float unk1F0;
+	float MinHP;
+	float MaxHP;
+	float CurrentHP;
+	BYTE pad200[8]; // +4 always is 100.0f
+	float TotalEnergy;
+	float CurrentEnergy;
+	BYTE pad210[0x1378];
+	EDFStdVector_t v_WeaponPointer;
+	BYTE pad15a8[0xF4];
+	float WeaponRecoil;
+	BYTE pad16a0[8];
+	float WalkingSpeed;
+	BYTE pad16aC[0x8C];
+	float CharacterCollectRange;
+	float CurrentCollectRange; // It is written
+	BYTE pad1740[0x2C0];
+} *PEDFBaseClass;
+static_assert(offsetof(EDFBaseClass_t, v_WeaponPointer.p) == 0x1590);
+static_assert(offsetof(EDFBaseClass_t, WeaponRecoil) == 0x169C);
+static_assert(offsetof(EDFBaseClass_t, WalkingSpeed) == 0x16A8);
+static_assert(sizeof(EDFBaseClass_t) == 0x1A00);
+
+typedef struct EDFAssultSoldier_t : EDFBaseClass_t {
+	BYTE pad1a00[0x70];
+	float DashSpeed;
+	float DashAcceleration;
+	float DashTurningSpeed;
+	BYTE pad1a7c[0x154];
+	// new block
+	float BaseDashSpeed;
+	BYTE pad1bd4[0xC];
+	int ThrowButtonTimer;
+	int ThrowButtonCD;
+} *PEDFAssultSoldier;
+static_assert(offsetof(EDFAssultSoldier_t, DashSpeed) == 0x1A70);
+
+typedef struct EDFPaleWing_t : EDFBaseClass_t {
+	BYTE pad1a00[0x2E0];
+	float Deadweight; // Affect recoil.
+	float ChargeSpeed;
+	float EmergencyChargeSpeed;
+	float FlightConsumption;
+	float BoostConsumption;
+	float WeaponChargeSpeed;
+	BYTE pad1cf8[0xC]; // move speed?
+	float FlyingSpeed;
+	float TakeoffSpeed; // affect height.
+	float FlightDamping;
+	float BoostSidewaySpeed;
+	float BoostForwardSpeed;
+	float BoostBackwardSpeed;
+	float f1d1c; // always is 100.0f
+} *PEDFPaleWing;
+static_assert(offsetof(EDFPaleWing_t, FlightConsumption) == 0x1CEC);
+static_assert(offsetof(EDFPaleWing_t, WeaponChargeSpeed) == 0x1CF4);
+static_assert(offsetof(EDFPaleWing_t, FlightDamping) == 0x1D0C);
+static_assert(offsetof(EDFPaleWing_t, f1d1c) == 0x1D1C);
+
 // +1BA0
-typedef struct FencerBoostAndDashStruct {
-	int BoostRecoveryTime;
+typedef struct FencerBoostAndDash_t {
+	int BoostRecoveryRemainTime;
 	int BoostMaxCount;
 	int BoostCurrentCount;
 	float BoostSpeed;
-	int DashRecoveryTime;
+	int DashRecoveryRemainTime;
 	float DashInterval;
 	int DashMaxCount;
 	int DashCurrentCount;
-} FencerBoostAndDashPointer;
+} *PFencerBoostAndDash;
+
+typedef struct EDFHeavyArmor_t : EDFBaseClass_t {
+	BYTE pad1a00[0x1A0];
+	FencerBoostAndDash_t thruster;
+	BYTE pad1bc0[0x70];
+	// new
+	int IsDashToBoost;
+	int IsBoostToDash;
+	int BoostRecoveryBaseTime;
+	int DashRecoveryBaseTime;
+	//BYTE pad1c30[0x70];
+} *PEDFHeavyArmor;
+static_assert(offsetof(EDFHeavyArmor_t, thruster.BoostRecoveryRemainTime) == 0x1BA0);
 
 typedef struct HUiHudTextContentStruct {
 	BYTE pad1[0x18];

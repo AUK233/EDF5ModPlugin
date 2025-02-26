@@ -78,7 +78,7 @@ ASMreadWeaponSgoNode proc
 	; check adjusted by mission
 		test eax, eax
 		je ReloadInitBlock
-		mov ecx, 2 ; get AirRaider_CreditX
+		mov ecx, 0 ; get AirRaider_CreditX
 		call CustomMissionData_GetCustomFactor
 		movd xmm1, dword ptr [rsi+1A4h]
 		cvtdq2ps xmm1, xmm1

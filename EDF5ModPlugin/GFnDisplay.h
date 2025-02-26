@@ -14,7 +14,7 @@ size_t __fastcall TextForFormatIntNumber(const int number, WCHAR* destination, s
 
 size_t __fastcall eTextForWeaponReloadTime(EDFWeaponStruct *pweapon, WCHAR *destination, EDFColor4Pointer *pcolor);
 //void __fastcall eDisplaySoldierWeaponAmmo(HUiHudWeaponPointer* p);
-void __fastcall eDisplayFencerBoostAndDash(HUiHudPowerGuagePointer* p, FencerBoostAndDashStruct* fencer);
+void __fastcall eDisplayFencerBoostAndDash(HUiHudPowerGuagePointer* p, PFencerBoostAndDash fencer);
 
 void __fastcall eDisplaySoldierWeaponDamage(HUiHudWeaponPointer* p);
 void __fastcall eDisplayVehicleWeaponDamage(HUiHudWeaponPointer* p);

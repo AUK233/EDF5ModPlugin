@@ -10,12 +10,10 @@
 #include <stdexcept>
 #include <list>
 #include <cstdlib>
+
 #include "utiliy.h"
-
-#include "HuiMoreCharacterModel.h"
 #include "commonNOP.h"
-
-extern PBYTE hmodEXE;
+#include "HuiMoreCharacterModel.h"
 
 extern "C" {
 uintptr_t vft_ModelIndexCivilian;
@@ -39,7 +37,7 @@ void* __fastcall ASMHuiBoxModelIndexPioneerFuncP0(void* pSource, void* pTarget);
 void __fastcall ASMHuiBoxModelIndexPioneerFuncP10(void* pSource, void* pCharacter);
 }
 
-void module_SetHuiMoreCharacterModel()
+void module_SetHuiMoreCharacterModel(PBYTE hmodEXE)
 {
 	// add selection button of character model
 	// EDF5.exe+52E08C
@@ -68,6 +66,79 @@ void module_SetHuiMoreCharacterModel()
 	vft_ModelIndexPioneer.copyVFT = (uintptr_t)ASMHuiBoxModelIndexPioneerFuncP0;
 	vft_ModelIndexPioneer.copyVFT8 = (uintptr_t)ASMHuiBoxModelIndexPioneerFuncP0;
 	vft_ModelIndexPioneer.activeButton = (uintptr_t)ASMHuiBoxModelIndexPioneerFuncP10;
+
+	module_ShareCharacterModelColor(hmodEXE);
+}
+
+void module_ShareCharacterModelColor(PBYTE hmodEXE)
+{
+	// mov eax, dword ptr [rsi+76C]
+	BYTE eaxTo0_6[] = {
+		0x31, 0xC0,            // xor eax, eax
+		0x0F, 0x1F, 0x40, 0x00 // nop
+	};
+	// EDF5.exe+50B2AE, write to player color
+	WriteHookToProcess((void*)(hmodEXE + 0x50B2AE), &eaxTo0_6, 6U);
+	// EDF5.exe+50AF03
+	WriteHookToProcess((void*)(hmodEXE + 0x50AF03), &eaxTo0_6, 6U);
+	// EDF5.exe+50E489, read color in menu
+	WriteHookToProcess((void*)(hmodEXE + 0x50E489), &eaxTo0_6, 6U);
+	WriteHookToProcess((void*)(hmodEXE + 0x50E506), &eaxTo0_6, 6U);
+	// EDF5.exe+50EB87, write to color index
+	WriteHookToProcess((void*)(hmodEXE + 0x50EB87), &eaxTo0_6, 6U);
+
+	BYTE r9dTo0_8[] = {
+		0x45, 0x31, 0xC9,            // xor r9d, r9d
+		0x0F, 0x1F, 0x44, 0x00, 0x00 // nop
+	};
+	// EDF5.exe+304F4B, read player color in offline
+	WriteHookToProcess((void*)(hmodEXE + 0x304F4B), &r9dTo0_8, 8U);
+	// EDF5.exe+304EE4, read player color in online
+	WriteHookToProcess((void*)(hmodEXE + 0x304EE4), &r9dTo0_8, 8U);
+
+	// EDF5.exe+58D22C, read player color in menu
+	BYTE RbpToRcx[] = {
+		0x48, 0x89, 0xE9,
+		0x90
+	};
+	WriteHookToProcess((void*)(hmodEXE + 0x58D22C), &RbpToRcx, 4U);
+	int i188x4 = 0x188 * 4;
+	WriteHookToProcess((void*)(hmodEXE + 0x58D23C + 3), &i188x4, 4U);
+
+	// EDF5.exe+8FE34, setting player colors to default
+	BYTE R13ToRcx[] = {
+		0x4C, 0x89, 0xE9,
+		0x90
+	};
+	WriteHookToProcess((void*)(hmodEXE + 0x8FE34), &R13ToRcx, 4U);
+	WriteHookToProcess((void*)(hmodEXE + 0x8FE38 + 3), &i188x4, 4U);
+
+
+	// EDF5.exe+50E3C1, preview the selected color in menu
+	// imul rcx, r9, 4
+	BYTE ignoreR10[] = {
+		0x49, 0x6B, 0xC9, 0x04
+	};
+	WriteHookToProcess((void*)(hmodEXE + 0x50E3C1), &ignoreR10, 4U);
+
+	// EDF5.exe+50F0CA
+	BYTE r11dTo0[] = {
+		0x45, 0x31, 0xDB,
+		0x0F, 0x1F, 0x40, 0x00
+	};
+	WriteHookToProcess((void*)(hmodEXE + 0x50F0CA), &r11dTo0, 7U);
+	// EDF5.exe+50EBDE
+	WriteHookToProcess((void*)(hmodEXE + 0x50EBDE), &r11dTo0, 7U);
+
+	// EDF5.exe+58D367
+	BYTE esiTo0[] = {
+		0x31, 0xF6,
+		0x0F, 0x1F, 0x80, 0x00, 0x00, 0x00, 0x00
+	};
+	WriteHookToProcess((void*)(hmodEXE + 0x58D367), &esiTo0, 9U);
+
+	// EDF5.exe+50C839
+	//WriteHookToProcess((void*)(hmodEXE + 0x50C839), (void*)&nop9, 9U);
 }
 
 extern "C" {

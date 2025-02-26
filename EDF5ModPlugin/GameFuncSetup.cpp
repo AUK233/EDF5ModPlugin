@@ -345,41 +345,9 @@ void hookMonsterFunctions() {
 }
 
 extern "C" {
-// ranger!
-void __fastcall ASMeAssultSoldierInitialization();
-void __fastcall ASMeArmySoldierUseAuxiliary();
-uintptr_t eArmySoldierUseAuxiliaryRetAddr;
-// vehicle_call
-uintptr_t edf2E0270Address;
-// ranger dash
-uintptr_t edf2E07C0Address;
-// Execution?
-uintptr_t edf2E18A0Address;
-//
-uintptr_t eSoldierCallSupportRetAddr;
-uintptr_t edf5F8C40Address;
-// Show 2nd support slot
-void __fastcall ASMhudShowSupportSlot2();
-uintptr_t hudShowSupportSlot2RetAddr;
-// air raider!
-void __fastcall ASMeEngineerInitialization();
-void __fastcall ASMeEngineerUseAuxiliary();
-uintptr_t eEngineerUseAuxiliaryRetAddr;
-uintptr_t edf2E2E30Address;
-// fencer!
-// Swap boost and dash
-uintptr_t edf11B24E0Address;
-uintptr_t edf11B1AB0Address;
-void __fastcall ASMeFencerJetSetup();
-uintptr_t ofs3073C0JmpAddr;
-uintptr_t ofs2E4070JmpAddr;
-uintptr_t ofs2E42C0JmpAddr;
-uintptr_t ofs2E43E0JmpAddr;
-uintptr_t ofs2E4500JmpAddr;
-void __fastcall ASMeFencerBoostAndDash();
-// General
-void __fastcall ASMeAccessoryEnhancement();
-uintptr_t eAccessoryEnhancementRetAddr;
+
+
+
 
 // Railgun
 void __fastcall ASMVehicle403TankMainFire();
@@ -396,122 +364,9 @@ void hookEDFClassFunctions() {
 	// next is press a button
 	// EDF5.exe+6dc70 releasing a pointer that is no longer useful
 
-	// ranger!
-	int newRangerSize = 0x2000;
-	// AssultSoldier 0x1BD0
-	// start: 0x1BE0, size: 8, function: throw button timer.
-	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x2DF9C7 + 1), &newRangerSize, 4U);
-	// EDF5.exe+2DFD0D
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x2DFD0D), (uintptr_t)ASMeAssultSoldierInitialization);
-	WriteHookToProcess((void*)(hmodEXE + 0x2DFD0D + 15), (void*)&nop1, 1U);
-	// EDF5.exe+2E0017
-	eArmySoldierUseAuxiliaryRetAddr = (uintptr_t)(hmodEXE + 0x2E00C1);
-	hookGameBlock((void *)(hmodEXE + 0x2E0017), (uintptr_t)ASMeArmySoldierUseAuxiliary);
-	WriteHookToProcess((void *)(hmodEXE + 0x2E0017 + 12), (void *)&intNOP32, 8U);
-	//
-	edf2E0270Address = (uintptr_t)(hmodEXE + 0x2E0270);
-	edf2E07C0Address = (uintptr_t)(hmodEXE + 0x2E07C0);
-	edf2E18A0Address = (uintptr_t)(hmodEXE + 0x2E18A0);
-	//
-	eSoldierCallSupportRetAddr = (uintptr_t)(hmodEXE + 0x2E0368);
-	edf5F8C40Address = (uintptr_t)(hmodEXE + 0x5F8C40);
-	// Show 2nd support slot
-	hudShowSupportSlot2RetAddr = (uintptr_t)(hmodEXE + 0x4D7A7F);
-	hookGameBlock((void *)(hmodEXE + 0x4D7A70), (uintptr_t)ASMhudShowSupportSlot2);
-	WriteHookToProcess((void *)(hmodEXE + 0x4D7A70 + 12), (void *)&intNOP32, 3U);
-
-	// air raider!
-	int newAirRaiderSize = 0x2000;
-	// Engineer 0x1A70
-	// start: 0x1AE0, size: 8, function: throw button timer.
-	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x2E2057 + 1), &newAirRaiderSize, 4U);
-	// EDF5.exe+2E2347
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x2E2347), (uintptr_t)ASMeEngineerInitialization);
-	WriteHookToProcess((void*)(hmodEXE + 0x2E2347 + 15), (void*)&nop1, 1U);
-	// offset is 0x2E197A
-	eEngineerUseAuxiliaryRetAddr = (uintptr_t)(hmodEXE + 0x2E25FC);
-	hookGameBlock((void *)(hmodEXE + 0x2E257A), (uintptr_t)ASMeEngineerUseAuxiliary);
-	WriteHookToProcess((void *)(hmodEXE + 0x2E257A + 12), (void *)&intNOP32, 6U);
-	edf2E2E30Address = (uintptr_t)(hmodEXE + 0x2E2E30);
-
-	// wing diver!
-	// Flying Speed, default is 0.4f
-	//unsigned char newWDFlying[] = {0x51, 0xE5};
-	//float WDspeedFly = 0.27f;
-	// up to 2x
-	unsigned char newWDFlying[] = { 0xB9, 0xE5 };
-	float WDspeedFly = 0.55f;
-	WriteHookToProcess((void *)(hmodEXE + 0x2F6F65 + 7), &WDspeedFly, 4U);
-	WriteHookToProcess((void *)(hmodEXE + 0x2F848B + 4), &newWDFlying[0], 1U);
-	// Takeoff Speed, default is 0.007f
-	// float WDspeedTakeoff = 0.005f;
-	//WriteHookToProcess((void *)(hmodEXE + 0x2F6F7B + 7), &WDspeedTakeoff, 4U);
-	//WriteHookToProcess((void *)(hmodEXE + 0x2F84D3 + 4), &newWDFlying[1], 1U);
-
-	// Flight Consumption, default is 0.25f
-	// now it is 0.2f
-	//unsigned char newWDFlyEnergy[] = {0x51, 0x9A
-	// up to 0.4f
-	unsigned char newWDFlyEnergy[] = { 0xB1, 0xFA };
-	WriteHookToProcess((void *)(hmodEXE + 0x2F7263 + 4), &newWDFlyEnergy[0], 1U);
-	WriteHookToProcess((void *)(hmodEXE + 0x2F861A + 4), &newWDFlyEnergy[1], 1U);
-	// Emergency Charge, default is 0.2f
-	// now it is 0.3f, EDF5.exe+2F85D3
-	unsigned char newWDEmergencyCharge[] = { 0x11, 0xDD };
-	WriteHookToProcess((void*)(hmodEXE + 0x2F85D3 + 4), &newWDEmergencyCharge, 2U);
-	// EDF5.exe+2F724F
-	unsigned char newWDEmergencyChargeInit = 0x95;
-	WriteHookToProcess((void*)(hmodEXE + 0x2F724F + 4), &newWDEmergencyChargeInit, 1U);
-
-	// fencer!
-	int newFencerSize = 0x2000;
-	// start:0x1E00, size:0x10, function: swap types.
-	// HeavyArmor 0x1C30
-	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x2E3408), &newFencerSize, 4U);
-	//WriteHookToProcess((void *)(hmodEXE + 0x2E4229 + 1), &newFencerSize, 4U);
-	//WriteHookToProcess((void *)(hmodEXE + 0xC61AC9 + 1), &newFencerSize, 4U);
-	
-	// +1BA0h, default is 240
-	int newBoosterCD = 300;
-	WriteHookToProcess((void *)(hmodEXE + 0x2E4D38 + 6), &newBoosterCD, 4U);
-	// +1BB0h, default is 90
-	int newDashCD = 120;
-	WriteHookToProcess((void *)(hmodEXE + 0x2E54E4 + 6), &newDashCD, 4U);
-	// 0x2E387B 0.5f to 1.25f
-	unsigned char newDashInterval[] = {0xED, 0x1F};
-	WriteHookToProcess((void *)(hmodEXE + 0x2E447B + 4), &newDashInterval, 2U);
-
-	// Swap boost and dash Installation
-	edf11B24E0Address = (uintptr_t)(hmodEXE + 0x11B24E0);
-	edf11B1AB0Address = (uintptr_t)(hmodEXE + 0x11B1AB0);
-	// offset is 0x2E37C4, remove old boost speed
-	unsigned char removeBoostSpeed[] = {
-		0x89, 0xBB, 0xA4, 0x1B, 0x00, 0x00, // mov dword ptr [rbx+1BA4h], edi
-		0x89, 0xBB, 0xA8, 0x1B, 0x00, 0x00, // mov dword ptr [rbx+1BA8h], edi
-	    0x41, 0x8B, 0xFE,                   // mov edi, r14d
-		0xEB, 0x1E,                         // jmp
-		0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90,
-		0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90,
-	    0x48                                // jmp target: cmp
-	};
-	WriteHookToProcess((void *)(hmodEXE + 0x2E43BC), &removeBoostSpeed, 48U);
-	// offset is 0x2E37BC
-	hookGameBlock((void *)(hmodEXE + 0x2E4526), (uintptr_t)ASMeFencerJetSetup);
-	WriteHookToProcess((void *)(hmodEXE + 0x2E4526 + 12), (void *)&Interruptions32, 20U);
-	// Swap boost and dash Activate, offset is 0x2E3C90
-	ofs3073C0JmpAddr = (uintptr_t)(hmodEXE + 0x307FC0);
-	ofs2E4070JmpAddr = (uintptr_t)(hmodEXE + 0x2E4C70);
-	ofs2E42C0JmpAddr = (uintptr_t)(hmodEXE + 0x2E4EC0);
-	ofs2E43E0JmpAddr = (uintptr_t)(hmodEXE + 0x2E4FE0);
-	ofs2E4500JmpAddr = (uintptr_t)(hmodEXE + 0x2E5100);
-	hookGameBlock((void *)(hmodEXE + 0x2E4890), (uintptr_t)ASMeFencerBoostAndDash);
-	WriteHookToProcess((void *)(hmodEXE + 0x2E4890 + 12), (void *)&nop2, 2U);
-
-	// General
-	// Add new accessory functions, offset is 0x303DB4
-	hookGameBlock((void *)(hmodEXE + 0x3049B4), (uintptr_t)ASMeAccessoryEnhancement);
-	WriteHookToProcess((void *)(hmodEXE + 0x3049B4 + 12), (void *)&nop2, 2U);
-	eAccessoryEnhancementRetAddr = (uintptr_t)(hmodEXE + 0x3049C2);
+	// Function
+	module_SetEDFSeriesFunction(hmodEXE);
+	module_SetHuiMoreCharacterModel(hmodEXE);
 
 	// EDF5.exe+3391D5
 	// Enable Railgun to be dual weapons
@@ -524,8 +379,6 @@ void hookEDFClassFunctions() {
 	hookGameBlock((void*)(hmodEXE + 0x33D000), (uintptr_t)ASMVehicle501AnimationEvent);
 	WriteHookToProcess((void*)(hmodEXE + 0x33D000 + 12), (void*)&nop4, 4U);
 
-	//
-	module_SetHuiMoreCharacterModel();
 }
 
 
