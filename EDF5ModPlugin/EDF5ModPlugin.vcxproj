@@ -218,8 +218,12 @@
     </ClCompile>
     <ClCompile Include="zEDF\EDFbaseParameterSet.cpp" />
     <ClCompile Include="zEDF\EDFCommonFunction.cpp" />
-    <ClCompile Include="zHui\HuiDisplaySubtitle.cpp">
+    <ClCompile Include="zHui\HuiCasController.cpp">
       <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AssemblyAndSourceCode</AssemblerOutput>
+      <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Default</StructMemberAlignment>
+    </ClCompile>
+    <ClCompile Include="zHui\HuiDisplaySubtitle.cpp">
+      <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NoListing</AssemblerOutput>
     </ClCompile>
     <ClCompile Include="zHui\HuiMoreCharacterModel.cpp" />
   </ItemGroup>
@@ -281,6 +285,7 @@
     <ClInclude Include="utiliy.h" />
     <ClInclude Include="zEDF\EDFbaseParameterSet.h" />
     <ClInclude Include="zEDF\EDFCommonFunction.h" />
+    <ClInclude Include="zHui\HuiCasController.h" />
     <ClInclude Include="zHui\HuiDisplaySubtitle.h" />
     <ClInclude Include="zHui\HuiMoreCharacterModel.h" />
   </ItemGroup>

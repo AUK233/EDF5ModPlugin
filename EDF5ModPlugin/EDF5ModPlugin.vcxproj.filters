@@ -66,6 +66,9 @@
     <ClCompile Include="zEDF\EDFCommonFunction.cpp">
       <Filter>Source Files\Module EDF</Filter>
     </ClCompile>
+    <ClCompile Include="zHui\HuiCasController.cpp">
+      <Filter>Source Files\Module Hui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMxgsOCgiantAnt.asm">
@@ -240,6 +243,9 @@
     </ClInclude>
     <ClInclude Include="zEDF\EDFCommonFunction.h">
       <Filter>Source Files\Module EDF</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\HuiCasController.h">
+      <Filter>Source Files\Module Hui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
