@@ -15,6 +15,8 @@
 #include "commonNOP.h"
 #include "EDFbaseParameterSet.h"
 #include "EDFCommonFunction.h"
+#include "EDFAmmoFunction.h"
+#include "EDFWeaponFunction.h"
 
 void module_SetEDFSeriesFunction(PBYTE hmodEXE)
 {
@@ -24,6 +26,9 @@ void module_SetEDFSeriesFunction(PBYTE hmodEXE)
 	module_SetFunction_HeavyArmor(hmodEXE);
 
 	module_SetFunction_EDFCommon(hmodEXE);
+	module_SetFunction_EDFVehicle(hmodEXE);
+	module_SetFunction_EDFAmmo(hmodEXE);
+	module_SetFunction_EDFWeapon(hmodEXE);
 }
 
 extern "C" {
@@ -278,4 +283,26 @@ void module_SetFunction_EDFCommon(PBYTE hmodEXE)
 	//WriteHookToProcess((void*)(hmodEXE + 0x304AE5 + 15), (void*)&nop1, 1U);
 	module_EDFCommonFunctionInitialization(hmodEXE);
 	// ofs+3039fd, is 500
+}
+
+extern "C" {
+	// Barga
+	void __fastcall ASMVehicle501AnimationEvent();
+
+	// Combat Frame
+	void __fastcall ASMVehicle504CustomizeAIAimBone();
+	uintptr_t Vehicle504CustomizeAIAimBoneRetAddr;
+}
+
+void module_SetFunction_EDFVehicle(PBYTE hmodEXE)
+{
+	// EDF5.exe+33D000
+	// Allow Barga to use the weapon
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x33D000), (uintptr_t)ASMVehicle501AnimationEvent);
+	WriteHookToProcess((void*)(hmodEXE + 0x33D000 + 15), (void*)&nop5, 5U);
+
+	// EDF5.exe+363123
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x363123), (uintptr_t)ASMVehicle504CustomizeAIAimBone);
+	WriteHookToProcess((void*)(hmodEXE + 0x363123 + 15), (void*)&nop6, 6U);
+	Vehicle504CustomizeAIAimBoneRetAddr = (uintptr_t)(hmodEXE + 0x36313D);
 }

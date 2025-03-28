@@ -6,6 +6,7 @@ Added the following values available for SGO node names.
 - [GiantAnt](#GiantAnt)
 - [GiantSpider](#GiantSpider)
 - [GiantBee](#GiantBee)
+- [GiantDango](#GiantDango)
 - [DragonSmall](#DragonSmall)
 - [Monster501](#Monster501)
 - [Humanoid_Basic](#Humanoid_Basic)
@@ -264,6 +265,48 @@ Added the following values available for SGO node names.
 
 ##### [Return to Index](#index)
 
+### GiantDango
+| sgo node name | value type | value description |
+|---|---|---|
+| - | - |here are original functions |
+|dango_Attack|ptr|[parameters](#GiantDango-dango_Attack)|
+|dango_attack_time|float|attack preparation time|
+|level_adjust|ptr|[parameters](#GiantDango-level_adjust)|
+|insectbase_Type|int|!=0 is unable to be knocked out|
+
+#### GiantDango dango_Attack
+| node index | value type | value description |
+|---|---|---|
+|0|ptr|[parameters](#GiantDango-dango_Attack-node0)|
+|1|float||
+|2|float|base damage|
+|6|float|damage radius on attack|
+
+#### GiantDango dango_Attack node0
+| node index | value type | value description |
+|---|---|---|
+|0|float|initial speed when attacking|
+|1|float|acceleration when attacking|
+|2|float|terminal speed when attacking|
+|3|float|takeoff speed, the bigger the higher. and fall speed.|
+|4|float|smaller it is, farther it rolls, and lower it bounces.|
+|5|float|radian. angle at which it bounces when it hits.|
+
+#### GiantDango level_adjust
+| node index | value type | value description |
+|---|---|---|
+|0|ptr|[parameters](#GiantDango-level_adjust-node0)|
+|1|float||
+|2|float|max detection distance|
+
+#### GiantDango level_adjust node0
+| node index | value type | value description |
+|---|---|---|
+|0|float||
+|1|float|detection distance factor (detection distance is determined by difficulty)|
+
+##### [Return to Index](#index)
+
 ### DragonSmall
 | sgo node name | value type | function | value description |
 |---|---|---|---|
@@ -315,6 +358,7 @@ Added the following values available for SGO node names.
 |BulletColor|ptr|change ammo color|[color parameters](#Monster501-BulletColor), all parameters must be present|
 |BulletExSet|ptr|change ammo detail|[exset parameters](#Monster501-BulletExSet), all parameters must be present|
 |ChangeModelParam|ptr|change model color|same as ant_ChangeModelParam|
+|monster_DamageReaction|float|change damage reaction|this is multiply original's factor, since original is HPx0.125, it has no reaction if it is 8.|
 | - | - | - |here are functions that game exists but doesn't use|
 |monster_blood_scale_limit|float||default 10|
 

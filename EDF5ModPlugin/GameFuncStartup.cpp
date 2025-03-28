@@ -121,7 +121,13 @@ void GameStartupUnlock(PBYTE hmodEXE)
 
 void __fastcall LoadNewVoiceFilesCPP(void* pAudio)
 {
-	if (std::filesystem::exists(L"./sound/pc/tikyuu4_voice_en.awb")) {
+	if (std::filesystem::exists(L"./sound/pc/add_audio41_main.awb")) {
+		ASMrva47C6E0(pAudio, L"app:/sound/adx/add_audio41_main.awb");
+		if (ModLogStatus == 1) {
+			PLOG_INFO << "Loading EDF4.1 voice file with increased volume";
+		}
+	}
+	else if (std::filesystem::exists(L"./sound/pc/tikyuu4_voice_en.awb")) {
 		ASMrva47C6E0(pAudio, L"app:/sound/adx/tikyuu4_voice_en.awb");
 		if (ModLogStatus == 1) {
 			PLOG_INFO << "Loading EDF4.1 voice file (English)";
@@ -136,6 +142,27 @@ void __fastcall LoadNewVoiceFilesCPP(void* pAudio)
 	else {
 		if (ModLogStatus == 1) {
 			PLOG_INFO << "No EDF4.1 voice file is loaded";
+		}
+	}
+	// edf6 main
+	if (std::filesystem::exists(L"./sound/pc/add_audio6_main.awb")) {
+		ASMrva47C6E0(pAudio, L"app:/sound/adx/add_audio6_main.awb");
+		if (ModLogStatus == 1) {
+			PLOG_INFO << "Loading EDF6 voice file";
+		}
+	}
+	// edf6 dlc 1
+	if (std::filesystem::exists(L"./sound/pc/add_audio6_dlc1.awb")) {
+		ASMrva47C6E0(pAudio, L"app:/sound/adx/add_audio6_dlc1.awb");
+		if (ModLogStatus == 1) {
+			PLOG_INFO << "Loading EDF6 Mission Pack 1 voice file";
+		}
+	}
+	// test file
+	if (std::filesystem::exists(L"./sound/pc/test6.awb")) {
+		ASMrva47C6E0(pAudio, L"app:/sound/adx/test6.awb");
+		if (ModLogStatus == 1) {
+			PLOG_INFO << "Loading test voice file";
 		}
 	}
 }

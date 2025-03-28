@@ -86,6 +86,11 @@ ASMreadWeaponSgoNode proc
 		cvttss2si eax, xmm0
 		mov [rsi+1A4h], eax
 		mov [rsi+0B90h], eax
+		;
+		mov ecx, 1 ; get AirRaider_DamageX
+		call CustomMissionData_GetCustomFactor
+		mulss xmm0, dword ptr [rsi+69Ch]
+		movss dword ptr [rsi+69Ch], xmm0
 		
 	; add star to "ReloadInit"
 	ReloadInitBlock:

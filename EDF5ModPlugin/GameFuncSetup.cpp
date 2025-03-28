@@ -165,16 +165,6 @@ void OverwriteGameFunctions() {
 
 extern "C" {
 // xgs_scene_object_class
-// giant ant
-void __fastcall ASMxgsOCgiantAnt();
-void __fastcall ASMGiantAntUpdateAttack();
-void __fastcall ASMGiantAntAnimationEvent();
-uintptr_t GiantAntAnimationEventRetAddr;
-void __fastcall ASMGiantAntNormalShot();
-uintptr_t GiantAntNormalShotRetAddr;
-uintptr_t GiantAntNormalShotFireRetAddr;
-void __fastcall ASMGiantAntFuncP10();
-uintptr_t GiantAntNormalShotAddr;
 // giant spider
 void __fastcall ASMxgsOCgiantSpider();
 void __fastcall ASMGiantSpiderUpdateAttack();
@@ -201,56 +191,22 @@ uintptr_t dragonSmallAmmoSetRetAddr;
 void __fastcall ASMxgsOCdragonSmallAmmo();
 // monster501
 void __fastcall ASMxgsOCmonster501();
-
+// Monster501 and Monster504
+void __fastcall ASMMonsterUpdateDataInMission();
 
 }
 
 void hookMonsterFunctions() {
 
-	// hook GiantAnt extra features, EDF5.exe+46A0E8
-	unsigned char jmpToGiantAntInit[] = {
-		0xFF, 0x25, 0xBA, 0xFF, 0xFF, 0xFF
+	// insectbase no knockout if insectbase_Type != 0
+	// EDF5.exe+261DC5
+	unsigned char InsectbaseKnockout[] = {
+		0x83, 0xBB, 0x18, 0x04, 0x00, 0x00, 0x00,
+		0x75, 0x0A
 	};
-	WriteHookToProcess((void*)(hmodEXE + 0x46A0E8), &jmpToGiantAntInit, 6U);
-	uintptr_t GiantAntInitaddr = (uintptr_t)ASMxgsOCgiantAnt;
-	WriteHookToProcess((void*)(hmodEXE + 0x46A0A8), &GiantAntInitaddr, 8U);
-	// old is 0x1930
-	// +1930h(8-Bytes) is ammo call address
-	// +1938h(4-Bytes) is burst count, +193Ch(4-Bytes) is accuracy
-	// +1940h(4-Bytes) is burst state (0 or 1), +1944h(4-Bytes) is current burst count
-	// +1948h(4-Bytes) is shot count in new burst
-	// +194Ch(4-Bytes) is burst interval, +1950h(4-Bytes) is burst interval count
-	int newGiantAntSize = 0x1960;
-	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x46A0C7 + 1), &newGiantAntSize, 4U);
-	// EDF5.exe+1FFD13 [rax+18h], Includes difficulty update object strength.
-	hookGameBlock((void *)(hmodEXE + 0x1FFD13), (uintptr_t)ASMGiantAntUpdateAttack);
-	WriteHookToProcess((void *)(hmodEXE + 0x1FFD13 + 12), (void *)&nop3, 3U);
-	// EDF5.exe+1FE2BB, Update animation events
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x1FE2BB), (uintptr_t)ASMGiantAntAnimationEvent);
-	WriteHookToProcess((void*)(hmodEXE + 0x1FE2BB + 15), (void*)&nop2, 2U);
-	GiantAntAnimationEventRetAddr = (uintptr_t)(hmodEXE + 0x1FE2CC);
-	// EDF5.exe+20024D, allows modify normal shot accuracy.
-	// movss xmm6, dword ptr [rsi+193Ch]
-	unsigned char AntShotAccuracy[] = {
-		0xF3, 0x0F, 0x10, 0xB6, 0x3C, 0x19, 0x00, 0x00
-	};
-	WriteHookToProcess((void*)(hmodEXE + 0x20024D), &AntShotAccuracy, 8U);
-	// EDF5.exe+2002EB, allows modify normal shot ammo.
-	hookGameBlockWithInt3((void *)(hmodEXE + 0x2002EB), (uintptr_t)ASMGiantAntNormalShot);
-	WriteHookToProcess((void *)(hmodEXE + 0x2002EB + 15), (void *)&nop10, 10U);
-	GiantAntNormalShotRetAddr = (uintptr_t)(hmodEXE + 0x200304);
-	GiantAntNormalShotFireRetAddr = (uintptr_t)(hmodEXE + 0x205041);
-	// EDF5.exe+1FFD3D, allows modify continuous shot count.
-	unsigned char AntBurstCount[] = {
-		0x8B, 0x81, 0x38, 0x19, 0x00, 0x00, // mov eax, [rcx+1938h]
-		0x89, 0x81, 0xB0, 0x13, 0x00, 0x00, // mov [rcx+13B0h], eax
-		0xC3								// ret
-	};
-	WriteHookToProcess((void*)(hmodEXE + 0x1FFD3D), &AntBurstCount, 13U);
-	// EDF5.exe+1FEAEA, set new continuous shot.
-	hookGameBlockWithInt3((void *)(hmodEXE + 0x1FEAEA), (uintptr_t)ASMGiantAntFuncP10);
-	WriteHookToProcess((void *)(hmodEXE + 0x1FEAEA + 15), (void *)&nop5, 5U);
-	GiantAntNormalShotAddr = (uintptr_t)(hmodEXE + 0x1FFF40);
+	WriteHookToProcess((void*)(hmodEXE + 0x261DC5), &InsectbaseKnockout, 9U);
+
+	module_EnemyHook_GiantAnt(hmodEXE);
 
 	// hook GiantSpider extra features, EDF5.exe+46A138
 	unsigned char jmpToGiantSpiderInit[] = {
@@ -342,18 +298,16 @@ void hookMonsterFunctions() {
 	WriteHookToProcess((void *)(hmodEXE + 0x264286), &nop10, 10U);
 	int m501shot = 2;
 	WriteHookToProcess((void *)(hmodEXE + 0x263AF4 + 6), &m501shot, 4U);
+
+	// EDF5.exe+2725DB
+	// Update the monster's data in missions that affect Monster501 and Monster504
+	hookGameBlock((void*)(hmodEXE + 0x2725DB), (uintptr_t)ASMMonsterUpdateDataInMission);
 }
 
 extern "C" {
-
-
-
-
 // Railgun
 void __fastcall ASMVehicle403TankMainFire();
 uintptr_t Vehicle403TankMainFireRetAddr;
-// Barga
-void __fastcall ASMVehicle501AnimationEvent();
 }
 
 
@@ -374,11 +328,6 @@ void hookEDFClassFunctions() {
 	Vehicle403TankMainFireRetAddr = (uintptr_t)(hmodEXE + 0x3391FF);
 	hookGameBlock((void*)(hmodEXE + 0x3391D5), (uintptr_t)ASMVehicle403TankMainFire);
 	WriteHookToProcess((void*)(hmodEXE + 0x3391D5 + 12), (void*)&nop2, 2U);
-
-	// EDF5.exe+33D000
-	// Allow Barga to use the weapon
-	hookGameBlock((void*)(hmodEXE + 0x33D000), (uintptr_t)ASMVehicle501AnimationEvent);
-	WriteHookToProcess((void*)(hmodEXE + 0x33D000 + 12), (void*)&nop4, 4U);
 
 }
 
@@ -492,11 +441,6 @@ uintptr_t ammoSentryGunBulletOpen01InitRetAddr;
 void __fastcall ASMammoSentryGunBulletOpen01Shot();
 uintptr_t ammoSentryGunBulletOpen01ShotTRetAddr;
 uintptr_t ammoSentryGunBulletOpen01ShotFRetAddr;
-
-void __fastcall ASMammoSmokeCandleBullet01ofs182060();
-uintptr_t ammoSmokeCandleBullet01justCallVeh;
-uintptr_t ammoSmokeCandleBullet01ofs182168;
-uintptr_t rva181ED0;
 }
 
 void hookAmmoFunctions() {
@@ -605,14 +549,6 @@ void hookAmmoFunctions() {
 	WriteHookToProcess((void*)(hmodEXE + 0x1756EF + 15), (void*)&nop3, 3U);
 	ammoSentryGunBulletOpen01ShotTRetAddr = (uintptr_t)(hmodEXE + 0x175713);
 	ammoSentryGunBulletOpen01ShotFRetAddr = (uintptr_t)(hmodEXE + 0x1757A1);
-
-	// hook SmokeCandleBullet01
-	// EDF5.exe+182CBE, allowed to directly deploy vehicles
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x182CBE), (uintptr_t)ASMammoSmokeCandleBullet01ofs182060);
-	WriteHookToProcess((void*)(hmodEXE + 0x182CBE + 15), (void*)&nop7, 7U);
-	ammoSmokeCandleBullet01justCallVeh = (uintptr_t)(hmodEXE + 0x182CE6);
-	ammoSmokeCandleBullet01ofs182168 = (uintptr_t)(hmodEXE + 0x182D68);
-	rva181ED0 = (uintptr_t)(hmodEXE + 0x181ED0);
 }
 
 // new functions require more memory

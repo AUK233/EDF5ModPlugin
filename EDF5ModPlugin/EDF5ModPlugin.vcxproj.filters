@@ -22,6 +22,12 @@
     <Filter Include="Source Files\Module EDF">
       <UniqueIdentifier>{8b4732d8-02c6-4566-991b-71828a61863d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Module Enemy">
+      <UniqueIdentifier>{8ca8c9b5-89a0-4b4e-9c62-c763300a16dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Module EDF\Weapon">
+      <UniqueIdentifier>{00d400b0-2b0f-48e9-b844-8182c41e8b84}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -69,11 +75,23 @@
     <ClCompile Include="zHui\HuiCasController.cpp">
       <Filter>Source Files\Module Hui</Filter>
     </ClCompile>
+    <ClCompile Include="zEnemy\EnemyHook_GiantAnt.cpp">
+      <Filter>Source Files\Module Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="zEDF\EDFAmmoFunction.cpp">
+      <Filter>Source Files\Module EDF</Filter>
+    </ClCompile>
+    <ClCompile Include="zEDF\EDFWeaponFunction.cpp">
+      <Filter>Source Files\Module EDF</Filter>
+    </ClCompile>
+    <ClCompile Include="zEDF\Weapon\XGS_Weapon_RadioContact.cpp">
+      <Filter>Source Files\Module EDF\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="zEDF\Weapon\XGS_Weapon_LaserMarkerCallFire.cpp">
+      <Filter>Source Files\Module EDF\Weapon</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="ASMxgsOCgiantAnt.asm">
-      <Filter>Assembly Files</Filter>
-    </MASM>
     <MASM Include="ASMgamelog_hook.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
@@ -128,9 +146,6 @@
     <MASM Include="ASMammoMissileBullet01.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
-    <MASM Include="ASMxgsOCvehicle501FortressRobo.asm">
-      <Filter>Assembly Files</Filter>
-    </MASM>
     <MASM Include="ASMammoRocketBullet01.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
@@ -147,9 +162,6 @@
       <Filter>Assembly Files</Filter>
     </MASM>
     <MASM Include="ASMammoSentryGunBullet01.asm">
-      <Filter>Assembly Files</Filter>
-    </MASM>
-    <MASM Include="ASMammoSmokeCandleBullet01.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
     <MASM Include="zHui\ASMHuiMoreCharacterModel.asm">
@@ -172,6 +184,24 @@
     </MASM>
     <MASM Include="zEDF\ASMEDFCommonFunction.asm">
       <Filter>Source Files\Module EDF</Filter>
+    </MASM>
+    <MASM Include="zEDF\ASMxgsVehicle501FortressRobo.asm">
+      <Filter>Source Files\Module EDF</Filter>
+    </MASM>
+    <MASM Include="zEDF\ASMxgsVehicle504Begaruta.asm">
+      <Filter>Source Files\Module EDF</Filter>
+    </MASM>
+    <MASM Include="zEnemy\ASMxgsGiantAnt.asm">
+      <Filter>Source Files\Module Enemy</Filter>
+    </MASM>
+    <MASM Include="zEDF\ASMammoSmokeCandleBullet.asm">
+      <Filter>Source Files\Module EDF</Filter>
+    </MASM>
+    <MASM Include="zEDF\Weapon\ASMxgs_Weapon_RadioContact.asm">
+      <Filter>Source Files\Module EDF\Weapon</Filter>
+    </MASM>
+    <MASM Include="zEDF\Weapon\ASMxgs_Weapon_LaserMarkerCallFire.asm">
+      <Filter>Source Files\Module EDF\Weapon</Filter>
     </MASM>
   </ItemGroup>
   <ItemGroup>
@@ -246,6 +276,21 @@
     </ClInclude>
     <ClInclude Include="zHui\HuiCasController.h">
       <Filter>Source Files\Module Hui</Filter>
+    </ClInclude>
+    <ClInclude Include="zEnemy\EnemyHook_GiantAnt.h">
+      <Filter>Source Files\Module Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="zEDF\EDFAmmoFunction.h">
+      <Filter>Source Files\Module EDF</Filter>
+    </ClInclude>
+    <ClInclude Include="zEDF\EDFWeaponFunction.h">
+      <Filter>Source Files\Module EDF</Filter>
+    </ClInclude>
+    <ClInclude Include="zEDF\Weapon\XGS_Weapon_RadioContact.h">
+      <Filter>Source Files\Module EDF\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="zEDF\Weapon\XGS_Weapon_LaserMarkerCallFire.h">
+      <Filter>Source Files\Module EDF\Weapon</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

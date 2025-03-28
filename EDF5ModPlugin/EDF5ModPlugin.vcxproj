@@ -216,8 +216,13 @@
     <ClCompile Include="utiliy.cpp">
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdcpp20</LanguageStandard>
     </ClCompile>
+    <ClCompile Include="zEDF\EDFAmmoFunction.cpp" />
     <ClCompile Include="zEDF\EDFbaseParameterSet.cpp" />
     <ClCompile Include="zEDF\EDFCommonFunction.cpp" />
+    <ClCompile Include="zEDF\EDFWeaponFunction.cpp" />
+    <ClCompile Include="zEDF\Weapon\XGS_Weapon_LaserMarkerCallFire.cpp" />
+    <ClCompile Include="zEDF\Weapon\XGS_Weapon_RadioContact.cpp" />
+    <ClCompile Include="zEnemy\EnemyHook_GiantAnt.cpp" />
     <ClCompile Include="zHui\HuiCasController.cpp">
       <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AssemblyAndSourceCode</AssemblerOutput>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Default</StructMemberAlignment>
@@ -234,7 +239,6 @@
     <MASM Include="ASMammoMissileBullet01.asm" />
     <MASM Include="ASMammoRocketBullet01.asm" />
     <MASM Include="ASMammoSentryGunBullet01.asm" />
-    <MASM Include="ASMammoSmokeCandleBullet01.asm" />
     <MASM Include="ASMammoSolidBullet01.asm" />
     <MASM Include="ASMammoSolidExpBullet01.asm" />
     <MASM Include="ASMammoSolidPelletBullet01.asm" />
@@ -244,22 +248,26 @@
     <MASM Include="ASMxgsOCdragonSmall.asm" />
     <MASM Include="ASMxgsOCgiantBee.asm" />
     <MASM Include="ASMxgsOCgiantSpider.asm" />
-    <MASM Include="ASMxgsOCvehicle501FortressRobo.asm" />
     <MASM Include="ASMxgsWGatling.asm" />
     <MASM Include="ASMhookGameSystem.asm" />
     <MASM Include="ASMhookTextDisplay.asm" />
     <MASM Include="ASMxgsOCmonster501.asm" />
     <MASM Include="ASMedfWeaponSet.asm" />
     <MASM Include="ASMplayerViewChange.asm" />
-    <MASM Include="ASMxgsOCgiantAnt.asm" />
     <MASM Include="ASMgamelog_hook.asm" />
     <MASM Include="ASMCallGameFunction.asm" />
     <MASM Include="ASMweaponOtherSet.asm" />
     <MASM Include="ASMxgsWHeavyShoot.asm" />
+    <MASM Include="zEDF\ASMammoSmokeCandleBullet.asm" />
     <MASM Include="zEDF\ASMEDFCommonFunction.asm" />
     <MASM Include="zEDF\ASMxgsArmySoldier.asm" />
     <MASM Include="zEDF\ASMxgsHeavyArmor.asm" />
+    <MASM Include="zEDF\ASMxgsVehicle501FortressRobo.asm" />
     <MASM Include="zEDF\ASMxgsPaleWing.asm" />
+    <MASM Include="zEDF\ASMxgsVehicle504Begaruta.asm" />
+    <MASM Include="zEDF\Weapon\ASMxgs_Weapon_LaserMarkerCallFire.asm" />
+    <MASM Include="zEDF\Weapon\ASMxgs_Weapon_RadioContact.asm" />
+    <MASM Include="zEnemy\ASMxgsGiantAnt.asm" />
     <MASM Include="zHui\ASMHuiDisplaySubtitle.asm" />
     <MASM Include="zHui\ASMHuiMoreCharacterModel.asm" />
   </ItemGroup>
@@ -283,8 +291,13 @@
     <ClInclude Include="Resource\LoadShaders.hpp" />
     <ClInclude Include="Resource\snd_ShotIndicatorCircle.h" />
     <ClInclude Include="utiliy.h" />
+    <ClInclude Include="zEDF\EDFAmmoFunction.h" />
     <ClInclude Include="zEDF\EDFbaseParameterSet.h" />
     <ClInclude Include="zEDF\EDFCommonFunction.h" />
+    <ClInclude Include="zEDF\EDFWeaponFunction.h" />
+    <ClInclude Include="zEDF\Weapon\XGS_Weapon_LaserMarkerCallFire.h" />
+    <ClInclude Include="zEDF\Weapon\XGS_Weapon_RadioContact.h" />
+    <ClInclude Include="zEnemy\EnemyHook_GiantAnt.h" />
     <ClInclude Include="zHui\HuiCasController.h" />
     <ClInclude Include="zHui\HuiDisplaySubtitle.h" />
     <ClInclude Include="zHui\HuiMoreCharacterModel.h" />

@@ -23,7 +23,9 @@
 void module_CasControllerInitialization(PBYTE hmodEXE)
 {
 	// EDF5.exe+5F36F0
+	// remove [mov rbx, rdx]
 	WriteHookToProcess((void*)(hmodEXE + 0x5F36F0), (void*)&nop3, 3U);
+	// hook function
 	hookGameBlockWithInt3((void*)(hmodEXE + 0x5F3702), (uintptr_t)module_CanmGetPlayAnimationCoordinate);
 	WriteHookToProcess((void*)(hmodEXE + 0x5F3702 + 15), (void*)&nop5, 5U);
 }
@@ -114,6 +116,9 @@ void __fastcall module_CanmGetPlayAnimationCoordinate(void*, __m128* outF4, cons
 
 __m128 __vectorcall vector_QuaternionSlerp(__m128 q1, __m128 q2, float factor)
 {
+	float w1 = 1.0f - factor;
+	float w2 = factor;
+
 	float dot = _mm_dp_ps(q1, q2, 0b11110001).m128_f32[0];
 	if (dot < 0.0f) {
 		dot = -dot;
@@ -122,6 +127,11 @@ __m128 __vectorcall vector_QuaternionSlerp(__m128 q1, __m128 q2, float factor)
 
 	float theta = acos(dot);
 	float sinTheta = sin(theta);
+	if (sinTheta > 0.001f) {
+		w1 = sin(w1 * theta) / sinTheta;
+		w2 = sin(w2 * theta) / sinTheta;
+	}
+	/*
 	float w1, w2;
 	if (sinTheta > 0.001f) {
 		w1 = sin((1.0f - factor) * theta) / sinTheta;
@@ -130,7 +140,7 @@ __m128 __vectorcall vector_QuaternionSlerp(__m128 q1, __m128 q2, float factor)
 	else {
 		w1 = 1.0f - factor;
 		w2 = factor;
-	}
+	}*/
 
 	q1 = _mm_mul_ps(q1, _mm_set_ps1(w1));
 	q2 = _mm_mul_ps(q2, _mm_set_ps1(w2));
@@ -157,8 +167,8 @@ __m128 __vectorcall vector_QuaternionToEuler(__m128 in)
 	qxq = _mm_add_ps(qxq, _mm_shuffle_ps(qxq, qxq, MY_SHUFFLE(1, my_unused_xmm, 3, my_unused_xmm)));
 	qxq = _mm_add_ps(qxq, qxq);
 	// set value
-	out[0] = std::atan2(qxq.m128_f32[0], q2_out.m128_f32[0]);
-	out[2] = std::atan2(qxq.m128_f32[2], q2_out.m128_f32[1]);
+	out[0] = atan2(qxq.m128_f32[0], q2_out.m128_f32[0]);
+	out[2] = atan2(qxq.m128_f32[2], q2_out.m128_f32[1]);
 	// END: get x,z
 
 	// START: get out's y
@@ -166,7 +176,7 @@ __m128 __vectorcall vector_QuaternionToEuler(__m128 in)
 	q2_out = _mm_mul_ps( _mm_shuffle_ps(in, in, MY_SHUFFLE(3, 2, my_unused_xmm, my_unused_xmm)),
 						 _mm_shuffle_ps(in, in, MY_SHUFFLE(1, 0, my_unused_xmm, my_unused_xmm)));
 	float sinp = 2 * (q2_out.m128_f32[0] - q2_out.m128_f32[1]);
-	out[1] = std::asin(sinp);
+	out[1] = asin(sinp);
 	// END: get y 
 
 	return _mm_load_ps(out);

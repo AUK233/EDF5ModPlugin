@@ -89,10 +89,10 @@ void __fastcall module_LoadAccessory_HeavyArmor(PEDFHeavyArmor pClass)
 	pClass->IsDashToBoost = ASMeGetAccessoryINT32((uintptr_t)pClass, 1300, 0, 1);
 	pClass->IsBoostToDash = ASMeGetAccessoryINT32((uintptr_t)pClass, 1301, 0, 1);
 
-	float boostCD = ASMeGetAccessoryValue((uintptr_t)pClass, 1303, pData->Fencer_BoostX, 4);
+	float boostCD = ASMeGetAccessoryValue((uintptr_t)pClass, 1303, pData->Fencer_ChargeX, 4);
 	pClass->BoostRecoveryBaseTime = 240 * boostCD;
 
-	float dashCD = ASMeGetAccessoryValue((uintptr_t)pClass, 1302, pData->Fencer_DashX, 4);
+	float dashCD = ASMeGetAccessoryValue((uintptr_t)pClass, 1302, pData->Fencer_ChargeX, 4);
 	pClass->DashRecoveryBaseTime = 90 * dashCD;
 
 	module_LoadAccessory_InMission(pClass, pData);

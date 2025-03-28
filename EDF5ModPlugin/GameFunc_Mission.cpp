@@ -179,11 +179,39 @@ void __fastcall CustomMissionData_SetToPresetValue(PCustomMissionData pData, int
 	{
 	case 101: {
 		// most difficult battlefield
-		pData->AirRaider_CreditX = 10.0f;
+		pData->Ranger_SpeedX = 0.8f;
+		pData->Ranger_DashSpeedX = 0.9f;
+
+		pData->PaleWing_ChargeX = 0.75f;
+		pData->PaleWing_BoostSpeedX = 0.75f;
+		pData->PaleWing_WeaponChargeX = 1.6f;
+
+		pData->AirRaider_CreditX = 5.0f;
+		pData->AirRaider_DelayX = 5.0f;
+		pData->AirRaider_DamageX = 0.5f;
+
+		pData->Fencer_ChargeX = 1.6f;
+		pData->Fencer_DashX = 0.75f;
+		pData->Fencer_BoostX = 0.75f;
 		return;
 	}
 	case 102: {
-		pData->AirRaider_CreditX = 7.5f;
+
+		pData->Ranger_SpeedX = 0.9f;
+		pData->Ranger_DashSpeedX = 0.9f;
+
+		pData->PaleWing_ChargeX = 0.8f;
+		pData->PaleWing_BoostSpeedX = 0.8f;
+		pData->PaleWing_WeaponChargeX = 1.5f;
+
+		pData->AirRaider_CreditX = 4.0f;
+		pData->AirRaider_DelayX = 4.0f;
+		pData->AirRaider_DamageX = 0.75f;
+
+		pData->Fencer_ChargeX = 1.5f;
+		pData->Fencer_DashX = 0.8f;
+		pData->Fencer_BoostX = 0.8f;
+
 		return;
 	}
 	case 103: {

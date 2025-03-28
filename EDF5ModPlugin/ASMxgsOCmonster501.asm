@@ -1,19 +1,23 @@
 .data
 ; Use other asm functions
-extern edf3AE530 : proto
+extern edf3AE530Address : qword
 extern edf5BDF30Address : qword
 
 ; L"ChangeModelParam"
 m501ChangeModel db 67,0,104,0,97,0,110,0,103,0,101,0,77,0,111,0,100,0,101,0,108,0,80,0,97,0,114,0,97,0,109,0,0,0
-align 16
+align 8
 ; L"BulletAlive"
 m501BulletAlive db 66,0,117,0,108,0,108,0,101,0,116,0,65,0,108,0,105,0,118,0,101,0,0,0
-align 16
+align 8
 ; L"BulletColor"
 m501BulletColor db 66,0,117,0,108,0,108,0,101,0,116,0,67,0,111,0,108,0,111,0,114,0,0,0
-align 16
+align 8
 ; L"BulletExSet"
 m501BulletExSet db 66,0,117,0,108,0,108,0,101,0,116,0,69,0,120,0,83,0,101,0,116,0,0,0
+align 8
+; L"monster_DamageReaction"
+MonsterDamageReaction db 109,0,111,0,110,0,115,0,116,0,101,0,114,0,95,0,68,0,97,0,109,0,97,0,103,0,101,0,82,0
+db 101,0,97,0,99,0,116,0,105,0,111,0,110,0,0,0
 
 .code
 
@@ -32,7 +36,7 @@ ASMxgsOCmonster501 proc
         lea rcx, [rcx+rcx*2]
         lea rdx, [rdx+rcx*4]
         lea rcx, qword ptr [rbx+680h]
-        call edf3AE530
+        call edf3AE530Address
 
     AmmoAliveBlock:
         lea rdx, m501BulletAlive
@@ -135,5 +139,34 @@ ASMxgsOCmonster501 proc
         int 3
 
 ASMxgsOCmonster501 endp
+
+align 16
+
+ASMMonsterUpdateDataInMission proc
+
+    ; monster_DamageReaction
+        lea rdx, MonsterDamageReaction
+        lea rcx, [rbx+0B0h]
+        call edf5BDF30Address ; read sgo node
+        movsxd rcx, eax
+        cmp ecx, -1
+        je ofs2719DB
+        mov rax, [rbx+0B0h]
+        movsxd rdx, dword ptr [rax+0Ch]
+        add rdx, rax
+        lea rcx, [rcx+rcx*2]
+        movss xmm0, dword ptr [rdx+rcx*4+8] ; get factor
+        ; set value, original is HP x 0.125(501)
+        mulss xmm0, dword ptr [rbx+10C8h]
+        movss dword ptr [rbx+10C8h], xmm0 ; static
+        movss dword ptr [rbx+10C4h], xmm0 ; current remain
+
+    ofs2719DB:
+        add rsp, 20h
+        pop rbx
+        ret 
+        int 3
+
+ASMMonsterUpdateDataInMission ENDP
 
 END

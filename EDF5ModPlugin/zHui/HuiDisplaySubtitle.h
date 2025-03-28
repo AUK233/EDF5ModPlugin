@@ -9,6 +9,7 @@ extern "C" {
 	void __fastcall DisplayTalkSubtitleString(void* pScript);
 }
 
+//void __fastcall LoadSubtitleFileToMap();
 void __fastcall LoadSelectedSubtitleFile();
 void InitializeSubtitlePointer();
 void hookDisplaySubtitle(PBYTE hmodEXE);

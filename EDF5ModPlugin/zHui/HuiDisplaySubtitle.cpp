@@ -11,6 +11,7 @@
 #include <list>
 #include <cstdlib>
 #include <filesystem>
+#include <unordered_map>
 #include "shlwapi.h"
 
 #include "plog/Log.h"
@@ -33,11 +34,20 @@ PCustomSubtitle pSubtitle[4];
 std::wstring wstr_SubtitleText;
 int SubtitleTextMinSize = 0;
 int SubtitleTextSpace = 1;
+std::unordered_map<std::wstring_view, int>* SubtitleMap[4];
+std::unordered_map<std::wstring_view, int>* pSubtitleMap;
 
 int __fastcall GetSubtitleTextAddress(SubtitleTextStruct* startAddr, WCHAR* pAudioName, int nameSize, int noPos)
 {
 	PCustomSubtitle pSub = pSubtitleFile;
 	int textIndex = -1;
+	std::unordered_map<std::wstring_view, int>* pMap = pSubtitleMap;
+	std::wstring_view wstr(pAudioName, nameSize);
+	if (pMap->find(wstr) != pMap->end()) {
+		int index = (*pMap)[wstr];
+		textIndex = pSub->v_Name[index].v.id;
+	}
+	/*
 	int subSize = pSub->v_Name.size();
 	for (int i = 0; i < subSize; i++) {
 		if (pSub->v_Name[i].size == nameSize) {
@@ -46,7 +56,7 @@ int __fastcall GetSubtitleTextAddress(SubtitleTextStruct* startAddr, WCHAR* pAud
 				break;
 			}
 		}
-	}
+	}*/
 	//
 	if (textIndex == -1) {
 		startAddr->size = 0;
@@ -168,6 +178,8 @@ void __fastcall LoadSelectedSubtitleFile()
 
 	PCustomSubtitle pSub = pSubtitle[language];
 	pSubtitleFile = pSub;
+	std::unordered_map<std::wstring_view, int>* pMap = SubtitleMap[language];
+	pSubtitleMap = pMap;
 	// do not load file repeatedly
 	if (pSub->pFile) {
 		return;
@@ -189,6 +201,7 @@ void __fastcall LoadSelectedSubtitleFile()
 		int nodepos, nameoffset;
 		// read node name
 		pSub->v_Name.resize(DataNameCount);
+		pMap->rehash(DataNameCount);
 		for (int i = 0; i < DataNameCount; i++)
 		{
 			nodepos = DataNameOffset + (i * 0x8);
@@ -197,6 +210,9 @@ void __fastcall LoadSelectedSubtitleFile()
 			pSub->v_Name[i].text = (WCHAR*)(p + nodepos + nameoffset);
 			pSub->v_Name[i].v.id = *(int*)(p + nodepos + 4);
 			pSub->v_Name[i].size = wcslen(pSub->v_Name[i].text);
+
+			// load hash
+			(*pMap)[std::wstring_view(pSub->v_Name[i].text, pSub->v_Name[i].size)] = pSub->v_Name[i].v.id;
 		}
 		// read node wstring
 		int strsize, stroffset;
@@ -222,7 +238,7 @@ void InitializeSubtitlePointer()
 	pSubtitleIndex = 0;
 	pSubtitleFile = 0;
 	PCustomSubtitle pSub;
-	std::vector<SubtitleTextStruct> v_init;
+	//std::vector<SubtitleTextStruct> v_init;
 
 	pSub = (PCustomSubtitle)_aligned_malloc(sizeof(CustomSubtitle_t), 16U);
 	pSubtitle[0] = pSub;
@@ -246,6 +262,33 @@ void InitializeSubtitlePointer()
 	pSubtitle[3] = pSub;
 	if (pSub) {
 		ZeroMemory(pSub, sizeof(CustomSubtitle_t));
+	}
+
+
+	pSubtitleMap = 0;
+	SubtitleMap[0] = 0;
+	SubtitleMap[1] = 0;
+	SubtitleMap[2] = 0;
+	SubtitleMap[3] = 0;
+
+	void* pMemory = _aligned_malloc(sizeof(std::unordered_map<std::wstring_view, int>), 16U);
+	if (pMemory) {
+		SubtitleMap[0] = new(pMemory) std::unordered_map<std::wstring_view, int>();
+	}
+
+	pMemory = _aligned_malloc(sizeof(std::unordered_map<std::wstring_view, int>), 16U);
+	if (pMemory) {
+		SubtitleMap[1] = new(pMemory) std::unordered_map<std::wstring_view, int>();
+	}
+
+	pMemory = _aligned_malloc(sizeof(std::unordered_map<std::wstring_view, int>), 16U);
+	if (pMemory) {
+		SubtitleMap[2] = new(pMemory) std::unordered_map<std::wstring_view, int>();
+	}
+
+	pMemory = _aligned_malloc(sizeof(std::unordered_map<std::wstring_view, int>), 16U);
+	if (pMemory) {
+		SubtitleMap[3] = new(pMemory) std::unordered_map<std::wstring_view, int>();
 	}
 }
 
@@ -305,5 +348,17 @@ void hookDisplaySubtitle(PBYTE hmodEXE)
 	hookGameBlockWithInt3((void*)(hmodEXE + 0x12880A), (uintptr_t)ASMscript2C_1009);
 	WriteHookToProcess((void*)(hmodEXE + 0x12880A + 15), (void*)&nop2, 2U);
 	script2C_1009ret = (uintptr_t)(hmodEXE + 0x12881B);
+
+	/*
+	play edf6 voice
+	EDF5.exe+9994A8
+	int ecxTo300 = 0x300;
+	WriteHookToProcess((void*)(hmodEXE + 0x9994A8 + 2), (void*)&ecxTo300, 4U);
+	EDF5.exe+998B89
+	BYTE insteadEqual1[]= {
+		0x83, 0x7A, 0x20, 0x00,
+		0x0F, 0x8C, 0x07, 0x01, 0x00, 0x00
+	};
+	WriteHookToProcess((void*)(hmodEXE + 0x998B89), (void*)&insteadEqual1, 10U);*/
 }
 
