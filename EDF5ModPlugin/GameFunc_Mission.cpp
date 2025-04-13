@@ -215,7 +215,17 @@ void __fastcall CustomMissionData_SetToPresetValue(PCustomMissionData pData, int
 		return;
 	}
 	case 103: {
-		pData->AirRaider_CreditX = 5.0f;
+		pData->AirRaider_CreditX = 2.0f;
+		pData->AirRaider_DelayX = 5.0f;
+		return;
+	}
+	case 104: {
+		pData->AirRaider_CreditX = 2.0f;
+		pData->AirRaider_DelayX = 10.0f;
+		return;
+	}
+	case 105: {
+		pData->AirRaider_DelayX = 5.0f;
 		return;
 	}
 	default: {

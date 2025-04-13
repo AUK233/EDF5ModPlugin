@@ -220,8 +220,11 @@
     <ClCompile Include="zEDF\EDFbaseParameterSet.cpp" />
     <ClCompile Include="zEDF\EDFCommonFunction.cpp" />
     <ClCompile Include="zEDF\EDFWeaponFunction.cpp" />
+    <ClCompile Include="zEDF\Vehicle\XGS_VehicleBegaruta.cpp" />
     <ClCompile Include="zEDF\Weapon\XGS_Weapon_LaserMarkerCallFire.cpp" />
     <ClCompile Include="zEDF\Weapon\XGS_Weapon_RadioContact.cpp" />
+    <ClCompile Include="zEnemy\EnemyHook_BigNest.cpp" />
+    <ClCompile Include="zEnemy\EnemyHook_Common.cpp" />
     <ClCompile Include="zEnemy\EnemyHook_GiantAnt.cpp" />
     <ClCompile Include="zHui\HuiCasController.cpp">
       <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AssemblyAndSourceCode</AssemblerOutput>
@@ -264,10 +267,12 @@
     <MASM Include="zEDF\ASMxgsHeavyArmor.asm" />
     <MASM Include="zEDF\ASMxgsVehicle501FortressRobo.asm" />
     <MASM Include="zEDF\ASMxgsPaleWing.asm" />
-    <MASM Include="zEDF\ASMxgsVehicle504Begaruta.asm" />
+    <MASM Include="zEDF\Vehicle\ASMxgsVehicleBegaruta.asm" />
     <MASM Include="zEDF\Weapon\ASMxgs_Weapon_LaserMarkerCallFire.asm" />
     <MASM Include="zEDF\Weapon\ASMxgs_Weapon_RadioContact.asm" />
+    <MASM Include="zEnemy\ASMxgsGeneratorPoll_Destroy.asm" />
     <MASM Include="zEnemy\ASMxgsGiantAnt.asm" />
+    <MASM Include="zEnemy\ASMxgsBigNest.asm" />
     <MASM Include="zHui\ASMHuiDisplaySubtitle.asm" />
     <MASM Include="zHui\ASMHuiMoreCharacterModel.asm" />
   </ItemGroup>
@@ -295,8 +300,11 @@
     <ClInclude Include="zEDF\EDFbaseParameterSet.h" />
     <ClInclude Include="zEDF\EDFCommonFunction.h" />
     <ClInclude Include="zEDF\EDFWeaponFunction.h" />
+    <ClInclude Include="zEDF\Vehicle\XGS_VehicleBegaruta.h" />
     <ClInclude Include="zEDF\Weapon\XGS_Weapon_LaserMarkerCallFire.h" />
     <ClInclude Include="zEDF\Weapon\XGS_Weapon_RadioContact.h" />
+    <ClInclude Include="zEnemy\EnemyHook_BigNest.h" />
+    <ClInclude Include="zEnemy\EnemyHook_Common.h" />
     <ClInclude Include="zEnemy\EnemyHook_GiantAnt.h" />
     <ClInclude Include="zHui\HuiCasController.h" />
     <ClInclude Include="zHui\HuiDisplaySubtitle.h" />

@@ -285,13 +285,12 @@ void module_SetFunction_EDFCommon(PBYTE hmodEXE)
 	// ofs+3039fd, is 500
 }
 
+
+#include "Vehicle/XGS_VehicleBegaruta.h"
+
 extern "C" {
 	// Barga
 	void __fastcall ASMVehicle501AnimationEvent();
-
-	// Combat Frame
-	void __fastcall ASMVehicle504CustomizeAIAimBone();
-	uintptr_t Vehicle504CustomizeAIAimBoneRetAddr;
 }
 
 void module_SetFunction_EDFVehicle(PBYTE hmodEXE)
@@ -301,8 +300,5 @@ void module_SetFunction_EDFVehicle(PBYTE hmodEXE)
 	hookGameBlockWithInt3((void*)(hmodEXE + 0x33D000), (uintptr_t)ASMVehicle501AnimationEvent);
 	WriteHookToProcess((void*)(hmodEXE + 0x33D000 + 15), (void*)&nop5, 5U);
 
-	// EDF5.exe+363123
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x363123), (uintptr_t)ASMVehicle504CustomizeAIAimBone);
-	WriteHookToProcess((void*)(hmodEXE + 0x363123 + 15), (void*)&nop6, 6U);
-	Vehicle504CustomizeAIAimBoneRetAddr = (uintptr_t)(hmodEXE + 0x36313D);
+	xgs_VehicleBegaruta_Init(hmodEXE);
 }

@@ -18,6 +18,7 @@ constexpr UINT32 BeamBullet01Size = 0x710;
 constexpr UINT32 NeedleBullet01Size = 0x760;
 
 extern "C" {
+float _Common_F0P001 = 0.001f;
 float _Common_F0P004 = 0.004f;
 float _Common_F0P005 = 0.005f;
 float _Common_F0P015 = 0.015f;
@@ -46,11 +47,14 @@ __declspec(align(16)) float _CommonRVA_EE7700[4] = { 0.001f, 0.001f, 0.001f, 1.0
 __declspec(align(16)) float _CommonRVA_EE80D0[4] = { -1.0f, -1.0f, -1.0f, -1.0f };
 __declspec(align(16)) float _CommonRVA_EE7350[4] = { 1.0f, 1.0f, 1.0f, 0.5f };
 __declspec(align(16)) float _CommonRVA_EE6BE0[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
-__declspec(align(16)) float _CommonRVA_EE7460[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 // Maybe it needs to be fixed.
-__declspec(align(16)) float _CommonRVA_EE7550[4] = {0.0f, 1.0f, 0.0f, 1.0f};
 __declspec(align(16)) float _CommonRVA_EE7320[4] = { 0.5f, 0.5f, 0.5f, 0.5f };
+__declspec(align(16)) float _CommonRVA_EE7460[4] = { 0.0f, 0.0f, 0.0f, 1.0f};
+__declspec(align(16)) float _CommonRVA_EE7550[4] = { 0.0f, 1.0f, 0.0f, 1.0f};
 __declspec(align(16)) float _CommonRVA_EE7060[4] = { 0.02f, 0.02f, 0.02f, 0.02f };
+__declspec(align(16)) int _CommonRVA_EE8040[4] = { 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF, 0x7FFFFFFF };
+__declspec(align(16)) int _CommonRVA_EE8050[4] = { -1, 0x7FFFFFFF, -1, 0x7FFFFFFF };
+__declspec(align(16)) float _CommonRVA_EE8070[4] = { -0.0f, -0.0f, -0.0f, -0.0f };
 __declspec(align(16)) float _CommonRVA_EE80E0[4] = { -1.0f, -4.25f, 8.5f, -4.25f };
 __declspec(align(16)) float _CommonRVA_EE7DE0[4] = { 8.5f, -4.25f, -1.0f, -1.0f };
 __declspec(align(16)) float _CommonRVA_EE79C0[4] = { 1.0f, 1.0f, -1.0f, 4.25f };
@@ -63,8 +67,11 @@ __declspec(align(16)) float _ShotIndicatorCircleColor2[4] = { 0.2f, 0.0f, 0.0f, 
 __declspec(align(16)) float _ShotIndicatorCircleEdgeColor[4] = { 0.3f, 0.0f, 0.0f, 0.3f };
 
 __declspec(align(16)) float _SubtitlePosition[2] = { 320.0f, 720.0f};
-__declspec(align(16)) WCHAR _AnimationEvent_BurstFire[] = L"BurstFire";
-__declspec(align(16)) WCHAR _AnimationEvent_BurstFireStop[] = L"BurstFire_Stop";
+__declspec(align(8)) WCHAR _AnimationEvent_BurstFire[] = L"BurstFire";
+__declspec(align(8)) WCHAR _AnimationEvent_BurstFireStop[] = L"BurstFire_Stop";
 // lyt_HUiMessageBoxNoFocus
-__declspec(align(16)) WCHAR _lyt_HuiSubtitleBox[] = L"app:/ui/lyt_HuiSubtitleBox.sgo";
+__declspec(align(8)) WCHAR _lyt_HuiSubtitleBox[] = L"app:/ui/lyt_HuiSubtitleBox.sgo";
+__declspec(align(8)) WCHAR _str_GameObjectDestroyFadeOutTime[] = L"game_object_destroy_fadeout_time";
+__declspec(align(8)) WCHAR _str_GameObjectDestroySpawnObject[] = L"game_object_destroy_spawn_object";
+__declspec(align(8)) WCHAR _str_RagdollBitmark[] = L"ragdoll_bitmark";
 }

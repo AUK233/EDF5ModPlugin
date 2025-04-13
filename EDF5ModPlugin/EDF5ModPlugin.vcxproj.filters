@@ -28,6 +28,9 @@
     <Filter Include="Source Files\Module EDF\Weapon">
       <UniqueIdentifier>{00d400b0-2b0f-48e9-b844-8182c41e8b84}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Module EDF\Vehicle">
+      <UniqueIdentifier>{a7b50032-9465-452d-9f13-e272bcb03af0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -89,6 +92,15 @@
     </ClCompile>
     <ClCompile Include="zEDF\Weapon\XGS_Weapon_LaserMarkerCallFire.cpp">
       <Filter>Source Files\Module EDF\Weapon</Filter>
+    </ClCompile>
+    <ClCompile Include="zEnemy\EnemyHook_Common.cpp">
+      <Filter>Source Files\Module Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="zEnemy\EnemyHook_BigNest.cpp">
+      <Filter>Source Files\Module Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="zEDF\Vehicle\XGS_VehicleBegaruta.cpp">
+      <Filter>Source Files\Module EDF\Vehicle</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -188,9 +200,6 @@
     <MASM Include="zEDF\ASMxgsVehicle501FortressRobo.asm">
       <Filter>Source Files\Module EDF</Filter>
     </MASM>
-    <MASM Include="zEDF\ASMxgsVehicle504Begaruta.asm">
-      <Filter>Source Files\Module EDF</Filter>
-    </MASM>
     <MASM Include="zEnemy\ASMxgsGiantAnt.asm">
       <Filter>Source Files\Module Enemy</Filter>
     </MASM>
@@ -202,6 +211,15 @@
     </MASM>
     <MASM Include="zEDF\Weapon\ASMxgs_Weapon_LaserMarkerCallFire.asm">
       <Filter>Source Files\Module EDF\Weapon</Filter>
+    </MASM>
+    <MASM Include="zEnemy\ASMxgsBigNest.asm">
+      <Filter>Source Files\Module Enemy</Filter>
+    </MASM>
+    <MASM Include="zEnemy\ASMxgsGeneratorPoll_Destroy.asm">
+      <Filter>Source Files\Module Enemy</Filter>
+    </MASM>
+    <MASM Include="zEDF\Vehicle\ASMxgsVehicleBegaruta.asm">
+      <Filter>Source Files\Module EDF\Vehicle</Filter>
     </MASM>
   </ItemGroup>
   <ItemGroup>
@@ -291,6 +309,15 @@
     </ClInclude>
     <ClInclude Include="zEDF\Weapon\XGS_Weapon_LaserMarkerCallFire.h">
       <Filter>Source Files\Module EDF\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="zEnemy\EnemyHook_Common.h">
+      <Filter>Source Files\Module Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="zEnemy\EnemyHook_BigNest.h">
+      <Filter>Source Files\Module Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="zEDF\Vehicle\XGS_VehicleBegaruta.h">
+      <Filter>Source Files\Module EDF\Vehicle</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

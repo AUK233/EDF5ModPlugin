@@ -114,10 +114,21 @@ uintptr_t rva61E560;
 uintptr_t vedfE918A8;
 uintptr_t vedf125AB70;
 uintptr_t vedf125ABD0;
+
+// create game object
+uintptr_t edf12D130Address;
+// remove game object
+uintptr_t edf617B30Address;
+// set ragdoll flag
+uintptr_t edf3C82F0Address;
 }
 
 // get game function address
 void GetGameFunctions() {
+
+	edf12D130Address = (uintptr_t)(hmodEXE + 0x12D130);
+	edf617B30Address = (uintptr_t)(hmodEXE + 0x617B30);
+	edf3C82F0Address = (uintptr_t)(hmodEXE + 0x3C82F0);
 
 	rva51960 = (uintptr_t)(hmodEXE + 0x51960);
 	rva51A80 = (uintptr_t)(hmodEXE + 0x51A80);

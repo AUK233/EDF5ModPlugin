@@ -198,15 +198,9 @@ void __fastcall ASMMonsterUpdateDataInMission();
 
 void hookMonsterFunctions() {
 
-	// insectbase no knockout if insectbase_Type != 0
-	// EDF5.exe+261DC5
-	unsigned char InsectbaseKnockout[] = {
-		0x83, 0xBB, 0x18, 0x04, 0x00, 0x00, 0x00,
-		0x75, 0x0A
-	};
-	WriteHookToProcess((void*)(hmodEXE + 0x261DC5), &InsectbaseKnockout, 9U);
-
+	module_EnemyHook_Common(hmodEXE);
 	module_EnemyHook_GiantAnt(hmodEXE);
+	module_EnemyHook_BigNest(hmodEXE);
 
 	// hook GiantSpider extra features, EDF5.exe+46A138
 	unsigned char jmpToGiantSpiderInit[] = {
