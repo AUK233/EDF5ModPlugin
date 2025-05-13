@@ -42,6 +42,12 @@ extern "C" {
 	uintptr_t rva4CA990;
 	// LoadAudioToPointer
 	uintptr_t rva47C6E0;
+	// load audio
+	uintptr_t rva478020;
+	// read bgm file
+	uintptr_t rva4781C0;
+	// read audio file
+	uintptr_t rva47C9D0;
 	//
 	uintptr_t vedf125AB68;
 	uintptr_t vedf125ABA0;
@@ -67,6 +73,9 @@ void GetGameGlobalPointer(PBYTE hmodEXE)
 	rva4D86D0 = (uintptr_t)(hmodEXE + 0x4D86D0);
 	rva4CA990 = (uintptr_t)(hmodEXE + 0x4CA990);
 	rva47C6E0 = (uintptr_t)(hmodEXE + 0x47C6E0);
+	rva478020 = (uintptr_t)(hmodEXE + 0x478020);
+	rva4781C0 = (uintptr_t)(hmodEXE + 0x4781C0);
+	rva47C9D0 = (uintptr_t)(hmodEXE + 0x47C9D0);
 	//
 	vedf125AB68 = (uintptr_t)(hmodEXE + 0x125AB68);
 	vedf125ABA0 = (uintptr_t)(hmodEXE + 0x125ABA0);
@@ -84,6 +93,12 @@ void GetGameGlobalPointer(PBYTE hmodEXE)
 extern "C" {
 void __fastcall ASMgameStartupReadVoiceFile();
 uintptr_t gameStartupReadVoiceFileRetAddr;
+uintptr_t ASMrva47C6E0modRetAddr;
+void __fastcall ASMgameStartupReadMusicFile();
+uintptr_t gameStartupReadMusicFileRetAddr;
+void __fastcall ASMSoundControllerPlayBgm();
+uintptr_t SoundControllerPlayBgmRetAddr;
+
 void __fastcall ASMgameReadInvalidSGO();
 }
 
@@ -93,6 +108,33 @@ void GameStartupHook(PBYTE hmodEXE)
 	hookGameBlockWithInt3((void*)(hmodEXE + 0x3D6E8E), (uintptr_t)ASMgameStartupReadVoiceFile);
 	WriteHookToProcess((void*)(hmodEXE + 0x3D6E8E + 15), (void*)&nop10, 10U);
 	gameStartupReadVoiceFileRetAddr = (uintptr_t)(hmodEXE + 0x3D6EA7);
+
+	// load voice files
+	// EDF5.exe+47C6F4
+	WriteHookToProcess((void*)(hmodEXE + 0x47C6F4), (void*)&nop8, 8U);
+	WriteHookToProcess((void*)(hmodEXE + 0x47C6F4 + 8), (void*)&nop7, 7U);
+	// EDF5.exe+47C7E3
+	WriteHookToProcess((void*)(hmodEXE + 0x47C7E3), (void*)&nop5, 5U);
+	WriteHookToProcess((void*)(hmodEXE + 0x47C7E3 + 5), (void*)&nop8, 8U);
+	//
+	ASMrva47C6E0modRetAddr = (uintptr_t)(hmodEXE + 0x47C74F);
+
+	// here has problem
+	// EDF5.exe+3D6D1E, should be add 0x88, but 16-byte aligned
+	int newAuidoPointerSize = 0xD0 + 0x90;
+	//WriteHookToProcessCheckECX((void*)(hmodEXE + 0x3D6D1E + 1), &newAuidoPointerSize, 4U);
+	// load music files
+	// EDF5.exe+47B5E5
+	//hookGameBlockWithInt3((void*)(hmodEXE + 0x47B5E5), (uintptr_t)ASMgameStartupReadMusicFile);
+	//WriteHookToProcess((void*)(hmodEXE + 0x47B5E5 + 15), (void*)&nop2, 2U);
+	gameStartupReadMusicFileRetAddr = (uintptr_t)(hmodEXE + 0x47B5F6);
+
+	// play bgm, playing voice as MUSIC is wrong!
+	// EDF5.exe+11B9E2
+	//hookGameBlockWithInt3((void*)(hmodEXE + 0x11B9E2), (uintptr_t)ASMSoundControllerPlayBgm);
+	//WriteHookToProcess((void*)(hmodEXE + 0x11B9E2 + 15), (void*)&nop2, 2U);
+	SoundControllerPlayBgmRetAddr = (uintptr_t)(hmodEXE + 0x11B9F3);
+
 
 	// EDF5.exe+613A12, Throw invalid filename
 	hookGameBlockRAXWithInt3((void*)(hmodEXE + 0x613A12), (uintptr_t)ASMgameReadInvalidSGO);
@@ -161,6 +203,7 @@ void __fastcall LoadNewVoiceFilesCPP(void* pAudio)
 	// test file
 	if (std::filesystem::exists(L"./sound/pc/test6.awb")) {
 		ASMrva47C6E0(pAudio, L"app:/sound/adx/test6.awb");
+		//ASMrva47C6E0mod(pAudio, L"app:/sound/adx/test6.awb",1,2);
 		if (ModLogStatus == 1) {
 			PLOG_INFO << "Loading test voice file";
 		}

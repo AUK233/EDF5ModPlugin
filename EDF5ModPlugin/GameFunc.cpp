@@ -8,6 +8,7 @@
 #include <format>
 #include <stdexcept>
 #include <list>
+#include <ctime> 
 #include <HookLib.h>
 #include "utiliy.h"
 
@@ -113,6 +114,7 @@ uintptr_t rva12D890;
 uintptr_t rva61E560;
 uintptr_t vedfE918A8;
 uintptr_t vedf125AB70;
+uintptr_t vedf125AB80;
 uintptr_t vedf125ABD0;
 
 // create game object
@@ -121,10 +123,38 @@ uintptr_t edf12D130Address;
 uintptr_t edf617B30Address;
 // set ragdoll flag
 uintptr_t edf3C82F0Address;
+
+// get hash map?
+uintptr_t rva37E70;
+// calculate hash?
+uintptr_t rva751F0;
+//
+uintptr_t rvaF3F10;
+uintptr_t rvaBDAD0;
+uintptr_t rva1CD6C0;
+
+// about seat AI
+uintptr_t edf73F20Address;
+uintptr_t edf32C1E0Address;
+uintptr_t edf6179B0Address;
+// set driver seat ai
+uintptr_t edf3560D0Address;
 }
 
 // get game function address
 void GetGameFunctions() {
+
+	rvaF3F10 = (uintptr_t)(hmodEXE + 0xF3F10);
+	rvaBDAD0 = (uintptr_t)(hmodEXE + 0xBDAD0);
+	rva1CD6C0 = (uintptr_t)(hmodEXE + 0x1CD6C0);
+
+	rva37E70 = (uintptr_t)(hmodEXE + 0x37E70);
+	rva751F0 = (uintptr_t)(hmodEXE + 0x751F0);
+
+	edf73F20Address = (uintptr_t)(hmodEXE + 0x73F20);
+	edf32C1E0Address = (uintptr_t)(hmodEXE + 0x32C1E0);
+	edf6179B0Address = (uintptr_t)(hmodEXE + 0x6179B0);
+	edf3560D0Address = (uintptr_t)(hmodEXE + 0x3560D0);
 
 	edf12D130Address = (uintptr_t)(hmodEXE + 0x12D130);
 	edf617B30Address = (uintptr_t)(hmodEXE + 0x617B30);
@@ -137,6 +167,7 @@ void GetGameFunctions() {
 	rva61E560 = (uintptr_t)(hmodEXE + 0x61E560);
 	vedfE918A8 = (uintptr_t)(hmodEXE + 0xE918A8);
 	vedf125AB70 = (uintptr_t)(hmodEXE + 0x125AB70);
+	vedf125AB80 = (uintptr_t)(hmodEXE + 0x125AB80);
 	vedf125ABD0 = (uintptr_t)(hmodEXE + 0x125ABD0);
 
 	// allocate 0x60 bytes memory
@@ -358,10 +389,15 @@ void __fastcall edfSoldierWeaponCharge(EDFWeaponPointer* pweapon) {
 
 float __fastcall GetAmmoRandomDamageFactor(float minDmg, float maxDmg)
 {
-	//UINT32 baseRandom = rand() % 10001;
-	//float baseFactor = 10000.0f / maxDmg;
+	/*UINT32 baseRandom = rand() % 10001;
+	float baseFactor = 10000.0f / maxDmg;
 	UINT32 baseRandom = rand();
 	float baseFactor = (RAND_MAX - 0xff) / maxDmg;
+	float factor = baseRandom / baseFactor;*/
+	timespec v_time;
+	timespec_get(&v_time, TIME_UTC);
+	UINT32 baseRandom = v_time.tv_nsec % 0xFFFF;
+	float baseFactor = 0xFF00 / maxDmg;
 	float factor = baseRandom / baseFactor;
 	factor = fmaxf(factor, minDmg);
 	factor = fminf(factor, maxDmg);

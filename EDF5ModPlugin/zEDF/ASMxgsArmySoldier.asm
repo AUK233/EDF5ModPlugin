@@ -2,6 +2,11 @@
 
 extern rva9C6E40 : qword
 
+extern aligned_mallocAddr : qword
+extern rvaF3F10 : qword
+extern rva1CD6C0 : qword
+extern rvaBDAD0 : qword
+
 extern noThrowAnime : dword
 extern HUDEnhanceStatus : dword
 
@@ -10,6 +15,7 @@ extern edf2E07C0Address : qword
 extern edf2E18A0Address : qword
 extern eArmySoldierUseAuxiliaryRetAddr : qword
 extern edf5F8C40Address : qword
+
 
 extern eSoldierCallSupportRetAddr : qword
 extern hudShowSupportSlot2RetAddr : qword
@@ -54,6 +60,51 @@ ASMeAssultSoldierInitialization proc
 		int 3
 
 ASMeAssultSoldierInitialization ENDP
+
+align 16
+
+ASMeAssultSoldierActionInit proc
+
+		mov edx, 10h
+		mov [rbp-18h], ebx
+		lea rax, ASMeSoldierCallSupport
+		mov [rbp-20h], rax
+		lea ecx, [rdx+10h]
+		call aligned_mallocAddr
+		mov rcx, rax
+		test rax, rax
+		je is0jump_1
+		mov rax, [rdi+1A20h]
+		mov rbx, rcx
+		movups xmm0, [rbp-20h]
+		mov [rcx], rsi
+		mov [rcx+18h], rax
+		movups [rcx+8], xmm0
+	is0jump_1:
+		mov rdx, rbx
+		lea rcx, [rbp-10h]
+		call rvaF3F10
+		mov rcx, [rdi+1A28h]
+		mov rdx, rax
+		add rcx, 10h
+		call rva1CD6C0
+	; original
+	ofs2E0613:
+		lea rcx, [rdi+0D70h]
+		mov rdx, [rcx+18h]
+		cmp [rcx+10h], rdx
+		jae ofs2E0629
+		call rvaBDAD0
+	ofs2E0629:
+		mov rbx, [rsp+58h]
+		mov rsi, [rsp+60h]
+		mov rdi, [rsp+68h]
+		add rsp, 40h
+		pop rbp
+		ret 
+		int 3
+
+ASMeAssultSoldierActionInit ENDP
 
 align 16
 

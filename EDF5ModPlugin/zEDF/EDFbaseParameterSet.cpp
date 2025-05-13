@@ -33,6 +33,7 @@ void module_SetEDFSeriesFunction(PBYTE hmodEXE)
 
 extern "C" {
 	// ranger!
+	void __fastcall ASMeAssultSoldierActionInit();
 	void __fastcall ASMeAssultSoldierInitialization();
 	void __fastcall ASMeArmySoldierUseAuxiliary();
 	uintptr_t eArmySoldierUseAuxiliaryRetAddr;
@@ -62,6 +63,9 @@ void module_SetFunction_AssultSoldier(PBYTE hmodEXE)
 	// EDF5.exe+2DFD0D
 	hookGameBlockWithInt3((void*)(hmodEXE + 0x2DFD0D), (uintptr_t)ASMeAssultSoldierInitialization);
 	WriteHookToProcess((void*)(hmodEXE + 0x2DFD0D + 15), (void*)&nop1, 1U);
+	// EDF5.exe+2DFD0D
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x2E1213), (uintptr_t)ASMeAssultSoldierActionInit);
+	WriteHookToProcess((void*)(hmodEXE + 0x2E1213 + 15), (void*)&nop2, 2U);
 	// EDF5.exe+2E0017
 	eArmySoldierUseAuxiliaryRetAddr = (uintptr_t)(hmodEXE + 0x2E00C1);
 	hookGameBlockWithInt3((void*)(hmodEXE + 0x2E0017), (uintptr_t)ASMeArmySoldierUseAuxiliary);

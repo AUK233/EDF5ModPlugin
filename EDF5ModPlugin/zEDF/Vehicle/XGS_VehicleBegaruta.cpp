@@ -20,6 +20,9 @@ extern "C" {
 void __fastcall ASMVehicle504CustomizeAIAimBone();
 uintptr_t Vehicle504CustomizeAIAimBoneRetAddr;
 
+uintptr_t pVehicleBegarutaAIAimInitFunc;
+void __fastcall ASMVehicleBegaruta_AIAimInit();
+
 uintptr_t pVehicleBegarutaAIAimFunc;
 uintptr_t pVehicleBegarutaAIAimActiveAddr;
 void __fastcall ASMVehicleBegaruta_AIAim();
@@ -33,7 +36,21 @@ void xgs_VehicleBegaruta_Init(PBYTE hmodEXE)
 	WriteHookToProcess((void*)(hmodEXE + 0x363123 + 15), (void*)&nop6, 6U);
 	Vehicle504CustomizeAIAimBoneRetAddr = (uintptr_t)(hmodEXE + 0x36313D);
 
-	// EDF5.exe+364910, vtf+178
+
+	// BMX10 ===============================================
+
+	// EDF5.exe+35AA17, old is 0x1EE0
+	// +1EE0h (8-Bytes), aim bone index
+	int newVehicleBegarutaSize = 0x1EF0;
+	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x35AA17 + 1), &newVehicleBegarutaSize, 4U);
+
+	// EDF5.exe+3630E0, vft+18
+	pVehicleBegarutaAIAimInitFunc = (uintptr_t)(hmodEXE + 0x3630E0);
+	// EDF5.exe+EB6540
+	uintptr_t VehicleBegaruta_AIAimInit = (uintptr_t)ASMVehicleBegaruta_AIAimInit;
+	WriteHookToProcess((void*)(hmodEXE + 0xEB6528 + 0x18), &VehicleBegaruta_AIAimInit, 8U);
+
+	// EDF5.exe+364910, vft+178
 	pVehicleBegarutaAIAimFunc = (uintptr_t)(hmodEXE + 0x364910);
 	//
 	pVehicleBegarutaAIAimActiveAddr = (uintptr_t)(hmodEXE + 0x3637C8);
@@ -43,17 +60,15 @@ void xgs_VehicleBegaruta_Init(PBYTE hmodEXE)
 
 	// These are modified original functions.
 	// To enable the rotation of the sub-turrets.
-	
-	//EDF5.exe+353ECC
+	// EDF5.exe+353ECC
 	unsigned char ofs3532CC[] = {
 		0x74, 0x3C
 	};
-	WriteHookToProcess((void*)(hmodEXE + 0x353ECC), &ofs3532CC, 2U);
+	//WriteHookToProcess((void*)(hmodEXE + 0x353ECC), &ofs3532CC, 2U);
+	//EDF5.exe+3613E8, Don't need it now
+	//WriteHookToProcess((void*)(hmodEXE + 0x3613E8), (void*)&nop5, 5U);
 
-	//EDF5.exe+3613E8
-	WriteHookToProcess((void*)(hmodEXE + 0x3613E8), (void*)&nop5, 5U);
-
-	// Aim active ==============================================================
+	// Aim active ---------------------------------------------------------
 	// EDF5.exe+363785
 	//mov eax, dword ptr[rcx + 1B18]
 	//mov dword ptr[rbp + 10], eax
@@ -94,10 +109,10 @@ void xgs_VehicleBegaruta_Init(PBYTE hmodEXE)
 	};
 	WriteHookToProcess((void*)(hmodEXE + 0x363EB1), &ofs3632B1, 7U);
 
-	//EDF5.exe+363CB4
+	// EDF5.exe+363CB4
 	unsigned char ofs3630B4[] = {
 		0x75, 0x14
 	};
 	WriteHookToProcess((void*)(hmodEXE + 0x363CB4), &ofs3630B4, 2U);
-	// End ==============================================================
+	// End ---------------------------------------------------------
 }
