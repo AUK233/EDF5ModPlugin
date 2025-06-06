@@ -119,22 +119,28 @@ void GameStartupHook(PBYTE hmodEXE)
 	//
 	ASMrva47C6E0modRetAddr = (uintptr_t)(hmodEXE + 0x47C74F);
 
-	// here has problem
-	// EDF5.exe+3D6D1E, should be add 0x88, but 16-byte aligned
-	int newAuidoPointerSize = 0xD0 + 0x90;
-	//WriteHookToProcessCheckECX((void*)(hmodEXE + 0x3D6D1E + 1), &newAuidoPointerSize, 4U);
-	// load music files
-	// EDF5.exe+47B5E5
-	//hookGameBlockWithInt3((void*)(hmodEXE + 0x47B5E5), (uintptr_t)ASMgameStartupReadMusicFile);
-	//WriteHookToProcess((void*)(hmodEXE + 0x47B5E5 + 15), (void*)&nop2, 2U);
-	gameStartupReadMusicFileRetAddr = (uintptr_t)(hmodEXE + 0x47B5F6);
-
-	// play bgm, playing voice as MUSIC is wrong!
-	// EDF5.exe+11B9E2
-	//hookGameBlockWithInt3((void*)(hmodEXE + 0x11B9E2), (uintptr_t)ASMSoundControllerPlayBgm);
-	//WriteHookToProcess((void*)(hmodEXE + 0x11B9E2 + 15), (void*)&nop2, 2U);
-	SoundControllerPlayBgmRetAddr = (uintptr_t)(hmodEXE + 0x11B9F3);
-
+	{
+		// here has problem
+		// EDF5.exe+3D6D1E, should be add 0x88, but 16-byte aligned
+		int newAuidoPointerSize = 0xD0 + 0x90;
+		//WriteHookToProcessCheckECX((void*)(hmodEXE + 0x3D6D1E + 1), &newAuidoPointerSize, 4U);
+		// load music files
+		// EDF5.exe+47B5E5
+		//hookGameBlockWithInt3((void*)(hmodEXE + 0x47B5E5), (uintptr_t)ASMgameStartupReadMusicFile);
+		//WriteHookToProcess((void*)(hmodEXE + 0x47B5E5 + 15), (void*)&nop2, 2U);
+		gameStartupReadMusicFileRetAddr = (uintptr_t)(hmodEXE + 0x47B5F6);
+		// play bgm, playing voice as MUSIC is wrong!
+		// EDF5.exe+11B9E2
+		//hookGameBlockWithInt3((void*)(hmodEXE + 0x11B9E2), (uintptr_t)ASMSoundControllerPlayBgm);
+		//WriteHookToProcess((void*)(hmodEXE + 0x11B9E2 + 15), (void*)&nop2, 2U);
+		SoundControllerPlayBgmRetAddr = (uintptr_t)(hmodEXE + 0x11B9F3);
+	}
+	// EDF5.exe+47B59A, change music file
+	if (std::filesystem::exists(L"./sound/pc/add_Music.acb")) {
+		int musicNameSize = 28;
+		WriteHookToProcess((void*)(hmodEXE + 0x47B59A + 2), &musicNameSize, 4U);
+		WriteHookToProcess(hmodEXE + 0xEC4B80, (void*)L"APP:/SOUND/ADX/ADD_MUSIC.ACB", 58U);
+	}
 
 	// EDF5.exe+613A12, Throw invalid filename
 	hookGameBlockRAXWithInt3((void*)(hmodEXE + 0x613A12), (uintptr_t)ASMgameReadInvalidSGO);
