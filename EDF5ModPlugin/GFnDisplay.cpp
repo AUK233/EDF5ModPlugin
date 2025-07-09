@@ -492,11 +492,11 @@ void hookHUDEnhancement() {
 	static_assert(sizeof(HUiHudWeaponPointer) < 0xE00);
 	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x4D1017 + 1), &newWeaponSize, 4U);
 	// EDF5.exe+4D1C32
-	hookGameBlock((void *)(hmodEXE + 0x4D1C32), (uintptr_t)ASMreadHUiHudWeapon);
-	WriteHookToProcess((void *)(hmodEXE + 0x4D1C32 + 12), (void *)&nop6, 6U);
+	hookGameBlockWithInt3((void *)(hmodEXE + 0x4D1C32), (uintptr_t)ASMreadHUiHudWeapon);
+	WriteHookToProcess((void *)(hmodEXE + 0x4D1C32 + 15), (void *)&nop3, 3U);
 	// EDF5.exe+4D370C
-	hookGameBlock((void *)(hmodEXE + 0x4D370C), (uintptr_t)ASMHUiHudWeaponUpdateVehicleText);
-	WriteHookToProcess((void*)(hmodEXE + 0x4D370C + 12), (void*)&nop6, 6U);
+	hookGameBlockWithInt3((void *)(hmodEXE + 0x4D370C), (uintptr_t)ASMHUiHudWeaponUpdateVehicleText);
+	WriteHookToProcess((void*)(hmodEXE + 0x4D370C + 15), (void*)&nop3, 3U);
 	HUiHudWeaponUpdateVehicleTextRet = (uintptr_t)(hmodEXE + 0x4D371E);
 	// EDF5.exe+4D7110
 	hookGameBlock((void*)(hmodEXE + 0x4D7110), (uintptr_t)ASMHUiHudWeaponUpdateAmmoText);

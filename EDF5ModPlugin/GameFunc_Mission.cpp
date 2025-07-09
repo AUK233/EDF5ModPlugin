@@ -12,10 +12,12 @@
 
 #include "commonNOP.h"
 #include "utiliy.h"
-#include "CommonCustomStructure.hpp"
-#include "EDFPointerStruct.hpp"
+#include "GameFunctionInASM.h"
 
 #include "GameFunc_Mission.h"
+
+extern PBYTE hmodEXE;
+extern int ModConsoleStatus;
 
 extern "C" {
 PCustomMissionData pMissionCustomData;
@@ -81,6 +83,29 @@ void HookMissionSeriesSet(PBYTE hmodEXE)
 	// Sync of offline and online mission progress
 	hookGameBlock((void*)(hmodEXE + 0x909DD), (uintptr_t)ASMreadMissionSavaData);
 	readMissionSavaDataRetAddr = (uintptr_t)(hmodEXE + 0x90A1A);
+
+	// EDF5.exe+3E31CE
+	// change to inferno can complete all difficulties
+	char maxUnlockDifficulty = 5;
+	WriteHookToProcess((void*)(hmodEXE + 0x3E31CE + 3), &maxUnlockDifficulty, 1U);
+}
+
+__declspec(align(16)) float WeaponIconColor[4][4] = {
+	{ 0.75f, 1.0f, 0.0f, 1.0f }, // green
+	{ 0.0f , 0.5f, 1.0f, 1.0f }, // blue
+	{ 1.0f , 0.5f, 0.0f, 1.0f }, // orange
+	{ 0.0f , 0.8f, 0.0f, 1.0f }  // green in edf6
+};
+
+void __fastcall CustomMissionData_SetWeaponIconColor()
+{
+	int modelIndex = ASMgetCurrentMissionClassModelType();
+	// EDF5.exe+118C2A0 
+	if (modelIndex < 4) {
+		memcpy((void*)(hmodEXE + 0x118C2A0), WeaponIconColor[modelIndex], 16);
+	}
+
+	ModConsoleStatus = 0;
 }
 
 void __fastcall CustomMissionData_InitializationMore(PCustomMissionData pData)
@@ -104,6 +129,9 @@ void __fastcall CustomMissionData_initialization(PCustomMissionData pData)
 	pData->AirRaider_CreditX = 1.0f;
 	pData->Fencer_ChargeX = 1.0f;
 	CustomMissionData_InitializationMore(pData);
+
+	// other settings
+	CustomMissionData_SetWeaponIconColor();
 }
 
 void __fastcall CustomMissionData_SetToCurrentMission(uintptr_t pSGONode, int nodeNum)
@@ -111,8 +139,7 @@ void __fastcall CustomMissionData_SetToCurrentMission(uintptr_t pSGONode, int no
 	PCustomMissionData pData = pMissionCustomData;
 	// If necessary parameters are missing, reset to default
 	if (nodeNum <= 4) {
-		CustomMissionData_initialization(pData);
-		return;
+		return CustomMissionData_initialization(pData);
 	}
 
 	uintptr_t SGONode = pSGONode + (4 * 12);
@@ -148,6 +175,9 @@ void __fastcall CustomMissionData_SetToCurrentMission(uintptr_t pSGONode, int no
 			*(int*)&pData->Class_SpeedX = CustomMissionData_GetSGOValue(SGONode, 3);
 		}
 	}
+
+	// other settings
+	CustomMissionData_SetWeaponIconColor();
 }
 
 int __fastcall CustomMissionData_GetSGONodeType(uintptr_t pSGONode, int nodeIndex)

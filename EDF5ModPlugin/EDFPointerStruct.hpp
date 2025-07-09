@@ -22,9 +22,18 @@ typedef struct EDFVector4Struct {
 typedef struct EDFStdVector_t {
 	void* pad;
 	void* p;
-	size_t capacity;
 	size_t size;
+	size_t capacity;
 } *PEDFStdVector;
+
+typedef struct EDFWideString_t {
+	union {
+		wchar_t text[8];
+		wchar_t* pstr;
+	};
+	size_t size;
+	size_t capacity;
+} *PEDFWideString;
 
 __declspec(align(16)) typedef struct EDFWeaponStruct {
 	// 140 is custom_parameter
@@ -181,12 +190,9 @@ __declspec(align(16)) typedef struct EDFBaseClass_t {
 	void* vf_table;
 	BYTE pad8[0x1E8];
 	float unk1F0;
-	float MinHP;
-	float MaxHP;
-	float CurrentHP;
+	float MinHP, MaxHP, CurrentHP;
 	BYTE pad200[8]; // +4 always is 100.0f
-	float TotalEnergy;
-	float CurrentEnergy;
+	float TotalEnergy, CurrentEnergy;
 	BYTE pad210[0x1378];
 	EDFStdVector_t v_WeaponPointer;
 	BYTE pad15a8[0xF4];
@@ -205,33 +211,27 @@ static_assert(sizeof(EDFBaseClass_t) == 0x1A00);
 
 typedef struct EDFAssultSoldier_t : EDFBaseClass_t {
 	BYTE pad1a00[0x70];
-	float DashSpeed;
-	float DashAcceleration;
-	float DashTurningSpeed;
+	float DashSpeed, DashAcceleration, DashTurningSpeed;
 	BYTE pad1a7c[0x154];
 	// new block
 	float BaseDashSpeed;
 	BYTE pad1bd4[0xC];
-	int ThrowButtonTimer;
-	int ThrowButtonCD;
+	int ThrowButtonTimer, ThrowButtonCD;
+	int DashButtonTimer;
 } *PEDFAssultSoldier;
 static_assert(offsetof(EDFAssultSoldier_t, DashSpeed) == 0x1A70);
 
 typedef struct EDFPaleWing_t : EDFBaseClass_t {
 	BYTE pad1a00[0x2E0];
 	float Deadweight; // Affect recoil.
-	float ChargeSpeed;
-	float EmergencyChargeSpeed;
-	float FlightConsumption;
-	float BoostConsumption;
+	float ChargeSpeed, EmergencyChargeSpeed;
+	float FlightConsumption, BoostConsumption;
 	float WeaponChargeSpeed;
 	BYTE pad1cf8[0xC]; // move speed?
 	float FlyingSpeed;
 	float TakeoffSpeed; // affect height.
 	float FlightDamping;
-	float BoostSidewaySpeed;
-	float BoostForwardSpeed;
-	float BoostBackwardSpeed;
+	float BoostSidewaySpeed, BoostForwardSpeed, BoostBackwardSpeed;
 	float f1d1c; // always is 100.0f
 } *PEDFPaleWing;
 static_assert(offsetof(EDFPaleWing_t, FlightConsumption) == 0x1CEC);

@@ -233,7 +233,9 @@
     <ClCompile Include="zHui\HuiDisplaySubtitle.cpp">
       <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NoListing</AssemblerOutput>
     </ClCompile>
+    <ClCompile Include="zHui\HuiModConsole.cpp" />
     <ClCompile Include="zHui\HuiMoreCharacterModel.cpp" />
+    <ClCompile Include="zHui\HuiObjectClass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMammoInsectBullet.asm" />
@@ -274,7 +276,9 @@
     <MASM Include="zEnemy\ASMxgsGiantAnt.asm" />
     <MASM Include="zEnemy\ASMxgsBigNest.asm" />
     <MASM Include="zHui\ASMHuiDisplaySubtitle.asm" />
+    <MASM Include="zHui\ASMHuiModConsole.asm" />
     <MASM Include="zHui\ASMHuiMoreCharacterModel.asm" />
+    <MASM Include="zHui\ASMHuiObjectClass.asm" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\HookLib\HookLib\HookLib\HookLib.h" />
@@ -308,7 +312,9 @@
     <ClInclude Include="zEnemy\EnemyHook_GiantAnt.h" />
     <ClInclude Include="zHui\HuiCasController.h" />
     <ClInclude Include="zHui\HuiDisplaySubtitle.h" />
+    <ClInclude Include="zHui\HuiModConsole.h" />
     <ClInclude Include="zHui\HuiMoreCharacterModel.h" />
+    <ClInclude Include="zHui\HuiObjectClass.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

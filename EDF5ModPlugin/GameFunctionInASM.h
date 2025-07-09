@@ -16,4 +16,6 @@ void __fastcall ASMinitializeAmmoTailSmoke1(void* pAmmo, void* pTail, int tailLe
 size_t __fastcall ASMshowSubtitleByPlayingSoundReady(void* pScript, WCHAR* pAudioName, size_t nameSize);
 void __fastcall ASMshowSubtitleByPlayingSoundOn(void* pScript, SubtitleTextStruct* startAddr);
 void __fastcall ASMshowSubtitleByPlayingSoundOff(void* pScript, int subtitleIndex);
+//
+int __fastcall ASMgetCurrentMissionClassModelType();
 }

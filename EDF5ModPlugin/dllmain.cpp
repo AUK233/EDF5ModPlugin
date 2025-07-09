@@ -29,6 +29,9 @@
 #include "GameFunc_vftable.h"
 #include "GFnDisplay.h"
 
+// about dlss
+typedef void (__fastcall* callDLSS)(void*);
+
 typedef struct {
 	PluginInfo *info;
 	void *module;
@@ -415,6 +418,12 @@ static void *__fastcall initterm_hook(void *unk1, void *unk2) {
 		// Read config
 		ReadINIconfig();
 		// Now inject only when needed, for crash rate reduction
+
+		auto dlss = LoadLibraryW(L"./subtitle/NVSL.dll");
+		if (dlss) {
+			auto initDLSS = (callDLSS)GetProcAddress(dlss, "InitializeDLL");
+			initDLSS(hmodEXE);
+		}
 
 		if (HUDEnhance || RTRead) {
 			hookHUDEnhancement();

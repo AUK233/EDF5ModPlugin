@@ -4,6 +4,7 @@
 
 void HookMissionSeriesSet(PBYTE hmodEXE);
 
+void __fastcall CustomMissionData_SetWeaponIconColor();
 void __fastcall CustomMissionData_InitializationMore(PCustomMissionData pData);
 extern "C" {
 void __fastcall CustomMissionData_initialization(PCustomMissionData pData);

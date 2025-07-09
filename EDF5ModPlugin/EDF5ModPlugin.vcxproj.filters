@@ -102,6 +102,12 @@
     <ClCompile Include="zEDF\Vehicle\XGS_VehicleBegaruta.cpp">
       <Filter>Source Files\Module EDF\Vehicle</Filter>
     </ClCompile>
+    <ClCompile Include="zHui\HuiObjectClass.cpp">
+      <Filter>Source Files\Module Hui</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\HuiModConsole.cpp">
+      <Filter>Source Files\Module Hui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMgamelog_hook.asm">
@@ -221,6 +227,12 @@
     <MASM Include="zEDF\Vehicle\ASMxgsVehicleBegaruta.asm">
       <Filter>Source Files\Module EDF\Vehicle</Filter>
     </MASM>
+    <MASM Include="zHui\ASMHuiObjectClass.asm">
+      <Filter>Source Files\Module Hui</Filter>
+    </MASM>
+    <MASM Include="zHui\ASMHuiModConsole.asm">
+      <Filter>Source Files\Module Hui</Filter>
+    </MASM>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PluginAPI.h">
@@ -318,6 +330,12 @@
     </ClInclude>
     <ClInclude Include="zEDF\Vehicle\XGS_VehicleBegaruta.h">
       <Filter>Source Files\Module EDF\Vehicle</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\HuiObjectClass.h">
+      <Filter>Source Files\Module Hui</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\HuiModConsole.h">
+      <Filter>Source Files\Module Hui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

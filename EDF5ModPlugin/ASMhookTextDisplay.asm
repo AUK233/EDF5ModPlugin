@@ -9,6 +9,7 @@ extern eTextForWeaponReloadTime : proto
 extern eDisplaySoldierWeaponDamage : proto
 extern eDisplayVehicleWeaponDamage : proto
 extern eDisplayFencerBoostAndDash : proto
+extern ASMgetCurrentMissionClassModelType : proto
 
 extern HUiHudWeaponUpdateVehicleTextRet : qword
 extern readHUiHudPowerGuageRet : qword
@@ -20,6 +21,8 @@ extern rva27570 : qword
 extern rvaB7220 : qword
 extern rva4D86D0 : qword
 extern rva4CA990 : qword
+
+extern _TextWingEnergy6Position : qword
 
 ; L"TextNumericType2"
 wstrTextNumericType2 db 84,0,101,0,120,0,116,0,78,0,117,0,109,0,101,0,114,0,105,0,99,0,84,0,121,0,112,0,101,0,50,0,0,0
@@ -138,7 +141,7 @@ ASMreadHUiHudWeapon proc
         mov rbx, [rax+8]
         mov r15, [rax]
         test rbx, rbx
-        je original
+        je updateWingEnergy
         lock inc dword ptr [rbx+0Ch]
         mov rcx, [rdi+0D28h]
         test rcx, rcx
@@ -202,7 +205,7 @@ ASMreadHUiHudWeapon proc
         mov rbx, [rax+8]
         mov r15, [rax]
         test rbx, rbx
-        je original
+        je updateWingEnergy
         lock inc dword ptr [rbx+0Ch]
         mov rcx, [rdi+0D48h]
         test rcx, rcx
@@ -238,17 +241,27 @@ ASMreadHUiHudWeapon proc
     node3_3:
         mov rdx, [rbp+0E0h]
         cmp rdx, 8
-        jb original
+        jb updateWingEnergy
         inc rdx
         mov r8d, 2
         mov rcx, [rbp+0C8h]
         call rva27570
 
+    updateWingEnergy:
+        mov r14, [rdi+0A28h] ; get text pointer
+        test r14, r14
+        je original
+        call ASMgetCurrentMissionClassModelType
+		cmp eax, 2
+		jb original
+        mov rdx, _TextWingEnergy6Position
+        mov [r14+1A0h], rdx ; write new pos
+
     original:
         mov rax, rdi
-        mov rcx, [rbp+128h]
-        xor rcx, rsp
-        call rva9C6E40
+        ; mov rcx, [rbp+128h]
+        ; xor rcx, rsp
+        ; call rva9C6E40
         mov rbx, [rsp+290h]
         movaps xmm6, [rsp+230h]
         add rsp, 240h

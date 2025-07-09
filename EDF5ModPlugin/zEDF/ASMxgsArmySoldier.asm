@@ -17,6 +17,16 @@ extern eArmySoldierUseAuxiliaryRetAddr : qword
 extern edf5F8C40Address : qword
 
 
+extern _Common_PI : dword
+extern _Common_F0P5 : dword
+extern _Common_F0P025 : dword
+extern _Common_F0P025N : dword
+extern _Common_F1P58 : dword
+extern _Common_F1P58N : dword
+extern _Common_F0P75N : dword
+extern __sqrtfAddr : qword
+extern eArmySoldierDashTurningRetAddr : qword
+
 extern eSoldierCallSupportRetAddr : qword
 extern hudShowSupportSlot2RetAddr : qword
 
@@ -177,17 +187,31 @@ ASMeArmySoldierUseAuxiliary proc
 		jmp ofs2DF4C1
 
 	ofs2DF473:
-		cmp byte ptr [rbx+0B5Bh], 0
-		je ofs2DF4C1
-		; check in air
+		cmp byte ptr [rbx+0B5Bh+1], 0 ; old is +B5B, but we now need the hold-on version
+		mov r11d, [rbx+1BE8h] ; dash button timer
+		je checkDashTimer
+		inc r11d
+		mov [rbx+1BE8h], r11d
+		; if hold-on for more than 1s, it also go to dash
+		cmp r11d, 60
+		ja clearDashTimer
+		jmp ofs2DF4C1
+
+	checkDashTimer:
+		test r11d, r11d
+		jz ofs2DF4C1
+	clearDashTimer:
+		mov dword ptr [rbx+1BE8h], 0
+	; check in air
 		cmp dword ptr [rbx+560h], 2
 		jne ofs2DF4C1
 		;
 		cmp qword ptr [rbx+1618h], 0
-		je ofs2DF48F
+		je checkHasSlot2
 		cmp dword ptr [rbx+1620h], 1
 		jge ofs2DF4C1
-	ofs2DF48F:
+
+	checkHasSlot2:
 		;Get a weapon with support slot 2
 		mov rax, qword ptr [rbx+1600h]
 		movsxd rcx, dword ptr [rax]
@@ -203,8 +227,12 @@ ASMeArmySoldierUseAuxiliary proc
 		; check is it a weapon
 		cmp dword ptr [rdx+698h], 0 ;AmmoAlive
 		je useDash
+		; if hold the button then dash
+		cmp r11d, 15
+		ja useDash
+		; check current ammo count
 		cmp dword ptr [rdx+8E8h], 0
-		jbe ofs2DF4C1
+		jle ofs2DF4C1
 		; use support slot 2
 		mov rax, edf2E0270Address
 		jmp ofs2DF496
@@ -226,6 +254,70 @@ ASMeArmySoldierUseAuxiliary proc
 		int 3
 
 ASMeArmySoldierUseAuxiliary ENDP
+
+align 16
+
+ASMeArmySoldierDashTurning proc
+
+		movss xmm0, dword ptr [rcx+0B30h] ; get lateral velocity
+		mulss xmm0, _Common_PI
+		movss xmm1, dword ptr [rcx+1A78h]
+		movss xmm2, dword ptr [rcx+0F18h]
+		movaps xmm3, xmm1
+		mulss xmm0, _Common_F0P5
+		mulss xmm3, _Common_F0P025N
+		movaps [rsp+0A0h], xmm7
+		movaps [rsp+90h], xmm8
+		subss xmm0, xmm2
+		movaps [rsp+80h], xmm9
+		movaps [rsp+70h], xmm10
+		movss xmm8, _Common_F0P025
+		comiss xmm3, xmm0
+		ja negativePI
+		mulss xmm1, xmm8
+		minss xmm1, xmm0
+		movaps xmm3, xmm1
+	negativePI:
+		movss xmm0, _Common_F1P58N
+		addss xmm2, xmm3
+		comiss xmm0, xmm2
+		ja write2direction
+		movss xmm0, _Common_F1P58
+		minss xmm0, xmm2
+	write2direction:
+		movss dword ptr [rcx+0F18h], xmm0
+		; check forward velocity
+		movss xmm0, dword ptr [rcx+0B38h]
+		comiss xmm0, _Common_F0P75N ; forward velocity > -0.75
+		ja original
+		mov byte ptr [rcx+0B5Bh], 2
+	original:
+		lea rsi, [rcx+0E50h]
+		movaps xmm0, [rsi]
+		mulps xmm0, xmm0
+		xorps xmm8, xmm8
+		movaps xmm1, xmm0
+		shufps xmm1, xmm0, 55h
+		addss xmm1, xmm0
+		shufps xmm0, xmm0, 0AAh
+		addss xmm1, xmm0
+		ucomiss xmm1, xmm8
+		jp ofs2DFDA1
+		jne ofs2DFDA1
+		movaps xmm10, xmm8
+		jmp ofs2DFDAD
+	ofs2DFDA1:
+		movaps xmm0, xmm1
+		call __sqrtfAddr
+		movaps xmm10, xmm0
+	ofs2DFDAD:
+		movss xmm6, dword ptr [rdi+0E94h]
+		addss xmm6, dword ptr [rdi+0F18h]
+		movaps xmm0, xmm6
+		jmp eArmySoldierDashTurningRetAddr
+		int 3
+
+ASMeArmySoldierDashTurning ENDP
 
 align 16
 

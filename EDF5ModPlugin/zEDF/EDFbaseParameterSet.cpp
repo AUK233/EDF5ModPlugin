@@ -43,6 +43,9 @@ extern "C" {
 	uintptr_t edf2E07C0Address;
 	// Execution?
 	uintptr_t edf2E18A0Address;
+	// Allow change movement direction in dash
+	void __fastcall ASMeArmySoldierDashTurning();
+	uintptr_t eArmySoldierDashTurningRetAddr;
 	//
 	uintptr_t eSoldierCallSupportRetAddr;
 	uintptr_t edf5F8C40Address;
@@ -57,9 +60,11 @@ void module_SetFunction_AssultSoldier(PBYTE hmodEXE)
 	int newRangerSize = 0x2000;
 	// AssultSoldier 0x1BD0
 	// start: 0x1BE0, size: 8, function: throw button timer.
+	// start: 0x1BE8, size: 4, function: dash button timer.
 	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x2DF9C7 + 1), &newRangerSize, 4U);
 	static_assert(offsetof(EDFAssultSoldier_t, ThrowButtonTimer) == 0x1BE0);
 	static_assert(offsetof(EDFAssultSoldier_t, ThrowButtonCD) == 0x1BE4);
+	static_assert(offsetof(EDFAssultSoldier_t, DashButtonTimer) == 0x1BE8);
 	// EDF5.exe+2DFD0D
 	hookGameBlockWithInt3((void*)(hmodEXE + 0x2DFD0D), (uintptr_t)ASMeAssultSoldierInitialization);
 	WriteHookToProcess((void*)(hmodEXE + 0x2DFD0D + 15), (void*)&nop1, 1U);
@@ -87,6 +92,18 @@ void module_SetFunction_AssultSoldier(PBYTE hmodEXE)
 	};
 	WriteHookToProcess((void*)(hmodEXE + 0x2E0A7D), &getDashBaseSpeed, 8U);
 	static_assert(offsetof(EDFAssultSoldier_t, BaseDashSpeed) == 0x1BD0);
+
+	// EDF5.exe+2E094F, allow change movement direction in dash
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x2E094F), (uintptr_t)ASMeArmySoldierDashTurning);
+	WriteHookToProcess((void*)(hmodEXE + 0x2E094F + 15), (void*)&nop6, 6U);
+	eArmySoldierDashTurningRetAddr = (uintptr_t)(hmodEXE + 0x2E09B8);
+	// EDF5.exe+2E0B7F, no longer need to hold on the dash.
+	BYTE dashIsNoHold[] = {
+		0x80, 0xBF, 0x5B, 0x0B, 0x00, 0x00, 0x00, // cmp byte ptr [rdi+B5B], 0
+		0x44, 0x0F, 0x28, 0x84, 0x24, 0x90, 0x00, 0x00, 0x00,
+		0x40, 0x0F, 0x95, 0xC6                    // setne sil
+	};
+	WriteHookToProcess((void*)(hmodEXE + 0x2E0B7F), &dashIsNoHold, 20U);
 
 	// EDF5.exe+EAD278, is vft+230
 	uintptr_t newLoadAccessory = (uintptr_t)module_LoadAccessory_AssultSoldier;
