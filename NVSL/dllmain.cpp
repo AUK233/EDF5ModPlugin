@@ -10,6 +10,7 @@ extern "C" void __declspec(dllexport) __fastcall InitializeDLL(PBYTE hmodEXE)
 	InstallNVIDIAdlss(hmodEXE);
 }
 
+// There is a problem with the dlss execution, so it is not used now.
 BOOL APIENTRY DllMain( HMODULE hModule,
 					   DWORD  ul_reason_for_call,
 					   LPVOID lpReserved

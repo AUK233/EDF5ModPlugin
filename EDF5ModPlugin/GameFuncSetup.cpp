@@ -318,6 +318,7 @@ void hookEDFClassFunctions() {
 	module_CasControllerInitialization(hmodEXE);
 	module_UpdateHuiObjectClass(hmodEXE);
 	module_UpdateHuiModConsole(hmodEXE);
+	//module_UpdateHuiWindowSize(hmodEXE);
 
 	// EDF5.exe+3391D5
 	// Enable Railgun to be dual weapons

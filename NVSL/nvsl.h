@@ -1,10 +1,18 @@
 #pragma once
-#include <d3d11.h>
-#pragma comment(lib, "D3D11.lib")
 
+// decide whether to use streamline
+//#define NVSL
+
+#include <d3d11.h>
+#if defined(NVSL)
+#include "include/sl_hooks.h"
+#include "include/sl_dlss.h"
+#pragma comment(lib, "./include/sl.interposer.lib")
+#else
+#pragma comment(lib, "D3D11.lib")
 #include "include/nvsdk_ngx_helpers.h"
-//#pragma comment(lib, "Rpcrt4.lib")
 #pragma comment(lib, "./include/nvsdk_ngx_d.lib")
+#endif
 
 void InstallNVIDIAdlss(PBYTE hmodEXE);
 void __fastcall TriggerDLSSFailureResult(UINT32 slresult, int FreeDLSS);
@@ -25,6 +33,14 @@ extern "C" {
     void __fastcall InitializeDLSS(ID3D11Device* InDevice);
     void __fastcall InitializeDLSSFeatures(ID3D11DeviceContext* deviceContext);
 
-    void __fastcall Evaluate_NGX_dlss(ID3D11DeviceContext* d3dcontext, ID3D11Device* InDevice);
+    void __fastcall Evaluate_NGX_dlss(ID3D11DeviceContext* d3dcontext, ID3D11Device* InDevice, IDXGISwapChain* pSwapChain);
     void __fastcall Release_NGX_dlss();
 }
+
+__declspec(align(16)) typedef struct CID3D11Forwarder_t {
+	void* pVTable; // vftable pointer
+    ID3D11DeviceContext* pD3DDeviceContext;
+    BYTE pad10[0x20];
+	ID3D11RenderTargetView* pRenderTargetView[8]; // what? has 8
+	ID3D11DepthStencilView* pDepthStencilView;
+} *PCID3D11Forwarder;

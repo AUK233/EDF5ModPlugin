@@ -419,11 +419,15 @@ static void *__fastcall initterm_hook(void *unk1, void *unk2) {
 		ReadINIconfig();
 		// Now inject only when needed, for crash rate reduction
 
-		auto dlss = LoadLibraryW(L"./subtitle/NVSL.dll");
+		// There is a problem with the dlss execution, so it is not used now.
+		/*auto dlss = LoadLibraryW(L"./subtitle/NVSL.dll");
 		if (dlss) {
 			auto initDLSS = (callDLSS)GetProcAddress(dlss, "InitializeDLL");
 			initDLSS(hmodEXE);
 		}
+		else {
+			MessageBoxW(NULL, L"test", L"error", MB_OK);
+		}*/
 
 		if (HUDEnhance || RTRead) {
 			hookHUDEnhancement();
