@@ -22,6 +22,11 @@
 //#endif
 
 #if defined(NVSL)
+__declspec(align(16)) typedef struct NV_StreamLine_t {
+	sl::ViewportHandle myViewport;
+	HWND hWnd;
+} *PNV_StreamLine;
+PNV_StreamLine pNVstreamline = nullptr;
 #else
 __declspec(align(16)) typedef struct NGX_DLSS_t {
 	NVSDK_NGX_Parameter* m_ngxParameters;
@@ -38,6 +43,7 @@ extern "C" {
 	void __fastcall ASMdxgiSwapChainPresent();
 	uintptr_t dxgiSwapChainPresentRetAddr;
 }
+DXGI_SWAP_CHAIN_DESC* pDXGISwapChainDesc;
 PCID3D11Forwarder pD3D11Forwarder;
 
 void InstallNVIDIAdlss(PBYTE hmodEXE)
@@ -55,15 +61,25 @@ void InstallNVIDIAdlss(PBYTE hmodEXE)
 	WriteHookToProcess((void*)(hmodEXE + 0x5E316E + 15), (void*)&nop10, 10U);
 	dxgiSwapChainPresentRetAddr = (uintptr_t)(hmodEXE + 0x5E3187);
 
+	// EDF5.exe+1256C40
+	auto tempP = hmodEXE + 0x1256C40;
+	pDXGISwapChainDesc = (DXGI_SWAP_CHAIN_DESC*)tempP;
 	// EDF5.exe+1256D00
-	auto tempP = hmodEXE + 0x1256D00;
+	tempP = hmodEXE + 0x1256D00;
 	pD3D11Forwarder = (PCID3D11Forwarder)tempP;
 
 #if defined(NVSL)
+	PNV_StreamLine p = (PNV_StreamLine)_aligned_malloc(sizeof(NV_StreamLine_t), 16U);
+	if (p) {
+		ZeroMemory(p, sizeof(NV_StreamLine_t));
+		pNVstreamline = p;
+	}
+
 	sl::Preferences pref{};
 	sl::Feature myFeatures[] = { sl::kFeatureDLSS };
 	pref.featuresToLoad = myFeatures;
 	pref.numFeaturesToLoad = _countof(myFeatures);
+	pref.flags |= sl::PreferenceFlags::eUseFrameBasedResourceTagging;
 	pref.applicationId = 231313132;
 	pref.renderAPI = sl::RenderAPI::eD3D11;
 	auto slresult = slInit(pref);
@@ -89,6 +105,12 @@ void __fastcall TriggerDLSSFailureResult(UINT32 slresult, int FreeDLSS)
 #endif
 
 #if defined(NVSL)
+	if (FreeDLSS) {
+		if (pNVstreamline) {
+			_aligned_free(pNVstreamline);
+			pNVstreamline = nullptr;
+		}
+	}
 #else
 	if (FreeDLSS) {
 		if (pNGX_dlss) {
@@ -99,27 +121,19 @@ void __fastcall TriggerDLSSFailureResult(UINT32 slresult, int FreeDLSS)
 #endif
 }
 
-HRESULT __stdcall Initialize_NGX_dlss(IDXGIAdapter* pAdapter, D3D_DRIVER_TYPE DriverType, HMODULE Software, UINT Flags, const D3D_FEATURE_LEVEL* pFeatureLevels, UINT FeatureLevels, UINT SDKVersion, ID3D11Device** ppDevice, D3D_FEATURE_LEVEL* pFeatureLevel, ID3D11DeviceContext** ppImmediateContext)
+HRESULT __stdcall Initialize_NGX_dlss(DXGI_SWAP_CHAIN_DESC* pChainDesc, D3D_DRIVER_TYPE DriverType, HMODULE Software, UINT Flags, const D3D_FEATURE_LEVEL* pFeatureLevels, UINT FeatureLevels, UINT SDKVersion, ID3D11Device** ppDevice, D3D_FEATURE_LEVEL* pFeatureLevel, ID3D11DeviceContext** ppImmediateContext)
 {
-#if defined(NVSL)
-	IDXGISwapChain* pSwapChain = nullptr;
-	auto result = D3D11CreateDeviceAndSwapChain(pAdapter, DriverType, Software, Flags, pFeatureLevels, FeatureLevels, SDKVersion, NULL, &pSwapChain, ppDevice, pFeatureLevel, ppImmediateContext);
-
-	auto slresult = slSetD3DDevice(*ppDevice);
-	if (slresult != sl::Result::eOk) {
-		TriggerDLSSFailureResult((UINT32)slresult + 2000, 1);
-	}
-#else
-	auto result = D3D11CreateDevice(pAdapter, DriverType, Software, Flags, pFeatureLevels, FeatureLevels, SDKVersion, ppDevice, pFeatureLevel, ppImmediateContext);
-
-#endif
-
+	auto result = D3D11CreateDevice(0, DriverType, Software, Flags, pFeatureLevels, FeatureLevels, SDKVersion, ppDevice, pFeatureLevel, ppImmediateContext);
 	if (result < 0) {
 		return result;
 	}
+
+	//IDXGISwapChain* pSwapChain = nullptr;
+	//auto result = D3D11CreateDeviceAndSwapChain(0, DriverType, Software, Flags, pFeatureLevels, FeatureLevels, SDKVersion, NULL, &pSwapChain, ppDevice, pFeatureLevel, ppImmediateContext);
+
 	// set dlss
 	InitializeDLSS(*ppDevice);
-	InitializeDLSSFeatures(*ppImmediateContext);
+	InitializeDLSSFeatures(*ppImmediateContext, pChainDesc);
 	// pDevice vft+40 is CreateUnorderedAccessView 
 	// pDevice vft+48 is CreateRenderTargetView 
 
@@ -129,9 +143,13 @@ HRESULT __stdcall Initialize_NGX_dlss(IDXGIAdapter* pAdapter, D3D_DRIVER_TYPE Dr
 void __fastcall InitializeDLSS(ID3D11Device* InDevice)
 {
 #if defined(NVSL)
+	auto slresult = slSetD3DDevice(InDevice);
+	if (slresult != sl::Result::eOk) {
+		TriggerDLSSFailureResult((UINT32)slresult + 2000, 1);
+	}
 
 	sl::AdapterInfo adapterInfo{};
-	auto slresult = slIsFeatureSupported(sl::kFeatureDLSS, adapterInfo);
+	slresult = slIsFeatureSupported(sl::kFeatureDLSS, adapterInfo);
 	if (slresult != sl::Result::eOk) {
 		TriggerDLSSFailureResult((UINT32)slresult + 2200, 0);
 	}
@@ -154,7 +172,7 @@ void __fastcall InitializeDLSS(ID3D11Device* InDevice)
 #endif
 }
 
-void __fastcall InitializeDLSSFeatures(ID3D11DeviceContext* deviceContext)
+void __fastcall InitializeDLSSFeatures(ID3D11DeviceContext* deviceContext, DXGI_SWAP_CHAIN_DESC* pChainDesc)
 {
 #if defined(NVSL)
 	/*sl::DLSSOptimalSettings dlssSettings;
@@ -163,10 +181,12 @@ void __fastcall InitializeDLSSFeatures(ID3D11DeviceContext* deviceContext)
 		TriggerDLSSFailureResult((UINT32)slresult + 2100, 1);
 	}*/
 
-	UINT numViewports = 1;
+	pNVstreamline->hWnd = pChainDesc->OutputWindow;
+	pNVstreamline->myViewport = { (UINT32)pNVstreamline };
+
+	/*UINT numViewports = 1;
 	D3D11_VIEWPORT dxViewport;
-	deviceContext->RSGetViewports(&numViewports, &dxViewport);
-	sl::ViewportHandle m_viewport = { (UINT32)GetActiveWindow() };
+	deviceContext->RSGetViewports(&numViewports, &dxViewport);*/
 
 	sl::DLSSOptions dlssOptions = {};
 	dlssOptions.mode = sl::DLSSMode::eUltraPerformance;
@@ -174,11 +194,10 @@ void __fastcall InitializeDLSSFeatures(ID3D11DeviceContext* deviceContext)
 	dlssOptions.outputHeight = 1080;
 	dlssOptions.colorBuffersHDR = sl::Boolean::eFalse;
 
-	auto slresult = slDLSSSetOptions(m_viewport, dlssOptions);
+	auto slresult = slDLSSSetOptions(pNVstreamline->myViewport, dlssOptions);
 	if (slresult != sl::Result::eOk) {
 		TriggerDLSSFailureResult((UINT32)slresult + 2100, 1);
 	}
-
 
 #else
 	PNGX_DLSS p = pNGX_dlss;
@@ -225,18 +244,29 @@ void __fastcall InitializeDLSSFeatures(ID3D11DeviceContext* deviceContext)
 void __fastcall Evaluate_NGX_dlss(ID3D11DeviceContext* d3dcontext, ID3D11Device* InDevice, IDXGISwapChain* pSwapChain)
 {
 #if defined(NVSL)
-	sl::ViewportHandle myViewport = { (UINT32)GetActiveWindow() };
-	const sl::BaseStructure* inputs[] = { &myViewport };
+	if (!pNVstreamline) {
+		return;
+	}
+
+	sl::ViewportHandle myViewport = pNVstreamline->myViewport;
 
 	sl::FrameToken* currentFrame{};
 	slGetNewFrameToken(currentFrame);
 
-	sl::ResourceTag depthTag = sl::ResourceTag{ nullptr, sl::kBufferTypeDepth, sl::ResourceLifecycle::eValidUntilPresent };
-	slSetTagForFrame(*currentFrame, myViewport, &depthTag, 1, 0);
-
 	sl::Constants consts = {};
 	consts.mvecScale = { 1,1 };
 	slSetConstants(consts, *currentFrame, myViewport);
+
+	/*sl::Resource depth = sl::Resource{ sl::ResourceType::eTex2d, nullptr, nullptr, nullptr, 0 };
+	sl::Resource mvec = sl::Resource{ sl::ResourceType::eTex2d, nullptr, nullptr, nullptr, 0 };
+	sl::ResourceTag depthTag = sl::ResourceTag{ &depth, sl::kBufferTypeDepth, sl::ResourceLifecycle::eValidUntilPresent};
+	sl::ResourceTag mvecTag = sl::ResourceTag{ &mvec, sl::kBufferTypeMotionVectors, sl::ResourceLifecycle::eValidUntilPresent };
+	sl::ResourceTag inputsTag[] = { depthTag, mvecTag };
+	slSetTagForFrame(*currentFrame, myViewport, inputsTag, _countof(inputsTag), 0);*/
+
+
+	//, &depthTag, &mvecTag
+	const sl::BaseStructure* inputs[] = { &myViewport };
 
 	auto slresult = slEvaluateFeature(sl::kFeatureDLSS, *currentFrame, inputs, _countof(inputs), 0);
 	static int initialized = 0;
@@ -244,12 +274,10 @@ void __fastcall Evaluate_NGX_dlss(ID3D11DeviceContext* d3dcontext, ID3D11Device*
 		if (slresult != sl::Result::eOk) {
 			TriggerDLSSFailureResult((UINT32)slresult + 9900, 1);
 		}
+		initialized = 1;
 	}
 
-	initialized++;
-	if (initialized > 6000) {
-		initialized = 0;
-	}
+	// Flush is +378
 #else 
 	if (!pNGX_dlss) {
 		return;
@@ -257,6 +285,18 @@ void __fastcall Evaluate_NGX_dlss(ID3D11DeviceContext* d3dcontext, ID3D11Device*
 
 	NVSDK_NGX_D3D11_DLSS_Eval_Params D3D11DlssEvalParams;
 	memset(&D3D11DlssEvalParams, 0, sizeof(D3D11DlssEvalParams));
+
+	ID3D11Buffer* pInBuffer;
+	pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pInBuffer);
+	D3D11_BUFFER_DESC InDesc;
+	pInBuffer->GetDesc(&InDesc);
+
+	ID3D11Buffer* pOutBuffer;
+	InDevice->CreateBuffer(&InDesc, nullptr, &pInBuffer);
+	d3dcontext->CopyResource(pOutBuffer, pInBuffer);
+
+	D3D11DlssEvalParams.Feature.pInColor = pInBuffer;
+	D3D11DlssEvalParams.Feature.pInOutput = pOutBuffer;
 
 	ID3D11DepthStencilView* pDepthStencilView = pD3D11Forwarder->pDepthStencilView;
 	if (pDepthStencilView) {
@@ -269,10 +309,9 @@ void __fastcall Evaluate_NGX_dlss(ID3D11DeviceContext* d3dcontext, ID3D11Device*
 	if (pRenderTargetView1) {
 		ID3D11Resource* pColorResource1;
 		pRenderTargetView1->GetResource(&pColorResource1);
-		D3D11DlssEvalParams.Feature.pInColor = pColorResource1;
-		D3D11DlssEvalParams.Feature.pInOutput = pColorResource1;
+		D3D11DlssEvalParams.pInMotionVectors = pColorResource1;
 	}
-	// NVSL.dll+1CD9 
+	// NVSL.dll+1DB1  
 
 	//D3D11DlssEvalParams.Feature.pInColor = unresolvedColorResource;
 	//D3D11DlssEvalParams.Feature.pInOutput = resolvedColorResource;
@@ -305,12 +344,23 @@ void __fastcall Evaluate_NGX_dlss(ID3D11DeviceContext* d3dcontext, ID3D11Device*
 			pSwapChain->ResizeTarget(&chainDesc.BufferDesc);*/
 		}
 	}
+
+	if (slresult == NVSDK_NGX_Result_Success) {
+		d3dcontext->CopyResource(pInBuffer, pOutBuffer);
+		pOutBuffer->Release();
+	}
+
 #endif
 }
 
 void __fastcall Release_NGX_dlss()
 {
 #if defined(NVSL)
+	if (pNVstreamline) {
+		_aligned_free(pNVstreamline);
+		pNVstreamline = nullptr;
+	}
+
 	slShutdown();
 #else
 	if (pNGX_dlss) {

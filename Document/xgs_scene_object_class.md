@@ -385,10 +385,21 @@ Added the following values available for SGO node names.
 ##### [Return to Index](#index)
 
 ### Humanoid_Basic
+
 | sgo node name | value type | function | value description |
 |---|---|---|---|
 | - | - | - |here are functions that game exists but doesn't use|
-|humanoid_climb_setting|ptr||[exset parameters](#Humanoid_Basic-ClimbSet), all parameters must be present|
+|humanoid_base_level_config|ptr||[parameters](#Humanoid_Basic-BaseLvConig), all parameters must be present|
+| - | - | - |here are functions that game exists but doesn't use|
+|humanoid_climb_setting|ptr||[parameters](#Humanoid_Basic-ClimbSet), all parameters must be present|
+
+#### Humanoid_Basic BaseLvConig
+| node index | value type | value description |
+|---|---|---|
+|0|ptr|float0 is base speed, float1 is acceleration, float2 is max speed|
+|1|ptr||
+|2|ptr|0 if not used|
+|3|ptr|0 if not used|
 
 #### Humanoid_Basic ClimbSet
 | node index | value type | value description |

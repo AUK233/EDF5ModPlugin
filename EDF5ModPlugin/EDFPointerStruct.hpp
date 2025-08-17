@@ -188,12 +188,19 @@ static_assert(offsetof(EDFWeaponStruct, AmmoFriendlyFireType) == 0x2514);
 
 __declspec(align(16)) typedef struct EDFBaseClass_t {
 	void* vf_table;
-	BYTE pad8[0x1E8];
-	float unk1F0;
-	float MinHP, MaxHP, CurrentHP;
+	INT64 pad8;
+	void* pSelf;
+	BYTE pad18[0x20];
+	CRITICAL_SECTION CriticalSection;
+	BYTE pad60[0x10];
+	float basePosMatrix[4][4];
+	BYTE padB0[0x140];
+	float unk1F0, MinHP, MaxHP, CurrentHP;
 	BYTE pad200[8]; // +4 always is 100.0f
 	float TotalEnergy, CurrentEnergy;
-	BYTE pad210[0x1378];
+	BYTE pad210[0x220];
+	float classPosMatrix[4][4];
+	BYTE pad470[0x1118];
 	EDFStdVector_t v_WeaponPointer;
 	BYTE pad15a8[0xF4];
 	float WeaponRecoil;
@@ -204,6 +211,7 @@ __declspec(align(16)) typedef struct EDFBaseClass_t {
 	float CurrentCollectRange; // It is written
 	BYTE pad1740[0x2C0];
 } *PEDFBaseClass;
+static_assert(offsetof(EDFBaseClass_t, basePosMatrix) == 0x70);
 static_assert(offsetof(EDFBaseClass_t, v_WeaponPointer.p) == 0x1590);
 static_assert(offsetof(EDFBaseClass_t, WeaponRecoil) == 0x169C);
 static_assert(offsetof(EDFBaseClass_t, WalkingSpeed) == 0x16A8);

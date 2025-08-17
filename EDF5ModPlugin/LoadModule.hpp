@@ -5,7 +5,7 @@
 #include "zHui/HuiCasController.h"
 #include "zHui/HuiObjectClass.h"
 #include "zHui/HuiModConsole.h"
-#include "zHui/HuiWindowSize.h"
+//#include "zHui/HuiWindowSize.h"
 
 #include "zEnemy/EnemyHook_GiantAnt.h"
 #include "zEnemy/EnemyHook_BigNest.h"

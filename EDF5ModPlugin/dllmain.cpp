@@ -420,7 +420,7 @@ static void *__fastcall initterm_hook(void *unk1, void *unk2) {
 		// Now inject only when needed, for crash rate reduction
 
 		// There is a problem with the dlss execution, so it is not used now.
-		/*auto dlss = LoadLibraryW(L"./subtitle/NVSL.dll");
+		/*auto dlss = LoadLibraryW(L"NVSL.dll");
 		if (dlss) {
 			auto initDLSS = (callDLSS)GetProcAddress(dlss, "InitializeDLL");
 			initDLSS(hmodEXE);

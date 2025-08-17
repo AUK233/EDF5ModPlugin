@@ -108,9 +108,6 @@
     <ClCompile Include="zHui\HuiModConsole.cpp">
       <Filter>Source Files\Module Hui</Filter>
     </ClCompile>
-    <ClCompile Include="zHui\HuiWindowSize.cpp">
-      <Filter>Source Files\Module Hui</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMgamelog_hook.asm">
@@ -236,9 +233,6 @@
     <MASM Include="zHui\ASMHuiModConsole.asm">
       <Filter>Source Files\Module Hui</Filter>
     </MASM>
-    <MASM Include="zHui\ASMHuiWindowSize.asm">
-      <Filter>Source Files\Module Hui</Filter>
-    </MASM>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PluginAPI.h">
@@ -341,9 +335,6 @@
       <Filter>Source Files\Module Hui</Filter>
     </ClInclude>
     <ClInclude Include="zHui\HuiModConsole.h">
-      <Filter>Source Files\Module Hui</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\HuiWindowSize.h">
       <Filter>Source Files\Module Hui</Filter>
     </ClInclude>
   </ItemGroup>

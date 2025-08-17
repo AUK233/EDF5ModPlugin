@@ -19,7 +19,7 @@ void __fastcall TriggerDLSSFailureResult(UINT32 slresult, int FreeDLSS);
 
 extern "C" {
     HRESULT WINAPI Initialize_NGX_dlss(
-        _In_opt_ IDXGIAdapter* pAdapter,
+        DXGI_SWAP_CHAIN_DESC* pChainDesc,
         D3D_DRIVER_TYPE DriverType,
         HMODULE Software,
         UINT Flags,
@@ -31,16 +31,18 @@ extern "C" {
         _COM_Outptr_opt_ ID3D11DeviceContext** ppImmediateContext);
 
     void __fastcall InitializeDLSS(ID3D11Device* InDevice);
-    void __fastcall InitializeDLSSFeatures(ID3D11DeviceContext* deviceContext);
+    void __fastcall InitializeDLSSFeatures(ID3D11DeviceContext* deviceContext, DXGI_SWAP_CHAIN_DESC* pChainDesc);
 
     void __fastcall Evaluate_NGX_dlss(ID3D11DeviceContext* d3dcontext, ID3D11Device* InDevice, IDXGISwapChain* pSwapChain);
     void __fastcall Release_NGX_dlss();
 }
 
 __declspec(align(16)) typedef struct CID3D11Forwarder_t {
-	void* pVTable; // vftable pointer
+    ID3D11Device* pDevice;
     ID3D11DeviceContext* pD3DDeviceContext;
-    BYTE pad10[0x20];
+    int pad10[4];
+	ID3D11Device* pDevice1; // as same as pDevice
+    void* pad28;
 	ID3D11RenderTargetView* pRenderTargetView[8]; // what? has 8
 	ID3D11DepthStencilView* pDepthStencilView;
 } *PCID3D11Forwarder;

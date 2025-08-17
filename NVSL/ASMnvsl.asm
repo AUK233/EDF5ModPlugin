@@ -14,7 +14,7 @@ ASMdx11CreateDevice proc
 
 	xor r9d, r9d
 	xor r8d, r8d
-	xor ecx, ecx
+	lea rcx, [rbp-49h] ; DXGI_SWAP_CHAIN_DESC
 	call Initialize_NGX_dlss
 	mov esi, eax
 	jmp dx11CreateDeviceRetAddr
