@@ -11,16 +11,13 @@
 #include <list>
 #include <cstdlib>
 
-#include <d3d11.h>
-#pragma comment(lib, "D3D11.lib")
-
 #include "utiliy.h"
 #include "commonNOP.h"
+#include "ToGui/0GetDXGI.h"
 #include "HuiModConsole.h"
 
 int ModConsoleStatus;
 HUiModConsoleFunctionMap* pHuiModConsoleFunction;
-DXGI_SWAP_CHAIN_DESC* pDXGISwapChainDesc;
 
 extern "C" {
 	void __fastcall ASMgetChatWideString();
@@ -41,8 +38,9 @@ void module_UpdateHuiModConsole(PBYTE hmodEXE)
 
 void module_InitializeHuiModConsole(PBYTE hmodEXE)
 {
+	/*
 	auto tempP = hmodEXE + 0x1256C40;
-	pDXGISwapChainDesc = (DXGI_SWAP_CHAIN_DESC*)tempP;
+	pDXGISwapChainDesc = (DXGI_SWAP_CHAIN_DESC*)tempP;*/
 
 	vedf125ABD8 = (uintptr_t)(hmodEXE + 0x125ABD8);
 
@@ -131,6 +129,7 @@ void ModConsole_MonitorKeys()
 {
 	while (ModConsoleStatus) {
 		//
+		auto pDXGISwapChainDesc = DXGI_GetDXGISwapChainDesc();
 		if (GetForegroundWindow() == pDXGISwapChainDesc->OutputWindow) {
 
 			auto Pressed_ctrl = GetAsyncKeyState(VK_CONTROL) & 0x8000;

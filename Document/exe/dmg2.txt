@@ -1,0 +1,202 @@
+
+
+
+==================================================
+弹头
++41d 判断是否更新伤害？
+EDF5.exe+144676 - 80 B9 3D030000 00     - cmp byte ptr [rcx+0000033D],00
+EDF5.exe+144F60 - 80 BF 3D030000 00     - cmp byte ptr [rdi+0000033D],00 是否更新伤害
+
++41a 检查持续伤害？这是贯穿
+EDF5.exe+143FA3 - 44 38 AF 3A030000     - cmp [rdi+0000033A],r13b
+
+EDF5.exe+1441E6 - E8 35551900           - call EDF5.exe+2D9720 这里是计算伤害
+
++4e0
+EDF5.exe+144264 - C6 87 00040000 01     - mov byte ptr [rdi+00000400],01 设置为命中
+
+
+EDF5.exe+188C4E 穿甲弹头命中 是vft+10
+
+==================================================
+弹射
+
+EDF5.exe+143B6C - 83 B9 24030000 00     - cmp dword ptr [rcx+00000324],00
+决定能不能弹射
+
+EDF5.exe+14410F - 83 BF 24030000 03     - cmp dword ptr [rdi+00000324],03
+EDF5.exe+144188 - 8B 87 24030000        - mov eax,[rdi+00000324]
+EDF5.exe+1441EB - 83 BF 24030000 03     - cmp dword ptr [rdi+00000324],03
+
+EDF5.exe+1423C9 - 4C 89 B6 20030000     - mov [rsi+00000320],r14
+默认初始化
+
+EDF5.exe+144787 - 8B 89 24030000        - mov ecx,[rcx+00000324]
+先检查能不能弹射
+EDF5.exe+1447B0 - 44 38 BF 3A030000     - cmp [rdi+0000033A],r15b
+检查能不能击穿护盾，相对于弹头就是+41A
+EDF5.exe+1449F5 - 74 1C                 - je EDF5.exe+144A13
+如果jmp则总是贯穿护盾，但是会导致命中特效不消失
+
+EDF5.exe+1431C0 - 0F29 45 E7            - movaps [rbp-19],xmm0
+写入弹头的新位置
+
+EDF5.exe+143A41 - 75 10                 - jne EDF5.exe+143A53
+检查是否需要碰撞检查
+==================================================
+
+
+
+
+EDF5.exe+1EF0BB - E8 20E0FFFF           - call EDF5.exe+1ED0E0
+飞龙吐息
+
+edf5.exe+1687a5
+烧夷弹读弹头指针？
+
+edf5.exe+204FC0
+喷酸
+
+edf5.exe+225DA0
+蜘蛛丝
+
+edf5.exe+220595
+
+EDF5.exe+157C14 - F3 0F10 9E 68030000   - movss xmm3,[rsi+00000368]
+激光爆炸
+
+EDF5.exe+142693 - 74 21                 - je EDF5.exe+1426B6
+
+EDF5.exe+141A2A - 48 C7 41 54 0000803F  - mov qword ptr [rcx+54],3F800000 { (1309556606) }
+初始化弹头？
+
+EDF5.exe+145454 - F3 0F10 B3 28010000   - movss xmm6,[rbx+00000128]
+移除爆炸效果？
+
+EDF5.exe+14542B - 83 BB 20030000 00     - cmp dword ptr [rbx+00000320],00 { 0 }
+
+EDF5.exe+17127C - C7 86 00040000 01000000 - mov [rsi+00000400],00000001 { 1 }
+移除爆炸击飞效果
+
+EDF5.exe+1426AC - EB 08                 - jmp EDF5.exe+1426B6
+无摧毁建筑
+
+EDF5.exe+15953D
+激光命中贴图
+
+2df424
+EDF5.exe+2E007A
+ranger辅助槽使用
+
+EDF5.exe+308CB9 - 44 38 AF 550B0000     - cmp [rdi+00000B55],r13b
+检查是否装填武器
+
+EDF5.exe+390195 - 80 BE DB000000 01     - cmp byte ptr [rsi+000000DB],01
+检查武器是否使用secondaryFire
+EDF5.exe+390FE6 - 48 63 81 00050000     - movsxd  rax,dword ptr [rcx+00000500]
+武器使用secondaryFire
+
+EDF5.exe+2ED3B8 获取玩家指针
++200 4字节，是否紧急充能
++b20 4字节，玩家位？EDF5.exe+2DFB7B 此处写入，总是0
++b50 1字节，是非fencer按下左键
++b52 1字节，是非fencer按下右键
++b54 1字节，是非fencer切换武器
++b5f 1字节，是非fencer切换武器
++b55 1字节，是非fencer装填武器
++b56 1字节，是非fencer按下跳跃
++b5a 1字节，是非fencer按q
++b60 1字节，是非fencer切换到武器1
++b61 1字节，是非fencer切换到武器2
++b62 1字节，是非fencer切换到武器3
++470 4字节，是判断剑兵
++1168 8字节，指向载具指针
++1590 8字节，指向武器组，武器组是武器指针，含辅助装备
++15A0 4字节，总武器数，含辅助装备
++1610 4字节，辅助装备数
+
+EDF5.exe+2E0B7F - 80 BF 5C0B0000 00     - cmp byte ptr [rdi+00000B5C],00
+ranger冲刺中检查按键，56相差220h
+EDF5.exe+2E094F - 48 8D B1 500E0000     - lea rsi,[rcx+00000E50]
+
+6和5的映射
+movss xmm1, dword ptr [rsi+1F6C] 和 movss xmm1, dword ptr [rdi+1A78]
+mov rax, qword ptr [rcx+1EF8] 和 mov rax, qword ptr [rcx+1A28]
+5+1a28->+d60
+rdi+38约等于5的+f18
+
+
+EDF5.exe+308CF3 士兵武器开火判断
+EDF5.exe+308D0F 设置士兵武器开火
+
+EDF5.exe+391D2E 武器开火时检查
+
+EDF5.exe+488C7 写入非fencer左键按键情况
+EDF5.exe+49490 写入所有载具左键
+
+EDF5.exe+3391F8 电磁炮武器开火
+EDF5.exe+3606BF nix武器左键开火
+
+EDF5.exe+393227 - 8B 8F F0020000        - mov ecx,[rdi+000002F0]
+
+EDF5.exe+14542B - 83 BB 20030000 00     - cmp dword ptr [rbx+00000320],00
+检测是否击飞敌人
+
+EDF5.exe+3548F9 - F3 41 0F11 82 FC010000  - movss [r10+000001FC],xmm0
+覆写载具HP
+
+EDF5.exe+358EA7 写入载具指针+418
+EDF5.exe+353954 分配给+418的空间
+
+EDF5.exe+9C58E 将载具指针写入玩家指针
+EDF5.exe+2EFB82 将载具某些信息写入玩家指针，+258是拾取半径
+EDF5.exe+309579 读玩家拾取范围，下面的+258是载具拾取
+
+
+EDF5.exe+3532DD 载具武器加载，有些时候会异常大
+EDF5.exe+352BD2
+
+
+EDF5.exe+142861 - 8B 43 64              - mov eax,[rbx+64]
+复制弹头大小
+
+EDF5.exe+14265A - F3 0F11 8E 20010000   - movss [rsi+00000120],xmm1
+赋予弹头伤害
+
+EDF5.exe+E2CB3 - 8B 43 40              - mov eax,[rbx+40]
+拷贝弹头伤害
+
+弹头指针+358是AmmoAlive
++e0会检查弹头是否命中
+
+EDF5.exe+3A4CE3 - 83 3D B290EA00 02     - cmp dword ptr [EDF5.exe+124DD9C],02
+打电话检查允许空袭类型，0是默认，1是禁止，2是地下可用
+EDF5.exe+182CA3 - 8B 0D F3B00C01        - mov ecx,[EDF5.exe+124DD9C]
+信号弹检查
+
+EDF5.exe+3A4E90
+空袭调整视角
+EDF5.exe+3A578B
+
+EDF5.exe+3A4CDA - 83 B8 50080000 00     - cmp dword ptr [rax+00000850],00
+检查是否在地面，0在地面，1是地下
+EDF5.exe+612AC0 - 41 39 0E              - cmp [r14],ecx
+额外比较
+EDF5.exe+626F74 - 8B 02                 - mov eax,[rdx]
+未知用途
+
+
+EDF5.exe+12D7D8 让ai移动
+
+EDF5.exe+2DAB09 - 88 87 30030000        - mov [rdi+00000330],al
+读game_object_ai_route_update_distance 返回
+虚表+20的功能中有ai移动
+
+EDF5.exe+2DDDC0 - 40 55                 - push rbp
++31c是game_object_ai_route_update_distance
+
+EDF5.exe+3643E2 - 0F11 81 A0010000      - movups [rcx+000001A0],xmm0
+bmx ai移动坐标
+
+
+

@@ -1,0 +1,70 @@
+edf5.exe+3cb59b
+
+1mod.dll+232EF
+rsi+148h
+
+EDF5.exe+34C8EA
+EDF5.exe+49f5af
+EDF5.exe+3540eb
+nix崩溃
+
+EDF5.exe+398ADB
+
+检查载具武器
+EDF5.exe+3AC050 - 83 FA 01              - cmp edx,01
+
+电磁炮武器读取
+EDF5.exe+375E59 - 90                    - nop 
+电磁炮分配内存
+EDF5.exe+338337 - B9 10260000           - mov ecx,00002610
+
+
+
+
+武器开火
+EDF5.exe+391C60
+
+检查开火
+EDF5.exe+3AC095 - F6 81 1C110000 01     - test byte ptr [rcx+0000111C],01
+
+
+辅助装备使用
+EDF5.exe+398CC8 - EB 05                 - jmp EDF5.exe+398CCF
+
+电磁炮检查？
+EDF5.exe+3ABFC6 - FF 50 08              - call qword ptr [rax+08]
+电磁炮武器？
+EDF5.exe+612345 - 48 8B 0B              - mov rcx,[rbx]
+
+载具开火时触发
+EDF5.exe+1665DA - 48 89 83 C0000000     - mov [rbx+000000C0],rax
+
+将武器当前弹数转为文字
+EDF5.exe+4D39E6 - 90                    - nop 
+
+设置载具武器骨骼
+EDF5.exe+3533E1 - 44 3B 47 04           - cmp r8d,[rdi+04]
+
+载具武器序号指针
+EDF5.exe+4D39C3 - 48 8B 83 C8000000     - mov rax,[rbx+000000C8]
+
+HP
++1fc
+
+载具武器总数
+EDF5.exe+357340 - 4C 8B 83 D8000000     - mov r8,[rbx+000000D8]
+
+rax是玩家，+1160是载具武器
+EDF5.exe+A019B
+
+键盘输入使用辅助槽1
+EDF5.exe+2ED3B8 - 0FB6 84 1F F1070000   - movzx eax,byte ptr [rdi+rbx+000007F1]
+
+检查鼠标输入
+EDF5.exe+2F64EA - 0F85 A6010000         - jne EDF5.exe+2F6696
+
+检查键盘移动
+EDF5.exe+2F6415 - 75 79                 - jne EDF5.exe+2F6490
+
+
+

@@ -1,0 +1,56 @@
+EDF5.exe+5F36E0
+next keyframe (x,y,z,1) - current keyframe (x,y,z,1) * ([rsp+30] to  (x,y,z,w)) + current keyframe (x,y,z,1) * axis transformation speed (x,y,z,1) + initial axis (x,y,z,1)
+r10是基础指针，r9是前一个帧，rcx是后一个帧，r11是基础xyzw和速度xyzw
+
+EDF5.exe+5E10CE
+EDF5.exe+1256C88 ID3D11Device* 和d00是一样的
+EDF5.exe+1256C90 ID3D11DeviceContext* 和d08是一样的
+EDF5.exe+1256CA8 待验证
+
+EDF5.exe+1256C98 是+C8，IDXGISwapChain*
+EDF5.exe+5E1BB9 - 48 89 9F C8000000     - mov [rdi+000000C8],rbx
+这里写入指针
+
+EDF5.exe+1256BD0 渲染部分指针的基址
+
+EDF5.exe+1256D08 ID3D11DeviceContext* +8
+EDF5.exe+1256D30 ID3D11RenderTargetView* +30
+EDF5.exe+1256D70 ID3D11DepthStencilView* +70
+
+
+
+EDF5.exe+5F0467 - 49 8B 8D B8000000     - mov rcx,[r13+000000B8]
+EDF5.exe+5F04EA - 49 8B 8D B8000000     - mov rcx,[r13+000000B8]
+任务中使用ID3D11Device，是同一函数
+
+EDF5.exe+1256C40是DXGI_SWAP_CHAIN_DESC
+
+
+EDF5.exe+5E22AF - 8B 2D 1B87C700        - mov ebp,[EDF5.exe+125A9D0]
+实时渲染获取窗口宽度
+EDF5.exe+125A9C8 窗口句柄
+
+EDF5.exe+60B871 - FF 15 D1BF6800        - call qword ptr [EDF5.exe+C97848]
+实时设置窗口大小
+
+IDXGISwapChain::Present返回
+EDF5.exe+5E3187 - 48 8D 9F 40290000     - lea rbx,[rdi+00002940]
+
+EDF5.exe+5C723F - FF 50 48              - call qword ptr [rax+48]
+是CreateRenderTargetView
+
+EDF5.exe+5EFA40 - 41 FF 91 A8010000     - call qword ptr [r9+000001A8]
+是ClearDepthStencilView
+
+EDF5.exe+5F03AF 是CreateBuffer
+
+EDF5.exe+5E1EF8 - 41 FF 52 68           - call qword ptr [r10+68]
+这里call IDXGISwapChain::ResizeBuffers
++80 是 DXGI_FORMAT
++b0 是 SwapChainFlags
+
+EDF5.exe+5E10F0 D3D11CreateDevice
+
+
+
+

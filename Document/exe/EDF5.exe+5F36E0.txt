@@ -1,0 +1,318 @@
+
+
+EDF5.exe+4FD1AB - 4C 8D 60 10           - lea r12,[rax+10]
+r12是输入的文本的字符串
+
+EDF5.exe+2E0FFD
+ranger初始化动作，尝试修改
+EDF5.exe+2DFBC2
+写入ranger动作的指针
+
+EDF5.exe+11E4DD 2C(0x3ED 获取玩家类型，获取玩家指针
+
+
+
+
+1MOD.dll+29793 
+
+EDF5.exe+5C43D0 SGO编码转换
+
+EDF5.exe+114D50 - 48 89 5C 24 08        - mov [rsp+08],rbx
+call 脚本
+EDF5.exe+5AAC74 eax是脚本指令编号
+EDF5.exe+473929 返回SGO的文本指针
+
+EDF5.exe+127441 2C(0x24 检查文本是否为空
+EDF5.exe+115830 2C(0x24 call显示文本
+EDF5.exe+115843 - 89 07                 - mov [rdi],eax 写回脚本对象索引？
+EDF5.exe+1155D4 2C(0x1F 取消显示文本
+
+
+EDF5.exe+11589B 2C(0x26 显示失败选项
+EDF5.exe+54ADF4 失败选项文本
+EDF5.exe+54B2B4 联机时等待房主选择
+
+EDF5.exe+116903 2C(0xBB8 移除对象
+
+
+
+00007FF6427D745B 12685B
+
+EDF5.exe+11667C 2C(0xFA0 call播放声音
+EDF5.exe+1166FC 2C(0xFA2);
+
+EDF5.exe+115074 2C(0x1004)；播放单位声音前置条件
+EDF5.exe+1150F4 2C(0x1006 call压入单位声音，r8是声音名字
+EDF5.exe+115170 2C(0x1007 call压入单位声音，r8是声音名字
+EDF5.exe+115206 2C(0x1009 call压入单位声音，r9是声音名字
+EDF5.exe+1150B8 2C(0x1005); 播放单位声音
+
+EDF5.exe+5AAEA7 inc [rdi+78] 声音播放时增加的计数
+EDF5.exe+5AAEBD mov [rdi+78],00000000 播放完成后置0
+
+
+
+EDF5.exe+11B9ED 播放bgm时寻找文件，没有则返回的al是0
+EDF5.exe+47CA27 播放语音时寻找文件
+
+
+
+
+语音播放检查
+EDF5.exe+5AA03E - C6 41 68 00           - mov byte ptr [rcx+68],00
+EDF5.exe+5AAEA1 - 80 7F 68 00           - cmp byte ptr [rdi+68],00 可能为结束
+EDF5.exe+5A9EC5 - 80 7B 68 00           - cmp byte ptr [rbx+68],00
+
+48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 0F 29 74 24 20 0F
+EDF5.exe+199000 检查箱子拾取 mov rsi, rcx
+mov eax, dword ptr [rsi+A84] 检查拾取上限
+可由EDF5.exe+198FB1处获取，此处是检查拾取
+
+EDF5.exe+3E32A1 je edf5.7FF67B6932AE
+检查是否是最后一关，解锁地狱
+mov byte ptr [r8+1F4], 1 解锁地狱
+可由搜索 ApplyResult 来获取 lea eax
+
+EDF5.exe+527D42 - 4D 63 69 48           - movsxd  r13,dword ptr [r9+48]
+选择任务
+
+EDF5.exe+3D6B98 写入获取任务表
+搜索 .txt_sgo
++178是当前任务列表指针，它+4是总任务数
+搜索 ApplyResult，加载的函数是完成任务后计数
+EDF5.exe+3E32F4
+mov byte ptr [r8+1F4], 1 类似是允许地狱模式
+
+搜索ButtonInferno，它的上一个函数应该是lea rdx ButtonHardest
+EDF5.exe+512307 cmp byte ptr [rax+1F4], 0 检查是否开启地狱
+另外一个检查位，允许按钮可以选择
+EDF5.exe+5123C6 - 0FB6 88 F4010000      - movzx ecx,byte ptr [rax+000001F4]
+
+
+
+HUiHQSoldierSelect
+
+EDF5.exe+4C1394 切换模型call虚表，对象大小0x40
+EDF5.exe+EC9850是它的虚表
+
+EDF5.exe+4C42C4 写入按钮对象指针
+EDF5.exe+5316FC 这里初始化 可能是EDF5.exe+4C3E16 call的
+
+EDF5.exe+4BF7BF 复制rbp+3D8，模型选择序号
+EDF5.exe+52E182 的函数会读rbp+1f0视为rcx+80，看起来是释放内存
+EDF5.exe+752C2 的rdx是rbp+1f0
+
+
+切换模型
+EDF5.exe+52DDA4 ModelIndexMission
+EDF5.exe+53168D 设置跟随任务 -1
+
+EDF5.exe+52DEE4 ModelIndexCivilian
+EDF5.exe+5315ED 设置市民 1
+
+EDF5.exe+52DFFB ModelIndexSoldier
+EDF5.exe+53154D 设置士兵 0
+是虚表+10，EDF5.exe+ED3198是士兵的虚表
+
+EDF5.exe+1148AB - F3 0F10 44 01 2C      - movss xmm0,[rcx+rax+2C]
+载入任务时读取任务列表中的第4个值
+
+EDF5.exe+1992C6 - 44 03 83 880A0000     - add r8d,[rbx+00000A88]
+结束任务时读取拾取的绿箱子数
+EDF5.exe+54BF6F - 89 83 900A0000        - mov [rbx+00000A90],eax
+重新开始任务是累加绿箱子
+EDF5.exe+125ABD8是箱子指针
+
+=====================================
+EDF5.exe+2F7588 - 49 8D 95 F81A0000     - lea rdx,[r13+00001AF8]
+加载到羽翼紧急充能节点 需要0x10字节？可能需要0x18字节
+EDF5.exe+2FB969 开始紧急充能激活
+EDF5.exe+2FBA00 紧急充能完成激活
+、
+EDF5.exe+2F73ED 准备加载羽翼喷射节点
+
+
+EDF5.exe+2F71BD - 49 8D 95 101B0000     - lea rdx,[r13+00001B10]
+加载到booster_angle_limit
+
+EDF5.exe+3AF865 均从这里读取
+=====================================
+
+EDF5.exe+304FA7 - F3 0F11 4C 24 20      - movss [rsp+20],xmm1
+离线模式获取玩家颜色（任务）
+EDF5.exe+58D25F - 42 0F10 84 10 6C6E0000  - movups xmm0,[rax+r10+00006E6C]
+离线模式获取玩家颜色（菜单）
+
+EDF5.exe+50B2EA - 0F11 8C C8 6C6E0000   - movups [rax+rcx*8+00006E6C],xmm1
+写入玩家颜色
+EDF5.exe+50B2AE 写入颜色时获取兵科序号
+EDF5.exe+50EBC0 写入颜色序号
+
+EDF5.exe+8FED6 - 41 89 43 F8           - mov [r11-08],eax
+设置玩家颜色到默认
+
+EDF5.exe+304F31 - F3 0F11 44 24 20      - movss [rsp+20],xmm0
+在线模式获取玩家颜色
+
+EDF5.exe+125AB30的指针
++6d4c是1p兵科，再+4是兵科模型序号
+再+3e60是2p
+
+EDF5.exe+52E491 - 42 89 7C 01 28        - mov [rcx+r8+28],edi
+写入玩家兵科
+
+EDF5.exe+8AEBF - 44 8B 8C 0A 506D0000  - mov r9d,[rdx+rcx+00006D50]
+EDF5.exe+588CAB - 46 8B B4 00 506D0000  - mov r14d,[rax+r8+00006D50]
+这两处读过兵科模型序号
+
+EDF5.exe+306AFB - FF 90 30020000        - call qword ptr [rax+00000230]
+加载辅助装备加成
+
+EDF5.exe+2E0894 - F3 0F11 87 701A0000   - movss [rdi+00001A70],xmm0
+ranger冲刺初始化速度
+EDF5.exe+2E0A8E - F3 0F10 8F 701A0000   - movss xmm1,[rdi+00001A70]
+ranger冲刺中
+
+EDF5.exe+2E4841
+fencer喷射尾炎，rax是效果指针
+EDF5.exe+19C467 +390是尾炎持续大小，+394是喷射大小
++1e0是尾炎颜色 EDF5.exe+1BB9DF在此处读取
+
+EDF5.exe+2E403A 这里写入fencer喷射尾炎颜色
+EDF5.exe+2FA302 羽翼飞行时喷射尾炎
+
+=========================================
+EDF5.exe+5FA9DA 读CasDataCommon的类型1所指向的数据类型
+读取了4个四字节，p1是-1时直接读取p2的值，p2只有-1和不是的类型
+p3 为0时，直接读取p4的值。为1是p4设置为0。其他则更为复杂。
+p4是TControl的序号，为负数时作为0
+p5 为0时，直接读取p6的浮点值。为1时读p6的int值。其他则忽略p6
+p6 是弧度
+
+EDF5.exe+5FB4B0 读CasDataCommon的类型6所指向的数据类型
+=========================================
+
+EDF5.exe+2EE6F1 - 80 BF C20D0000 00     - cmp byte ptr [rdi+00000DC2],00
+被爆炸武器攻击时检查玩家是否被击倒，rsi+58是爆炸半径
+
+================================================
+EDF5.exe+121385 可能是2C(0x400,
+
+EDF5.exe+11F14C CreateFriend 设置驾驶位
+edf5的nix瞄准
+EDF5.exe+3631B0 - 89 86 181B0000        - mov [rsi+00001B18],eax 是虚表+18
+EDF5.exe+3638D8 - 4D 63 BD 181B0000     - movsxd  r15,dword ptr [r13+00001B18]
+
+EDF5.exe+20559F - FF A0 78010000        - jmp qword ptr [rax+00000178] 瞄准是这里
+
+EDF5.exe+3606BF - C6 80 D9000000 01     - mov byte ptr [rax+000000D9],01
+nix写入武器开火
+EDF5.exe+354160 - 83 B8 D4080000 01     - cmp dword ptr [rax+000008D4],01
+检查nix武器
+
+EDF5.exe+3613F4 - 48 8B CB              - mov rcx,rbx
+nix转动
+EDF5.exe+35D8E0 - F3 0F10 42 10         - movss xmm0,[rdx+10]
+是+2d0的
+EDF5.exe+353F03 - 89 6F 0C              - mov [rdi+0C],ebp
+这里将+2d0设为0
+
+EDF5.exe+356011 - 48 8B 99 18040000     - mov rbx,[rcx+00000418]
+人类使用bmx10炮台
+
+EDF5.exe+391D37 - FF 50 68              - call qword ptr [rax+68]
+这里是武器开火，nop以后将无法开火
+
+EDF5.exe+391CB6 - FF 50 40              - call qword ptr [rax+40]
+开火需要call这里，指向下面的，此处的rcx是持有武器的对象指针，EDF6是+58
+EDF5.exe+357310 - 48 89 5C 24 20        - mov [rsp+20],rbx
+不是主炮台rsi会变为0
+
+EDF5.exe+352A51 - C6 87 71100000 01     - mov byte ptr [rdi+00001071],01
+npc载具武器，rdi是指针
+EDF5.exe+360029 由这里call
+
+
+EDF5.exe+46A6E7 载具武器分配内存
+
+EDF5.exe+360009 - 49 8B 86 48040000     - mov rax,[r14+00000448]
+bmx10武器指针数组
+
+EDF5.exe+353BA0 - 48 8B B9 48040000     - mov rdi,[rcx+00000448]
+
+
+edf6的nix默认瞄准
+edf.dll+642C1B 写
+edf.dll+63AE99 读
+edf.dll+649099 bmx10瞄准
+edf.dll+6418C7 bmx10炮台
+
+==================================================
+西瓜虫滚动
+EDF5.exe+218AB6 - 44 0F2F 83 F8120000   - comiss xmm8,[rbx+000012F8]
+可能是ai索敌距离
+
+EDF5.exe+2153C5 - 44 8B 83 1C110000     - mov r8d,[rbx+0000111C]
+设置攻击滚动动画
+EDF5.exe+21412D - 48 8D 05 6C120000     - lea rax,[EDF5.exe+2153A0]
+是从这里读取的
+EDF5.exe+219741 - C6 47 32 01           - mov byte ptr [rdi+32],01
+设置+d02为1
+
+EDF5.exe+219516 - F3 0F59 81 BC120000   - mulss xmm0,[rcx+000012BC]
+EDF5.exe+215033 - F3 0F11 8B BC120000   - movss [rbx+000012BC],xmm1
+加大它和d02为1的效果一致
+
+EDF5.exe+2161EB - 44 8B 83 10110000     - mov r8d,[rbx+00001110]
+设置设置普通滚动动画
+
+EDF5.exe+215F08 - F3 0F10 87 34140000   - movss xmm0,[rdi+00001434]
+检查伤害范围
+
+
+
+
+=============
+
+EDF5.exe+47CAEA
+
+EDF5.exe+999A17 - 81 FA 00414348        - cmp edx,48434100
+检查hca标头
+EDF5.exe+99715A - 8A 06                 - mov al,[rsi]
+EDF5.exe+999450 - 0FB6 13               - movzx edx,byte ptr [rbx]
+
+EDF5.exe+9994A8 此处6的为03会超过200
+edf.dll+108E5F0
+
+0x636F6D70
+EDF5.exe+998B89 - 83 7A 20 00           - cmp dword ptr [rdx+20],1
+edf.dll+108D4E3
+
+返回地址
+EDF5.exe+97ECD2 - 85 C0                 - test eax,eax
+edf.dll+1069F5A
+
+edf.dll+108C86E - 8B 4F 3C              - mov ecx,[rdi+3C]
+edf.dll+108D63E - 83 79 3C 00           - cmp dword ptr [rcx+3C],00 大概对应EDF5.exe+998CD1
+即edf5的rdx+20
+
+edf.dll+108CA19 - 45 89 98 98050000     - mov [r8+00000598],r11d
+
+================================================
+
+EDF5.exe+4ACB57
+ui读取class
+
+EDF5.exe+4AE217 - 48 8D 15 3AF79F00     - lea rdx,[EDF5.exe+EAD958]
+EDF5.exe+4AFFFD - 48 8D 15 54D99F00     - lea rdx,[EDF5.exe+EAD958]
+均为 ui读取base
+
+EDF5.exe+4AD257 - 84 C0                 - test al,al
+ui读取base返回地址
+
+EDF5.exe+5302AD 获取当前任务
+
+
+EDF5.exe+125AB30
++51d8 是玩家名，长度最大16个字
+

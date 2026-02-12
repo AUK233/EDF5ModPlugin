@@ -1,0 +1,43 @@
+激光指示线
+武器函数组
++0，+10 更新坐标
++48 释放内存
+
+EDF5.exe+39906C Weapon_BasicShoot
+EDF5.exe+39BA34 Weapon_HeavyShoot
+EDF5.exe+3ABBEA Weapon_VehicleShoot
+
+
+
+
+EDF5.exe+1824D8 检查信号弹尾烟
+
+EDF5.exe+3A0A91
+EDF5.exe+3A1A99 检查是否设置指示圈
+EDF5.exe+3A1E14 移除指示圈
+EDF5.exe+3B6C80 绘制指示圈
+
+EDF5.exe+3A44AA 空袭电话初始化指示圈
+
+EDF5.exe+38B562 激光瞄准检查碰撞
+指针+A0是红点坐标
+1MOD.dll+214E1
+
+
+EDF5.exe+6170F1 - 0F11 43 40            - movups [rbx+40],xmm0
+写入载具瞄准坐标
+
+
+EDF5.exe+182018 信号弹尾烟更新
+EDF5.exe+182545 信号弹尾烟更新2
+EDF5.exe+181673 信号弹尾烟初始化
+EDF5.exe+181C3E 信号弹释放尾烟内存
+
+EDF5.exe+15EB6B 尾烟更新，内存大小210h
+
+EDF5.exe+1731D4 信号弹更新尾烟3
+EDF5.exe+1BCE24  获取尾烟指针+204
+EDF5.exe+18213C 火箭弹更新尾烟
+
+
+

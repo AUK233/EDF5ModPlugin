@@ -31,6 +31,12 @@
     <Filter Include="Source Files\Module EDF\Vehicle">
       <UniqueIdentifier>{a7b50032-9465-452d-9f13-e272bcb03af0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Module Hui\ToFui">
+      <UniqueIdentifier>{9e2c928b-cca9-49ab-82fd-8c8ec63fe492}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Module Hui\ToFui\imgui">
+      <UniqueIdentifier>{9151c334-89da-40cc-9db9-65f24c593504}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -108,6 +114,36 @@
     <ClCompile Include="zHui\HuiModConsole.cpp">
       <Filter>Source Files\Module Hui</Filter>
     </ClCompile>
+    <ClCompile Include="zHui\0HuiAddImGui.cpp">
+      <Filter>Source Files\Module Hui</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\0SetImGui.cpp">
+      <Filter>Source Files\Module Hui\ToFui</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\imgui\imgui.cpp">
+      <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\imgui\backends\imgui_impl_dx11.cpp">
+      <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\imgui\backends\imgui_impl_win32.cpp">
+      <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\0GetDXGI.cpp">
+      <Filter>Source Files\Module Hui\ToFui</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\imgui\imgui_demo.cpp">
+      <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\imgui\imgui_draw.cpp">
+      <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\imgui\imgui_tables.cpp">
+      <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\imgui\imgui_widgets.cpp">
+      <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMgamelog_hook.asm">
@@ -182,13 +218,13 @@
     <MASM Include="ASMammoSentryGunBullet01.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
-    <MASM Include="zHui\ASMHuiMoreCharacterModel.asm">
+    <MASM Include="zHui\HuiMoreCharacterModelASM.asm">
       <Filter>Source Files\Module Hui</Filter>
     </MASM>
     <MASM Include="ASMhookMissionSeries.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
-    <MASM Include="zHui\ASMHuiDisplaySubtitle.asm">
+    <MASM Include="zHui\HuiDisplaySubtitleASM.asm">
       <Filter>Source Files\Module Hui</Filter>
     </MASM>
     <MASM Include="zEDF\ASMxgsArmySoldier.asm">
@@ -227,10 +263,13 @@
     <MASM Include="zEDF\Vehicle\ASMxgsVehicleBegaruta.asm">
       <Filter>Source Files\Module EDF\Vehicle</Filter>
     </MASM>
-    <MASM Include="zHui\ASMHuiObjectClass.asm">
+    <MASM Include="zHui\HuiObjectClassASM.asm">
       <Filter>Source Files\Module Hui</Filter>
     </MASM>
-    <MASM Include="zHui\ASMHuiModConsole.asm">
+    <MASM Include="zHui\HuiModConsoleASM.asm">
+      <Filter>Source Files\Module Hui</Filter>
+    </MASM>
+    <MASM Include="zHui\0HuiAddImGuiASM.asm">
       <Filter>Source Files\Module Hui</Filter>
     </MASM>
   </ItemGroup>
@@ -336,6 +375,39 @@
     </ClInclude>
     <ClInclude Include="zHui\HuiModConsole.h">
       <Filter>Source Files\Module Hui</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\0HuiAddImGui.h">
+      <Filter>Source Files\Module Hui</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\0SetImGui.h">
+      <Filter>Source Files\Module Hui\ToFui</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\imgui\imgui.h">
+      <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\imgui\backends\imgui_impl_dx11.h">
+      <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\imgui\backends\imgui_impl_win32.h">
+      <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\0GetDXGI.h">
+      <Filter>Source Files\Module Hui\ToFui</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\imgui\imconfig.h">
+      <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\imgui\imgui_internal.h">
+      <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\imgui\imstb_rectpack.h">
+      <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\imgui\imstb_textedit.h">
+      <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\imgui\imstb_truetype.h">
+      <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

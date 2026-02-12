@@ -1,0 +1,178 @@
+EDF5.exe+29B9D1 - 48 8D 05 B8000000     - lea rax,[EDF5.exe+29BA90]
+蜂巢播放死亡动画
+
+EDF5.exe+29BBD7 - 48 8B 83 280A0000     - mov rax,[rbx+00000A28]
+死亡动画播放完成后，检查蜂巢死亡时间
+
+
+EDF5.exe+2543E7
+
+EDF5.exe+260107
+===============================================
+EDF5.exe+260370 - 39 87 18040000        - cmp [rdi+00000418],eax
+EDF5.exe+26043E - 83 BF 18040000 01     - cmp dword ptr [rdi+00000418],01
+EDF5.exe+25FCB7 - 83 BB 18040000 01     - cmp dword ptr [rbx+00000418],01
+
+读多次
+EDF5.exe+261DC5 - 83 BB 18040000 01     - cmp dword ptr [rbx+00000418],01 修改这里即可，这里是是否被击飞
+EDF5.exe+2143B3 - 8B 81 18040000        - mov eax,[rcx+00000418]
+
+EDF5.exe+26182D - 44 8B 8F F8090000     - mov r9d,[rdi+000009F8]
+===============================================
+
+EDF5.exe+2DB9EE - FF 50 78              - call qword ptr [rax+78]
+怪物受到攻击反馈是这里call的函数
+
+EDF5.exe+270007 - 8B 83 C8100000        - mov eax,[rbx+000010C8]
+意味着哥斯拉需要对伤害做出回应，xmm0是做出回应值减伤害，小于0时就需要反应，这里是重置回应
+默认是血量的八分之一
+
+EDF5.exe+26EC56 - F3 41 0F11 86 FC010000  - movss [r14+000001FC],xmm0
+这里写入哥斯拉新血量、受击反应值
+
+
+
+
+EDF5.exe+114D50
+执行任务脚本
+
+EDF5.exe+390972
+武器装填
+EDF5.exe+39059F
+执行武器装填
+
+EDF5.exe+4B15C2
+检查需要显示的文本长度
+
+EDF5.exe+174357 - 48 8B 87 A8030000     - mov rax,[rdi+000003A8]
+ZE开启时拷贝Ammo_CustomParameter
+EDF5.exe+1428C6 - 48 89 87 98000000     - mov [rdi+00000098],rax
+向ZE拷贝Ammo_CustomParameter
+
+EDF5.exe+175270
+ZE获取弹药量
+EDF5.exe+1756F5
+ZE检查弹药量
+
+EDF5.exe+1427C6 - 48 8B 6A 08           - mov rbp,[rdx+08]
+ZE发射时获取+9a8的指针
+
+EDF5.exe+391032 - E8 D9BF0E00           - call EDF5.exe+47D010
+激活武器时播放的声音
+
+
+rsp+0x70 r
+
+7D3FB53E CBA1253F BE9F5A3F 0000803F
+
+edf5.exe+0xebcbd0
+
+EDF5.exe+4B13A0 - 48 8B C4              - mov rax,rsp
+
+EDF5.exe+4D6F50 - 48 8B C4              - mov rax,rsp
+
+reload?
+EDF5.exe+391AB0 - 83 B9 E8080000 00     - cmp dword ptr [rcx+000008E8],00 { 0 }
+
+EDF5.exe+3905B4 - 44 8B 86 E8080000     - mov r8d,[rsi+000008E8]
+
+- ammo
+EDF5.exe+393090 - 01 91 E8080000        - add [rcx+000008E8],edx
+
+reload
+EDF5.exe+391180 - 40 53                 - push rbx
+.text:00000001402A1180 edf5.exe:$391180 #390580 <sub_1402A1045+13B>
+装填开始
+
+EDF5.exe+3918C0 - 40 53                 - push rbx
+.text:000000013FA718C0 edf5.exe:$3918C0 #390CC0 <sub_13FA718C0>
+装填结束
+
+8e8 2280 当前弹药
+1d0 464 总弹药
+c38 3128 装填标记？
+c30 3120
+1184 4484
+118C 4492
+15c0 5568
+1a4 420 装填时间
+b90 2960 装填时间计数
+1a8 装填时写入的时间？
+1a0 装填类型
+b40
+b96
+be0
+a40 2624
+
+EDF5.exe+39067C - 83 BE D0010000 01     - cmp dword ptr [rsi+000001D0],01 { 1 }
+.text:00000001402A067C edf5.exe:$39067C #38FA7C
+EDF5.exe+390580 - 44 39 AE A4010000     - cmp [rsi+000001A4],r13d
+.text:000000013FA70580 edf5.exe:$390580 #38F980
+装填中
+
+
+EDF5.exe+4D6FC1 - E8 BA03B5FF           - call EDF5.exe+27380
+
+
+EDF5.exe+4D7071 - E8 AA01BEFF           - call EDF5.exe+B7220 4D6471
+EDF5.exe+4D7060 - 48 8B 86 E8070000     - mov rax,[rsi+000007E8]
+显示弹药
+
+EDF5.exe+4D70EE 更新弹药显示文本
+EDF5.exe+4D1806 写入弹药文本地址
+EDF5.exe+4D3402 ui检查弹药装填？
+rdi+c30
+
+EDF5.exe+4B96AC 检查当前武器能否开火
+EDF5.exe+391DF4 武器开火时会触发
+
+EDF5.exe+60FE09 sleep
+
+EDF5.exe+5E9683 - E8 08980100           - call EDF5.exe+602E90
+显示文本 4B09B4
+EDF5.exe+4B15B4 - 48 8D 43 60           - lea rax,[rbx+60]
+EDF5.exe+4B15BF - 48 8B 00              - mov rax,[rax]
+EDF5.exe+4B15C2 - 48 8B 8B 80000000     - mov rcx,[rbx+00000080]
+
+
+
+
+.text:000000013FF9C8C0 edf5.exe:$8C8C0 #8BCC0 <sub_13FF9C8C0>
+星级数值计算
+
+
+EDF5.exe+1742E3 - 83 B9 D0050000 01     - cmp dword ptr [rcx+000005D0],01
+ZE检查友军伤害
+rbp-38是伤害
+
+EDF5.exe+142826 - 8B 43 4C              - mov eax,[rbx+4C]
+复制伤害到弹头
+
+EDF5.exe+180F73 - 0F5B C0               - cvtdq2ps xmm0,xmm0
+信号弹延迟，将int转为浮点
+EDF5.exe+1830DA - F3 0F10 89 100B0000   - movss xmm1,[rcx+00000B10]
+载具空投时读
+
+EDF5.exe+3A5909 - 48 8B 09              - mov rcx,[rcx]
+EDF5.exe+3A5CCE - 48 8B 00              - mov rax,[rax]
+EDF5.exe+3A5EC2 - 48 8B 01              - mov rax,[rcx]
+EDF5.exe+3A5F15 - 48 8B 01              - mov rax,[rcx]
+EDF5.exe+3A4695 - 49 8D 84 24 E8060000  - lea rax,[r12+000006E8]
+打电话读Ammo_CustomParameter +6e8
+
+EDF5.exe+3A5A56 - 8B 83 04120000        - mov eax,[rbx+00001204]
+读 打电话空袭延迟
+
+
+EDF5.exe+3A0CAB - 89 87 20180000        - mov [rdi+00001820],eax
+激光指示器写入延迟 +1824是计数
+
+EDF5.exe+3A1A2E - 8B 83 20180000        - mov eax,[rbx+00001820]
+重置延迟计数
+EDF5.exe+3A1B36 - FF 89 24180000        - dec [rcx+00001824]
+延迟计数减一
+
+
+
+
+
