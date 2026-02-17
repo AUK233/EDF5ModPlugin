@@ -9,10 +9,14 @@
 #include "backends/imgui_impl_dx11.h"
 #include "backends/imgui_impl_win32.h"
 #include "0GetDXGI.h"
+#include "0SolidColorTexture.hpp"
 
 #include "1DigitRenderer.h"
 
 #define DEBUGMODE
+
+
+namespace DigitRenderer {
 
 void DynamicDigitRenderer_t::Initialize()
 {
@@ -51,6 +55,8 @@ void DynamicDigitRenderer_t::Initialize()
 		pCallbackData[i] = p;
 	}
 
+	CreateSolidColorTextures(device);
+
 	// load shader resource
 #if defined(DEBUGMODE)
 	ID3DBlob* vs_blob = nullptr;
@@ -73,12 +79,20 @@ void DynamicDigitRenderer_t::Initialize()
 	device->CreateInputLayout(layout, 3, vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), &input_layout);
 
 	// load texture
-	DirectX::CreateDDSTextureFromFile(device, L"./subtitle/DamageNumber.dds", nullptr, &digit_texture_srv);
+	DirectX::CreateDDSTextureFromFile(device, L"./subtitle/DamageUINumber.dds", nullptr, &digit_texture_srv);
 
 	vs_blob->Release();
 	vs_blob->Release();
 	if (error_blob) error_blob->Release();
 #endif
+}
+
+void DynamicDigitRenderer_t::CreateSolidColorTextures(ID3D11Device* device)
+{
+	color_texture_srv[DigitRendererColor_Red] = CreateSolidColorSRV(device, 0xFF0000FF);
+	color_texture_srv[DigitRendererColor_RedNA] = CreateSolidColorSRV(device, 0xFF000000);
+	color_texture_srv[DigitRendererColor_White] = CreateSolidColorSRV(device, 0xFFFFFFFF);
+	color_texture_srv[DigitRendererColor_WhiteNA] = CreateSolidColorSRV(device, 0xFFFFFF00);
 }
 
 void DynamicDigitRenderer_t::Cleanup()
@@ -115,6 +129,13 @@ void DynamicDigitRenderer_t::Cleanup()
 		digit_texture_srv->Release();
 		digit_texture_srv = nullptr;
 	}
+
+	for (int i = 0; i < DigitRendererColor_ALL; i++) {
+		if (color_texture_srv[i]) {
+			color_texture_srv[i]->Release();
+			color_texture_srv[i] = nullptr;
+		}
+	}
 }
 
 void DynamicDigitRenderer_t::BeginFrame() {
@@ -129,7 +150,7 @@ void DynamicDigitRenderer_t::EndFrame() {
 	drawList->AddCallback(ImDrawCallback_ResetRenderState, nullptr);
 }
 
-void DynamicDigitRenderer_t::SetRender(ID3D11DeviceContext* context, DigitConstants_t* pData)
+void DynamicDigitRenderer_t::SetRender(ID3D11DeviceContext* context, PDigitText pText)
 {
 	if (nextBufferIndex >= MAX_CONCURRENT_DRAWS) return;
 
@@ -138,7 +159,7 @@ void DynamicDigitRenderer_t::SetRender(ID3D11DeviceContext* context, DigitConsta
 	if (!cbData) return;
 
 	g_context = context;
-	cbData->Initialize(this, nextBufferIndex, pData);
+	cbData->Initialize(this, nextBufferIndex, &pText->cbData);
 	nextBufferIndex++;
 
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
@@ -152,29 +173,79 @@ void DynamicDigitRenderer_t::SetRender(ID3D11DeviceContext* context, DigitConsta
 	}, cbData);
 }
 
-void DynamicDigitRenderer_t::SetImageData()
+void __vectorcall DynamicDigitRenderer_t::SetImageData(const DigitTextByte& pText, PDigitFontControl pFont, __m128 BasePos, int colorTexIndex)
 {
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
+	DigitFontControl_t fontControl;
+	memcpy(&fontControl, pFont, sizeof(DigitFontControl_t));
+
+	__m128 v_pos = BasePos;
+	ImVec2 pos[2];
+	_mm_storeu_ps(&pos[0].x, v_pos);
+
+	int textSize = pText.size();
+	for (int i = 0; i < textSize; i++) {
+		auto renderIndex = pText[i];
+		fontControl.renderIndex = renderIndex;
+		fontControl.charIndex = i;
+		auto colData = GetImageCharData(&fontControl);
+
+		draw_list->AddImage(color_texture_srv[colorTexIndex], pos[0], pos[1], ImVec2(0, 0), ImVec2(1, 1), colData);
+
+		if (renderIndex == DigitRendererChar_DOT) {
+			float dotOffset = fontControl.fontSize * -0.5;
+			__m128 v_subDot = _mm_load_ss(&dotOffset);
+			v_subDot = _mm_shuffle_ps(v_subDot, v_subDot, MY_SHUFFLE(0, 3, 0, 3));
+
+			v_pos = _mm_add_ps(v_pos, v_subDot);
+			_mm_storeu_ps(&pos[0].x, v_pos);
+		}
+	}
+
+
+	/*ImVec2 p_min(0, 0);
+	ImVec2 p_max(FontSize, FontSize);
+
+	fontControl.renderIndex = 2;
+	fontControl.charIndex = 0;
+	ImU32 colData = GetImageCharData(&fontControl);
+	draw_list->AddImage(digit_texture_srv, p_min, p_max, ImVec2(0, 0), ImVec2(1, 1), colData);
+
+	fontControl.renderIndex = DigitRendererChar_DOT;
+	fontControl.charIndex = 1;
+	colData = GetImageCharData(&fontControl);
+	p_min.y += 1;
+	p_min.y += 1;
+	draw_list->AddImage(digit_texture_srv, p_min, p_max, ImVec2(0, 0), ImVec2(1, 1), colData);
+
+	fontControl.renderIndex = 4;
+	fontControl.charIndex = 2;
+	colData = GetImageCharData(&fontControl);
+	p_min.y += 1;
+	p_min.y += 1;
+	draw_list->AddImage(digit_texture_srv, p_min, p_max, ImVec2(0, 0), ImVec2(1, 1), colData);*/
+}
+
+ImU32 DynamicDigitRenderer_t::GetImageCharData(PDigitFontControl pData)
+{
 	union {
 		// 0 as char index
-		struct{
-			ImU8 scaleTime; // 255 is enough
-			ImU8 fadeTime; // maybe only use to 16
-			ImU8 charIndex; // DigitRendererChar_
-			ImU8 totalNum; // is input data size, 255 is enough, should!
+		struct {
+			ImU8 effectTime; // 255 is enough
+			ImU8 charIndex; // 1-7bit is char index, 8bit is fade enable
+			ImU8 renderIndex; // DigitRendererChar_
+			ImU8 alpha; // always 1, because it can not be modified
 		};
 		ImU32 encoded;
 	} charData;
 
-	charData.scaleTime = 0;
-	charData.fadeTime = 0;
-	charData.charIndex = 2;
-	charData.totalNum = 1;
+	charData.effectTime = pData->effectTime;
+	charData.charIndex = (pData->charIndex & 0x7F) | (pData->fadeEnable ? 0x80 : 0);
+	charData.renderIndex = pData->renderIndex;
+	charData.alpha = 1; 
 
-	ImVec2 p_min(0, 0);
-	ImVec2 p_max(64, 64);
-	draw_list->AddImage(digit_texture_srv, p_min, p_max, ImVec2(0, 0), ImVec2(1, 1), charData.encoded);
+	return charData.encoded;
 }
 
 void DynamicDigitRenderer_t::SetToShader(int index, const DigitConstants_t* pData)
@@ -187,25 +258,8 @@ void DynamicDigitRenderer_t::SetToShader(int index, const DigitConstants_t* pDat
 	g_context->VSSetConstantBuffers(2, 1, &constant_buffer[index]);
 	g_context->PSSetConstantBuffers(2, 1, &constant_buffer[index]);
 
-	g_context->PSSetShaderResources(0, 1, &digit_texture_srv);
+	g_context->PSSetShaderResources(1, 1, &digit_texture_srv); // to t1
 	g_context->PSSetSamplers(0, 1, &point_sampler);
 }
-
-namespace DigitRenderer {
-	std::vector<BYTE> StringToDigitRendererChars(const std::string& str)
-	{
-		std::vector<BYTE> out;
-		out.reserve(str.size());
-		for (char c : str) {
-			if (c == '.') {
-				out.push_back(DigitRendererChar_DOT);
-				continue;
-			}
-
-			BYTE number = c - '0';
-			// 0x3A ':' as '%'
-			if (number > DigitRendererChar_PERCENT) number = 0;
-		}
-		return out;
-	}
+// end
 }

@@ -22,9 +22,9 @@
 #include "0SetImGui.h"
 
 
-#define DEBUGMODE
+//#define DEBUGMODE
 
-PDynamicDigitRenderer g_DigitRenderer;
+DigitRenderer::PDynamicDigitRenderer g_DigitRenderer;
 
 typedef HRESULT(__stdcall* IDXGISwapChainPresent)(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
 typedef HRESULT(__stdcall* IDXGISwapChainResizeBuffers)(IDXGISwapChain*, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags);
@@ -139,6 +139,7 @@ void togui_InitializeImGui()
 	ImGui_ImplWin32_Init(pRender->DXGISwapChainDesc.OutputWindow);
 	ImGui_ImplDX11_Init(pRender->pD3D11Device, pRender->pD3D11DeviceContext);
 
+	using namespace DigitRenderer;
 	g_DigitRenderer = (PDynamicDigitRenderer)_aligned_malloc(sizeof(DynamicDigitRenderer_t), 0x10);
 	if (g_DigitRenderer) {
 		g_DigitRenderer = new(g_DigitRenderer) DynamicDigitRenderer_t();
@@ -185,7 +186,7 @@ void togui_MainDisplayTest()
 	// ====================
 	ImGui::SetWindowFontScale(2.0f);
 	//ImGui::SetCursorPos(ImVec2(960, 540));
-
+#if defined(DEBUGMODE)
 	// It has been verified that they are same.
 	if (bTestResolution) {
 		ImGui::Text("resolution: -%d, -%d", testResolution[0], testResolution[1]);
@@ -202,6 +203,7 @@ void togui_MainDisplayTest()
 		auto pResolution = DXGI_GetRealTimeResolution();
 		ImGui::Text("resolution: %d, %d", pResolution[0], pResolution[1]);
 	}
+#endif
 
 	ImGui::SetWindowFontScale(1.0f);
 	// ====================
@@ -210,40 +212,36 @@ void togui_MainDisplayTest()
 
 void togui_MainDisplay_ShowNumber()
 {
+	using namespace DigitRenderer;
+
 	g_DigitRenderer->BeginFrame();
 
 	auto pCTX = DXGI_GetGameDXGIRender()->pD3D11DeviceContext;
 
-	DynamicDigitRenderer_t::DigitConstants_t digitData;
-	digitData.ScreenSize[0] = 1920.0f;
-	digitData.ScreenSize[1] = 1080.0f;
+	DigitText_t digitText;
+	digitText.textData = FormatNumberToDigitRendererChars_Damage(12.34f);
+	digitText.cbData.ScreenSize[0] = 1920.0f;
+	digitText.cbData.ScreenSize[1] = 1080.0f;
+	digitText.cbData.OutPos[0] = 0;
+	digitText.cbData.OutPos[1] = 0;
+	digitText.cbData.Color[0] = 1;
+	digitText.cbData.Color[1] = 0;
+	digitText.cbData.Color[2] = 0;
+	digitText.cbData.Color[3] = 1;
+	digitText.cbData.FontSize = 64;
 
-	digitData.OutPos[0] = 100.0f;
-	digitData.OutPos[1] = 100.0f;
-	digitData.Color[0] = 1;
-	digitData.Color[1] = 0;
-	digitData.Color[2] = 0;
-	digitData.Color[3] = 1;
-	g_DigitRenderer->SetRender(pCTX, &digitData);
-	g_DigitRenderer->SetImageData();
+	__m128 v_fontSize = _mm_load_ss(&digitText.cbData.FontSize);
+	v_fontSize = _mm_shuffle_ps(v_fontSize, v_fontSize, MY_SHUFFLE(3, 3, 0, 0));
+	__m128 v_basePos = { 100, 100, 164, 164 };
 
-	digitData.OutPos[0] = 500.0f;
-	digitData.OutPos[1] = 200.0f;
-	digitData.Color[0] = 0;
-	digitData.Color[1] = 1;
-	digitData.Color[2] = 0;
-	digitData.Color[3] = 1;
-	g_DigitRenderer->SetRender(pCTX, &digitData);
-	g_DigitRenderer->SetImageData();
+	g_DigitRenderer->SetRender(pCTX, &digitText);
 
-	digitData.OutPos[0] = 1000.0f;
-	digitData.OutPos[1] = 300.0f;
-	digitData.Color[0] = 0;
-	digitData.Color[1] = 0;
-	digitData.Color[2] = 0;
-	digitData.Color[3] = 1;
-	g_DigitRenderer->SetRender(pCTX, &digitData);
-	g_DigitRenderer->SetImageData();
+	DigitFontControl_t fontControl;
+	ZeroMemory(&fontControl, sizeof(DigitFontControl_t));
+	fontControl.fontSize = 64;
+
+	g_DigitRenderer->SetImageData(digitText.textData, &fontControl, v_basePos,
+								DigitRenderer::DynamicDigitRenderer_t::DigitRendererColor_WhiteNA);
 
 	g_DigitRenderer->EndFrame();
 }

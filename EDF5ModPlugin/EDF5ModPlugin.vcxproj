@@ -237,6 +237,7 @@
     <ClCompile Include="zHui\HuiModConsole.cpp" />
     <ClCompile Include="zHui\HuiMoreCharacterModel.cpp" />
     <ClCompile Include="zHui\HuiObjectClass.cpp" />
+    <ClCompile Include="zHui\ToGui\0DigitCommon.cpp" />
     <ClCompile Include="zHui\ToGui\0GetDXGI.cpp" />
     <ClCompile Include="zHui\ToGui\0SetImGui.cpp" />
     <ClCompile Include="zHui\ToGui\1DigitRenderer.cpp" />
@@ -344,8 +345,10 @@
     <ClInclude Include="zHui\HuiModConsole.h" />
     <ClInclude Include="zHui\HuiMoreCharacterModel.h" />
     <ClInclude Include="zHui\HuiObjectClass.h" />
+    <ClInclude Include="zHui\ToGui\0DigitCommon.h" />
     <ClInclude Include="zHui\ToGui\0GetDXGI.h" />
     <ClInclude Include="zHui\ToGui\0SetImGui.h" />
+    <ClInclude Include="zHui\ToGui\0SolidColorTexture.hpp" />
     <ClInclude Include="zHui\ToGui\1DigitRenderer.h" />
     <ClInclude Include="zHui\ToGui\DirectXTK\AlignedNew.h" />
     <ClInclude Include="zHui\ToGui\DirectXTK\Audio.h" />

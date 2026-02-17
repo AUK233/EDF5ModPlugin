@@ -198,6 +198,9 @@
     <ClCompile Include="zHui\ToGui\DirectXTK\VertexTypes.cpp">
       <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
     </ClCompile>
+    <ClCompile Include="zHui\ToGui\0DigitCommon.cpp">
+      <Filter>Source Files\Module Hui\ToFui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMgamelog_hook.asm">
@@ -552,6 +555,12 @@
     </ClInclude>
     <ClInclude Include="zHui\ToGui\DirectXTK\VertexTypes.h">
       <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\0DigitCommon.h">
+      <Filter>Source Files\Module Hui\ToFui</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\0SolidColorTexture.hpp">
+      <Filter>Source Files\Module Hui\ToFui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
