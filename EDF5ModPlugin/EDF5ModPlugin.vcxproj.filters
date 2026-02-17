@@ -37,6 +37,12 @@
     <Filter Include="Source Files\Module Hui\ToFui\imgui">
       <UniqueIdentifier>{9151c334-89da-40cc-9db9-65f24c593504}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Module Hui\ToFui\DirectXTK">
+      <UniqueIdentifier>{ecfc33e1-13c3-4521-a01a-2eb20075d20e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Base">
+      <UniqueIdentifier>{47b34149-d001-4de8-a6ec-1b39d645d72d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -143,6 +149,54 @@
     </ClCompile>
     <ClCompile Include="zHui\ToGui\imgui\imgui_widgets.cpp">
       <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\1DigitRenderer.cpp">
+      <Filter>Source Files\Module Hui\ToFui</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\DirectXTK\BinaryReader.cpp">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\DirectXTK\BufferHelpers.cpp">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\DirectXTK\CommonStates.cpp">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\DirectXTK\DDSTextureLoader.cpp">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\DirectXTK\DirectXHelpers.cpp">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\DirectXTK\EffectCommon.cpp">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\DirectXTK\GamePad.cpp">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\DirectXTK\Geometry.cpp">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\DirectXTK\GraphicsMemory.cpp">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\DirectXTK\Keyboard.cpp">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\DirectXTK\Mouse.cpp">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\DirectXTK\pch.cpp">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\DirectXTK\PrimitiveBatch.cpp">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\DirectXTK\SimpleMath.cpp">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\DirectXTK\VertexTypes.cpp">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -409,5 +463,103 @@
     <ClInclude Include="zHui\ToGui\imgui\imstb_truetype.h">
       <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="zHui\ToGui\1DigitRenderer.h">
+      <Filter>Source Files\Module Hui\ToFui</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\SSE.hpp">
+      <Filter>Source Files\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\AlignedNew.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\Audio.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\Bezier.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\BinaryReader.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\BufferHelpers.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\CMO.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\CommonStates.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\DDS.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\DDSTextureLoader.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\DemandCreate.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\DirectXHelpers.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\EffectCommon.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\Effects.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\GamePad.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\Geometry.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\GraphicsMemory.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\Keyboard.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\LoaderHelpers.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\Mouse.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\pch.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\PlatformHelpers.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\PostProcess.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\PrimitiveBatch.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\SDKMesh.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\SharedResourcePool.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\SimpleMath.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\vbo.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\DirectXTK\VertexTypes.h">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="zHui\ToGui\DirectXTK\SimpleMath.inl">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </None>
+    <None Include="zHui\ToGui\DirectXTK\TeapotData.inc">
+      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -239,6 +239,22 @@
     <ClCompile Include="zHui\HuiObjectClass.cpp" />
     <ClCompile Include="zHui\ToGui\0GetDXGI.cpp" />
     <ClCompile Include="zHui\ToGui\0SetImGui.cpp" />
+    <ClCompile Include="zHui\ToGui\1DigitRenderer.cpp" />
+    <ClCompile Include="zHui\ToGui\DirectXTK\BinaryReader.cpp" />
+    <ClCompile Include="zHui\ToGui\DirectXTK\BufferHelpers.cpp" />
+    <ClCompile Include="zHui\ToGui\DirectXTK\CommonStates.cpp" />
+    <ClCompile Include="zHui\ToGui\DirectXTK\DDSTextureLoader.cpp" />
+    <ClCompile Include="zHui\ToGui\DirectXTK\DirectXHelpers.cpp" />
+    <ClCompile Include="zHui\ToGui\DirectXTK\EffectCommon.cpp" />
+    <ClCompile Include="zHui\ToGui\DirectXTK\GamePad.cpp" />
+    <ClCompile Include="zHui\ToGui\DirectXTK\Geometry.cpp" />
+    <ClCompile Include="zHui\ToGui\DirectXTK\GraphicsMemory.cpp" />
+    <ClCompile Include="zHui\ToGui\DirectXTK\Keyboard.cpp" />
+    <ClCompile Include="zHui\ToGui\DirectXTK\Mouse.cpp" />
+    <ClCompile Include="zHui\ToGui\DirectXTK\pch.cpp" />
+    <ClCompile Include="zHui\ToGui\DirectXTK\PrimitiveBatch.cpp" />
+    <ClCompile Include="zHui\ToGui\DirectXTK\SimpleMath.cpp" />
+    <ClCompile Include="zHui\ToGui\DirectXTK\VertexTypes.cpp" />
     <ClCompile Include="zHui\ToGui\imgui\backends\imgui_impl_dx11.cpp" />
     <ClCompile Include="zHui\ToGui\imgui\backends\imgui_impl_win32.cpp" />
     <ClCompile Include="zHui\ToGui\imgui\imgui.cpp" />
@@ -293,6 +309,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\HookLib\HookLib\HookLib\HookLib.h" />
+    <ClInclude Include="Base\SSE.hpp" />
     <ClInclude Include="CommonCustomStructure.hpp" />
     <ClInclude Include="CommonData.h" />
     <ClInclude Include="commonNOP.h" />
@@ -329,6 +346,35 @@
     <ClInclude Include="zHui\HuiObjectClass.h" />
     <ClInclude Include="zHui\ToGui\0GetDXGI.h" />
     <ClInclude Include="zHui\ToGui\0SetImGui.h" />
+    <ClInclude Include="zHui\ToGui\1DigitRenderer.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\AlignedNew.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\Audio.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\Bezier.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\BinaryReader.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\BufferHelpers.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\CMO.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\CommonStates.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\DDS.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\DDSTextureLoader.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\DemandCreate.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\DirectXHelpers.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\EffectCommon.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\Effects.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\GamePad.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\Geometry.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\GraphicsMemory.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\Keyboard.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\LoaderHelpers.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\Mouse.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\pch.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\PlatformHelpers.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\PostProcess.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\PrimitiveBatch.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\SDKMesh.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\SharedResourcePool.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\SimpleMath.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\vbo.h" />
+    <ClInclude Include="zHui\ToGui\DirectXTK\VertexTypes.h" />
     <ClInclude Include="zHui\ToGui\imgui\backends\imgui_impl_dx11.h" />
     <ClInclude Include="zHui\ToGui\imgui\backends\imgui_impl_win32.h" />
     <ClInclude Include="zHui\ToGui\imgui\imconfig.h" />
@@ -337,6 +383,10 @@
     <ClInclude Include="zHui\ToGui\imgui\imstb_rectpack.h" />
     <ClInclude Include="zHui\ToGui\imgui\imstb_textedit.h" />
     <ClInclude Include="zHui\ToGui\imgui\imstb_truetype.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="zHui\ToGui\DirectXTK\SimpleMath.inl" />
+    <None Include="zHui\ToGui\DirectXTK\TeapotData.inc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

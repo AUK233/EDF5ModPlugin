@@ -45,6 +45,11 @@ PGameDXGIRender __fastcall DXGI_GetGameDXGIRender()
 	return pGameDXGIRenderer;
 }
 
+int* __fastcall DXGI_GetRealTimeResolution()
+{
+	return pRealTimeResolution;
+}
+
 DXGI_SWAP_CHAIN_DESC* __fastcall DXGI_GetDXGISwapChainDesc()
 {
 	return &pGameDXGIRenderer->DXGISwapChainDesc;

@@ -5,6 +5,10 @@
 
 [Damage acquisition and some](https://github.com/Eiton/EDF5-Damage-Number-Display).
 
+[DirectXTK](https://github.com/Microsoft/DirectXTK).
+
+[ImGui](https://github.com/ocornut/imgui/releases/tag/v1.92.5).
+
 String search from the Internet.
  
 ## Building

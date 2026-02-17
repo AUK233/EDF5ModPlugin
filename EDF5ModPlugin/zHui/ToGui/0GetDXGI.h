@@ -21,7 +21,8 @@ static_assert(offsetof(GameDXGIRender_t, pMainRenderTargetView) == 0x160);
 
 void DXGI_Initialize(PBYTE hmodEXE);
 
+PGameDXGIRender __fastcall DXGI_GetGameDXGIRender();
+int* __fastcall DXGI_GetRealTimeResolution();
 extern "C" {
-	PGameDXGIRender __fastcall DXGI_GetGameDXGIRender();
 	DXGI_SWAP_CHAIN_DESC* __fastcall DXGI_GetDXGISwapChainDesc();
 }
