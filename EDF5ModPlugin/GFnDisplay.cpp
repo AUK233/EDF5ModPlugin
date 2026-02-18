@@ -512,7 +512,7 @@ void hookHUDEnhancement() {
 	hookGameBlock((void*)(hmodEXE + 0x4CB4CC), (uintptr_t)ASMreadHUiHudPowerGuage);
 	WriteHookToProcess((void*)(hmodEXE + 0x4CB4CC + 12), (void*)&nop6, 6U);
 	readHUiHudPowerGuageRet = (uintptr_t)(hmodEXE + 0x4CB4DE);
-	// EDF5.exe+4CC8A6
+	// EDF5.exe+4CC8A6 vft+10?
 	hookGameBlock((void*)(hmodEXE + 0x4CC8A6), (uintptr_t)ASMupdateHUiHudPowerGuage);
 	updateHUiHudPowerGuageRet = (uintptr_t)(hmodEXE + 0x4CC8B2);
 }

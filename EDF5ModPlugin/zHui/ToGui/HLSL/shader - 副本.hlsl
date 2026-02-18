@@ -184,3 +184,28 @@ technique11 RenderDigitsWithBorder
         SetRasterizerState(RS_Default);
     }
 }
+
+float4 PS_main(PS_INPUT input) : SV_Target
+{
+	float2 tex_uv = input.uv.xy;
+	tex_uv.x = (input.char_data.z + input.uv.x) * c_FontWidthFactor;
+	tex_uv.y = (input.char_data.w + input.uv.y) * c_LineFactor;
+
+	// a is alpha
+	float4 tex_color = color_texture.Sample(sampler_point, tex_uv);
+	// r is border, g is main, a is alpha
+	float4 tex_digit = digit_texture.Sample(sampler_point, tex_uv);
+
+	// calculate border color
+	float3 out_borderColor = tex_digit.r * BorderColor.rgb;
+	out_borderColor *= BorderColor.a;
+
+	float3 out_color = tex_digit.g * tex_color.rgb;
+	out_color += out_borderColor;
+
+	// calculate fade
+	float fade = tex_digit.a;
+	fade += ScaleSpeed * input.char_data.y;
+
+	return float4(out_color, fade);
+}

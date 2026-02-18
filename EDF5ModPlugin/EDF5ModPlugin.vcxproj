@@ -195,6 +195,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\HookLib\HookLib\HookLib\HookLib.c" />
+    <ClCompile Include="Base\g_gameFunc.cpp" />
+    <ClCompile Include="Base\g_system.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="GameFunc.cpp">
       <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NoListing</AssemblerOutput>
@@ -310,6 +312,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\HookLib\HookLib\HookLib\HookLib.h" />
+    <ClInclude Include="Base\g_gameFunc.h" />
+    <ClInclude Include="Base\g_system.h" />
     <ClInclude Include="Base\SSE.hpp" />
     <ClInclude Include="CommonCustomStructure.hpp" />
     <ClInclude Include="CommonData.h" />

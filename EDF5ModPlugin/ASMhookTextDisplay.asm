@@ -24,6 +24,8 @@ extern rva4CA990 : qword
 
 extern _TextWingEnergy6Position : qword
 
+extern togui_MainDisplayInMission : proto
+
 ; L"TextNumericType2"
 wstrTextNumericType2 db 84,0,101,0,120,0,116,0,78,0,117,0,109,0,101,0,114,0,105,0,99,0,84,0,121,0,112,0,101,0,50,0,0,0
 align 16
@@ -518,6 +520,7 @@ ASMupdateHUiHudPowerGuage proc
         mov rcx, rbx
         call eDisplayFencerBoostAndDash
     ofs4CBCA6:
+        call togui_MainDisplayInMission
         lea rdx, [rbx+920h]
         lea rcx, [rsp+50h]
         jmp updateHUiHudPowerGuageRet

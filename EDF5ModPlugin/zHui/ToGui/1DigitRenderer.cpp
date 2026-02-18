@@ -90,9 +90,9 @@ void DynamicDigitRenderer_t::Initialize()
 void DynamicDigitRenderer_t::CreateSolidColorTextures(ID3D11Device* device)
 {
 	color_texture_srv[DigitRendererColor_Red] = CreateSolidColorSRV(device, 0xFF0000FF);
-	color_texture_srv[DigitRendererColor_RedNA] = CreateSolidColorSRV(device, 0xFF000000);
+	color_texture_srv[DigitRendererColor_Green] = CreateSolidColorSRV(device, 0x00FF00FF);
+	color_texture_srv[DigitRendererColor_Blue] = CreateSolidColorSRV(device, 0x0000FFFF);
 	color_texture_srv[DigitRendererColor_White] = CreateSolidColorSRV(device, 0xFFFFFFFF);
-	color_texture_srv[DigitRendererColor_WhiteNA] = CreateSolidColorSRV(device, 0xFFFFFF00);
 }
 
 void DynamicDigitRenderer_t::Cleanup()
@@ -150,7 +150,7 @@ void DynamicDigitRenderer_t::EndFrame() {
 	drawList->AddCallback(ImDrawCallback_ResetRenderState, nullptr);
 }
 
-void DynamicDigitRenderer_t::SetRender(ID3D11DeviceContext* context, PDigitText pText)
+void DynamicDigitRenderer_t::SetRender(ID3D11DeviceContext* context, const PDigitConstants pData)
 {
 	if (nextBufferIndex >= MAX_CONCURRENT_DRAWS) return;
 
@@ -159,11 +159,10 @@ void DynamicDigitRenderer_t::SetRender(ID3D11DeviceContext* context, PDigitText 
 	if (!cbData) return;
 
 	g_context = context;
-	cbData->Initialize(this, nextBufferIndex, &pText->cbData);
+	cbData->Initialize(this, nextBufferIndex, pData);
 	nextBufferIndex++;
 
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
-
 	draw_list->ChannelsSetCurrent(nextBufferIndex);
 
 	draw_list->AddCallback([](const ImDrawList* parent, const ImDrawCmd* cmd) {
@@ -173,10 +172,8 @@ void DynamicDigitRenderer_t::SetRender(ID3D11DeviceContext* context, PDigitText 
 	}, cbData);
 }
 
-void __vectorcall DynamicDigitRenderer_t::SetImageData(const DigitTextByte& pText, PDigitFontControl pFont, __m128 BasePos, int colorTexIndex)
+void __vectorcall DynamicDigitRenderer_t::SetImageData(const DigitTextByte& pText, __m128 BasePos, PDigitFontControl pFont, int colorTexIndex)
 {
-	ImDrawList* draw_list = ImGui::GetWindowDrawList();
-
 	DigitFontControl_t fontControl;
 	memcpy(&fontControl, pFont, sizeof(DigitFontControl_t));
 
@@ -184,47 +181,54 @@ void __vectorcall DynamicDigitRenderer_t::SetImageData(const DigitTextByte& pTex
 	ImVec2 pos[2];
 	_mm_storeu_ps(&pos[0].x, v_pos);
 
+	static const float defaultUV = 1;
+	__m128 v_defaultUV = _mm_load_ss(&defaultUV);
+	// to 0, 0, 1, 1
+	v_defaultUV = _mm_shuffle_ps(v_defaultUV, v_defaultUV, MY_SHUFFLE(3, 3, 0, 0));
+	ImVec2 IMuv[2];
+	_mm_storeu_ps(&IMuv[0].x, v_defaultUV);
+
 	int textSize = pText.size();
+	fontControl.charAlign = SetDigitRendererAlign(textSize, fontControl.charAlignType);
+
+	ImDrawList* draw_list = ImGui::GetWindowDrawList();
 	for (int i = 0; i < textSize; i++) {
 		auto renderIndex = pText[i];
 		fontControl.renderIndex = renderIndex;
 		fontControl.charIndex = i;
 		auto colData = GetImageCharData(&fontControl);
 
-		draw_list->AddImage(color_texture_srv[colorTexIndex], pos[0], pos[1], ImVec2(0, 0), ImVec2(1, 1), colData);
+		draw_list->AddImage(color_texture_srv[colorTexIndex], pos[0], pos[1], IMuv[0], IMuv[1], colData);
 
 		if (renderIndex == DigitRendererChar_DOT) {
-			float dotOffset = fontControl.fontSize * -0.5;
+			float dotOffset = fontControl.f_fontSize * -0.4;
 			__m128 v_subDot = _mm_load_ss(&dotOffset);
 			v_subDot = _mm_shuffle_ps(v_subDot, v_subDot, MY_SHUFFLE(0, 3, 0, 3));
 
 			v_pos = _mm_add_ps(v_pos, v_subDot);
 			_mm_storeu_ps(&pos[0].x, v_pos);
 		}
+		// end
 	}
 
+	/*ImVec2 p_min(200, 100);
+	ImVec2 p_max(240, 140);
 
-	/*ImVec2 p_min(0, 0);
-	ImVec2 p_max(FontSize, FontSize);
-
+	fontControl.charTotal = 3;
 	fontControl.renderIndex = 2;
 	fontControl.charIndex = 0;
 	ImU32 colData = GetImageCharData(&fontControl);
-	draw_list->AddImage(digit_texture_srv, p_min, p_max, ImVec2(0, 0), ImVec2(1, 1), colData);
+	draw_list->AddImage(color_texture_srv[0], p_min, p_max, IMuv[0], IMuv[1], colData);
 
 	fontControl.renderIndex = DigitRendererChar_DOT;
 	fontControl.charIndex = 1;
 	colData = GetImageCharData(&fontControl);
-	p_min.y += 1;
-	p_min.y += 1;
-	draw_list->AddImage(digit_texture_srv, p_min, p_max, ImVec2(0, 0), ImVec2(1, 1), colData);
+	draw_list->AddImage(color_texture_srv[0], p_min, p_max, IMuv[0], IMuv[1], colData);
 
 	fontControl.renderIndex = 4;
 	fontControl.charIndex = 2;
 	colData = GetImageCharData(&fontControl);
-	p_min.y += 1;
-	p_min.y += 1;
-	draw_list->AddImage(digit_texture_srv, p_min, p_max, ImVec2(0, 0), ImVec2(1, 1), colData);*/
+	draw_list->AddImage(color_texture_srv[0], p_min, p_max, IMuv[0], IMuv[1], colData);*/
 }
 
 ImU32 DynamicDigitRenderer_t::GetImageCharData(PDigitFontControl pData)
@@ -233,22 +237,22 @@ ImU32 DynamicDigitRenderer_t::GetImageCharData(PDigitFontControl pData)
 		// 0 as char index
 		struct {
 			ImU8 effectTime; // 255 is enough
-			ImU8 charIndex; // 1-7bit is char index, 8bit is fade enable
-			ImU8 renderIndex; // DigitRendererChar_
-			ImU8 alpha; // always 1, because it can not be modified
+			ImU8 renderIndex; // 1-7bit is DigitRendererChar_ index, 8bit is fade enable
+			ImU8 charIndex; // high 4bit is total char count, low 4bit is current char index, so max char count is 16, should enough.
+			ImU8 fontSize; // ok, it can be used
 		};
 		ImU32 encoded;
 	} charData;
 
 	charData.effectTime = pData->effectTime;
-	charData.charIndex = (pData->charIndex & 0x7F) | (pData->fadeEnable ? 0x80 : 0);
-	charData.renderIndex = pData->renderIndex;
-	charData.alpha = 1; 
+	charData.renderIndex = (pData->renderIndex & 0x7F) | (pData->fadeEnable ? 0x80 : 0);
+	charData.charIndex = ((pData->charAlign & 0x0F) << 4) | (pData->charIndex & 0x0F);
+	charData.fontSize = pData->i_fontSize;
 
 	return charData.encoded;
 }
 
-void DynamicDigitRenderer_t::SetToShader(int index, const DigitConstants_t* pData)
+void DynamicDigitRenderer_t::SetToShader(int index, const PDigitConstants pData)
 {
 	g_context->VSSetShader(vertex_shader, nullptr, 0);
 	g_context->PSSetShader(pixel_shader, nullptr, 0);
@@ -260,6 +264,7 @@ void DynamicDigitRenderer_t::SetToShader(int index, const DigitConstants_t* pDat
 
 	g_context->PSSetShaderResources(1, 1, &digit_texture_srv); // to t1
 	g_context->PSSetSamplers(0, 1, &point_sampler);
+
 }
 // end
 }

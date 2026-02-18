@@ -83,7 +83,9 @@ HRESULT __stdcall togui_Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, U
 		return fnIDXGISwapChainPresent(pSwapChain, SyncInterval, Flags);
 	}
 
+#if defined(DEBUGMODE)
 	togui_MainDisplay();
+#endif
 
 	return fnIDXGISwapChainPresent(pSwapChain, SyncInterval, Flags);
 }
@@ -150,15 +152,12 @@ void togui_InitializeImGui()
 
 void togui_MainDisplay()
 {
-
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 	// Todo =====================================================================
 
-#if defined(DEBUGMODE)
 	togui_MainDisplayTest();
-#endif
 
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(viewport->Pos);
@@ -166,7 +165,7 @@ void togui_MainDisplay()
 
 	ImGui::Begin("EDF hook", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoBackground);
 
-	togui_MainDisplay_ShowNumber();
+	togui_MainDisplay_ToDigit();
 
 	ImGui::End();
 
@@ -210,38 +209,100 @@ void togui_MainDisplayTest()
 	ImGui::End();
 }
 
-void togui_MainDisplay_ShowNumber()
+void togui_MainDisplayInMission() {
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(viewport->Pos);
+	ImGui::SetNextWindowSize(viewport->Size);
+
+	ImGui::Begin("EDF hook", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoBackground);
+
+	// Todo =====================================================================
+	togui_MainDisplay_ToDigit();
+	// End ======================================================================
+
+	ImGui::End();
+
+	ImGui::EndFrame();
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+}
+
+void togui_MainDisplay_ToDigit()
 {
-	using namespace DigitRenderer;
+	auto pCTX = DXGI_GetGameDXGIRender()->pD3D11DeviceContext;
+	ImDrawList* pDrawList = ImGui::GetWindowDrawList();
+
+#if defined(DEBUGMODE)
+	ImVec2 origin = pDrawList->GetClipRectMin();
+	pDrawList->AddCircleFilled(origin, 100, IM_COL32(255, 0, 0, 255));
+#endif
+
+
+	ImVec2 origin(160,160);
+	pDrawList->AddCircleFilled(origin, 100, IM_COL32(255, 0, 0, 255));
 
 	g_DigitRenderer->BeginFrame();
 
-	auto pCTX = DXGI_GetGameDXGIRender()->pD3D11DeviceContext;
+	// for availability check
+	togui_MainDisplay_ToDigitTest(pCTX);
 
-	DigitText_t digitText;
-	digitText.textData = FormatNumberToDigitRendererChars_Damage(12.34f);
-	digitText.cbData.ScreenSize[0] = 1920.0f;
-	digitText.cbData.ScreenSize[1] = 1080.0f;
-	digitText.cbData.OutPos[0] = 0;
-	digitText.cbData.OutPos[1] = 0;
-	digitText.cbData.Color[0] = 1;
-	digitText.cbData.Color[1] = 0;
-	digitText.cbData.Color[2] = 0;
-	digitText.cbData.Color[3] = 1;
-	digitText.cbData.FontSize = 64;
+	g_DigitRenderer->EndFrame();
+}
 
-	__m128 v_fontSize = _mm_load_ss(&digitText.cbData.FontSize);
+void togui_MainDisplay_ToDigitTest(ID3D11DeviceContext* pCTX)
+{
+	using namespace DigitRenderer;
+
+	static int time = 0;
+	if (time > 20) {
+		time = 0;
+	}
+
+	DigitConstants_t cbDigitData;
+	cbDigitData.ScreenSize[0] = 1920.0f;
+	cbDigitData.ScreenSize[1] = 1080.0f;
+	cbDigitData.ScreenScale[0] = 1;
+	cbDigitData.ScreenScale[1] = 1;
+	cbDigitData.ScaleSpeed = -0.025;
+	cbDigitData.FadeSpeed = -0.025;
+	cbDigitData.pad18[0] = 0;
+	cbDigitData.pad18[1] = 0;
+	cbDigitData.BorderColor = {0,0,0,1};
+
+	float fontSize = 64.0f;
+	__m128 v_fontSize = _mm_load_ss(&fontSize);
 	v_fontSize = _mm_shuffle_ps(v_fontSize, v_fontSize, MY_SHUFFLE(3, 3, 0, 0));
-	__m128 v_basePos = { 100, 100, 164, 164 };
+	__m128 v_basePos = { 1900, 900, 1964, 964 };
 
-	g_DigitRenderer->SetRender(pCTX, &digitText);
+	g_DigitRenderer->SetRender(pCTX, &cbDigitData);
 
 	DigitFontControl_t fontControl;
 	ZeroMemory(&fontControl, sizeof(DigitFontControl_t));
-	fontControl.fontSize = 64;
+	fontControl.charAlignType = DigitRendererAlign_Right;
+	fontControl.i_fontSize = 64;
+	fontControl.f_fontSize = 64;
+	fontControl.effectTime = time;
 
-	g_DigitRenderer->SetImageData(digitText.textData, &fontControl, v_basePos,
-								DigitRenderer::DynamicDigitRenderer_t::DigitRendererColor_WhiteNA);
+	auto textData = FormatNumberToDigitRendererChars_Damage(12.1f);
+	g_DigitRenderer->SetImageData(textData, v_basePos, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_Blue);
 
-	g_DigitRenderer->EndFrame();
+	__m128 v_basePos1 = { 100, 100, 148, 148 };
+	fontControl.charAlignType = DigitRendererAlign_Left;
+	fontControl.i_fontSize = 48;
+	fontControl.f_fontSize = 48;
+	auto textData1 = FormatNumberToDigitRendererChars_Damage(2.34f);
+	g_DigitRenderer->SetImageData(textData1, v_basePos1, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_Red);
+
+	__m128 v_basePos2 = { 1340, 860, 1372, 892 };
+	fontControl.charAlignType = DigitRendererAlign_Center;
+	fontControl.i_fontSize = 32;
+	fontControl.f_fontSize = 32;
+	auto textData2 = FormatNumberToDigitRendererChars_Damage(121456789.1f);
+	g_DigitRenderer->SetImageData(textData2, v_basePos2, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_White);
+
+	time++;
 }

@@ -3,6 +3,8 @@
 extern togui_GetDXGISwapChain : proto
 extern GetDXGISwapChainRetAddr : qword
 
+extern xgsSystemSetPlayerSlotRetAddr : qword
+
 .code
 
 ASMGetDXGISwapChain proc
@@ -20,5 +22,17 @@ ASMGetDXGISwapChain proc
 	int 3
 
 ASMGetDXGISwapChain ENDP
+
+align 16
+
+ASMxgsSystemSetPlayerSlot proc
+
+	mov rax, [rbx+10h]
+	mov eax, [rax+60h]
+	imul r14, rax, 188h
+	jmp xgsSystemSetPlayerSlotRetAddr
+	int 3
+
+ASMxgsSystemSetPlayerSlot ENDP
 
 END

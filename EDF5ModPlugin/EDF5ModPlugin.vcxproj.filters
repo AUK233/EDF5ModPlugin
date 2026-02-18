@@ -201,6 +201,12 @@
     <ClCompile Include="zHui\ToGui\0DigitCommon.cpp">
       <Filter>Source Files\Module Hui\ToFui</Filter>
     </ClCompile>
+    <ClCompile Include="Base\g_system.cpp">
+      <Filter>Source Files\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Base\g_gameFunc.cpp">
+      <Filter>Source Files\Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMgamelog_hook.asm">
@@ -561,6 +567,12 @@
     </ClInclude>
     <ClInclude Include="zHui\ToGui\0SolidColorTexture.hpp">
       <Filter>Source Files\Module Hui\ToFui</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\g_system.h">
+      <Filter>Source Files\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\g_gameFunc.h">
+      <Filter>Source Files\Base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

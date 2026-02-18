@@ -1,0 +1,24 @@
+EDF5.exe+3944B0 获取是否是在线模式
+
+=======================================
+EDF5.exe+125AB68
+创建对象时需要读取它的指针
+
+EDF5.exe+615184 - 49 89 2E              - mov [r14],rbp
+这里写入的摄像机指针
+EDF5.exe+613EEF - E8 1C120000           - call EDF5.exe+615110
+这里call
+
+EDF5.exe+613F37 - 48 8B 9C 24 88000000  - mov rbx,[rsp+00000088]
+这里任务中会一直读取，但是hq不会，这里不能搞渲染，会卡住或崩溃
+
+EDF5.exe+613EE5 - 48 8B D0              - mov rdx,rax
+这个指针中
++0就是XGS_System_Camera的指针，再加+290就是玩家指针
+EDF5.exe+613EDC - 48 8B 4B 10           - mov rcx,[rbx+10]
+所以这个rcx就是XGS_System_Camera的指针
+
+XGS_System_Camera +60是玩家序号
+EDF5.exe+A0E1A - 8B 41 60              - mov eax,[rcx+60]
+这里任务中会访问
+=======================================

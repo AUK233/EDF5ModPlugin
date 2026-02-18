@@ -9,7 +9,7 @@ typedef struct GameDXGIRender_t {
 	ID3D11DeviceContext* pD3D11DeviceContext;
 	IDXGISwapChain* pDXGISwapChain;
 	char padD0[0x90];
-	ID3D11RenderTargetView* pMainRenderTargetView;
+	ID3D11RenderTargetView* pMainRenderTargetView; // it will release when start mission.
 } *PGameDXGIRender;
 #if 1
 static_assert(offsetof(GameDXGIRender_t, DXGISwapChainDesc) == 0x70);

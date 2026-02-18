@@ -12,6 +12,9 @@
 #include <HookLib.h>
 #include "utiliy.h"
 
+#include "Base/g_gameFunc.h"
+#include "Base/g_system.h"
+
 #include "GameFunc.h"
 
 extern PBYTE hmodEXE;
@@ -258,6 +261,8 @@ void GetGameFunctions() {
 
 	// get ammo function address
 	GetAmmoFunctions();
+	XGS_SystemFunction_Initialize(hmodEXE);
+	XGS_GetGameFunction_Initialize(hmodEXE);
 }
 
 extern "C" {

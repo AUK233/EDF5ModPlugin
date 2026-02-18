@@ -58,7 +58,7 @@ extern "C" {
 	uintptr_t vedf1259680;
 	uintptr_t vedf125B080;
 	uintptr_t vedf1153550;
-	uintptr_t vedf1256BD0;
+	uintptr_t vedf1256BD0; // pGameDXGIRenderer
 	// Audio Pointer
 	uintptr_t vedf125AB90;
 }

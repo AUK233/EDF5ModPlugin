@@ -20,6 +20,9 @@
 extern "C" {
 	void __fastcall ASMGetDXGISwapChain();
 	uintptr_t GetDXGISwapChainRetAddr;
+
+	void __fastcall ASMxgsSystemSetPlayerSlot();
+	uintptr_t xgsSystemSetPlayerSlotRetAddr;
 }
 
 void module_InitializeAddImGui(PBYTE hmodEXE)
@@ -30,6 +33,10 @@ void module_InitializeAddImGui(PBYTE hmodEXE)
 	hookGameBlockWithInt3((void*)(hmodEXE + 0x5E1BB9), (uintptr_t)ASMGetDXGISwapChain);
 	WriteHookToProcess((void*)(hmodEXE + 0x5E1BB9 + 15), (void*)&nop1, 1U);
 	GetDXGISwapChainRetAddr = (uintptr_t)(hmodEXE + 0x5E1BCE);
+
+	// EDF5.exe+613E80
+	hookGameBlock14((void*)(hmodEXE + 0x613E80), (uintptr_t)ASMxgsSystemSetPlayerSlot);
+	xgsSystemSetPlayerSlotRetAddr = (uintptr_t)(hmodEXE + 0x613E80 + 14);
 
 	//MessageBoxW(NULL, L"test", L"debug", MB_OK);
 }

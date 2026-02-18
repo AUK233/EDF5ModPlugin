@@ -1,0 +1,33 @@
+==============================
+EDF5.exe+4CD052
+HUiHudRader初始化
+
+==============================
+EDF5.exe+4CAB12
+HUiHudPowerGuage初始化
+
+EDF5.exe+4CC24E 是vft+10
+更新hud的信息，但是要先检查玩家存不存在
+
++760 这个8字节只使用了1字节，剩下的我们可以使用
+
++768是玩家指针
+EDF5.exe+4C9AD0 - 48 89 87 68070000     - mov [rdi+00000768],rax
+这里写入的玩家指针
+==============================
+EDF5.exe+4D1032
+HUiHudWeapon初始化
+
++760的16字节和HUiHudPowerGuage的相同
+==============================
+
+EDF5.exe+2DF9E2 - E8 89000000           - call EDF5.exe+2DFA70
+AssultSoldier初始化
+
+SceneObject 大小C0
++34的四字节完全没用过，应该是因为+38是一个指针 EDF5.exe+617568 
++58看起来是锁的自旋数
+
+NetworkObject 父对象是SceneObject
++d8 8字节只用了1字节 EDF5.exe+2D9A6C
++254 4字节只用了1字节

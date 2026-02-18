@@ -13,5 +13,8 @@ LRESULT __stdcall togui_WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 void togui_InitializeImGui();
 void togui_MainDisplay();
 void togui_MainDisplayTest();
-void togui_MainDisplay_ShowNumber();
+extern "C" void togui_MainDisplayInMission();
+
+void togui_MainDisplay_ToDigit();
+void togui_MainDisplay_ToDigitTest(ID3D11DeviceContext* pCTX);
 

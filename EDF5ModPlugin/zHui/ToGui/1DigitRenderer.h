@@ -2,7 +2,6 @@
 #include <d3d11.h>
 #include <vector>
 #include "0DigitCommon.h"
-#include "Base/SSE.hpp"
 
 namespace DigitRenderer{
     class CallbackData_t;
@@ -12,9 +11,9 @@ namespace DigitRenderer{
         // used to configure our solid-colour textures
         enum DigitRendererColor_ : int {
             DigitRendererColor_Red, // 255, 0, 0, 255
-            DigitRendererColor_RedNA, // 255, 0, 0, 0
+			DigitRendererColor_Green, // 0, 255, 0, 255
+			DigitRendererColor_Blue, // 0, 0, 255, 255
 			DigitRendererColor_White, // 255, 255, 255, 255
-			DigitRendererColor_WhiteNA, // 255, 255, 255, 0
             // second line
             DigitRendererColor_ALL,
         };
@@ -46,10 +45,10 @@ namespace DigitRenderer{
         void BeginFrame();
         void EndFrame();
 
-        void SetRender(ID3D11DeviceContext* context, PDigitText pText);
-        void __vectorcall SetImageData(const DigitTextByte& pText, PDigitFontControl pFont, __m128 BasePos, int colorTexIndex);
+        void SetRender(ID3D11DeviceContext* context, const PDigitConstants pData);
+        void __vectorcall SetImageData(const DigitTextByte& pText, __m128 BasePos, PDigitFontControl pFont, int colorTexIndex);
         ImU32 GetImageCharData(PDigitFontControl pData);
-        void SetToShader(int index, const DigitConstants_t* pData);
+        void SetToShader(int index, const PDigitConstants pData);
 
         void RenderEnd() { nextBufferIndex = 0; }
     };
@@ -61,7 +60,7 @@ namespace DigitRenderer{
         int bufferIndex;
         DigitConstants_t data;
     public:
-        void Initialize(PDynamicDigitRenderer p, int index, const DigitConstants_t* in) {
+        void Initialize(PDynamicDigitRenderer p, int index, const PDigitConstants in) {
             pDigitRenderer = p;
             bufferIndex = index;
             memcpy(&data, in, sizeof(DigitConstants_t));
