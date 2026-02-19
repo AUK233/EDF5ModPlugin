@@ -7,12 +7,12 @@
 
 [DirectXTK](https://github.com/Microsoft/DirectXTK).
 
-[ImGui](https://github.com/ocornut/imgui/releases/tag/v1.92.5).
+[ImGui](https://github.com/ocornut/imgui/releases/tag/v1.92.6).
 
 String search from the Internet.
  
 ## Building
-You will need [Visual Studio 2019](https://visualstudio.microsoft.com/vs/community/) and [vcpkg](https://github.com/microsoft/vcpkg)
+You will need [Visual Studio 2026](https://visualstudio.microsoft.com/vs/community/) and [vcpkg](https://github.com/microsoft/vcpkg)
 
 To setup vcpkg and required libraries:  
 ```

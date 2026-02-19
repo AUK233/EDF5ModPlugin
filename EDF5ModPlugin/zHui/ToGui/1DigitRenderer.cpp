@@ -10,10 +10,11 @@
 #include "backends/imgui_impl_win32.h"
 #include "0GetDXGI.h"
 #include "0SolidColorTexture.hpp"
+#include "utiliy.h"
 
 #include "1DigitRenderer.h"
 
-#define DEBUGMODE
+//#define DEBUGMODE
 
 
 namespace DigitRenderer {
@@ -64,8 +65,8 @@ void DynamicDigitRenderer_t::Initialize()
 	ID3DBlob* error_blob = nullptr;
 
 	// compile shader
-	D3DCompileFromFile(L"./subtitle/shader.hlsl", nullptr, nullptr, "VS_main", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &vs_blob, &error_blob);
-	D3DCompileFromFile(L"./subtitle/shader.hlsl", nullptr, nullptr, "PS_main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &ps_blob, &error_blob);
+	D3DCompileFromFile(L"./subtitle/digit.hlsl", nullptr, nullptr, "VS_main", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &vs_blob, &error_blob);
+	D3DCompileFromFile(L"./subtitle/digit.hlsl", nullptr, nullptr, "PS_main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &ps_blob, &error_blob);
 
 	device->CreateVertexShader(vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), nullptr, &vertex_shader);
 	device->CreatePixelShader(ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), nullptr, &pixel_shader);
@@ -84,6 +85,26 @@ void DynamicDigitRenderer_t::Initialize()
 	vs_blob->Release();
 	vs_blob->Release();
 	if (error_blob) error_blob->Release();
+#else
+	LoadEmbeddedResource(v_data_shader_vs, MAKEINTRESOURCEW(IDR_vs_digit), L"Shader");
+	LoadEmbeddedResource(v_data_shader_ps, MAKEINTRESOURCEW(IDR_ps_digit), L"Shader");
+	LoadEmbeddedResource(v_data_digit_texture, MAKEINTRESOURCEW(IDR_DamageUINumber), L"Texture");
+	//LoadEmbeddedResource(v_data_digit_texture, L"Resource\\DamageUINumber.dds", L"Texture"); // no, this cannot be found.
+
+	// load shader
+	device->CreatePixelShader(v_data_shader_ps.data(), v_data_shader_ps.size(), nullptr, &pixel_shader);
+	device->CreateVertexShader(v_data_shader_vs.data(), v_data_shader_vs.size(), nullptr, &vertex_shader);
+
+	// create input layout
+	D3D11_INPUT_ELEMENT_DESC layout[] = {
+		{"POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(ImDrawVert, pos), D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(ImDrawVert, uv), D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"COLOR", 0, DXGI_FORMAT_R8G8B8A8_UINT, 0, offsetof(ImDrawVert, col), D3D11_INPUT_PER_VERTEX_DATA, 0},
+	};
+	device->CreateInputLayout(layout, 3, v_data_shader_vs.data(), v_data_shader_vs.size(), &input_layout);
+
+	// load texture
+	DirectX::CreateDDSTextureFromMemory(device, v_data_digit_texture.data(), v_data_digit_texture.size(), nullptr, &digit_texture_srv);
 #endif
 }
 

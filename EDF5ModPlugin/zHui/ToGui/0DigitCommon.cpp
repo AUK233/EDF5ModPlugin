@@ -24,6 +24,18 @@ namespace DigitRenderer {
 		return out;
 	}
 
+	DigitTextByte FormatNumberToDigitRendererChars_Percentage(float number)
+	{
+		auto curNumber = std::fmaxf(number, 0);
+		curNumber = std::fminf(10000.0f, curNumber); // max is 10000.00%
+
+		// 48 + 12 = 60 = 0x3C
+		auto str = std::format("{:.2f}\x3c", curNumber);
+
+		auto out = StringToDigitRendererChars(str);
+		return out;
+	}
+
 	DigitTextByte StringToDigitRendererChars(const std::string& str)
 	{
 		DigitTextByte out;
@@ -31,13 +43,17 @@ namespace DigitRenderer {
 		for (char c : str) {
 			if (c == '.') {
 				out.push_back(DigitRendererChar_DOT);
-				continue;
 			}
-
-			BYTE number = c - '0';
-			// 0x3A ':' as '%'
-			if (number > DigitRendererChar_PERCENT) number = 0;
-			out.push_back(number);
+			else if (c == '-') {
+				out.push_back(DigitRendererChar_SUB);
+			}
+			else {
+				BYTE number = c - '0';
+				// 48+12 = '<' as '%'
+				if (number > DigitRendererChar_LAST) number = DigitRendererChar_LAST;
+				out.push_back(number);
+			}
+			// end
 		}
 		return out;
 	}

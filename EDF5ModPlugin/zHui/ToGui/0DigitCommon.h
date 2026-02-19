@@ -19,7 +19,9 @@ namespace DigitRenderer {
         DigitRendererChar_9,
         DigitRendererChar_DOT,
         // second line
+        DigitRendererChar_SUB,
         DigitRendererChar_PERCENT,
+        DigitRendererChar_LAST = 21 // last
     };
 
     enum DigitRendererAlign_ : int {
@@ -45,6 +47,7 @@ namespace DigitRenderer {
     }*PDigitConstants;
 
     DigitTextByte FormatNumberToDigitRendererChars_Damage(float number);
+    DigitTextByte FormatNumberToDigitRendererChars_Percentage(float number);
     DigitTextByte StringToDigitRendererChars(const std::string& str);
 
 	int SetDigitRendererAlign(int charTotal, int alignType);

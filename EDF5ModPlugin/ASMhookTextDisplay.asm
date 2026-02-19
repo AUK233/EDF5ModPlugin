@@ -8,12 +8,9 @@ extern eTextForWeaponReloadTime : proto
 ;extern eDisplaySoldierWeaponAmmo : proto
 extern eDisplaySoldierWeaponDamage : proto
 extern eDisplayVehicleWeaponDamage : proto
-extern eDisplayFencerBoostAndDash : proto
 extern ASMgetCurrentMissionClassModelType : proto
 
 extern HUiHudWeaponUpdateVehicleTextRet : qword
-extern readHUiHudPowerGuageRet : qword
-extern updateHUiHudPowerGuageRet : qword
 extern hookSleepRet : qword
 extern rva9C6E40 : qword
 extern rva27380 : qword
@@ -24,8 +21,6 @@ extern rva4CA990 : qword
 
 extern _TextWingEnergy6Position : qword
 
-extern togui_MainDisplayInMission : proto
-
 ; L"TextNumericType2"
 wstrTextNumericType2 db 84,0,101,0,120,0,116,0,78,0,117,0,109,0,101,0,114,0,105,0,99,0,84,0,121,0,112,0,101,0,50,0,0,0
 align 16
@@ -34,12 +29,6 @@ wstrTextDamage db 84,0,101,0,120,0,116,0,68,0,97,0,109,0,97,0,103,0,101,0,0,0
 align 16
 ; L"TextDamage_UP"
 wstrTextDamageUP db 84,0,101,0,120,0,116,0,68,0,97,0,109,0,97,0,103,0,101,0,95,0,85,0,80,0,0,0
-align 16
-; L"TextFencerDash"
-wstrTextFencerDash db 84,0,101,0,120,0,116,0,70,0,101,0,110,0,99,0,101,0,114,0,68,0,97,0,115,0,104,0,0,0
-align 16
-; L"TextFencerBoost"
-wstrTextFencerBoost db 84,0,101,0,120,0,116,0,70,0,101,0,110,0,99,0,101,0,114,0,66,0,111,0,111,0,115,0,116,0,0,0
 
 .code
 
@@ -386,147 +375,6 @@ ASMHUiHudWeaponUpdateAmmoText proc
         int 3
 
 ASMHUiHudWeaponUpdateAmmoText ENDP
-
-align 16
-
-ASMreadHUiHudPowerGuage proc
-        xorps xmm0, xmm0
-        movaps [rdi+0C00h], xmm0
-        movaps [rdi+0C10h], xmm0
-        movaps [rdi+0C20h], xmm0
-        movaps [rdi+0C30h], xmm0
-        movaps [rdi+0C40h], xmm0
-    ; TextFencerDash
-        mov qword ptr [rbp+0C0h], 7
-        mov [rbp+0B8h], r15
-        mov [rbp+0B0h], r15
-        mov [rbp+0A8h], r15
-        mov r8d, 14
-        lea rdx, wstrTextFencerDash
-        lea rcx, [rbp+0A8h]
-        call rva27380
-        align 16
-        lea r8, [rbp+0A8h]
-        lea rdx, [rbp-28h]
-        mov rcx, rdi
-        call rva4D86D0
-        mov rbx, [rax+8]
-        mov r14, [rax]
-        test rbx, rbx
-        je fencerBoost
-        movups xmm0, [r14+270h]
-        movups [rdi+0C10h], xmm0
-        mov dword ptr [rdi+0C1Ch], 3F800000h
-        lock inc dword ptr [rbx+0Ch]
-    ofs4CA869:
-        mov [rdi+0C08h], rbx
-        mov [rdi+0C00h], r14
-        mov rbx, [rbp-20h]
-        test rbx, rbx
-        je ofs4CA8AA
-        mov eax, esi
-        lock xadd [rbx+8], eax
-        cmp eax, 1
-        jne ofs4CA8AA
-        mov rax, [rbx]
-        mov rcx, rbx
-        call qword ptr [rax]
-        mov eax, esi
-        lock xadd [rbx+0Ch], eax
-        cmp eax, 1
-        jne ofs4CA8AA
-        mov rax, [rbx]
-        mov rcx, rbx
-        call qword ptr [rax+8]
-        align 16
-    ofs4CA8AA:
-        mov rdx, [rbp+0C0h]
-        cmp rdx, 8
-        jb fencerBoost
-        inc rdx
-        mov r8d, 2
-        mov rcx, [rbp+0A8h]
-        call rva27570
-
-    ; TextFencerDash
-    fencerBoost:
-        mov qword ptr [rbp+0C0h], 7
-        mov [rbp+0B8h], r15
-        mov [rbp+0B0h], r15
-        mov [rbp+0A8h], r15
-        mov r8d, 15
-        lea rdx, wstrTextFencerBoost
-        lea rcx, [rbp+0A8h]
-        call rva27380
-        align 16
-        lea r8, [rbp+0A8h]
-        lea rdx, [rbp-28h]
-        mov rcx, rdi
-        call rva4D86D0
-        mov rbx, [rax+8]
-        mov r14, [rax]
-        test rbx, rbx
-        je ofs4CA8CC
-        movups xmm0, [r14+270h]
-        movups [rdi+0C30h], xmm0
-        mov dword ptr [rdi+0C3Ch], 3F800000h
-        lock inc dword ptr [rbx+0Ch]
-    fencerBoost_1:
-        mov [rdi+0C28h], rbx
-        mov [rdi+0C20h], r14
-        mov rbx, [rbp-20h]
-        test rbx, rbx
-        je fencerBoost_2
-        mov eax, esi
-        lock xadd [rbx+8], eax
-        cmp eax, 1
-        jne fencerBoost_2
-        mov rax, [rbx]
-        mov rcx, rbx
-        call qword ptr [rax]
-        mov eax, esi
-        lock xadd [rbx+0Ch], eax
-        cmp eax, 1
-        jne fencerBoost_2
-        mov rax, [rbx]
-        mov rcx, rbx
-        call qword ptr [rax+8]
-        align 16
-    fencerBoost_2:
-        mov rdx, [rbp+0C0h]
-        cmp rdx, 8
-        jb ofs4CA8CC
-        inc rdx
-        mov r8d, 2
-        mov rcx, [rbp+0A8h]
-        call rva27570
-
-    ofs4CA8CC:
-        mov qword ptr [rbp+0E0h], 7
-        mov [rbp+0D8h], r15
-        jmp readHUiHudPowerGuageRet
-        int 3
-
-ASMreadHUiHudPowerGuage ENDP
-
-align 16
-
-ASMupdateHUiHudPowerGuage proc
-    ; check fencer
-        mov rax, [rbx+768h]
-        cmp dword ptr [rax+470h], 0
-        je ofs4CBCA6
-        lea rdx, [rax+1BA0h]
-        mov rcx, rbx
-        call eDisplayFencerBoostAndDash
-    ofs4CBCA6:
-        call togui_MainDisplayInMission
-        lea rdx, [rbx+920h]
-        lea rcx, [rsp+50h]
-        jmp updateHUiHudPowerGuageRet
-        int 3
-
-ASMupdateHUiHudPowerGuage ENDP
 
 align 16
 

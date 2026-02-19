@@ -3,6 +3,7 @@
 extern togui_GetDXGISwapChain : proto
 extern GetDXGISwapChainRetAddr : qword
 
+extern DigitProcessor_SetLocalCurrentPlayer : proto
 extern xgsSystemSetPlayerSlotRetAddr : qword
 
 .code
@@ -27,8 +28,9 @@ align 16
 
 ASMxgsSystemSetPlayerSlot proc
 
-	mov rax, [rbx+10h]
-	mov eax, [rax+60h]
+	mov edx, [rbp+228h]
+	mov rcx, [rbx+10h]
+	call DigitProcessor_SetLocalCurrentPlayer
 	imul r14, rax, 188h
 	jmp xgsSystemSetPlayerSlotRetAddr
 	int 3

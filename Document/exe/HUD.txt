@@ -22,12 +22,28 @@ HUiHudWeapon初始化
 ==============================
 
 EDF5.exe+2DF9E2 - E8 89000000           - call EDF5.exe+2DFA70
-AssultSoldier初始化
-
+AssultSoldier初始化 父对象是SoldierBase
+===
 SceneObject 大小C0
+初始化 EDF5.exe+617520
 +34的四字节完全没用过，应该是因为+38是一个指针 EDF5.exe+617568 
 +58看起来是锁的自旋数
-
-NetworkObject 父对象是SceneObject
+==
+NetworkObject 大小410 父对象是SceneObject
+初始化 EDF5.exe+2D9A10
 +d8 8字节只用了1字节 EDF5.exe+2D9A6C
 +254 4字节只用了1字节
+
+EDF5.exe+32C196 - 48 63 87 18020000     - movsxd  rax,dword ptr [rdi+00000218]
++218的作用
+EDF5.exe+2DA7EA - 8B 89 70030000        - mov ecx,[rcx+00000370]
+看起来是当前已过的帧，每帧率修正一次
+===
+HumanBase 大小 父对象是NetworkObject
+===
+SoldierBase 大小1A00 父对象是HumanBase
+初始化 EDF5.exe+3032E0
+
+
+
+

@@ -26,6 +26,7 @@ extern "C" extern int ModLogStatus;
 
 static std::vector<void *> hooks; // Holds all original hooked functions
 static const char hmodGameName[] = "EDF5.exe";
+HMODULE SelfModule;
 
 // Hook wrapper functions
 BOOLEAN __fastcall SetHookWrap(const void *Interceptor, void **Original) {
@@ -341,4 +342,28 @@ void __fastcall ForceCrashGame()
 {
 	Sleep(60000);
 	*(int*)0 = 0;
+}
+
+void __fastcall SaveThisModuleHandle(HMODULE hModule)
+{
+	SelfModule = hModule;
+}
+
+bool __fastcall LoadEmbeddedResource(std::vector<BYTE>& in, LPCWSTR lpName, LPCWSTR lpType)
+{ 
+	HRSRC res = FindResourceW(SelfModule, lpName, lpType);
+	if (res == NULL) return false;
+
+	HGLOBAL hResData = LoadResource(SelfModule, res);
+	if (hResData == NULL) return false;
+
+	DWORD resSize = SizeofResource(SelfModule, res);
+	if (resSize == 0) return false;
+
+	void* pResData = LockResource(hResData);
+	if (pResData == NULL) return false;
+
+	in.resize(resSize);
+	memcpy(in.data(), pResData, resSize);
+	return true;
 }

@@ -186,6 +186,7 @@ static_assert(offsetof(EDFWeaponStruct, chargeTimeCount) == 0x250C);
 static_assert(offsetof(EDFWeaponStruct, use_extraShotType) == 0x2510);
 static_assert(offsetof(EDFWeaponStruct, AmmoFriendlyFireType) == 0x2514);
 
+// wait move to EDFSoldierClass.hpp
 __declspec(align(16)) typedef struct EDFBaseClass_t {
 	void* vf_table;
 	INT64 pad8;
@@ -247,6 +248,7 @@ static_assert(offsetof(EDFPaleWing_t, WeaponChargeSpeed) == 0x1CF4);
 static_assert(offsetof(EDFPaleWing_t, FlightDamping) == 0x1D0C);
 static_assert(offsetof(EDFPaleWing_t, f1d1c) == 0x1D1C);
 
+// wait move to EDFSoldierClass.hpp
 // +1BA0
 typedef struct FencerBoostAndDash_t {
 	int BoostRecoveryRemainTime;
@@ -272,6 +274,7 @@ typedef struct EDFHeavyArmor_t : EDFBaseClass_t {
 } *PEDFHeavyArmor;
 static_assert(offsetof(EDFHeavyArmor_t, thruster.BoostRecoveryRemainTime) == 0x1BA0);
 
+// wait move to HUiHudCommonStruct.hpp
 typedef struct HUiHudTextContentStruct {
 	BYTE pad1[0x18];
 	EDFVector2Pointer fontSize;
@@ -286,6 +289,7 @@ static_assert(offsetof(HUiHudTextContentStruct, fontSize) == 0x18);
 static_assert(offsetof(HUiHudTextContentStruct, text) == 0x60);
 static_assert(offsetof(HUiHudTextContentStruct, textLength) == 0x80);
 
+// wait move to HUiHudCommonStruct.hpp
 typedef struct HUiHudTextStruct {
 	BYTE pad1[0x1A0];
 	EDFVector4Pointer RawPos;
@@ -346,39 +350,6 @@ static_assert(offsetof(HUiHudWeaponStruct, TextDamageCheck) == 0xD28);
 static_assert(offsetof(HUiHudWeaponStruct, damageFontSize) == 0xD30);
 static_assert(offsetof(HUiHudWeaponStruct, TextDamageUP) == 0xD40);
 static_assert(offsetof(HUiHudWeaponStruct, TextDamageUPCheck) == 0xD48);
-
-typedef struct HUiHudPowerGuageStruct {
-	BYTE pad1[0x7E8];
-	//  vehicle may not have it.
-	EDFWeaponPointer* Weapon;
-	BYTE pad11[0x130];
-	// aka Current HP
-	HUiHudTextPointer* PowText;
-	void* PowTextCheck;
-	// aka Max HP
-	HUiHudTextPointer* DefText;
-	void* DefTextCheck;
-	BYTE pad2[0x2C0];
-	// new
-	HUiHudTextPointer* TextFencerDash;
-	void* TextFencerDashCheck;
-	EDFColor4Pointer TextFencerDashColor;
-	HUiHudTextPointer* TextFencerBoost;
-	void* TextFencerBoostCheck;
-	EDFColor4Pointer TextFencerBoostColor;
-	BYTE padEnd[0x10];
-} HUiHudPowerGuagePointer;
-static_assert(offsetof(HUiHudPowerGuageStruct, Weapon) == 0x7E8);
-static_assert(offsetof(HUiHudPowerGuageStruct, PowText) == 0x920);
-static_assert(offsetof(HUiHudPowerGuageStruct, PowTextCheck) == 0x928);
-static_assert(offsetof(HUiHudPowerGuageStruct, DefText) == 0x930);
-static_assert(offsetof(HUiHudPowerGuageStruct, DefTextCheck) == 0x938);
-static_assert(offsetof(HUiHudPowerGuageStruct, TextFencerDash) == 0xC00);
-static_assert(offsetof(HUiHudPowerGuageStruct, TextFencerDashCheck) == 0xC08);
-static_assert(offsetof(HUiHudPowerGuageStruct, TextFencerDashColor) == 0xC10);
-static_assert(offsetof(HUiHudPowerGuageStruct, TextFencerBoost) == 0xC20);
-static_assert(offsetof(HUiHudPowerGuageStruct, TextFencerBoostCheck) == 0xC28);
-static_assert(offsetof(HUiHudPowerGuageStruct, TextFencerBoostColor) == 0xC30);
 
 __declspec(align(16)) typedef struct EDF125ABD8_t {
 	BYTE pad0[0xA88];

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -195,6 +195,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\HookLib\HookLib\HookLib\HookLib.c" />
+    <ClCompile Include="Base\base_baseObject.cpp" />
     <ClCompile Include="Base\g_gameFunc.cpp" />
     <ClCompile Include="Base\g_system.cpp" />
     <ClCompile Include="dllmain.cpp" />
@@ -236,12 +237,17 @@
     <ClCompile Include="zHui\HuiDisplaySubtitle.cpp">
       <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NoListing</AssemblerOutput>
     </ClCompile>
+    <ClCompile Include="zHui\HUiHudCommonStruct.cpp">
+      <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NoListing</AssemblerOutput>
+    </ClCompile>
+    <ClCompile Include="zHui\HUiHudPowerGuage.cpp" />
     <ClCompile Include="zHui\HuiModConsole.cpp" />
     <ClCompile Include="zHui\HuiMoreCharacterModel.cpp" />
     <ClCompile Include="zHui\HuiObjectClass.cpp" />
     <ClCompile Include="zHui\ToGui\0DigitCommon.cpp" />
     <ClCompile Include="zHui\ToGui\0GetDXGI.cpp" />
     <ClCompile Include="zHui\ToGui\0SetImGui.cpp" />
+    <ClCompile Include="zHui\ToGui\1DigitProcessor.cpp" />
     <ClCompile Include="zHui\ToGui\1DigitRenderer.cpp" />
     <ClCompile Include="zHui\ToGui\DirectXTK\BinaryReader.cpp" />
     <ClCompile Include="zHui\ToGui\DirectXTK\BufferHelpers.cpp" />
@@ -306,12 +312,14 @@
     <MASM Include="zEnemy\ASMxgsBigNest.asm" />
     <MASM Include="zHui\0HuiAddImGuiASM.asm" />
     <MASM Include="zHui\HuiDisplaySubtitleASM.asm" />
+    <MASM Include="zHui\HUiHudPowerGuageASM.asm" />
     <MASM Include="zHui\HuiModConsoleASM.asm" />
     <MASM Include="zHui\HuiMoreCharacterModelASM.asm" />
     <MASM Include="zHui\HuiObjectClassASM.asm" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\HookLib\HookLib\HookLib\HookLib.h" />
+    <ClInclude Include="Base\base_baseObject.h" />
     <ClInclude Include="Base\g_gameFunc.h" />
     <ClInclude Include="Base\g_system.h" />
     <ClInclude Include="Base\SSE.hpp" />
@@ -330,12 +338,14 @@
     <ClInclude Include="LoggerTweaks.h" />
     <ClInclude Include="PluginAPI.h" />
     <ClInclude Include="proxy.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Resource\LoadShaders.hpp" />
     <ClInclude Include="Resource\snd_ShotIndicatorCircle.h" />
     <ClInclude Include="utiliy.h" />
     <ClInclude Include="zEDF\EDFAmmoFunction.h" />
     <ClInclude Include="zEDF\EDFbaseParameterSet.h" />
     <ClInclude Include="zEDF\EDFCommonFunction.h" />
+    <ClInclude Include="zEDF\EDFSoldierClass.hpp" />
     <ClInclude Include="zEDF\EDFWeaponFunction.h" />
     <ClInclude Include="zEDF\Vehicle\XGS_VehicleBegaruta.h" />
     <ClInclude Include="zEDF\Weapon\XGS_Weapon_LaserMarkerCallFire.h" />
@@ -346,6 +356,8 @@
     <ClInclude Include="zHui\0HuiAddImGui.h" />
     <ClInclude Include="zHui\HuiCasController.h" />
     <ClInclude Include="zHui\HuiDisplaySubtitle.h" />
+    <ClInclude Include="zHui\HUiHudCommonStruct.h" />
+    <ClInclude Include="zHui\HUiHudPowerGuage.h" />
     <ClInclude Include="zHui\HuiModConsole.h" />
     <ClInclude Include="zHui\HuiMoreCharacterModel.h" />
     <ClInclude Include="zHui\HuiObjectClass.h" />
@@ -353,6 +365,7 @@
     <ClInclude Include="zHui\ToGui\0GetDXGI.h" />
     <ClInclude Include="zHui\ToGui\0SetImGui.h" />
     <ClInclude Include="zHui\ToGui\0SolidColorTexture.hpp" />
+    <ClInclude Include="zHui\ToGui\1DigitProcessor.h" />
     <ClInclude Include="zHui\ToGui\1DigitRenderer.h" />
     <ClInclude Include="zHui\ToGui\DirectXTK\AlignedNew.h" />
     <ClInclude Include="zHui\ToGui\DirectXTK\Audio.h" />
@@ -392,8 +405,18 @@
     <ClInclude Include="zHui\ToGui\imgui\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resource\ps_digit.cso" />
+    <None Include="Resource\vs_digit.cso" />
+    <None Include="shader2.bin" />
+    <None Include="texture2.bin" />
     <None Include="zHui\ToGui\DirectXTK\SimpleMath.inl" />
     <None Include="zHui\ToGui\DirectXTK\TeapotData.inc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="EDF5ModPlugin.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resource\DamageUINumber.dds" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

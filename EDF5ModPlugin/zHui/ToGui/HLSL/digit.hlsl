@@ -63,7 +63,7 @@ PS_INPUT VS_main(VS_INPUT input)
 	cur_digit.x = digit % c_ColumnCount;
 	cur_digit.y = digit / c_ColumnCount;
 	
-	float2 grid_pos = cur_digit * float2(1, c_LineFactor);
+	float2 grid_pos = cur_digit;
 	output.char_data.zw = grid_pos;
 	// end
 	float widthFactor = cur_digit.x >= (c_ColumnCount - 1) ? 0.5 : c_FontWidth;

@@ -176,38 +176,6 @@ void __fastcall eDisplaySoldierWeaponAmmo(HUiHudWeaponPointer* p)
 }
 */
 
-void __fastcall eDisplayFencerBoostAndDash(HUiHudPowerGuagePointer* p, PFencerBoostAndDash fencer)
-{
-	HUiHudTextPointer* pDash = p->TextFencerDash;
-	if (pDash) {
-		HUiHudTextContentPointer* pText = ASMgetHUiHudTextContentPointer(pDash->addr228h);
-		ZeroMemory(&pText->text, 16U);
-		if (fencer->DashCurrentCount > 0) {
-			memcpy(&pDash->font_color, &p->TextFencerDashColor, 16U);
-			TextForFormatIntNumber(fencer->DashCurrentCount, (WCHAR*)&pText->text, 7);
-		}else{
-			memcpy(&pDash->font_color, WeaponReloadTimeColor, 16U);
-			float remainTime = fencer->DashRecoveryRemainTime / 60.0f;
-			TextForFormatFloatNumber(remainTime, (WCHAR*)&pText->text, 7);
-		}
-	}
-
-	HUiHudTextPointer* pBoost = p->TextFencerBoost;
-	if (pBoost) {
-		HUiHudTextContentPointer* pText = ASMgetHUiHudTextContentPointer(pBoost->addr228h);
-		ZeroMemory(&pText->text, 16U);
-		if (fencer->BoostCurrentCount > 0) {
-			memcpy(&pBoost->font_color, &p->TextFencerBoostColor, 16U);
-			TextForFormatIntNumber(fencer->BoostCurrentCount, (WCHAR*)&pText->text, 7);
-		}
-		else {
-			memcpy(&pBoost->font_color, WeaponReloadTimeColor, 16U);
-			float remainTime = fencer->BoostRecoveryRemainTime / 60.0f;
-			TextForFormatFloatNumber(remainTime, (WCHAR*)&pText->text, 7);
-		}
-	}
-}
-
 extern "C" {
 uintptr_t hookTextDisplayRetAddr;
 void __fastcall ASMhookTextDisplay();
@@ -449,11 +417,6 @@ extern "C" {
 	void __fastcall ASMHUiHudWeaponUpdateVehicleText();
 	uintptr_t HUiHudWeaponUpdateVehicleTextRet;
 	void __fastcall ASMHUiHudWeaponUpdateAmmoText();
-	//
-	void __fastcall ASMreadHUiHudPowerGuage();
-	uintptr_t readHUiHudPowerGuageRet;
-	void __fastcall ASMupdateHUiHudPowerGuage();
-	uintptr_t updateHUiHudPowerGuageRet;
 }
 
 void hookHUDEnhancement() {
@@ -503,16 +466,4 @@ void hookHUDEnhancement() {
 	BYTE _r14_ = 0x4C;
 	WriteHookToProcess((void *)(hmodEXE + 0x4D70B5), &_r14_, 1U);
 	WriteHookToProcess((void *)(hmodEXE + 0x4D70E2), &_r14_, 1U);
-
-	// old is 0XB20
-	int newHPSize = 0xD00;
-	static_assert(sizeof(HUiHudPowerGuagePointer) < 0xD00);
-	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x4CAAF7 + 1), &newHPSize, 4U);
-	// EDF5.exe+4CB4CC
-	hookGameBlock((void*)(hmodEXE + 0x4CB4CC), (uintptr_t)ASMreadHUiHudPowerGuage);
-	WriteHookToProcess((void*)(hmodEXE + 0x4CB4CC + 12), (void*)&nop6, 6U);
-	readHUiHudPowerGuageRet = (uintptr_t)(hmodEXE + 0x4CB4DE);
-	// EDF5.exe+4CC8A6 vft+10?
-	hookGameBlock((void*)(hmodEXE + 0x4CC8A6), (uintptr_t)ASMupdateHUiHudPowerGuage);
-	updateHUiHudPowerGuageRet = (uintptr_t)(hmodEXE + 0x4CC8B2);
 }

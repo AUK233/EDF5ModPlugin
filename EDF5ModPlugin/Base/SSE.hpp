@@ -6,9 +6,15 @@
 // unused xmm register location
 #define my_unused_xmm 0
 
-struct Matrix3D_t {
+__declspec(align(16)) struct Matrix3D_t {
 	float m0[4];
 	float m1[4];
 	float m2[4];
 	float pos[4];
+};
+
+// 2 xyz to determine direction
+struct MatrixCamera_t {
+	float m0[4];
+	float m1[4];
 };

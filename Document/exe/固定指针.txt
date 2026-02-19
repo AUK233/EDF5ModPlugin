@@ -8,6 +8,8 @@ EDF5.exe+615184 - 49 89 2E              - mov [r14],rbp
 这里写入的摄像机指针
 EDF5.exe+613EEF - E8 1C120000           - call EDF5.exe+615110
 这里call
+EDF5.exe+611405 - 4C 89 73 F8           - mov [rbx-08],r14
+这里清零指针
 
 EDF5.exe+613F37 - 48 8B 9C 24 88000000  - mov rbx,[rsp+00000088]
 这里任务中会一直读取，但是hq不会，这里不能搞渲染，会卡住或崩溃

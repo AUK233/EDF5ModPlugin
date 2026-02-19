@@ -18,6 +18,7 @@
 #include "utiliy.h"
 #include "0GetDXGI.h"
 #include "1DigitRenderer.h"
+#include "1DigitProcessor.h"
 
 #include "0SetImGui.h"
 
@@ -48,7 +49,7 @@ int __fastcall togui_GetDXGISwapChain(int protectECX, IDXGISwapChain* pSwapChain
 			addrToHook = (uintptr_t)togui_Present;
 			WriteHookToProcess(addrPresent, &addrToHook, 8U);
 		}
-
+#if defined(DEBUGMODE)
 		if (!fnIDXGISwapChainResizeBuffers) {
 			auto addrResizeBuffers = (IDXGISwapChainResizeBuffers*)&pVTable[13]; // vft+0x68
 			fnIDXGISwapChainResizeBuffers = *addrResizeBuffers;
@@ -56,6 +57,7 @@ int __fastcall togui_GetDXGISwapChain(int protectECX, IDXGISwapChain* pSwapChain
 			addrToHook = (uintptr_t)togui_ResizeBuffers;
 			WriteHookToProcess(addrResizeBuffers, &addrToHook, 8U);
 		}
+#endif
 		// end
 	}
 	return protectECX;
@@ -242,8 +244,8 @@ void togui_MainDisplay_ToDigit()
 #endif
 
 
-	ImVec2 origin(160,160);
-	pDrawList->AddCircleFilled(origin, 100, IM_COL32(255, 0, 0, 255));
+	/*ImVec2 origin(160,160);
+	pDrawList->AddCircleFilled(origin, 100, IM_COL32(255, 0, 0, 255));*/
 
 	g_DigitRenderer->BeginFrame();
 
@@ -294,7 +296,7 @@ void togui_MainDisplay_ToDigitTest(ID3D11DeviceContext* pCTX)
 	fontControl.charAlignType = DigitRendererAlign_Left;
 	fontControl.i_fontSize = 48;
 	fontControl.f_fontSize = 48;
-	auto textData1 = FormatNumberToDigitRendererChars_Damage(2.34f);
+	auto textData1 = FormatNumberToDigitRendererChars_Percentage(2.34f);
 	g_DigitRenderer->SetImageData(textData1, v_basePos1, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_Red);
 
 	__m128 v_basePos2 = { 1340, 860, 1372, 892 };
@@ -304,5 +306,5 @@ void togui_MainDisplay_ToDigitTest(ID3D11DeviceContext* pCTX)
 	auto textData2 = FormatNumberToDigitRendererChars_Damage(121456789.1f);
 	g_DigitRenderer->SetImageData(textData2, v_basePos2, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_White);
 
-	time++;
+	//time++;
 }

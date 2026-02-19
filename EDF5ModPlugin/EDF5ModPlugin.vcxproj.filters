@@ -43,6 +43,15 @@
     <Filter Include="Source Files\Base">
       <UniqueIdentifier>{47b34149-d001-4de8-a6ec-1b39d645d72d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Module Hui\main">
+      <UniqueIdentifier>{e797cec0-e245-4766-90f9-0cee820f56af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Module Hui\ToFui\main">
+      <UniqueIdentifier>{ee738af6-a28e-4e90-9715-35e8395bbe12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Module EDF\main">
+      <UniqueIdentifier>{07132a02-9bbe-4123-8111-8d445afce34d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -72,32 +81,11 @@
     <ClCompile Include="GameFuncStartup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="zHui\HuiMoreCharacterModel.cpp">
-      <Filter>Source Files\Module Hui</Filter>
-    </ClCompile>
     <ClCompile Include="GameFunc_Mission.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="zHui\HuiDisplaySubtitle.cpp">
-      <Filter>Source Files\Module Hui</Filter>
-    </ClCompile>
-    <ClCompile Include="zEDF\EDFbaseParameterSet.cpp">
-      <Filter>Source Files\Module EDF</Filter>
-    </ClCompile>
-    <ClCompile Include="zEDF\EDFCommonFunction.cpp">
-      <Filter>Source Files\Module EDF</Filter>
-    </ClCompile>
-    <ClCompile Include="zHui\HuiCasController.cpp">
-      <Filter>Source Files\Module Hui</Filter>
-    </ClCompile>
     <ClCompile Include="zEnemy\EnemyHook_GiantAnt.cpp">
       <Filter>Source Files\Module Enemy</Filter>
-    </ClCompile>
-    <ClCompile Include="zEDF\EDFAmmoFunction.cpp">
-      <Filter>Source Files\Module EDF</Filter>
-    </ClCompile>
-    <ClCompile Include="zEDF\EDFWeaponFunction.cpp">
-      <Filter>Source Files\Module EDF</Filter>
     </ClCompile>
     <ClCompile Include="zEDF\Weapon\XGS_Weapon_RadioContact.cpp">
       <Filter>Source Files\Module EDF\Weapon</Filter>
@@ -114,18 +102,6 @@
     <ClCompile Include="zEDF\Vehicle\XGS_VehicleBegaruta.cpp">
       <Filter>Source Files\Module EDF\Vehicle</Filter>
     </ClCompile>
-    <ClCompile Include="zHui\HuiObjectClass.cpp">
-      <Filter>Source Files\Module Hui</Filter>
-    </ClCompile>
-    <ClCompile Include="zHui\HuiModConsole.cpp">
-      <Filter>Source Files\Module Hui</Filter>
-    </ClCompile>
-    <ClCompile Include="zHui\0HuiAddImGui.cpp">
-      <Filter>Source Files\Module Hui</Filter>
-    </ClCompile>
-    <ClCompile Include="zHui\ToGui\0SetImGui.cpp">
-      <Filter>Source Files\Module Hui\ToFui</Filter>
-    </ClCompile>
     <ClCompile Include="zHui\ToGui\imgui\imgui.cpp">
       <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
     </ClCompile>
@@ -134,9 +110,6 @@
     </ClCompile>
     <ClCompile Include="zHui\ToGui\imgui\backends\imgui_impl_win32.cpp">
       <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="zHui\ToGui\0GetDXGI.cpp">
-      <Filter>Source Files\Module Hui\ToFui</Filter>
     </ClCompile>
     <ClCompile Include="zHui\ToGui\imgui\imgui_demo.cpp">
       <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
@@ -149,9 +122,6 @@
     </ClCompile>
     <ClCompile Include="zHui\ToGui\imgui\imgui_widgets.cpp">
       <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
-    </ClCompile>
-    <ClCompile Include="zHui\ToGui\1DigitRenderer.cpp">
-      <Filter>Source Files\Module Hui\ToFui</Filter>
     </ClCompile>
     <ClCompile Include="zHui\ToGui\DirectXTK\BinaryReader.cpp">
       <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
@@ -198,13 +168,64 @@
     <ClCompile Include="zHui\ToGui\DirectXTK\VertexTypes.cpp">
       <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
     </ClCompile>
-    <ClCompile Include="zHui\ToGui\0DigitCommon.cpp">
-      <Filter>Source Files\Module Hui\ToFui</Filter>
-    </ClCompile>
     <ClCompile Include="Base\g_system.cpp">
       <Filter>Source Files\Base</Filter>
     </ClCompile>
     <ClCompile Include="Base\g_gameFunc.cpp">
+      <Filter>Source Files\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\0HuiAddImGui.cpp">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\HuiCasController.cpp">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\HuiDisplaySubtitle.cpp">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\HUiHudCommonStruct.cpp">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\HUiHudPowerGuage.cpp">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\HuiModConsole.cpp">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\HuiMoreCharacterModel.cpp">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\HuiObjectClass.cpp">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\0DigitCommon.cpp">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\0GetDXGI.cpp">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\0SetImGui.cpp">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\1DigitRenderer.cpp">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\1DigitProcessor.cpp">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </ClCompile>
+    <ClCompile Include="zEDF\EDFAmmoFunction.cpp">
+      <Filter>Source Files\Module EDF\main</Filter>
+    </ClCompile>
+    <ClCompile Include="zEDF\EDFbaseParameterSet.cpp">
+      <Filter>Source Files\Module EDF\main</Filter>
+    </ClCompile>
+    <ClCompile Include="zEDF\EDFCommonFunction.cpp">
+      <Filter>Source Files\Module EDF\main</Filter>
+    </ClCompile>
+    <ClCompile Include="zEDF\EDFWeaponFunction.cpp">
+      <Filter>Source Files\Module EDF\main</Filter>
+    </ClCompile>
+    <ClCompile Include="Base\base_baseObject.cpp">
       <Filter>Source Files\Base</Filter>
     </ClCompile>
   </ItemGroup>
@@ -281,35 +302,11 @@
     <MASM Include="ASMammoSentryGunBullet01.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
-    <MASM Include="zHui\HuiMoreCharacterModelASM.asm">
-      <Filter>Source Files\Module Hui</Filter>
-    </MASM>
     <MASM Include="ASMhookMissionSeries.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
-    <MASM Include="zHui\HuiDisplaySubtitleASM.asm">
-      <Filter>Source Files\Module Hui</Filter>
-    </MASM>
-    <MASM Include="zEDF\ASMxgsArmySoldier.asm">
-      <Filter>Source Files\Module EDF</Filter>
-    </MASM>
-    <MASM Include="zEDF\ASMxgsHeavyArmor.asm">
-      <Filter>Source Files\Module EDF</Filter>
-    </MASM>
-    <MASM Include="zEDF\ASMxgsPaleWing.asm">
-      <Filter>Source Files\Module EDF</Filter>
-    </MASM>
-    <MASM Include="zEDF\ASMEDFCommonFunction.asm">
-      <Filter>Source Files\Module EDF</Filter>
-    </MASM>
-    <MASM Include="zEDF\ASMxgsVehicle501FortressRobo.asm">
-      <Filter>Source Files\Module EDF</Filter>
-    </MASM>
     <MASM Include="zEnemy\ASMxgsGiantAnt.asm">
       <Filter>Source Files\Module Enemy</Filter>
-    </MASM>
-    <MASM Include="zEDF\ASMammoSmokeCandleBullet.asm">
-      <Filter>Source Files\Module EDF</Filter>
     </MASM>
     <MASM Include="zEDF\Weapon\ASMxgs_Weapon_RadioContact.asm">
       <Filter>Source Files\Module EDF\Weapon</Filter>
@@ -326,14 +323,41 @@
     <MASM Include="zEDF\Vehicle\ASMxgsVehicleBegaruta.asm">
       <Filter>Source Files\Module EDF\Vehicle</Filter>
     </MASM>
-    <MASM Include="zHui\HuiObjectClassASM.asm">
-      <Filter>Source Files\Module Hui</Filter>
+    <MASM Include="zHui\0HuiAddImGuiASM.asm">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </MASM>
+    <MASM Include="zHui\HuiDisplaySubtitleASM.asm">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </MASM>
+    <MASM Include="zHui\HUiHudPowerGuageASM.asm">
+      <Filter>Source Files\Module Hui\main</Filter>
     </MASM>
     <MASM Include="zHui\HuiModConsoleASM.asm">
-      <Filter>Source Files\Module Hui</Filter>
+      <Filter>Source Files\Module Hui\main</Filter>
     </MASM>
-    <MASM Include="zHui\0HuiAddImGuiASM.asm">
-      <Filter>Source Files\Module Hui</Filter>
+    <MASM Include="zHui\HuiMoreCharacterModelASM.asm">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </MASM>
+    <MASM Include="zHui\HuiObjectClassASM.asm">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </MASM>
+    <MASM Include="zEDF\ASMammoSmokeCandleBullet.asm">
+      <Filter>Source Files\Module EDF\main</Filter>
+    </MASM>
+    <MASM Include="zEDF\ASMEDFCommonFunction.asm">
+      <Filter>Source Files\Module EDF\main</Filter>
+    </MASM>
+    <MASM Include="zEDF\ASMxgsArmySoldier.asm">
+      <Filter>Source Files\Module EDF\main</Filter>
+    </MASM>
+    <MASM Include="zEDF\ASMxgsHeavyArmor.asm">
+      <Filter>Source Files\Module EDF\main</Filter>
+    </MASM>
+    <MASM Include="zEDF\ASMxgsPaleWing.asm">
+      <Filter>Source Files\Module EDF\main</Filter>
+    </MASM>
+    <MASM Include="zEDF\ASMxgsVehicle501FortressRobo.asm">
+      <Filter>Source Files\Module EDF\main</Filter>
     </MASM>
   </ItemGroup>
   <ItemGroup>
@@ -388,35 +412,14 @@
     <ClInclude Include="LoadModule.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="zHui\HuiMoreCharacterModel.h">
-      <Filter>Source Files\Module Hui</Filter>
-    </ClInclude>
     <ClInclude Include="CommonCustomStructure.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GameFunc_Mission.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="zHui\HuiDisplaySubtitle.h">
-      <Filter>Source Files\Module Hui</Filter>
-    </ClInclude>
-    <ClInclude Include="zEDF\EDFbaseParameterSet.h">
-      <Filter>Source Files\Module EDF</Filter>
-    </ClInclude>
-    <ClInclude Include="zEDF\EDFCommonFunction.h">
-      <Filter>Source Files\Module EDF</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\HuiCasController.h">
-      <Filter>Source Files\Module Hui</Filter>
-    </ClInclude>
     <ClInclude Include="zEnemy\EnemyHook_GiantAnt.h">
       <Filter>Source Files\Module Enemy</Filter>
-    </ClInclude>
-    <ClInclude Include="zEDF\EDFAmmoFunction.h">
-      <Filter>Source Files\Module EDF</Filter>
-    </ClInclude>
-    <ClInclude Include="zEDF\EDFWeaponFunction.h">
-      <Filter>Source Files\Module EDF</Filter>
     </ClInclude>
     <ClInclude Include="zEDF\Weapon\XGS_Weapon_RadioContact.h">
       <Filter>Source Files\Module EDF\Weapon</Filter>
@@ -433,18 +436,6 @@
     <ClInclude Include="zEDF\Vehicle\XGS_VehicleBegaruta.h">
       <Filter>Source Files\Module EDF\Vehicle</Filter>
     </ClInclude>
-    <ClInclude Include="zHui\HuiObjectClass.h">
-      <Filter>Source Files\Module Hui</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\HuiModConsole.h">
-      <Filter>Source Files\Module Hui</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\0HuiAddImGui.h">
-      <Filter>Source Files\Module Hui</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\ToGui\0SetImGui.h">
-      <Filter>Source Files\Module Hui\ToFui</Filter>
-    </ClInclude>
     <ClInclude Include="zHui\ToGui\imgui\imgui.h">
       <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
     </ClInclude>
@@ -453,9 +444,6 @@
     </ClInclude>
     <ClInclude Include="zHui\ToGui\imgui\backends\imgui_impl_win32.h">
       <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\ToGui\0GetDXGI.h">
-      <Filter>Source Files\Module Hui\ToFui</Filter>
     </ClInclude>
     <ClInclude Include="zHui\ToGui\imgui\imconfig.h">
       <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
@@ -471,9 +459,6 @@
     </ClInclude>
     <ClInclude Include="zHui\ToGui\imgui\imstb_truetype.h">
       <Filter>Source Files\Module Hui\ToFui\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\ToGui\1DigitRenderer.h">
-      <Filter>Source Files\Module Hui\ToFui</Filter>
     </ClInclude>
     <ClInclude Include="Base\SSE.hpp">
       <Filter>Source Files\Base</Filter>
@@ -562,17 +547,74 @@
     <ClInclude Include="zHui\ToGui\DirectXTK\VertexTypes.h">
       <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
     </ClInclude>
-    <ClInclude Include="zHui\ToGui\0DigitCommon.h">
-      <Filter>Source Files\Module Hui\ToFui</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\ToGui\0SolidColorTexture.hpp">
-      <Filter>Source Files\Module Hui\ToFui</Filter>
-    </ClInclude>
     <ClInclude Include="Base\g_system.h">
       <Filter>Source Files\Base</Filter>
     </ClInclude>
     <ClInclude Include="Base\g_gameFunc.h">
       <Filter>Source Files\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\0HuiAddImGui.h">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\HuiCasController.h">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\HuiDisplaySubtitle.h">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\HUiHudCommonStruct.h">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\HUiHudPowerGuage.h">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\HuiModConsole.h">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\HuiMoreCharacterModel.h">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\HuiObjectClass.h">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\0DigitCommon.h">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\0GetDXGI.h">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\0SetImGui.h">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\0SolidColorTexture.hpp">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\1DigitRenderer.h">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\1DigitProcessor.h">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zEDF\EDFAmmoFunction.h">
+      <Filter>Source Files\Module EDF\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zEDF\EDFbaseParameterSet.h">
+      <Filter>Source Files\Module EDF\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zEDF\EDFCommonFunction.h">
+      <Filter>Source Files\Module EDF\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zEDF\EDFWeaponFunction.h">
+      <Filter>Source Files\Module EDF\main</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\base_baseObject.h">
+      <Filter>Source Files\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="zEDF\EDFSoldierClass.hpp">
+      <Filter>Source Files\Module EDF\main</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -582,5 +624,21 @@
     <None Include="zHui\ToGui\DirectXTK\TeapotData.inc">
       <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
     </None>
+    <None Include="texture2.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource\ps_digit.cso" />
+    <None Include="shader2.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource\vs_digit.cso" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="EDF5ModPlugin.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resource\DamageUINumber.dds" />
   </ItemGroup>
 </Project>

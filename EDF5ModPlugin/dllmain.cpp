@@ -510,6 +510,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		selfData->module = hModule;
 		plugins.push_back(selfData);
 
+		SaveThisModuleHandle(hModule);
+
 		handleEXE = GetCurrentProcess();
 		hmodEXE = (PBYTE)GetModuleHandleW(NULL);
 		// Determine what game is hosting us

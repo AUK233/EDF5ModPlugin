@@ -316,9 +316,11 @@ void hookEDFClassFunctions() {
 	module_SetEDFSeriesFunction(hmodEXE);
 	module_SetHuiMoreCharacterModel(hmodEXE);
 	module_CasControllerInitialization(hmodEXE);
-	module_UpdateHuiObjectClass(hmodEXE);
-	module_UpdateHuiModConsole(hmodEXE);
 
+	module_UpdateHuiObjectClass(hmodEXE);
+	module_UpdateHUiHudPowerGuage(hmodEXE);
+
+	module_UpdateHuiModConsole(hmodEXE);
 	module_InitializeAddImGui(hmodEXE);
 
 	// EDF5.exe+3391D5

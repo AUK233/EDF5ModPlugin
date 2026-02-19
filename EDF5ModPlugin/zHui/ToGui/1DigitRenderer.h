@@ -21,6 +21,9 @@ namespace DigitRenderer{
         static const int MAX_CONCURRENT_DRAWS = 64;
     private:
 	    ID3D11DeviceContext* g_context; // for rendering, set in Render()
+        DigitTextByte v_data_digit_texture;
+        DigitTextByte v_data_shader_vs;
+        DigitTextByte v_data_shader_ps;
         // DX11
         ID3D11Buffer* constant_buffer[MAX_CONCURRENT_DRAWS];
         DigitRenderer::CallbackData_t* pCallbackData[MAX_CONCURRENT_DRAWS];

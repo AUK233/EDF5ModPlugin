@@ -1,4 +1,6 @@
 #pragma once
+#include <vector>
+#include "resource.h"
 
 // Hook wrapper functions
 BOOLEAN __fastcall SetHookWrap(const void *Interceptor, void **Original);
@@ -35,3 +37,6 @@ intptr_t __fastcall ScanPattern(HANDLE hProcess, byte *pattern, int pLen, uintpt
 intptr_t __fastcall ScanPattern(HANDLE hProcess, byte *pattern, int pLen, uintptr_t addr);
 // Force the game to end if the user is not responding for a long time
 void __fastcall ForceCrashGame();
+
+void __fastcall SaveThisModuleHandle(HMODULE hModule);
+bool __fastcall LoadEmbeddedResource(std::vector<BYTE>& in, LPCWSTR lpName, LPCWSTR lpType);
