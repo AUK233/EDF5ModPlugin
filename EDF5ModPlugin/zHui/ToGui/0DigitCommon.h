@@ -3,52 +3,70 @@
 #include "Base/SSE.hpp"
 
 namespace DigitRenderer {
-    typedef std::vector<BYTE> DigitTextByte;
+	typedef std::vector<BYTE> DigitTextByte;
 
 	// character index for shader, should be same as shader code.
-    enum DigitRendererChar_ : int {
-        DigitRendererChar_0,
-        DigitRendererChar_1,
-        DigitRendererChar_2,
-        DigitRendererChar_3,
-        DigitRendererChar_4,
-        DigitRendererChar_5,
-        DigitRendererChar_6,
-        DigitRendererChar_7,
-        DigitRendererChar_8,
-        DigitRendererChar_9,
-        DigitRendererChar_DOT,
-        // second line
-        DigitRendererChar_SUB,
-        DigitRendererChar_PERCENT,
-        DigitRendererChar_LAST = 21 // last
-    };
+	enum DigitRendererChar_ : int {
+		DigitRendererChar_0,
+		DigitRendererChar_1,
+		DigitRendererChar_2,
+		DigitRendererChar_3,
+		DigitRendererChar_4,
+		DigitRendererChar_5,
+		DigitRendererChar_6,
+		DigitRendererChar_7,
+		DigitRendererChar_8,
+		DigitRendererChar_9,
+		DigitRendererChar_DOT,
+		// second line
+		DigitRendererChar_SUB,
+		DigitRendererChar_PERCENT,
+		DigitRendererChar_LAST = 21 // last
+	};
 
-    enum DigitRendererAlign_ : int {
-        DigitRendererAlign_Left,
-        DigitRendererAlign_Center,
+	enum DigitRendererAlign_ : int {
+		DigitRendererAlign_Left,
+		DigitRendererAlign_Center,
 		DigitRendererAlign_Right,
-    };
+	};
 
-    typedef struct DigitFontControl_t {
+	typedef struct DigitFontControl_t {
 		int effectTime, fadeEnable; // fadeEnable only 0 or 1, when it is 1, effectTime is fade time, otherwise it's scale time.
-        int renderIndex, i_fontSize;
-        float f_fontSize; // yeah, float version
-        int charAlignType; // use DigitRendererAlign_
+		int i_fontSize; float f_fontSize; // yeah, has float version
+		int renderIndex; // use DigitRendererChar_
+		int charAlignType; // use DigitRendererAlign_
 		int charIndex, charAlign; // charAlign is forward movement distance
-    }*PDigitFontControl;
+	}*PDigitFontControl;
 
-    // constant buffer data structure
-    typedef struct alignas(16) DigitConstants_t {
-        float ScreenSize[2];
-        float ScreenScale[2]; // since it has already been calculated, it is also written to it.
-        float ScaleSpeed, FadeSpeed, pad18[2];
-        __m128 BorderColor;
-    }*PDigitConstants;
+	// constant buffer data structure
+	typedef struct alignas(16) DigitConstants_t {
+		float ScreenSize[2];
+		float ScreenScale[2]; // since it has already been calculated, it is also written to it.
+		float ScaleSpeed, FadeSpeed, pad18[2];
+		__m128 BorderColor;
+	}*PDigitConstants;
 
-    DigitTextByte FormatNumberToDigitRendererChars_Damage(float number);
-    DigitTextByte FormatNumberToDigitRendererChars_Percentage(float number);
-    DigitTextByte StringToDigitRendererChars(const std::string& str);
+	// =============================================================
+	union BaseDigitData_u {
+		float fp32;
+		int s32;
+	};
+
+	typedef struct DigitData_Damage_t {
+		BaseDigitData_u value;
+		float time;
+		int effectTime, fadeEnable;
+	}*PDigitData_Damage;
+
+	typedef struct DigitData_Weapon_t {
+		BaseDigitData_u value;
+		int effectTime, timeIncrement;
+		int weapon;
+	}*PDigitData_Weapon;
+
+	DigitTextByte FormatNumberToDigitRendererChars_Damage(float number);
+	DigitTextByte FormatNumberToDigitRendererChars_Percentage(float number);
+	DigitTextByte StringToDigitRendererChars(const std::string& str);
 
 	int SetDigitRendererAlign(int charTotal, int alignType);
 }

@@ -1,9 +1,8 @@
 //{{NO_DEPENDENCIES}}
 //
 #define IDR_DamageUINumber              104
-#define IDR_ps_digit                    107
-#define IDR_SHADER1                     109
-#define IDR_vs_digit                    109
+#define IDR_ps_digit                    105
+#define IDR_vs_digit                    106
 
 // Next default values for new objects
 // 

@@ -60,10 +60,10 @@ namespace DigitRenderer {
 
 	int SetDigitRendererAlign(int charTotal, int alignType)
 	{
-		if (alignType < DigitRendererAlign_Center) return 0;
-
-		if (alignType == DigitRendererAlign_Center) return charTotal / 2;
-
-		if (alignType > DigitRendererAlign_Center) return charTotal;
+		if (alignType < DigitRendererAlign_Center)
+			return 0;
+		else
+			return charTotal;
+		// end
 	}
 }

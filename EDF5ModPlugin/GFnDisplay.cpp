@@ -180,8 +180,7 @@ extern "C" {
 uintptr_t hookTextDisplayRetAddr;
 void __fastcall ASMhookTextDisplay();
 
-void __fastcall ASMrecordPlayerDamage();
-uintptr_t playerDmgRetAddress;
+//void __fastcall ASMrecordPlayerDamage();
 uintptr_t playerAddress[2] = {0,0};
 float damageTempValue[2] = {0,0};
 void __fastcall ASMresetPlayerDamageTemp(float* ptr, UINT64 Zero);
@@ -424,10 +423,6 @@ void hookHUDEnhancement() {
 	//hookSleepRet = (uintptr_t)(hmodEXE + 0x60FE0F);
 
 	HUDEnhanceStatus = 1;
-	// EDF5.exe+2DB61F
-	hookGameBlock((void*)(hmodEXE + 0x2DB61F), (uintptr_t)ASMrecordPlayerDamage);
-	WriteHookToProcess((void*)(hmodEXE + 0x2DB61F + 12), (void*)&nop6, 6U);
-	playerDmgRetAddress = (uintptr_t)(hmodEXE + 0x2DB77C);
 	//
 	HANDLE tempHND = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)getPlayerWeaponDamage, NULL, NULL, NULL);
 	if (tempHND) {
@@ -438,7 +433,6 @@ void hookHUDEnhancement() {
 	WriteHookToProcess((void*)(hmodEXE + 0xECB820), (void*)L"lyt_HudWeaponGuagR1.sgo", 48U);
 	WriteHookToProcess((void*)(hmodEXE + 0xECB7D0), (void*)L"lyt_HudEnergyGuageR1.sgo", 48U);
 	WriteHookToProcess((void*)(hmodEXE + 0xEC8F90), (void*)L"lyt_HudWeaponGuageVehicl1.sgo", 60U);
-	WriteHookToProcess((void*)(hmodEXE + 0xEC8F50), (void*)L"lyt_HudPowerGuageM1.sgo", 48U);
 	
 	// EDF5.exe+3532C8
 	// this has problem, since EDF5.exe+34C8EA

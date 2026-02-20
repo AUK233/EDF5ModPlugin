@@ -16,7 +16,6 @@
 
 //#define DEBUGMODE
 
-
 namespace DigitRenderer {
 
 void DynamicDigitRenderer_t::Initialize()
@@ -258,7 +257,7 @@ ImU32 DynamicDigitRenderer_t::GetImageCharData(PDigitFontControl pData)
 		// 0 as char index
 		struct {
 			ImU8 effectTime; // 255 is enough
-			ImU8 renderIndex; // 1-7bit is DigitRendererChar_ index, 8bit is fade enable
+			ImU8 renderIndex; // 1-6bit is DigitRendererChar_ index, 7bit is centered, 8bit is fade enable
 			ImU8 charIndex; // high 4bit is total char count, low 4bit is current char index, so max char count is 16, should enough.
 			ImU8 fontSize; // ok, it can be used
 		};
@@ -266,7 +265,7 @@ ImU32 DynamicDigitRenderer_t::GetImageCharData(PDigitFontControl pData)
 	} charData;
 
 	charData.effectTime = pData->effectTime;
-	charData.renderIndex = (pData->renderIndex & 0x7F) | (pData->fadeEnable ? 0x80 : 0);
+	charData.renderIndex = (pData->renderIndex & 0x3F) | (pData->charAlignType == DigitRendererAlign_Center ? 0x40 : 0) | (pData->fadeEnable ? 0x80 : 0);
 	charData.charIndex = ((pData->charAlign & 0x0F) << 4) | (pData->charIndex & 0x0F);
 	charData.fontSize = pData->i_fontSize;
 

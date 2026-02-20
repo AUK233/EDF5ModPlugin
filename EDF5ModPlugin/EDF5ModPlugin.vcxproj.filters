@@ -186,9 +186,6 @@
     <ClCompile Include="zHui\HUiHudCommonStruct.cpp">
       <Filter>Source Files\Module Hui\main</Filter>
     </ClCompile>
-    <ClCompile Include="zHui\HUiHudPowerGuage.cpp">
-      <Filter>Source Files\Module Hui\main</Filter>
-    </ClCompile>
     <ClCompile Include="zHui\HuiModConsole.cpp">
       <Filter>Source Files\Module Hui\main</Filter>
     </ClCompile>
@@ -227,6 +224,9 @@
     </ClCompile>
     <ClCompile Include="Base\base_baseObject.cpp">
       <Filter>Source Files\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\HUiHudPowerGuage.cpp">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -329,9 +329,6 @@
     <MASM Include="zHui\HuiDisplaySubtitleASM.asm">
       <Filter>Source Files\Module Hui\main</Filter>
     </MASM>
-    <MASM Include="zHui\HUiHudPowerGuageASM.asm">
-      <Filter>Source Files\Module Hui\main</Filter>
-    </MASM>
     <MASM Include="zHui\HuiModConsoleASM.asm">
       <Filter>Source Files\Module Hui\main</Filter>
     </MASM>
@@ -358,6 +355,9 @@
     </MASM>
     <MASM Include="zEDF\ASMxgsVehicle501FortressRobo.asm">
       <Filter>Source Files\Module EDF\main</Filter>
+    </MASM>
+    <MASM Include="zHui\ToGui\HUiHudPowerGuageASM.asm">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
     </MASM>
   </ItemGroup>
   <ItemGroup>
@@ -565,9 +565,6 @@
     <ClInclude Include="zHui\HUiHudCommonStruct.h">
       <Filter>Source Files\Module Hui\main</Filter>
     </ClInclude>
-    <ClInclude Include="zHui\HUiHudPowerGuage.h">
-      <Filter>Source Files\Module Hui\main</Filter>
-    </ClInclude>
     <ClInclude Include="zHui\HuiModConsole.h">
       <Filter>Source Files\Module Hui\main</Filter>
     </ClInclude>
@@ -616,6 +613,9 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="zHui\ToGui\HUiHudPowerGuage.h">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="zHui\ToGui\DirectXTK\SimpleMath.inl">
@@ -627,11 +627,15 @@
     <None Include="texture2.bin">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Resource\ps_digit.cso" />
     <None Include="shader2.bin">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Resource\vs_digit.cso" />
+    <None Include="Resource\vs_digit.cso">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource\ps_digit.cso">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="EDF5ModPlugin.rc">
@@ -639,6 +643,8 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Resource\DamageUINumber.dds" />
+    <Image Include="Resource\DamageUINumber.dds">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

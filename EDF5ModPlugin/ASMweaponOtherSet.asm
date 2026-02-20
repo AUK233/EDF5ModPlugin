@@ -1,9 +1,6 @@
 .data
 extern Vehicle403TankMainFireRetAddr : qword
 
-extern playerDmgRetAddress : qword
-extern displayDamageIndex : dword
-extern damageTempValue : dword
 extern playerAddress : qword
 
 .code
@@ -36,49 +33,6 @@ ASMgetPlayerAddress proc
         int 3
 
 ASMgetPlayerAddress ENDP
-
-align 16
-
-ASMrecordPlayerDamage proc
-
-        test cl, 10h
-        jne ofs2DAA61
-        mulss xmm0, dword ptr [rdi+294h]
-        movss xmm1, dword ptr [rsp+30h] ; armor is 0, other is 1
-        comiss xmm1, xmm6 ; if = 0
-        je checkDamageShow
-        mulss xmm0, xmm7 ; x "friendly damage rate"
-    checkDamageShow:
-        cmp displayDamageIndex, 1
-        jne ofs2DAA41
-        mov rax, [rsi+10h]
-        cmp rax, playerAddress
-        je getDamageBlock
-        cmp dword ptr [rsi+24h], 0
-        jne ofs2DAA41
-        ;mov rcx, playerAddress
-        ;mov rcx, [rcx+1168h]
-        cmp rax, playerAddress+8
-        jne ofs2DAA41
-    getDamageBlock:
-        movaps xmm2, xmm0
-        addss xmm2, damageTempValue
-        movss damageTempValue, xmm2
-
-    ofs2DAA41:
-        ;comiss xmm1, xmm6
-        ;je ofs2DAA61
-        mulss xmm0, xmm1
-        movss xmm1, dword ptr [rdi+1FCh]
-        subss xmm1, xmm0
-        minss xmm1, dword ptr [rdi+1F8h]
-        maxss xmm1, dword ptr [rdi+1F4h]
-        movss dword ptr [rdi+1FCh], xmm1
-    ofs2DAA61:
-        jmp playerDmgRetAddress
-        int 3
-
-ASMrecordPlayerDamage ENDP
 
 align 16
 

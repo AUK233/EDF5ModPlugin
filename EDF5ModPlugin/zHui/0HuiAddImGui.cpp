@@ -15,6 +15,7 @@
 #include "commonNOP.h"
 #include "ToGui/0GetDXGI.h"
 #include "ToGui/0SetImGui.h"
+#include "ToGui/HUiHudPowerGuage.h"
 #include "0HuiAddImGui.h"
 
 extern "C" {
@@ -23,6 +24,10 @@ extern "C" {
 
 	void __fastcall ASMxgsSystemSetPlayerSlot();
 	uintptr_t xgsSystemSetPlayerSlotRetAddr;
+
+	// wait remove ASMrecordPlayerDamage
+	void __fastcall ASMgetInflictDamageFromDamageFunc();
+	uintptr_t getInflictDamageFromDamageFuncRetAddress;
 }
 
 void module_InitializeAddImGui(PBYTE hmodEXE)
@@ -37,6 +42,13 @@ void module_InitializeAddImGui(PBYTE hmodEXE)
 	// EDF5.exe+613E80
 	hookGameBlock14((void*)(hmodEXE + 0x613E80), (uintptr_t)ASMxgsSystemSetPlayerSlot);
 	xgsSystemSetPlayerSlotRetAddr = (uintptr_t)(hmodEXE + 0x613E80 + 14);
+
+	// EDF5.exe+2DB61F
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x2DB61F), (uintptr_t)ASMgetInflictDamageFromDamageFunc);
+	WriteHookToProcess((void*)(hmodEXE + 0x2DB61F + 15), (void*)&nop3, 3U);
+	getInflictDamageFromDamageFuncRetAddress = (uintptr_t)(hmodEXE + 0x2DB77C);
+
+	module_UpdateHUiHudPowerGuage(hmodEXE);
 
 	//MessageBoxW(NULL, L"test", L"debug", MB_OK);
 }

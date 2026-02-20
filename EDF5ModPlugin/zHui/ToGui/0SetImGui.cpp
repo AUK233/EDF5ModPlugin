@@ -26,6 +26,7 @@
 //#define DEBUGMODE
 
 DigitRenderer::PDynamicDigitRenderer g_DigitRenderer;
+DigitRenderer::PDynamicDigitProcessor g_DigitProcessor;
 
 typedef HRESULT(__stdcall* IDXGISwapChainPresent)(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
 typedef HRESULT(__stdcall* IDXGISwapChainResizeBuffers)(IDXGISwapChain*, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags);
@@ -145,10 +146,12 @@ void togui_InitializeImGui()
 
 	using namespace DigitRenderer;
 	g_DigitRenderer = (PDynamicDigitRenderer)_aligned_malloc(sizeof(DynamicDigitRenderer_t), 0x10);
-	if (g_DigitRenderer) {
-		g_DigitRenderer = new(g_DigitRenderer) DynamicDigitRenderer_t();
-		g_DigitRenderer->Initialize();
-	}
+	g_DigitRenderer = new(g_DigitRenderer) DynamicDigitRenderer_t();
+	g_DigitRenderer->Initialize();
+
+	g_DigitProcessor = (PDynamicDigitProcessor)_aligned_malloc(sizeof(DynamicDigitProcessor_t), 0x10);
+	g_DigitProcessor = new(g_DigitProcessor) DynamicDigitProcessor_t();
+	g_DigitProcessor->Initialize();
 	// end
 }
 
@@ -243,16 +246,94 @@ void togui_MainDisplay_ToDigit()
 	pDrawList->AddCircleFilled(origin, 100, IM_COL32(255, 0, 0, 255));
 #endif
 
-
-	/*ImVec2 origin(160,160);
-	pDrawList->AddCircleFilled(origin, 100, IM_COL32(255, 0, 0, 255));*/
+#if nodefined(DEBUGMODE)
+	auto pLCP = DigitRenderer::GetLocalCurrentPlayersPointer();
+	if (!pLCP[0]) return;
+#endif
 
 	g_DigitRenderer->BeginFrame();
 
 	// for availability check
+#if defined(DEBUGMODE)
 	togui_MainDisplay_ToDigitTest(pCTX);
+#else
+	g_DigitRenderer->SetRender(pCTX, &g_DigitProcessor->DigitConstantData);
+
+	auto isSplitScreen = DigitRenderer::GetIsSplitScreen();
+
+	togui_MainDisplay_ToDigit_Damage(0, isSplitScreen);
+
+	if (isSplitScreen) {
+		togui_MainDisplay_ToDigit_Damage(1, isSplitScreen);
+	}
+#endif
+
+	// end
 
 	g_DigitRenderer->EndFrame();
+}
+
+void togui_MainDisplay_ToDigit_Damage(UINT32 index, int isSplitScreen)
+{
+	using namespace DigitRenderer;
+
+	static const __m128 base_factor = { 0, 0.5, 0, 0.5 };
+	DigitFontControl_t fontControl;
+	__m128 text_pos, pos_factor;
+	DigitTextByte text_damage;
+	auto isInVehicle = g_DigitProcessor->PlayerInVehicle[index];
+
+	// set history damage display
+	int damageCount = g_DigitProcessor->v_playerDamage[index].size();
+	if (damageCount) {
+		// initial settings
+		if (!isInVehicle) {
+			memcpy(&fontControl, &g_DigitProcessor->DamageDisplayFont_Human, sizeof(DigitFontControl_t));
+
+			text_pos = g_DigitProcessor->DamageDisplayPos_Human[index + isSplitScreen];
+			pos_factor = g_DigitProcessor->DamageDisplayPos_HumanFactor;
+		} else {
+			memcpy(&fontControl, &g_DigitProcessor->DamageDisplayFont_Vehicle, sizeof(DigitFontControl_t));
+
+			text_pos = g_DigitProcessor->DamageDisplayPos_Vehicle[index + isSplitScreen];
+			pos_factor = g_DigitProcessor->DamageDisplayPos_VehicleFactor;
+		}
+
+		__m128 pos_factorInit = _mm_mul_ps(pos_factor, base_factor);
+		text_pos = _mm_add_ps(text_pos, pos_factorInit);
+
+		// read history damage
+		for (int i = 0; i < damageCount; i++) {
+			auto& dmg = g_DigitProcessor->v_playerDamage[index][i];
+
+			fontControl.effectTime = dmg.effectTime;
+			fontControl.fadeEnable = dmg.fadeEnable;
+
+			auto text_damage = FormatNumberToDigitRendererChars_Damage(dmg.value.fp32);
+			g_DigitRenderer->SetImageData(text_damage, text_pos, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_White);
+
+			text_pos = _mm_add_ps(text_pos, pos_factor);
+		}
+		// end
+	}
+
+	// set charge damage display
+	auto pDmg = &g_DigitProcessor->playerDamage[index];
+	if (!pDmg->value.s32) return;
+
+	if (!isInVehicle) {
+		memcpy(&fontControl, &g_DigitProcessor->DamageDisplayFont_Human, sizeof(DigitFontControl_t));
+		text_pos = g_DigitProcessor->DamageDisplayPos_Human[index + isSplitScreen];
+	} else {
+		memcpy(&fontControl, &g_DigitProcessor->DamageDisplayFont_Vehicle, sizeof(DigitFontControl_t));
+		text_pos = g_DigitProcessor->DamageDisplayPos_Vehicle[index + isSplitScreen];
+	}
+
+	fontControl.effectTime = pDmg->effectTime;
+	fontControl.fadeEnable = pDmg->fadeEnable;
+
+	text_damage = FormatNumberToDigitRendererChars_Damage(pDmg->value.fp32);
+	g_DigitRenderer->SetImageData(text_damage, text_pos, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_White);
 }
 
 void togui_MainDisplay_ToDigitTest(ID3D11DeviceContext* pCTX)
@@ -260,7 +341,7 @@ void togui_MainDisplay_ToDigitTest(ID3D11DeviceContext* pCTX)
 	using namespace DigitRenderer;
 
 	static int time = 0;
-	if (time > 20) {
+	if (time > 40) {
 		time = 0;
 	}
 
@@ -269,7 +350,7 @@ void togui_MainDisplay_ToDigitTest(ID3D11DeviceContext* pCTX)
 	cbDigitData.ScreenSize[1] = 1080.0f;
 	cbDigitData.ScreenScale[0] = 1;
 	cbDigitData.ScreenScale[1] = 1;
-	cbDigitData.ScaleSpeed = -0.025;
+	cbDigitData.ScaleSpeed = 0.025;
 	cbDigitData.FadeSpeed = -0.025;
 	cbDigitData.pad18[0] = 0;
 	cbDigitData.pad18[1] = 0;
@@ -288,6 +369,7 @@ void togui_MainDisplay_ToDigitTest(ID3D11DeviceContext* pCTX)
 	fontControl.i_fontSize = 64;
 	fontControl.f_fontSize = 64;
 	fontControl.effectTime = time;
+	fontControl.fadeEnable = 1;
 
 	auto textData = FormatNumberToDigitRendererChars_Damage(12.1f);
 	g_DigitRenderer->SetImageData(textData, v_basePos, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_Blue);
@@ -306,5 +388,5 @@ void togui_MainDisplay_ToDigitTest(ID3D11DeviceContext* pCTX)
 	auto textData2 = FormatNumberToDigitRendererChars_Damage(121456789.1f);
 	g_DigitRenderer->SetImageData(textData2, v_basePos2, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_White);
 
-	//time++;
+	time++;
 }

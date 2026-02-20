@@ -240,7 +240,6 @@
     <ClCompile Include="zHui\HUiHudCommonStruct.cpp">
       <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NoListing</AssemblerOutput>
     </ClCompile>
-    <ClCompile Include="zHui\HUiHudPowerGuage.cpp" />
     <ClCompile Include="zHui\HuiModConsole.cpp" />
     <ClCompile Include="zHui\HuiMoreCharacterModel.cpp" />
     <ClCompile Include="zHui\HuiObjectClass.cpp" />
@@ -264,6 +263,7 @@
     <ClCompile Include="zHui\ToGui\DirectXTK\PrimitiveBatch.cpp" />
     <ClCompile Include="zHui\ToGui\DirectXTK\SimpleMath.cpp" />
     <ClCompile Include="zHui\ToGui\DirectXTK\VertexTypes.cpp" />
+    <ClCompile Include="zHui\ToGui\HUiHudPowerGuage.cpp" />
     <ClCompile Include="zHui\ToGui\imgui\backends\imgui_impl_dx11.cpp" />
     <ClCompile Include="zHui\ToGui\imgui\backends\imgui_impl_win32.cpp" />
     <ClCompile Include="zHui\ToGui\imgui\imgui.cpp" />
@@ -312,10 +312,10 @@
     <MASM Include="zEnemy\ASMxgsBigNest.asm" />
     <MASM Include="zHui\0HuiAddImGuiASM.asm" />
     <MASM Include="zHui\HuiDisplaySubtitleASM.asm" />
-    <MASM Include="zHui\HUiHudPowerGuageASM.asm" />
     <MASM Include="zHui\HuiModConsoleASM.asm" />
     <MASM Include="zHui\HuiMoreCharacterModelASM.asm" />
     <MASM Include="zHui\HuiObjectClassASM.asm" />
+    <MASM Include="zHui\ToGui\HUiHudPowerGuageASM.asm" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\HookLib\HookLib\HookLib\HookLib.h" />
@@ -357,7 +357,6 @@
     <ClInclude Include="zHui\HuiCasController.h" />
     <ClInclude Include="zHui\HuiDisplaySubtitle.h" />
     <ClInclude Include="zHui\HUiHudCommonStruct.h" />
-    <ClInclude Include="zHui\HUiHudPowerGuage.h" />
     <ClInclude Include="zHui\HuiModConsole.h" />
     <ClInclude Include="zHui\HuiMoreCharacterModel.h" />
     <ClInclude Include="zHui\HuiObjectClass.h" />
@@ -395,6 +394,7 @@
     <ClInclude Include="zHui\ToGui\DirectXTK\SimpleMath.h" />
     <ClInclude Include="zHui\ToGui\DirectXTK\vbo.h" />
     <ClInclude Include="zHui\ToGui\DirectXTK\VertexTypes.h" />
+    <ClInclude Include="zHui\ToGui\HUiHudPowerGuage.h" />
     <ClInclude Include="zHui\ToGui\imgui\backends\imgui_impl_dx11.h" />
     <ClInclude Include="zHui\ToGui\imgui\backends\imgui_impl_win32.h" />
     <ClInclude Include="zHui\ToGui\imgui\imconfig.h" />

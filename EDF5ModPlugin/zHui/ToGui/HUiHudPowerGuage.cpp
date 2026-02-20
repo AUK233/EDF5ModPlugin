@@ -9,8 +9,8 @@
 #include "utiliy.h"
 #include "commonNOP.h"
 
-#include "ToGui/0SetImGui.h"
-#include "ToGui/1DigitProcessor.h"
+#include "0SetImGui.h"
+#include "1DigitProcessor.h"
 
 #include "HUiHudPowerGuage.h"
 
@@ -25,6 +25,8 @@ extern "C" {
 
 void module_UpdateHUiHudPowerGuage(PBYTE hmodEXE)
 {
+	WriteHookToProcess((void*)(hmodEXE + 0xEC8F50), (void*)L"lyt_HudPowerGuageM1.sgo", 48U);
+
 	// old is 0XB20
 	int newHPSize = 0xD00;
 	static_assert(sizeof(G_HUiHudPowerGuage_t) < 0xD00);
@@ -55,7 +57,7 @@ void __fastcall module_HUiHudPowerGuageFuncP10(PG_HUiHudPowerGuage pThis, void* 
 	auto pPlayer = (PG_SoldierBase)pThis->pPlayerObject;
 
 	// show fencer's dash count
-	if (pPlayer && pThis->pad761 && pPlayer->InputControlType) {
+	if (pPlayer && pThis->bIsActivated760 && pPlayer->InputControlType) {
 		auto fencer = (PG_HeavyArmor)pPlayer;
 
 		auto pDash = pThis->TextFencerDash;
@@ -93,16 +95,18 @@ void __fastcall module_HUiHudPowerGuageFuncP10(PG_HUiHudPowerGuage pThis, void* 
 	// it must now be placed at the end, because it has a function that must be executed in the final step.
 	HUiHudPowerGuageFuncP10(pThis, pRDX);
 	if (!pPlayer) return;
+	if (!pThis->bIsActivated760) return;
 
 	// ================================================================
 	// check is who will display
-	auto pGlobal = DigitRenderer::GetLocalCurrentPlayersPointer();
-	auto bIsSplitScreen = DigitRenderer::GetIsSplitScreen();
+	using namespace DigitRenderer;
+	auto pGlobal = GetLocalCurrentPlayersPointer();
+	auto bIsSplitScreen = GetIsSplitScreen();
 
 	auto globalPlayer = pGlobal[bIsSplitScreen];
-	auto pObject = pThis->pPlayerObject;
-	if (pObject != globalPlayer) return;
+	if (pPlayer != globalPlayer) return;
 
+	DigitProcessor_ProcessData();
 	togui_MainDisplayInMission();
 }
 
@@ -110,11 +114,17 @@ void* __fastcall module_HUiHudPowerGuage_Free(PG_HUiHudPowerGuage pThis, int isF
 {
 	if (isFree & 1) {
 		// clear global player pointer
-		auto pGlobal = DigitRenderer::GetLocalCurrentPlayersPointer();
 		auto pObject = pThis->pPlayerObject;
 
-		if (pObject == pGlobal[0]) pGlobal[0] = 0;
-		else if (pObject == pGlobal[1]) pGlobal[1] = 0;
+		if (pObject) {
+			using namespace DigitRenderer;
+			auto pGlobal = GetLocalCurrentPlayersPointer();
+
+			if (pObject == pGlobal[0] || pObject == pGlobal[1]) {
+				DigitProcessor_ClearData(0);
+				DigitProcessor_ClearData(1);
+			}
+		}
 		// end
 	}
 

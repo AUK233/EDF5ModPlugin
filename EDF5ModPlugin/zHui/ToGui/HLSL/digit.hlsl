@@ -30,7 +30,7 @@ struct VS_INPUT
 	float2 pos : POSITION;
 	float2 uv  : TEXCOORD0;
 	// x is effect time, w is font size
-	// y is render index (7bit, 8bit is fade enable)
+	// y is render index (6bit, 7bit is centered, 8bit is fade enable)
 	// z is char index (high 4bit is char left move, low 4bit is current char index),
 	uint4 col : COLOR;
 };
@@ -50,15 +50,14 @@ PS_INPUT VS_main(VS_INPUT input)
 	
 	output.uv.xy = input.uv;
 	
-	// get char index and fade enable
-	uint digit = input.col.y & 0x7F;
-	
+	// get fade enable
 	bool fade_enable = (input.col.y & 0x80) != 0;
 	float2 effect_time = fade_enable ? float2(0, input.col.x) : float2(input.col.x, 0);
 	output.char_data.xy = effect_time;
 	// end
 	
 	// calculate render index
+	uint digit = input.col.y & 0x3F;
 	uint2 cur_digit;
 	cur_digit.x = digit % c_ColumnCount;
 	cur_digit.y = digit / c_ColumnCount;
@@ -70,10 +69,13 @@ PS_INPUT VS_main(VS_INPUT input)
 	
 	// get char index
 	int char_index = input.col.z & 0x0F;
-	int char_align = (input.col.z >> 4) & 0x0F;
+	int char_total = (input.col.z >> 4) & 0x0F;
 
 	// calculate offset position
-	float char_offset = float(char_index - char_align);
+	bool isCentered = (input.col.y & 0x40) != 0;
+	float char_align = isCentered ? 0.5 : 1;
+	char_align *= (float)char_total;
+	float char_offset = (float)char_index - char_align;
 	float scale = ScaleSpeed * effect_time.x + 1;
 
 	float fontSize = input.col.w;
@@ -121,7 +123,7 @@ float4 PS_main(PS_INPUT input) : SV_Target
 
 	// calculate fade
 	float fade = tex_digit.a * tex_color.a;
-	fade += ScaleSpeed * input.char_data.y;
+	fade += FadeSpeed * input.char_data.y;
 	fade = max(fade, 0);
 
 	return float4(out_color, fade);

@@ -6,11 +6,14 @@ typedef struct G_HumanBase_t : G_NetworkObject_t {
 	Matrix3D_t transform_human; // copy from transform
 	char pad470[0x10];
 	int InputControlType; // 1 is fencer
-	char pad474[0x110C];
+	char pad474[0xCF4];
+	PG_NetworkObject pVehicle;
+	char pad1170[0x410];
 } *PG_HumanBase;
 #if 1
 static_assert(offsetof(G_HumanBase_t, transform_human) == 0x420);
 static_assert(offsetof(G_HumanBase_t, InputControlType) == 0x470);
+static_assert(offsetof(G_HumanBase_t, pVehicle) == 0x1168);
 static_assert(sizeof(G_HumanBase_t) == 0x1580);
 #endif
 

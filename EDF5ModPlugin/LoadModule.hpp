@@ -7,7 +7,6 @@
 #include "zHui/HuiMoreCharacterModel.h"
 #include "zHui/HuiCasController.h"
 #include "zHui/HuiObjectClass.h"
-#include "zHui/HUiHudPowerGuage.h"
 
 #include "zEnemy/EnemyHook_GiantAnt.h"
 #include "zEnemy/EnemyHook_BigNest.h"
