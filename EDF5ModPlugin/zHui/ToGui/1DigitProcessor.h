@@ -23,10 +23,11 @@ namespace DigitRenderer {
 		__m128 DamageDisplayPos_VehicleFactor;
 
 		// count 2 players
-		std::vector<DigitData_Damage_t> v_playerDamage[2];
 		DigitData_Damage_t playerDamage[2];
 		// 2 weapons for 2 players
 		DigitData_Weapon_t playerWeaponInfo[2][2];
+		// count 2 players
+		std::vector<DigitData_Damage_t> v_playerDamage[2];
 
 		DigitFontControl_t DamageDisplayFont_Human;
 		DigitFontControl_t DamageDisplayFont_Vehicle;

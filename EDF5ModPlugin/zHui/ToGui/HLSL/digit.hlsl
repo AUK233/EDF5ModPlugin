@@ -27,12 +27,17 @@ Texture2D digit_texture : register(t1);
 
 struct VS_INPUT
 {
-	float2 pos : POSITION;
+	float2 pos : POSITION0;
 	float2 uv  : TEXCOORD0;
-	// x is effect time, w is font size
-	// y is render index (6bit, 7bit is centered, 8bit is fade enable)
-	// z is char index (high 4bit is char left move, low 4bit is current char index),
-	uint4 col : COLOR;
+	// x is char index, y is char total
+	// z is scale factor, w is fade factor
+	uint4 col : COLOR0;
+	// z is render index, w is font size
+	uint4 tex1 : TEXCOORD1;
+	// x is time (second)
+	// y is char align factor: 0 is left, 0.5 is center, 1 is right
+	float2 tex2 : TEXCOORD2;
+	float4 color1 : POSITION1; // as an input position, or border color.
 };
 
 struct PS_INPUT
@@ -49,15 +54,17 @@ PS_INPUT VS_main(VS_INPUT input)
 	PS_INPUT output;
 	
 	output.uv.xy = input.uv;
+	float2 inpos = input.color1.xy;
+	//inpos += float2(400, 200);
 	
 	// get fade enable
-	bool fade_enable = (input.col.y & 0x80) != 0;
-	float2 effect_time = fade_enable ? float2(0, input.col.x) : float2(input.col.x, 0);
+	uint2 effect_factor = input.col.zw;
+	float2 effect_time = input.tex2.x * effect_factor;
 	output.char_data.xy = effect_time;
 	// end
 	
 	// calculate render index
-	uint digit = input.col.y & 0x3F;
+	uint digit = input.tex1.z;
 	uint2 cur_digit;
 	cur_digit.x = digit % c_ColumnCount;
 	cur_digit.y = digit / c_ColumnCount;
@@ -68,23 +75,21 @@ PS_INPUT VS_main(VS_INPUT input)
 	float widthFactor = cur_digit.x >= (c_ColumnCount - 1) ? 0.5 : c_FontWidth;
 	
 	// get char index
-	int char_index = input.col.z & 0x0F;
-	int char_total = (input.col.z >> 4) & 0x0F;
+	float char_index = input.col.x;
+	float char_total = input.col.y;
 
 	// calculate offset position
-	bool isCentered = (input.col.y & 0x40) != 0;
-	float char_align = isCentered ? 0.5 : 1;
-	char_align *= (float)char_total;
-	float char_offset = (float)char_index - char_align;
+	float char_align = input.tex2.y * char_total;
+	float char_offset = char_index - char_align;
 	float scale = ScaleSpeed * effect_time.x + 1;
 
-	float fontSize = input.col.w;
+	float fontSize = input.tex1.w;
 	char_offset *= fontSize * c_FontWidth * scale; 
 
 	float2 out_pos = float2(char_offset, 0);
 
 	// get scale
-	float2 input_pos = input.pos;
+	float2 input_pos = input.pos + inpos;
 	if (input.uv.x > 0) input_pos.x -= fontSize * c_FontWidthDelta;
 	float2 originalSize = float2(fontSize * widthFactor, fontSize);
 	float2 center = input_pos - (input.uv - 0.5) * originalSize;
@@ -106,6 +111,8 @@ PS_INPUT VS_main(VS_INPUT input)
 // pixel shader
 float4 PS_main(PS_INPUT input) : SV_Target
 {
+	//return float4(1, 0, 0, 1);
+
 	float2 tex_uv = input.uv.xy;
 	tex_uv.x = (input.char_data.z + input.uv.x) * c_FontWidthFactor;
 	tex_uv.y = (input.char_data.w + input.uv.y) * c_LineFactor;

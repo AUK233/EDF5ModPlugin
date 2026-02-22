@@ -137,6 +137,7 @@ void togui_InitializeImGui()
 	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = nullptr; // do not output INI file.
 	io.WantSaveIniSettings = false; // do not save INI file.
+	io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
 	//io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 
 	ImGui::StyleColorsDark();
@@ -244,9 +245,7 @@ void togui_MainDisplay_ToDigit()
 #if defined(DEBUGMODE)
 	ImVec2 origin = pDrawList->GetClipRectMin();
 	pDrawList->AddCircleFilled(origin, 100, IM_COL32(255, 0, 0, 255));
-#endif
-
-#if nodefined(DEBUGMODE)
+#else
 	auto pLCP = DigitRenderer::GetLocalCurrentPlayersPointer();
 	if (!pLCP[0]) return;
 #endif
@@ -257,7 +256,7 @@ void togui_MainDisplay_ToDigit()
 #if defined(DEBUGMODE)
 	togui_MainDisplay_ToDigitTest(pCTX);
 #else
-	g_DigitRenderer->SetRender(pCTX, &g_DigitProcessor->DigitConstantData);
+	g_DigitRenderer->SetRender(pCTX, &g_DigitProcessor->DigitConstantData, DigitRenderer::DigitRendererShader_Fixed);
 
 	auto isSplitScreen = DigitRenderer::GetIsSplitScreen();
 
@@ -275,6 +274,7 @@ void togui_MainDisplay_ToDigit()
 
 void togui_MainDisplay_ToDigit_Damage(UINT32 index, int isSplitScreen)
 {
+#ifndef DEBUGMODE
 	using namespace DigitRenderer;
 
 	static const __m128 base_factor = { 0, 0.5, 0, 0.5 };
@@ -306,11 +306,12 @@ void togui_MainDisplay_ToDigit_Damage(UINT32 index, int isSplitScreen)
 		for (int i = 0; i < damageCount; i++) {
 			auto& dmg = g_DigitProcessor->v_playerDamage[index][i];
 
-			fontControl.effectTime = dmg.effectTime;
-			fontControl.fadeEnable = dmg.fadeEnable;
+			fontControl.time = dmg.effectTime;
+			fontControl.scaleFactor = dmg.scaleFactor;
+			fontControl.fadeFactor = dmg.fadeFactor;
 
 			auto text_damage = FormatNumberToDigitRendererChars_Damage(dmg.value.fp32);
-			g_DigitRenderer->SetImageData(text_damage, text_pos, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_White);
+			g_DigitRenderer->SetImageDataInFixedPos(text_damage, text_pos, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_White);
 
 			text_pos = _mm_add_ps(text_pos, pos_factor);
 		}
@@ -329,15 +330,18 @@ void togui_MainDisplay_ToDigit_Damage(UINT32 index, int isSplitScreen)
 		text_pos = g_DigitProcessor->DamageDisplayPos_Vehicle[index + isSplitScreen];
 	}
 
-	fontControl.effectTime = pDmg->effectTime;
-	fontControl.fadeEnable = pDmg->fadeEnable;
+	fontControl.time = pDmg->effectTime;
+	fontControl.scaleFactor = pDmg->scaleFactor;
+	fontControl.fadeFactor = pDmg->fadeFactor;
 
 	text_damage = FormatNumberToDigitRendererChars_Damage(pDmg->value.fp32);
-	g_DigitRenderer->SetImageData(text_damage, text_pos, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_White);
+	g_DigitRenderer->SetImageDataInFixedPos(text_damage, text_pos, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_White);
+#endif
 }
 
 void togui_MainDisplay_ToDigitTest(ID3D11DeviceContext* pCTX)
 {
+#ifdef DEBUGMODE
 	using namespace DigitRenderer;
 
 	static int time = 0;
@@ -356,37 +360,40 @@ void togui_MainDisplay_ToDigitTest(ID3D11DeviceContext* pCTX)
 	cbDigitData.pad18[1] = 0;
 	cbDigitData.BorderColor = {0,0,0,1};
 
-	float fontSize = 64.0f;
-	__m128 v_fontSize = _mm_load_ss(&fontSize);
-	v_fontSize = _mm_shuffle_ps(v_fontSize, v_fontSize, MY_SHUFFLE(3, 3, 0, 0));
 	__m128 v_basePos = { 1900, 900, 1964, 964 };
 
-	g_DigitRenderer->SetRender(pCTX, &cbDigitData);
+	g_DigitRenderer->SetRender(pCTX, &cbDigitData, DigitRendererShader_Fixed);
 
 	DigitFontControl_t fontControl;
 	ZeroMemory(&fontControl, sizeof(DigitFontControl_t));
-	fontControl.charAlignType = DigitRendererAlign_Right;
+	fontControl.charAlignFactor = 1;
 	fontControl.i_fontSize = 64;
 	fontControl.f_fontSize = 64;
-	fontControl.effectTime = time;
-	fontControl.fadeEnable = 1;
+	fontControl.scaleFactor = 0;
+	fontControl.fadeFactor = time;
+	fontControl.time = 1;
 
 	auto textData = FormatNumberToDigitRendererChars_Damage(12.1f);
-	g_DigitRenderer->SetImageData(textData, v_basePos, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_Blue);
+	g_DigitRenderer->SetImageDataInFixedPos(textData, v_basePos, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_Blue);
 
 	__m128 v_basePos1 = { 100, 100, 148, 148 };
-	fontControl.charAlignType = DigitRendererAlign_Left;
+	fontControl.charAlignFactor = 0;
 	fontControl.i_fontSize = 48;
 	fontControl.f_fontSize = 48;
+	fontControl.scaleFactor = time;
+	fontControl.fadeFactor = time;
 	auto textData1 = FormatNumberToDigitRendererChars_Percentage(2.34f);
-	g_DigitRenderer->SetImageData(textData1, v_basePos1, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_Red);
+	g_DigitRenderer->SetImageDataInFixedPos(textData1, v_basePos1, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_Red);
 
 	__m128 v_basePos2 = { 1340, 860, 1372, 892 };
-	fontControl.charAlignType = DigitRendererAlign_Center;
+	fontControl.charAlignFactor = 0.5;
 	fontControl.i_fontSize = 32;
 	fontControl.f_fontSize = 32;
+	fontControl.scaleFactor = time;
+	fontControl.fadeFactor = 0;
 	auto textData2 = FormatNumberToDigitRendererChars_Damage(121456789.1f);
-	g_DigitRenderer->SetImageData(textData2, v_basePos2, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_White);
+	g_DigitRenderer->SetImageDataInFixedPos(textData2, v_basePos2, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_White);
 
 	time++;
+#endif // DEBUGMODE
 }

@@ -247,7 +247,9 @@
     <ClCompile Include="zHui\ToGui\0GetDXGI.cpp" />
     <ClCompile Include="zHui\ToGui\0SetImGui.cpp" />
     <ClCompile Include="zHui\ToGui\1DigitProcessor.cpp" />
-    <ClCompile Include="zHui\ToGui\1DigitRenderer.cpp" />
+    <ClCompile Include="zHui\ToGui\1DigitRenderer.cpp">
+      <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NoListing</AssemblerOutput>
+    </ClCompile>
     <ClCompile Include="zHui\ToGui\DirectXTK\BinaryReader.cpp" />
     <ClCompile Include="zHui\ToGui\DirectXTK\BufferHelpers.cpp" />
     <ClCompile Include="zHui\ToGui\DirectXTK\CommonStates.cpp" />

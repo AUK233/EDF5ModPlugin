@@ -24,18 +24,12 @@ namespace DigitRenderer {
 		DigitRendererChar_LAST = 21 // last
 	};
 
-	enum DigitRendererAlign_ : int {
-		DigitRendererAlign_Left,
-		DigitRendererAlign_Center,
-		DigitRendererAlign_Right,
-	};
-
 	typedef struct DigitFontControl_t {
-		int effectTime, fadeEnable; // fadeEnable only 0 or 1, when it is 1, effectTime is fade time, otherwise it's scale time.
-		int i_fontSize; float f_fontSize; // yeah, has float version
 		int renderIndex; // use DigitRendererChar_
-		int charAlignType; // use DigitRendererAlign_
-		int charIndex, charAlign; // charAlign is forward movement distance
+		int charIndex, charTotal, i_fontSize;
+		int scaleFactor, fadeFactor;
+		float time, f_fontSize;
+		float charAlignFactor; // 0 is left, 0.5 is center, 1 is right
 	}*PDigitFontControl;
 
 	// constant buffer data structure
@@ -52,13 +46,13 @@ namespace DigitRenderer {
 		int s32;
 	};
 
-	typedef struct DigitData_Damage_t {
+	typedef struct alignas(16) DigitData_Damage_t {
 		BaseDigitData_u value;
-		float time;
-		int effectTime, fadeEnable;
+		float time, effectTime;
+		int scaleFactor, fadeFactor;
 	}*PDigitData_Damage;
 
-	typedef struct DigitData_Weapon_t {
+	typedef struct alignas(16) DigitData_Weapon_t {
 		BaseDigitData_u value;
 		int effectTime, timeIncrement;
 		int weapon;
@@ -67,7 +61,5 @@ namespace DigitRenderer {
 	DigitTextByte FormatNumberToDigitRendererChars_Damage(float number);
 	DigitTextByte FormatNumberToDigitRendererChars_Percentage(float number);
 	DigitTextByte StringToDigitRendererChars(const std::string& str);
-
-	int SetDigitRendererAlign(int charTotal, int alignType);
 }
 

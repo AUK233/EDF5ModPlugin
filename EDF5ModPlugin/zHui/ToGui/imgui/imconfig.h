@@ -13,6 +13,7 @@
 //-----------------------------------------------------------------------------
 
 #pragma once
+#include <cstddef>
 
 //---- Define assertion handler. Defaults to calling assert().
 // - If your macro uses multiple statements, make sure is enclosed in a 'do { .. } while (0)' block so it can be used as a single statement.
@@ -102,11 +103,14 @@
 
 //---- Define constructor and implicit cast operators to convert back<>forth between your math types and ImVec2/ImVec4.
 // This will be inlined as part of ImVec2 and ImVec4 class declarations.
-/*
+
+struct MyVec2 {
+    float x, y;
+};
 #define IM_VEC2_CLASS_EXTRA                                                     \
         constexpr ImVec2(const MyVec2& f) : x(f.x), y(f.y) {}                   \
         operator MyVec2() const { return MyVec2(x,y); }
-
+/*
 #define IM_VEC4_CLASS_EXTRA                                                     \
         constexpr ImVec4(const MyVec4& f) : x(f.x), y(f.y), z(f.z), w(f.w) {}   \
         operator MyVec4() const { return MyVec4(x,y,z,w); }
@@ -145,3 +149,40 @@ namespace ImGui
     void MyFunction(const char* name, MyMatrix44* mtx);
 }
 */
+
+
+struct ImDrawVertCol_t {
+    unsigned char charInfo[2]; // 0 is index, 1 is total, 255 should be enough.
+    unsigned char scaleFactor, fadeFactor;
+};
+
+struct ImDrawVertTex1_t {
+    unsigned char pad[2]; // no use for now.
+    unsigned char renderIndex;
+    unsigned char fontSize;
+};
+
+struct ImDrawVertTex2_t {
+    float time; // second
+    float charAlignFactor; // 0 is left, 0.5 is center, 1 is right
+};
+
+
+#define IMGUI_OVERRIDE_DRAWVERT_STRUCT_LAYOUT
+
+struct ImDrawVert
+{
+    MyVec2 pos;
+    MyVec2 uv;
+    union {
+        unsigned int col;
+        ImDrawVertCol_t col_u;
+    };
+    ImDrawVertTex1_t tex1;
+    ImDrawVertTex2_t tex2;
+    float pos1[4]; // as an input position
+};
+#if 1
+static_assert(offsetof(ImDrawVert, tex2) == 0x18);
+static_assert(offsetof(ImDrawVert, pos1) == 0x20);
+#endif

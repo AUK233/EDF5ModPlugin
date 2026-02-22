@@ -57,13 +57,4 @@ namespace DigitRenderer {
 		}
 		return out;
 	}
-
-	int SetDigitRendererAlign(int charTotal, int alignType)
-	{
-		if (alignType < DigitRendererAlign_Center)
-			return 0;
-		else
-			return charTotal;
-		// end
-	}
 }
