@@ -27,6 +27,28 @@ EDF5.exe+2DB615 - F3 0F10 46 50         - movss xmm0,[rsi+50]
 +30 是坐标？
 +50 是伤害
 ==============================
+EDF5.exe+9F75A - 88 83 80010000        - mov [rbx+00000180],al
+写入是否显示hud
+EDF5.exe+623FDC - 0F84 81020000         - je EDF5.exe+624263
+检查是否显示hud
+
+EDF5.exe+2E0200 - 8B 83 40010000        - mov eax,[rbx+00000140]
+这里决定是否显示hud，以及摄像机是否朝向角色
+
+EDF5.exe+62D002 - 48 C7 85 14010000 00000000 - mov qword ptr [rbp+00000114],00000000
+看起来是处理cb0
+
+EDF5.exe+5D6D1C - 48 C7 44 24 20 40020000 - mov qword ptr [rsp+20],00000240
+设置xgl_system的大小0x240字节
+
+EDF5.exe+5D8C2D - 48 8B 42 30           - mov rax,[rdx+30]
+这个rax就是xgl_system的指针
+r8是EDF5.exe+1259680，实际上是从它的+10复制的
+
+EDF5.exe+5C99B6 - 48 8B 43 30           - mov rax,[rbx+30]
+这里就是UpdateSubresource
+
+==============================
 
 EDF5.exe+2DF9E2 - E8 89000000           - call EDF5.exe+2DFA70
 AssultSoldier初始化 父对象是SoldierBase

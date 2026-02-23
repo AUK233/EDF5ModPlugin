@@ -407,9 +407,14 @@
     <ClInclude Include="zHui\ToGui\imgui\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resource\digitDynamicPos_ps.cso" />
+    <None Include="Resource\digitDynamicPos_vs.cso" />
+    <None Include="Resource\digitFixedPos_ps.cso" />
+    <None Include="Resource\digitFixedPos_vs.cso" />
     <None Include="Resource\ps_digit.cso" />
     <None Include="Resource\vs_digit.cso" />
     <None Include="shader2.bin" />
+    <None Include="shader3.bin" />
     <None Include="texture2.bin" />
     <None Include="zHui\ToGui\DirectXTK\SimpleMath.inl" />
     <None Include="zHui\ToGui\DirectXTK\TeapotData.inc" />

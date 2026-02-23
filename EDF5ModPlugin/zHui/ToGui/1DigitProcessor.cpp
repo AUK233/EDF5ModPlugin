@@ -205,14 +205,14 @@ PG_SoldierBase DynamicDigitProcessor_t::ProcessData_Damage(UINT32 index) {
 //end
 }
 
-int __fastcall DigitProcessor_SetLocalCurrentPlayer(PXGS_System_Player pSysPlayer, UINT32 pCount) {
-	auto playerID = pSysPlayer->PlayerID;
+int __fastcall DigitProcessor_SetLocalCurrentPlayer(PXGS_System_Camera pCamera, UINT32 pCount) {
+	auto playerID = pCamera->PlayerID;
 	if (pCount > 2) return playerID;
 
 	if (Game_IsOnlineMode()){
 		DigitRenderer::bIsSplitScreen = 0;
 		if(playerID == 0){
-			auto pPlayerObject = (PG_SoldierBase)pSysPlayer->pCamera->pGameObject;
+			auto pPlayerObject = (PG_SoldierBase)pCamera->pGameObject;
 			DigitRenderer::pLocalCurrentPlayers[0] = pPlayerObject;
 		}
 		// end
@@ -224,7 +224,7 @@ int __fastcall DigitProcessor_SetLocalCurrentPlayer(PXGS_System_Player pSysPlaye
 			DigitRenderer::bIsSplitScreen = 1;
 		}
 
-		auto pPlayerObject = (PG_SoldierBase)pSysPlayer->pCamera->pGameObject;
+		auto pPlayerObject = (PG_SoldierBase)pCamera->pGameObject;
 		DigitRenderer::pLocalCurrentPlayers[playerID] = pPlayerObject;
 	}
 

@@ -14,7 +14,7 @@
 
 #include "1DigitRenderer.h"
 
-//#define DEBUGMODE
+#define DEBUGMODE
 
 namespace DigitRenderer {
 
@@ -40,7 +40,23 @@ void DynamicDigitRenderer_t::Initialize()
 	HRESULT hr = device->CreateSamplerState(&samp_desc, &point_sampler);
 	//if (FAILED(hr)) return;
 
-	// create constant buffer
+	// create constant buffer 0
+	D3D11_BUFFER_DESC cb_desc0 = {};
+	cb_desc0.Usage = D3D11_USAGE_DEFAULT;
+	cb_desc0.ByteWidth = sizeof(xgl_system_CB_t);
+	cb_desc0.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cb_desc0.CPUAccessFlags = 0;
+	device->CreateBuffer(&cb_desc0, nullptr, &constant_buffer0);
+
+	// create constant buffer 1
+	D3D11_BUFFER_DESC cb_desc1 = {};
+	cb_desc1.Usage = D3D11_USAGE_DEFAULT;
+	cb_desc1.ByteWidth = sizeof(xgl_transform_CB_t);
+	cb_desc1.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	cb_desc1.CPUAccessFlags = 0;
+	device->CreateBuffer(&cb_desc1, nullptr, &constant_buffer1);
+
+	// create constant buffer 2
 	D3D11_BUFFER_DESC cb_desc = {};
 	cb_desc.Usage = D3D11_USAGE_DEFAULT;
 	cb_desc.ByteWidth = sizeof(DigitConstants_t);
@@ -54,8 +70,11 @@ void DynamicDigitRenderer_t::Initialize()
 		auto p = (PCallbackData)_aligned_malloc(sizeof(CallbackData_t), 0x10);
 		pCallbackData[i] = p;
 	}
+	// end
 
 	CreateSolidColorTextures(device);
+	ZeroMemory(&g_constants0, sizeof(xgl_system_CB_t));
+	ZeroMemory(&g_constants1, sizeof(xgl_transform_CB_t));
 
 	// init input layout
 	D3D11_INPUT_ELEMENT_DESC layout[] = {
@@ -68,35 +87,51 @@ void DynamicDigitRenderer_t::Initialize()
 	};
 
 	// load shader resource
-#if defined(DEBUGMODE)
+#ifdef DEBUGMODE
 	ID3DBlob* vs_blob = nullptr;
 	ID3DBlob* ps_blob = nullptr;
+	ID3DBlob* vs_blob2 = nullptr;
+	ID3DBlob* ps_blob2 = nullptr;
 	ID3DBlob* error_blob = nullptr;
+
+	const D3D_SHADER_MACRO defines[] =
+	{
+		"_DynamicPos", "1",
+		{nullptr, nullptr}
+	};
 
 	// compile shader
 	D3DCompileFromFile(L"./subtitle/digit.hlsl", nullptr, nullptr, "VS_main", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &vs_blob, &error_blob);
 	D3DCompileFromFile(L"./subtitle/digit.hlsl", nullptr, nullptr, "PS_main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &ps_blob, &error_blob);
+	device->CreateVertexShader(vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), nullptr, &vertex_shader[0]);
+	device->CreatePixelShader(ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), nullptr, &pixel_shader[0]);
+	//
+	D3DCompileFromFile(L"./subtitle/digit.hlsl", defines, nullptr, "VS_main", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &vs_blob2, &error_blob);
+	D3DCompileFromFile(L"./subtitle/digit.hlsl", defines, nullptr, "PS_main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &ps_blob2, &error_blob);
+	device->CreateVertexShader(vs_blob2->GetBufferPointer(), vs_blob2->GetBufferSize(), nullptr, &vertex_shader[1]);
+	device->CreatePixelShader(ps_blob2->GetBufferPointer(), ps_blob2->GetBufferSize(), nullptr, &pixel_shader[1]);
 
-	device->CreateVertexShader(vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), nullptr, &vertex_shader);
-	device->CreatePixelShader(ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), nullptr, &pixel_shader);
 
 	// create input layout
-	device->CreateInputLayout(layout, _countof(layout), vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), &input_layout);
+	device->CreateInputLayout(layout, _countof(layout), vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), &input_layout[0]);
+	device->CreateInputLayout(layout, _countof(layout), vs_blob2->GetBufferPointer(), vs_blob2->GetBufferSize(), &input_layout[1]);
 
 	// load texture
 	DirectX::CreateDDSTextureFromFile(device, L"./subtitle/DamageUINumber.dds", nullptr, &digit_texture_srv);
 
 	vs_blob->Release();
-	vs_blob->Release();
+	ps_blob->Release();
+	vs_blob2->Release();
+	ps_blob2->Release();
 	if (error_blob) error_blob->Release();
 #else
+	//LoadEmbeddedResource(v_data_digit_texture, L"Resource\\DamageUINumber.dds", L"Texture"); // no, this cannot be found.
 	LoadEmbeddedResource(v_data_digit_texture, MAKEINTRESOURCEW(IDR_DamageUINumber), L"Texture");
 	LoadEmbeddedResource(v_data_shader_vs[0], MAKEINTRESOURCEW(IDR_vs_digitFixed), L"Shader");
 	LoadEmbeddedResource(v_data_shader_ps[0], MAKEINTRESOURCEW(IDR_ps_digitFixed), L"Shader");
-	//LoadEmbeddedResource(v_data_digit_texture, L"Resource\\DamageUINumber.dds", L"Texture"); // no, this cannot be found.
+	LoadEmbeddedResource(v_data_shader_vs[1], MAKEINTRESOURCEW(IDR_vs_digitDynamic), L"Shader");
+	LoadEmbeddedResource(v_data_shader_ps[1], MAKEINTRESOURCEW(IDR_ps_digitDynamic), L"Shader");
 
-	v_data_shader_vs[1] = v_data_shader_vs[0];
-	v_data_shader_ps[1] = v_data_shader_ps[0];
 
 	for (int i = 0; i < DigitRendererShader_ALL; i++) {
 		// load shader
@@ -117,6 +152,52 @@ void DynamicDigitRenderer_t::CreateSolidColorTextures(ID3D11Device* device)
 	color_texture_srv[DigitRendererColor_Green] = CreateSolidColorSRV(device, 0x00FF00FF);
 	color_texture_srv[DigitRendererColor_Blue] = CreateSolidColorSRV(device, 0x0000FFFF);
 	color_texture_srv[DigitRendererColor_White] = CreateSolidColorSRV(device, 0xFFFFFFFF);
+}
+
+void DynamicDigitRenderer_t::ReloadDynamicPosShader()
+{
+#ifdef DEBUGMODE
+	auto pRender = DXGI_GetGameDXGIRender();
+	auto device = pRender->pD3D11Device;
+
+	ID3DBlob* vs_blob = nullptr;
+	ID3DBlob* error_blob = nullptr;
+	const D3D_SHADER_MACRO defines[] =
+	{
+		"_DynamicPos", "1",
+		{nullptr, nullptr}
+	};
+	auto hr = D3DCompileFromFile(L"./subtitle/digit.hlsl", defines, nullptr, "VS_main", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &vs_blob, &error_blob);
+	if (FAILED(hr)) {
+		MessageBoxW(NULL, L"Failed to compile vertex shader", L"error", MB_OK);
+		return;
+	} else {
+		MessageBoxW(NULL, L"compile vertex shader", L"done", MB_OK);
+	}
+
+	ID3D11VertexShader* newVS = nullptr;
+	device->CreateVertexShader(vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), nullptr, &newVS);
+
+	ID3D11InputLayout* newLayout = nullptr;
+	D3D11_INPUT_ELEMENT_DESC layout[] = {
+		{"POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(ImDrawVert, pos), D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(ImDrawVert, uv), D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"COLOR", 0, DXGI_FORMAT_R8G8B8A8_UINT, 0, offsetof(ImDrawVert, col_u), D3D11_INPUT_PER_VERTEX_DATA, 0}, // or DXGI_FORMAT_R8G8B8A8_UNORM
+		{"TEXCOORD", 1, DXGI_FORMAT_R8G8B8A8_UINT, 0, offsetof(ImDrawVert, tex1), D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"TEXCOORD", 2, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(ImDrawVert, tex2), D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"POSITION", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, offsetof(ImDrawVert, pos1), D3D11_INPUT_PER_VERTEX_DATA, 0},
+	};
+	device->CreateInputLayout(layout, _countof(layout), vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), &newLayout);
+
+	if (vertex_shader[1]) vertex_shader[1]->Release();
+	if (input_layout[1]) input_layout[1]->Release();
+
+	vertex_shader[1] = newVS;
+	input_layout[1] = newLayout;
+
+	vs_blob->Release();
+	if (error_blob) error_blob->Release();
+#endif
 }
 
 void DynamicDigitRenderer_t::Cleanup()
@@ -220,8 +301,6 @@ void __vectorcall DynamicDigitRenderer_t::SetImageDataInFixedPos(const DigitText
 
 		AddImageData(draw_list, &fontControl, v_pos);
 
-		//draw_list->AddImage(color_texture_srv[colorTexIndex], pos[0], pos[1], IMuv[0], IMuv[1], colData);
-
 		if (renderIndex == DigitRendererChar_DOT) {
 			float dotOffset = fontControl.f_fontSize * -0.4;
 			__m128 v_subDot = _mm_load_ss(&dotOffset);
@@ -235,8 +314,35 @@ void __vectorcall DynamicDigitRenderer_t::SetImageDataInFixedPos(const DigitText
 	draw_list->PopTexture();
 }
 
-void __vectorcall DynamicDigitRenderer_t::AddImageData(ImDrawList* draw_list, PDigitFontControl pFont, __m128 inputPos)
+void __vectorcall DynamicDigitRenderer_t::SetImageDataInDynamicPos(const DigitTextByte& pText, __m128 BasePos, PDigitFontControl pFont, int colorTexIndex)
 {
+	int textSize = pText.size();
+	if (!textSize) return;
+
+	__m128 v_pos = BasePos;
+	DigitFontControl_t fontControl;
+	memcpy(&fontControl, pFont, sizeof(DigitFontControl_t));
+	fontControl.charTotal = textSize;
+
+	// draw
+	ImDrawList* draw_list = ImGui::GetWindowDrawList();
+	ImTextureRef tex_ref = color_texture_srv[colorTexIndex];
+	draw_list->PushTexture(tex_ref);
+	draw_list->PrimReserve(6 * textSize, 4 * textSize);
+
+	for (int i = 0; i < textSize; i++) {
+		auto renderIndex = pText[i];
+		fontControl.renderIndex = renderIndex;
+		fontControl.charIndex = i;
+
+		AddImageData(draw_list, &fontControl, v_pos);
+		// end
+	}
+
+	draw_list->PopTexture();
+}
+
+void __vectorcall DynamicDigitRenderer_t::AddImageData(ImDrawList* draw_list, PDigitFontControl pFont, __m128 inputPos) {
 	// calculate vertex data
 	ImDrawIdx idx = (ImDrawIdx)draw_list->_VtxCurrentIdx;
 	draw_list->_IdxWritePtr[0] = idx;
@@ -303,9 +409,17 @@ void DynamicDigitRenderer_t::SetToShader(int shader_index, int cb_index, const P
 	g_context->PSSetShader(pixel_shader[shader_index], nullptr, 0);
 	g_context->IASetInputLayout(input_layout[shader_index]);
 
+	g_context->UpdateSubresource(constant_buffer0, 0, nullptr, &g_constants0, 0, 0);
+	g_context->UpdateSubresource(constant_buffer1, 0, nullptr, &g_constants1, 0, 0);
 	g_context->UpdateSubresource(constant_buffer[cb_index], 0, nullptr, pData, 0, 0);
+
+	g_context->VSSetConstantBuffers(0, 1, &constant_buffer0);
+	g_context->VSSetConstantBuffers(1, 1, &constant_buffer1);
 	g_context->VSSetConstantBuffers(2, 1, &constant_buffer[cb_index]);
+	// ok ps no cb1
+	g_context->PSSetConstantBuffers(0, 1, &constant_buffer0);
 	g_context->PSSetConstantBuffers(2, 1, &constant_buffer[cb_index]);
+
 
 	g_context->PSSetShaderResources(1, 1, &digit_texture_srv); // to t1
 	g_context->PSSetSamplers(0, 1, &point_sampler);

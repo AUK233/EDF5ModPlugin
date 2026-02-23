@@ -22,12 +22,17 @@ DXGI_SWAP_CHAIN_DESC* pDXGISwapChainDesc;
 int* pRealTimeResolution;
 
 PGameDXGIRender pGameDXGIRenderer;
+PGameRenderer1259680* pGameRenderer1259680;
 
 void DXGI_Initialize(PBYTE hmodEXE)
 {
 	// EDF5.exe+1256BD0
 	auto tempP = hmodEXE + 0x1256BD0;
 	pGameDXGIRenderer = (PGameDXGIRender)tempP;
+
+	// EDF5.exe+1259680
+	tempP = hmodEXE + 0x1259680;
+	pGameRenderer1259680 = (PGameRenderer1259680*)tempP;
 
 	// EDF5.exe+1256C40
 	tempP = hmodEXE + 0x1256C40;
@@ -43,6 +48,11 @@ void DXGI_Initialize(PBYTE hmodEXE)
 PGameDXGIRender __fastcall DXGI_GetGameDXGIRender()
 {
 	return pGameDXGIRenderer;
+}
+
+PGameRenderer1259680 __fastcall DXGI_GetGameRenderer1259680()
+{
+	return *pGameRenderer1259680;
 }
 
 int* __fastcall DXGI_GetRealTimeResolution()

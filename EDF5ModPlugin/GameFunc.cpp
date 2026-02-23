@@ -128,6 +128,7 @@ uintptr_t edf617B30Address;
 // set ragdoll flag
 uintptr_t edf3C82F0Address;
 
+uintptr_t rva26EE0; // unk
 // get hash map?
 uintptr_t rva37E70;
 // calculate hash?
@@ -152,6 +153,7 @@ void GetGameFunctions() {
 	rvaBDAD0 = (uintptr_t)(hmodEXE + 0xBDAD0);
 	rva1CD6C0 = (uintptr_t)(hmodEXE + 0x1CD6C0);
 
+	rva26EE0 = (uintptr_t)(hmodEXE + 0x26EE0);
 	rva37E70 = (uintptr_t)(hmodEXE + 0x37E70);
 	rva751F0 = (uintptr_t)(hmodEXE + 0x751F0);
 

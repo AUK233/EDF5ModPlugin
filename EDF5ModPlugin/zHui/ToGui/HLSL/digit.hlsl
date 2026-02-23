@@ -10,6 +10,16 @@ static const float c_LineFactor = float(1.0 / 2.0);
 static const uint c_ColumnCount = 11;
 // ===================================================
 
+// Game's CB0, incomplete at present
+cbuffer xgl_user_param : register(b0)
+{
+	float4x4 g_xgl_view;
+	float4x4 g_xgl_view_inverse;
+	float4x4 g_xgl_projection;
+	float4x4 g_xgl_view_projection;
+	float4x4 g_xgl_view_projection_inverse;
+};
+
 // b2 is safe
 cbuffer xgl_user_param : register(b2)
 {
@@ -48,13 +58,36 @@ struct PS_INPUT
 };
 
 // ===================================================
+#ifdef _DynamicPos
+	#pragma message("DynamicPos is defined!")
+	float2 WorldToScreen(float4 world_pos)
+	{
+		float4 clip_pos = mul(g_xgl_view_projection, world_pos);
+		
+		float3 ndc = clip_pos.xyz / clip_pos.w;
+		
+		float2 screen_pos;
+		screen_pos.x = (ndc.x * 0.5 + 0.5) * ScreenSize.x;
+		screen_pos.y = (1.0 - ndc.y) * 0.5 * ScreenSize.y; 
+		
+		return screen_pos;
+	}
+#else
+	#pragma message("NOT defined _DynamicPos")
+#endif
+
+// ===================================================
 // vertex shader
 PS_INPUT VS_main(VS_INPUT input)
 {
 	PS_INPUT output;
 	
 	output.uv.xy = input.uv;
+#ifdef _DynamicPos
+	float2 inpos = WorldToScreen(input.color1);
+#else
 	float2 inpos = input.color1.xy;
+#endif
 	//inpos += float2(400, 200);
 	
 	// get fade enable

@@ -15,16 +15,21 @@
 #include "HUiHudPowerGuage.h"
 
 extern "C" {
+	CallFunc_HUiHudCommonDataFuncP10 HUiHudBaseFuncP10_4B2FB0;
+
 	void __fastcall ASMreadHUiHudPowerGuage();
 	uintptr_t readHUiHudPowerGuageRet;
+	void __fastcall ASMhuiHudPowerGuageFuncP10();
+
 
 	uintptr_t* vft_HUiHudPowerGuage;
-	CallFunc_HUiHudCommonDataFuncP10 HUiHudPowerGuageFuncP10;
 	CallFunc_HUiHudCommonData_Free HUiHudPowerGuage_Free;
 }
 
 void module_UpdateHUiHudPowerGuage(PBYTE hmodEXE)
 {
+	// EDF5.exe+4B2FB0
+	HUiHudBaseFuncP10_4B2FB0 = (CallFunc_HUiHudCommonDataFuncP10)(hmodEXE + 0x4B2FB0);
 	WriteHookToProcess((void*)(hmodEXE + 0xEC8F50), (void*)L"lyt_HudPowerGuageM1.sgo", 48U);
 
 	// old is 0XB20
@@ -32,32 +37,52 @@ void module_UpdateHUiHudPowerGuage(PBYTE hmodEXE)
 	static_assert(sizeof(G_HUiHudPowerGuage_t) < 0xD00);
 	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x4CAAF7 + 1), &newHPSize, 4U);
 	// EDF5.exe+4CB4CC
-	hookGameBlock((void*)(hmodEXE + 0x4CB4CC), (uintptr_t)ASMreadHUiHudPowerGuage);
-	WriteHookToProcess((void*)(hmodEXE + 0x4CB4CC + 12), (void*)&nop6, 6U);
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x4CB4CC), (uintptr_t)ASMreadHUiHudPowerGuage);
+	WriteHookToProcess((void*)(hmodEXE + 0x4CB4CC + 15), (void*)&nop3, 3U);
 	readHUiHudPowerGuageRet = (uintptr_t)(hmodEXE + 0x4CB4DE);
+	// EDF5.exe+4CC914, is vtf+10
+	// but now inside it, to prevent the game crash
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x4CC914), (uintptr_t)ASMhuiHudPowerGuageFuncP10);
+	WriteHookToProcess((void*)(hmodEXE + 0x4CC914 + 15), (void*)&nop6, 6U);
 
 	// set vf table, EDF5.exe+ECAF90
 	vft_HUiHudPowerGuage = (uintptr_t*)(hmodEXE + 0xECAF90);
 
-	// Save original +10 function
-	HUiHudPowerGuageFuncP10 = (CallFunc_HUiHudCommonDataFuncP10)vft_HUiHudPowerGuage[2];
-	// Hook +10 function
-	uintptr_t addrToHook = (uintptr_t)module_HUiHudPowerGuageFuncP10;
-	WriteHookToProcess((void*)&vft_HUiHudPowerGuage[2], &addrToHook, 8U);
-
 	// Save original Free function
 	HUiHudPowerGuage_Free = (CallFunc_HUiHudCommonData_Free)vft_HUiHudPowerGuage[5];
 	// Hook Free function
-	addrToHook = (uintptr_t)module_HUiHudPowerGuage_Free;
+	uintptr_t addrToHook = (uintptr_t)module_HUiHudPowerGuage_Free;
 	WriteHookToProcess((void*)&vft_HUiHudPowerGuage[5], &addrToHook, 8U);
 }
 
-void __fastcall module_HUiHudPowerGuageFuncP10(PG_HUiHudPowerGuage pThis, void* pRDX)
+void* __fastcall module_HUiHudPowerGuage_Free(PG_HUiHudPowerGuage pThis, int isFree)
 {
+	if (isFree & 1) {
+		// clear global player pointer
+		auto pObject = pThis->pPlayerObject;
+
+		if (pObject) {
+			using namespace DigitRenderer;
+			auto pGlobal = GetLocalCurrentPlayersPointer();
+
+			if (pObject == pGlobal[0] || pObject == pGlobal[1]) {
+				DigitProcessor_ClearData(0);
+				DigitProcessor_ClearData(1);
+			}
+		}
+		// end
+	}
+
+	return HUiHudPowerGuage_Free(pThis, isFree);
+}
+
+void __fastcall module_HUiHudPowerGuageFuncP10_add(PG_HUiHudPowerGuage pThis, void* pRDX)
+{
+	// ok, now it is always present.
 	auto pPlayer = (PG_SoldierBase)pThis->pPlayerObject;
 
 	// show fencer's dash count
-	if (pPlayer && pThis->bIsActivated760 && pPlayer->InputControlType) {
+	if (pPlayer->InputControlType) {
 		auto fencer = (PG_HeavyArmor)pPlayer;
 
 		auto pDash = pThis->TextFencerDash;
@@ -91,11 +116,8 @@ void __fastcall module_HUiHudPowerGuageFuncP10(PG_HUiHudPowerGuage pThis, void* 
 		}
 		// end
 	}
-
-	// it must now be placed at the end, because it has a function that must be executed in the final step.
-	HUiHudPowerGuageFuncP10(pThis, pRDX);
-	if (!pPlayer) return;
-	if (!pThis->bIsActivated760) return;
+	// don't forget it.
+	HUiHudBaseFuncP10_4B2FB0(pThis, pRDX);
 
 	// ================================================================
 	// check is who will display
@@ -108,25 +130,4 @@ void __fastcall module_HUiHudPowerGuageFuncP10(PG_HUiHudPowerGuage pThis, void* 
 
 	DigitProcessor_ProcessData();
 	togui_MainDisplayInMission();
-}
-
-void* __fastcall module_HUiHudPowerGuage_Free(PG_HUiHudPowerGuage pThis, int isFree)
-{
-	if (isFree & 1) {
-		// clear global player pointer
-		auto pObject = pThis->pPlayerObject;
-
-		if (pObject) {
-			using namespace DigitRenderer;
-			auto pGlobal = GetLocalCurrentPlayersPointer();
-
-			if (pObject == pGlobal[0] || pObject == pGlobal[1]) {
-				DigitProcessor_ClearData(0);
-				DigitProcessor_ClearData(1);
-			}
-		}
-		// end
-	}
-
-	return HUiHudPowerGuage_Free(pThis, isFree);
 }

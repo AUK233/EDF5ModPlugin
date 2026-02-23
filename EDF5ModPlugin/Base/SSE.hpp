@@ -18,3 +18,12 @@ struct MatrixCamera_t {
 	float m0[4];
 	float m1[4];
 };
+
+struct Matrix4x6_t {
+	float m0[4];
+	float m1[4];
+	float m2[4];
+	float m3[4];
+	float m4[4];
+	float m5[4];
+};

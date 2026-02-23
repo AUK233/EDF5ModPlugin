@@ -43,6 +43,6 @@ namespace DigitRenderer {
 }
 
 extern "C" {
-	int __fastcall DigitProcessor_SetLocalCurrentPlayer(PXGS_System_Player pSysPlayer, UINT32 pCount);
+	int __fastcall DigitProcessor_SetLocalCurrentPlayer(PXGS_System_Camera pCamera, UINT32 pCount);
 }
 

@@ -90,6 +90,23 @@ HRESULT __stdcall togui_Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, U
 	togui_MainDisplay();
 #endif
 
+	static bool rKeyDown = false;
+
+	if (GetAsyncKeyState(VK_MENU) & 0x8000) { // Alt 按下
+		if ((GetAsyncKeyState('R') & 0x8001) && !rKeyDown) {
+			rKeyDown = true;
+
+			// 确保 ImGui 没有捕获键盘
+			if (!ImGui::GetIO().WantCaptureKeyboard) {
+				g_DigitRenderer->ReloadDynamicPosShader();
+			}
+		}
+	}
+
+	if (!(GetAsyncKeyState('R') & 0x8000)) {
+		rKeyDown = false;
+	}
+
 	return fnIDXGISwapChainPresent(pSwapChain, SyncInterval, Flags);
 }
 
@@ -255,7 +272,8 @@ void togui_MainDisplay_ToDigit()
 	// for availability check
 #if defined(DEBUGMODE)
 	togui_MainDisplay_ToDigitTest(pCTX);
-#else
+#endif
+
 	g_DigitRenderer->SetRender(pCTX, &g_DigitProcessor->DigitConstantData, DigitRenderer::DigitRendererShader_Fixed);
 
 	auto isSplitScreen = DigitRenderer::GetIsSplitScreen();
@@ -265,9 +283,34 @@ void togui_MainDisplay_ToDigit()
 	if (isSplitScreen) {
 		togui_MainDisplay_ToDigit_Damage(1, isSplitScreen);
 	}
-#endif
 
 	// end
+
+
+	auto pGameRender = DXGI_GetGameRenderer1259680();
+	if (pGameRender) {
+		using namespace DigitRenderer;
+
+		memcpy(&g_DigitRenderer->g_constants0, &pGameRender->ConstantBuffer0, sizeof(xgl_system_CB_t));
+		memcpy(&g_DigitRenderer->g_constants1, &pGameRender->ConstantBuffer1, sizeof(xgl_transform_CB_t));
+		/*auto pSys = XGS_GetXGSSystemPointer();
+		auto pCamera = pSys->player[0].pCamera;
+		memcpy(&g_DigitRenderer->g_constants1, &pCamera->CameraTransform, sizeof(xgl_transform_CB_t));*/
+		g_DigitRenderer->SetRender(pCTX, &g_DigitProcessor->DigitConstantData, DigitRenderer::DigitRendererShader_Dynamic);
+
+		DigitFontControl_t fontControl;
+		ZeroMemory(&fontControl, sizeof(DigitFontControl_t));
+		fontControl.charAlignFactor = 0.5;
+		fontControl.i_fontSize = 48;
+		fontControl.f_fontSize = 48;
+		fontControl.scaleFactor = 0;
+		fontControl.fadeFactor = 0;
+		fontControl.time = 1;
+
+		auto text_damage = FormatNumberToDigitRendererChars_Damage(45.7);
+		g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { 395, 5, 461, 1 }, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_Red);
+		g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { -395, 50, -461, 1 }, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_Blue);
+	}
 
 	g_DigitRenderer->EndFrame();
 }
@@ -277,7 +320,6 @@ void togui_MainDisplay_ToDigit_Damage(UINT32 index, int isSplitScreen)
 #ifndef DEBUGMODE
 	using namespace DigitRenderer;
 
-	static const __m128 base_factor = { 0, 0.5, 0, 0.5 };
 	DigitFontControl_t fontControl;
 	__m128 text_pos, pos_factor;
 	DigitTextByte text_damage;
@@ -299,9 +341,6 @@ void togui_MainDisplay_ToDigit_Damage(UINT32 index, int isSplitScreen)
 			pos_factor = g_DigitProcessor->DamageDisplayPos_VehicleFactor;
 		}
 
-		__m128 pos_factorInit = _mm_mul_ps(pos_factor, base_factor);
-		text_pos = _mm_add_ps(text_pos, pos_factorInit);
-
 		// read history damage
 		for (int i = 0; i < damageCount; i++) {
 			auto& dmg = g_DigitProcessor->v_playerDamage[index][i];
@@ -322,12 +361,19 @@ void togui_MainDisplay_ToDigit_Damage(UINT32 index, int isSplitScreen)
 	auto pDmg = &g_DigitProcessor->playerDamage[index];
 	if (!pDmg->value.s32) return;
 
+
 	if (!isInVehicle) {
 		memcpy(&fontControl, &g_DigitProcessor->DamageDisplayFont_Human, sizeof(DigitFontControl_t));
 		text_pos = g_DigitProcessor->DamageDisplayPos_Human[index + isSplitScreen];
+
+		static const __m128 offset_human = { -28, 16, -28, 16 };
+		text_pos = _mm_add_ps(text_pos, offset_human);
 	} else {
 		memcpy(&fontControl, &g_DigitProcessor->DamageDisplayFont_Vehicle, sizeof(DigitFontControl_t));
 		text_pos = g_DigitProcessor->DamageDisplayPos_Vehicle[index + isSplitScreen];
+
+		static const __m128 offset_vehicle = { 40, -20, 40, -20 };
+		text_pos = _mm_add_ps(text_pos, offset_vehicle);
 	}
 
 	fontControl.time = pDmg->effectTime;

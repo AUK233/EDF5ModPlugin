@@ -25,12 +25,17 @@ namespace DigitRenderer{
         };
         // yeah, should enough.
         static const int MAX_CONCURRENT_DRAWS = 64;
+
+        xgl_system_CB_t g_constants0; // in b0
+        xgl_transform_CB_t g_constants1; // in b0
     private:
 	    ID3D11DeviceContext* g_context; // for rendering, set in Render()
         DigitTextByte v_data_digit_texture;
         DigitTextByte v_data_shader_vs[DigitRendererShader_ALL];
         DigitTextByte v_data_shader_ps[DigitRendererShader_ALL];
         // DX11
+        ID3D11Buffer* constant_buffer0;
+        ID3D11Buffer* constant_buffer1;
         ID3D11Buffer* constant_buffer[MAX_CONCURRENT_DRAWS];
         DigitRenderer::CallbackData_t* pCallbackData[MAX_CONCURRENT_DRAWS];
 
@@ -44,9 +49,12 @@ namespace DigitRenderer{
 
 	    //DigitConstants_t g_constants2; // in b2
         int nextBufferIndex = 0;
+
+		
     public:
         void Initialize();
         void CreateSolidColorTextures(ID3D11Device* device);
+        void ReloadDynamicPosShader();
         void Cleanup();
 
         ~DynamicDigitRenderer_t() { Cleanup(); }
@@ -56,6 +64,7 @@ namespace DigitRenderer{
 
         void SetRender(ID3D11DeviceContext* context, const PDigitConstants pData, int shader_index);
         void __vectorcall SetImageDataInFixedPos(const DigitTextByte& pText, __m128 BasePos, PDigitFontControl pFont, int colorTexIndex);
+        void __vectorcall SetImageDataInDynamicPos(const DigitTextByte& pText, __m128 BasePos, PDigitFontControl pFont, int colorTexIndex);
         void __vectorcall AddImageData(ImDrawList* draw_list, PDigitFontControl pFont, __m128 inputPos);
 
         void SetToShader(int shader_index, int cb_index, const PDigitConstants pData);

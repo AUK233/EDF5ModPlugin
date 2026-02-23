@@ -636,6 +636,13 @@
     <None Include="Resource\ps_digit.cso">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="Resource\digitFixedPos_ps.cso" />
+    <None Include="Resource\digitFixedPos_vs.cso" />
+    <None Include="Resource\digitDynamicPos_ps.cso" />
+    <None Include="shader3.bin">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resource\digitDynamicPos_vs.cso" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="EDF5ModPlugin.rc">

@@ -34,7 +34,10 @@ static_assert(offsetof(G_HUiHudPowerGuage_t, TextFencerBoostColor) == 0xC30);
 
 void module_UpdateHUiHudPowerGuage(PBYTE hmodEXE);
 
-// update text display
-void __fastcall module_HUiHudPowerGuageFuncP10(PG_HUiHudPowerGuage pThis, void* pRDX);
 // +2C
 void* __fastcall module_HUiHudPowerGuage_Free(PG_HUiHudPowerGuage pThis, int isFree);
+
+extern "C"{
+	// update text display
+	void __fastcall module_HUiHudPowerGuageFuncP10_add(PG_HUiHudPowerGuage pThis, void* pRDX);
+}
