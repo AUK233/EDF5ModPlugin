@@ -359,6 +359,9 @@
     <MASM Include="zHui\ToGui\HUiHudPowerGuageASM.asm">
       <Filter>Source Files\Module Hui\ToFui\main</Filter>
     </MASM>
+    <MASM Include="zHui\ToGui\0GetDXGIASM.asm">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </MASM>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PluginAPI.h">

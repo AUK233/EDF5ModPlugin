@@ -11,14 +11,21 @@ static const uint c_ColumnCount = 11;
 // ===================================================
 
 // Game's CB0, incomplete at present
-cbuffer xgl_user_param : register(b0)
+// cbuffer xgl_system : register(b0)
+// {
+// 	row_major float4x4 g_xgl_view;
+// 	row_major float4x4 g_xgl_view_inverse;
+// 	row_major float4x4 g_xgl_projection;
+// 	row_major float4x4 g_xgl_view_projection;
+// 	row_major float4x4 g_xgl_view_projection_inverse;
+// };
+
+// use our own version
+cbuffer xgl_transform : register(b1)
 {
-	float4x4 g_xgl_view;
-	float4x4 g_xgl_view_inverse;
-	float4x4 g_xgl_projection;
-	float4x4 g_xgl_view_projection;
-	float4x4 g_xgl_view_projection_inverse;
-};
+	row_major float4x4 c_xgl_view;
+	row_major float4x4 c_xgl_projection;
+}
 
 // b2 is safe
 cbuffer xgl_user_param : register(b2)
@@ -60,16 +67,30 @@ struct PS_INPUT
 // ===================================================
 #ifdef _DynamicPos
 	#pragma message("DynamicPos is defined!")
-	float2 WorldToScreen(float4 world_pos)
-	{
-		float4 clip_pos = mul(g_xgl_view_projection, world_pos);
-		
+	float2 WorldToScreen(float4 world_pos) {
+		float3 relative_pos = world_pos.xyz;
+
+		// do not modify it
+		row_major float4x4 viewProjection;
+		viewProjection[0] = c_xgl_view[0] * c_xgl_projection[0].x;
+		viewProjection[1] = c_xgl_view[1] * c_xgl_projection[1].y;
+		viewProjection[2] = c_xgl_view[2] * c_xgl_projection[2].z;
+		viewProjection[2].w += c_xgl_projection[2].w;
+		viewProjection[3] = c_xgl_view[2] * c_xgl_projection[2].z;
+		// otherwise it will cause problems.
+
+		float4 clip_pos;
+		clip_pos.x = dot(relative_pos.xyz, viewProjection[0].xyz) + viewProjection[0].w;
+		clip_pos.y = dot(relative_pos.xyz, viewProjection[1].xyz) + viewProjection[1].w;
+		clip_pos.z = dot(relative_pos.xyz, viewProjection[2].xyz) + viewProjection[2].w;
+		clip_pos.w = dot(relative_pos.xyz, viewProjection[3].xyz) + viewProjection[3].w;
+
+		if (clip_pos.w < 0.1f) return -c_DefaultResolution;
 		float3 ndc = clip_pos.xyz / clip_pos.w;
 		
 		float2 screen_pos;
-		screen_pos.x = (ndc.x * 0.5 + 0.5) * ScreenSize.x;
-		screen_pos.y = (1.0 - ndc.y) * 0.5 * ScreenSize.y; 
-		
+		screen_pos.x = -(ScreenSize.x * 0.5 * ndc.x) + (ScreenSize.x * 0.5);
+		screen_pos.y = -(ScreenSize.y * 0.5 * ndc.y) + (ScreenSize.y * 0.5);
 		return screen_pos;
 	}
 #else

@@ -26,8 +26,8 @@ namespace DigitRenderer{
         // yeah, should enough.
         static const int MAX_CONCURRENT_DRAWS = 64;
 
-        xgl_system_CB_t g_constants0; // in b0
-        xgl_transform_CB_t g_constants1; // in b0
+        xgl_system_CB_t g_constants0; // in b0, not using it now, but keep it.
+        xgl_transform_customize_t g_constants1; // in b1
     private:
 	    ID3D11DeviceContext* g_context; // for rendering, set in Render()
         DigitTextByte v_data_digit_texture;

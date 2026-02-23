@@ -317,6 +317,7 @@
     <MASM Include="zHui\HuiModConsoleASM.asm" />
     <MASM Include="zHui\HuiMoreCharacterModelASM.asm" />
     <MASM Include="zHui\HuiObjectClassASM.asm" />
+    <MASM Include="zHui\ToGui\0GetDXGIASM.asm" />
     <MASM Include="zHui\ToGui\HUiHudPowerGuageASM.asm" />
   </ItemGroup>
   <ItemGroup>

@@ -90,13 +90,12 @@ HRESULT __stdcall togui_Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, U
 	togui_MainDisplay();
 #endif
 
-	static bool rKeyDown = false;
+	// reload shader
+	/*static bool rKeyDown = false;
 
-	if (GetAsyncKeyState(VK_MENU) & 0x8000) { // Alt 按下
+	if (GetAsyncKeyState(VK_MENU) & 0x8000) {
 		if ((GetAsyncKeyState('R') & 0x8001) && !rKeyDown) {
 			rKeyDown = true;
-
-			// 确保 ImGui 没有捕获键盘
 			if (!ImGui::GetIO().WantCaptureKeyboard) {
 				g_DigitRenderer->ReloadDynamicPosShader();
 			}
@@ -105,7 +104,7 @@ HRESULT __stdcall togui_Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, U
 
 	if (!(GetAsyncKeyState('R') & 0x8000)) {
 		rKeyDown = false;
-	}
+	}*/
 
 	return fnIDXGISwapChainPresent(pSwapChain, SyncInterval, Flags);
 }
@@ -287,15 +286,14 @@ void togui_MainDisplay_ToDigit()
 	// end
 
 
-	auto pGameRender = DXGI_GetGameRenderer1259680();
-	if (pGameRender) {
+	auto pUmbraSystem = DXGI_GetUmbraSystem125B080();
+	if (pUmbraSystem) {
 		using namespace DigitRenderer;
 
-		memcpy(&g_DigitRenderer->g_constants0, &pGameRender->ConstantBuffer0, sizeof(xgl_system_CB_t));
-		memcpy(&g_DigitRenderer->g_constants1, &pGameRender->ConstantBuffer1, sizeof(xgl_transform_CB_t));
-		/*auto pSys = XGS_GetXGSSystemPointer();
-		auto pCamera = pSys->player[0].pCamera;
-		memcpy(&g_DigitRenderer->g_constants1, &pCamera->CameraTransform, sizeof(xgl_transform_CB_t));*/
+		/*auto pGameRender = DXGI_GetGameRenderer1259680();
+		memcpy(&g_DigitRenderer->g_constants0, &pGameRender->ConstantBuffer0, sizeof(xgl_system_CB_t));*/
+		memcpy(g_DigitRenderer->g_constants1.g_xgl_view, pUmbraSystem->matrix_view, sizeof(float) * 4 * 4);
+		memcpy(g_DigitRenderer->g_constants1.g_xgl_projection, pUmbraSystem->matrix_projection, sizeof(float) * 4 * 4);
 		g_DigitRenderer->SetRender(pCTX, &g_DigitProcessor->DigitConstantData, DigitRenderer::DigitRendererShader_Dynamic);
 
 		DigitFontControl_t fontControl;
@@ -309,7 +307,8 @@ void togui_MainDisplay_ToDigit()
 
 		auto text_damage = FormatNumberToDigitRendererChars_Damage(45.7);
 		g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { 395, 5, 461, 1 }, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_Red);
-		g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { -395, 50, -461, 1 }, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_Blue);
+		g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { 395, 50, 461, 1 }, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_Blue);
+		g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { 395, 150, 461, 1 }, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_Green);
 	}
 
 	g_DigitRenderer->EndFrame();

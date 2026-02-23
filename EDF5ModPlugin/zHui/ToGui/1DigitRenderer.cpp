@@ -14,7 +14,7 @@
 
 #include "1DigitRenderer.h"
 
-#define DEBUGMODE
+//#define DEBUGMODE
 
 namespace DigitRenderer {
 
@@ -51,7 +51,7 @@ void DynamicDigitRenderer_t::Initialize()
 	// create constant buffer 1
 	D3D11_BUFFER_DESC cb_desc1 = {};
 	cb_desc1.Usage = D3D11_USAGE_DEFAULT;
-	cb_desc1.ByteWidth = sizeof(xgl_transform_CB_t);
+	cb_desc1.ByteWidth = sizeof(xgl_transform_customize_t);
 	cb_desc1.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	cb_desc1.CPUAccessFlags = 0;
 	device->CreateBuffer(&cb_desc1, nullptr, &constant_buffer1);
@@ -74,7 +74,7 @@ void DynamicDigitRenderer_t::Initialize()
 
 	CreateSolidColorTextures(device);
 	ZeroMemory(&g_constants0, sizeof(xgl_system_CB_t));
-	ZeroMemory(&g_constants1, sizeof(xgl_transform_CB_t));
+	ZeroMemory(&g_constants1, sizeof(xgl_transform_customize_t));
 
 	// init input layout
 	D3D11_INPUT_ELEMENT_DESC layout[] = {
@@ -409,15 +409,15 @@ void DynamicDigitRenderer_t::SetToShader(int shader_index, int cb_index, const P
 	g_context->PSSetShader(pixel_shader[shader_index], nullptr, 0);
 	g_context->IASetInputLayout(input_layout[shader_index]);
 
-	g_context->UpdateSubresource(constant_buffer0, 0, nullptr, &g_constants0, 0, 0);
+	//g_context->UpdateSubresource(constant_buffer0, 0, nullptr, &g_constants0, 0, 0);
 	g_context->UpdateSubresource(constant_buffer1, 0, nullptr, &g_constants1, 0, 0);
 	g_context->UpdateSubresource(constant_buffer[cb_index], 0, nullptr, pData, 0, 0);
 
-	g_context->VSSetConstantBuffers(0, 1, &constant_buffer0);
+	//g_context->VSSetConstantBuffers(0, 1, &constant_buffer0);
 	g_context->VSSetConstantBuffers(1, 1, &constant_buffer1);
 	g_context->VSSetConstantBuffers(2, 1, &constant_buffer[cb_index]);
 	// ok ps no cb1
-	g_context->PSSetConstantBuffers(0, 1, &constant_buffer0);
+	//g_context->PSSetConstantBuffers(0, 1, &constant_buffer0);
 	g_context->PSSetConstantBuffers(2, 1, &constant_buffer[cb_index]);
 
 
