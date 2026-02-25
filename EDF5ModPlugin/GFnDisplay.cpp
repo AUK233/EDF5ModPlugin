@@ -412,10 +412,6 @@ extern "C" {
 	void __fastcall ASMhookSleep();
 	uintptr_t hookSleepRet;
 	//
-	void __fastcall ASMreadHUiHudWeapon();
-	void __fastcall ASMHUiHudWeaponUpdateVehicleText();
-	uintptr_t HUiHudWeaponUpdateVehicleTextRet;
-	void __fastcall ASMHUiHudWeaponUpdateAmmoText();
 }
 
 void hookHUDEnhancement() {
@@ -429,10 +425,6 @@ void hookHUDEnhancement() {
 		CloseHandle(tempHND);
 	}
 	//
-	WriteHookToProcess((void*)(hmodEXE + 0xECB740), (void*)L"lyt_HudWeaponGuagL1.sgo", 48U);
-	WriteHookToProcess((void*)(hmodEXE + 0xECB820), (void*)L"lyt_HudWeaponGuagR1.sgo", 48U);
-	WriteHookToProcess((void*)(hmodEXE + 0xECB7D0), (void*)L"lyt_HudEnergyGuageR1.sgo", 48U);
-	WriteHookToProcess((void*)(hmodEXE + 0xEC8F90), (void*)L"lyt_HudWeaponGuageVehicl1.sgo", 60U);
 	
 	// EDF5.exe+3532C8
 	// this has problem, since EDF5.exe+34C8EA
@@ -444,20 +436,4 @@ void hookHUDEnhancement() {
 		0x66, 0x0F, 0x1F, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00
 	};
 	//WriteHookToProcess((void *)(hmodEXE + 0x3532C1), &ofs3526C1, 28U);
-
-	int newWeaponSize = 0xE00;
-	static_assert(sizeof(HUiHudWeaponPointer) < 0xE00);
-	WriteHookToProcessCheckECX((void *)(hmodEXE + 0x4D1017 + 1), &newWeaponSize, 4U);
-	// EDF5.exe+4D1C32
-	hookGameBlockWithInt3((void *)(hmodEXE + 0x4D1C32), (uintptr_t)ASMreadHUiHudWeapon);
-	WriteHookToProcess((void *)(hmodEXE + 0x4D1C32 + 15), (void *)&nop3, 3U);
-	// EDF5.exe+4D370C
-	hookGameBlockWithInt3((void *)(hmodEXE + 0x4D370C), (uintptr_t)ASMHUiHudWeaponUpdateVehicleText);
-	WriteHookToProcess((void*)(hmodEXE + 0x4D370C + 15), (void*)&nop3, 3U);
-	HUiHudWeaponUpdateVehicleTextRet = (uintptr_t)(hmodEXE + 0x4D371E);
-	// EDF5.exe+4D7110
-	hookGameBlock((void*)(hmodEXE + 0x4D7110), (uintptr_t)ASMHUiHudWeaponUpdateAmmoText);
-	BYTE _r14_ = 0x4C;
-	WriteHookToProcess((void *)(hmodEXE + 0x4D70B5), &_r14_, 1U);
-	WriteHookToProcess((void *)(hmodEXE + 0x4D70E2), &_r14_, 1U);
 }

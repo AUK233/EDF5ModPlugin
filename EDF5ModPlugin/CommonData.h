@@ -82,4 +82,5 @@ __declspec(align(8)) WCHAR _lyt_HuiSubtitleBox[] = L"app:/ui/lyt_HuiSubtitleBox.
 __declspec(align(8)) WCHAR _str_GameObjectDestroyFadeOutTime[] = L"game_object_destroy_fadeout_time";
 __declspec(align(8)) WCHAR _str_GameObjectDestroySpawnObject[] = L"game_object_destroy_spawn_object";
 __declspec(align(8)) WCHAR _str_RagdollBitmark[] = L"ragdoll_bitmark";
+__declspec(align(8)) WCHAR _str_UIWeaponType[] = L"ui_weapon_type";
 }

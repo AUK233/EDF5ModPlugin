@@ -15,14 +15,6 @@ namespace DigitRenderer{
 
     class DynamicDigitRenderer_t {
     public:
-        // used to configure our solid-colour textures
-        enum DigitRendererColor_ : int {
-            DigitRendererColor_Red, // 255, 0, 0, 255
-			DigitRendererColor_Green, // 0, 255, 0, 255
-			DigitRendererColor_Blue, // 0, 0, 255, 255
-			DigitRendererColor_White, // 255, 255, 255, 255
-            DigitRendererColor_ALL,
-        };
         // yeah, should enough.
         static const int MAX_CONCURRENT_DRAWS = 64;
 

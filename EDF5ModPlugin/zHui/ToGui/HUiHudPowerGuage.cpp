@@ -15,6 +15,8 @@
 #include "HUiHudPowerGuage.h"
 
 extern "C" {
+	extern int Config_DisplayDamageType;
+
 	CallFunc_HUiHudCommonDataFuncP10 HUiHudBaseFuncP10_4B2FB0;
 
 	void __fastcall ASMreadHUiHudPowerGuage();
@@ -121,13 +123,17 @@ void __fastcall module_HUiHudPowerGuageFuncP10_add(PG_HUiHudPowerGuage pThis, vo
 
 	// ================================================================
 	// check is who will display
-	using namespace DigitRenderer;
-	auto pGlobal = GetLocalCurrentPlayersPointer();
-	auto bIsSplitScreen = GetIsSplitScreen();
+	if (!Config_DisplayDamageType) {
+		pPlayer->f34InflictDamage = 0;
+	} else {
+		using namespace DigitRenderer;
+		auto pGlobal = GetLocalCurrentPlayersPointer();
+		auto bIsSplitScreen = GetIsSplitScreen();
 
-	auto globalPlayer = pGlobal[bIsSplitScreen];
-	if (pPlayer != globalPlayer) return;
-
-	DigitProcessor_ProcessData();
-	togui_MainDisplayInMission();
+		auto globalPlayer = pGlobal[bIsSplitScreen];
+		if (pPlayer != globalPlayer) return;
+		
+		DigitProcessor_ProcessData();
+		togui_MainDisplayInMission();
+	}
 }

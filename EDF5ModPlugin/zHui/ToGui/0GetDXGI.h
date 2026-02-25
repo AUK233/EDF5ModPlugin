@@ -33,8 +33,8 @@ typedef struct alignas(16) xgl_transform_CB_t {
 }*Pxgl_transform_CB;
 
 typedef struct alignas(16) xgl_transform_customize_t {
-	float g_xgl_view[4][4];
-	float g_xgl_projection[4][4];
+	float c_xgl_view[4][4];
+	float c_xgl_projection[4][4];
 }*Pxgl_transform_customize;
 
 typedef struct GameRenderer1259680_t {

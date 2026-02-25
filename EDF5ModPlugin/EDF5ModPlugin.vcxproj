@@ -250,6 +250,7 @@
     <ClCompile Include="zHui\ToGui\1DigitRenderer.cpp">
       <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NoListing</AssemblerOutput>
     </ClCompile>
+    <ClCompile Include="zHui\ToGui\2ReadINIConfig.cpp" />
     <ClCompile Include="zHui\ToGui\DirectXTK\BinaryReader.cpp" />
     <ClCompile Include="zHui\ToGui\DirectXTK\BufferHelpers.cpp" />
     <ClCompile Include="zHui\ToGui\DirectXTK\CommonStates.cpp" />
@@ -266,6 +267,7 @@
     <ClCompile Include="zHui\ToGui\DirectXTK\SimpleMath.cpp" />
     <ClCompile Include="zHui\ToGui\DirectXTK\VertexTypes.cpp" />
     <ClCompile Include="zHui\ToGui\HUiHudPowerGuage.cpp" />
+    <ClCompile Include="zHui\ToGui\HUiHudWeapon.cpp" />
     <ClCompile Include="zHui\ToGui\imgui\backends\imgui_impl_dx11.cpp" />
     <ClCompile Include="zHui\ToGui\imgui\backends\imgui_impl_win32.cpp" />
     <ClCompile Include="zHui\ToGui\imgui\imgui.cpp" />
@@ -319,6 +321,7 @@
     <MASM Include="zHui\HuiObjectClassASM.asm" />
     <MASM Include="zHui\ToGui\0GetDXGIASM.asm" />
     <MASM Include="zHui\ToGui\HUiHudPowerGuageASM.asm" />
+    <MASM Include="zHui\ToGui\HUiHudWeaponASM.asm" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\HookLib\HookLib\HookLib\HookLib.h" />
@@ -351,6 +354,7 @@
     <ClInclude Include="zEDF\EDFSoldierClass.hpp" />
     <ClInclude Include="zEDF\EDFWeaponFunction.h" />
     <ClInclude Include="zEDF\Vehicle\XGS_VehicleBegaruta.h" />
+    <ClInclude Include="zEDF\Weapon\EDFWeapon.hpp" />
     <ClInclude Include="zEDF\Weapon\XGS_Weapon_LaserMarkerCallFire.h" />
     <ClInclude Include="zEDF\Weapon\XGS_Weapon_RadioContact.h" />
     <ClInclude Include="zEnemy\EnemyHook_BigNest.h" />
@@ -369,6 +373,7 @@
     <ClInclude Include="zHui\ToGui\0SolidColorTexture.hpp" />
     <ClInclude Include="zHui\ToGui\1DigitProcessor.h" />
     <ClInclude Include="zHui\ToGui\1DigitRenderer.h" />
+    <ClInclude Include="zHui\ToGui\2ReadINIConfig.h" />
     <ClInclude Include="zHui\ToGui\DirectXTK\AlignedNew.h" />
     <ClInclude Include="zHui\ToGui\DirectXTK\Audio.h" />
     <ClInclude Include="zHui\ToGui\DirectXTK\Bezier.h" />
@@ -398,6 +403,7 @@
     <ClInclude Include="zHui\ToGui\DirectXTK\vbo.h" />
     <ClInclude Include="zHui\ToGui\DirectXTK\VertexTypes.h" />
     <ClInclude Include="zHui\ToGui\HUiHudPowerGuage.h" />
+    <ClInclude Include="zHui\ToGui\HUiHudWeapon.h" />
     <ClInclude Include="zHui\ToGui\imgui\backends\imgui_impl_dx11.h" />
     <ClInclude Include="zHui\ToGui\imgui\backends\imgui_impl_win32.h" />
     <ClInclude Include="zHui\ToGui\imgui\imconfig.h" />

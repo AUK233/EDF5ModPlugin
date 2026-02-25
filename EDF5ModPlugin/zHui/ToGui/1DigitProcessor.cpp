@@ -61,6 +61,7 @@ void DynamicDigitProcessor_t::Initialize() {
 
 	v_playerDamage[0].reserve(0x10);
 	v_playerDamage[1].reserve(0x10);
+	v_p1DamageHitInThisFrame.reserve(MAX_DamageHitPerFrame);
 	ClearData(0);
 	ClearData(1);
 
@@ -86,6 +87,19 @@ void DynamicDigitProcessor_t::Initialize() {
 	DamageDisplayPos_Vehicle[1] = { 370, 960, 370 + 40, 960 + 40 };
 	DamageDisplayPos_Vehicle[2] = { 1270, 960, 1270 + 40, 960 + 40 };
 
+	// initialize weapon info position
+	WeaponInfoPos[0][0] = { 960 + 30, 540 + 25, 0, 0 };
+	WeaponInfoPos[0][1] = { 960 + 30, 540 - 25, 0, 0 };
+	WeaponInfoPos[0][2] = { 960 - 30, 540 + 25, 0, 1 };
+
+	// initialize weapon info color
+	WeaponInfoColor[0] = DigitRendererColor_Cyan;
+	WeaponInfoColor[1] = DigitRendererColor_Yellow;
+	WeaponInfoColor[2] = DigitRendererColor_Cyan;
+	WeaponStatusColor[0] = DigitRendererColor_Red;
+	WeaponStatusColor[1] = DigitRendererColor_Blue;
+	WeaponStatusColor[2] = DigitRendererColor_GreenHalfA;
+
 #endif // !DEBUGMODE
 }
 
@@ -99,12 +113,16 @@ void DynamicDigitProcessor_t::ClearData(UINT32 index) {
 
 	ZeroMemory(&playerDamage[index], sizeof(DigitData_Damage_t));
 	ZeroMemory(&playerWeaponInfo[index][0], sizeof(DigitData_Weapon_t) * 2);
+	ZeroMemory(&playerWeaponRenderInfo[index][0], sizeof(DigitData_Weapon_Render_t) * 2);
 
 	PlayerInVehicle[index] = 0;
 }
 
 void DynamicDigitProcessor_t::ProcessData(UINT32 index) {
 	auto pPlayer = ProcessData_Damage(index);
+	if (!pPlayer) return;
+
+	ProcessData_Weapon(index);
 	// end
 }
 
@@ -202,6 +220,49 @@ PG_SoldierBase DynamicDigitProcessor_t::ProcessData_Damage(UINT32 index) {
 #endif
 }
 
+void DynamicDigitProcessor_t::ProcessData_Weapon(UINT32 index) {
+	ProcessData_Weapon_Update(&playerWeaponInfo[index][0], &playerWeaponRenderInfo[index][0], index);
+	ProcessData_Weapon_Update(&playerWeaponInfo[index][1], &playerWeaponRenderInfo[index][1], index);
+}
+
+void DynamicDigitProcessor_t::ProcessData_Weapon_Update(PDigitData_Weapon pIn, PDigitData_Weapon_Render pOut, UINT32 index) {
+	if (!pIn->weaponAlignType) {
+		pOut->isEnabled = 0;
+		return;
+	}
+
+	auto alignType = pIn->weaponAlignType - 1;
+	pOut->pos = WeaponInfoPos[index + bIsSplitScreen][alignType];
+
+	auto weaponStatus = pIn->weaponStatus;
+	if (weaponStatus == DigitRendererWeaponStatus_Normal) {
+		pOut->colorIndex = WeaponInfoColor[alignType];
+		pOut->text = FormatNumberToDigitRendererChars_Ammo(pIn->value.s32);
+	}
+	else {
+		UINT32 statusIndex = weaponStatus - 1;
+		if (statusIndex > 2) {
+			pOut->isEnabled = 0;
+			return;
+		}
+
+		pOut->colorIndex = WeaponStatusColor[statusIndex];
+		pOut->text = FormatNumberToDigitRendererChars_Percentage(pIn->value.fp32);
+	}
+
+	pOut->isEnabled = 1;
+	pOut->scaleTime = pIn->effectTime;
+
+	pIn->effectTime += pIn->timeIncrement;
+	if (pIn->effectTime > 30) {
+		pIn->timeIncrement = -1;
+	} else if (pIn->effectTime < 0) {
+		pIn->effectTime = 0;
+		pIn->timeIncrement = 0;
+	}
+	// end
+}
+
 //end
 }
 
@@ -229,4 +290,76 @@ int __fastcall DigitProcessor_SetLocalCurrentPlayer(PXGS_System_Camera pCamera, 
 	}
 
 	return playerID;
+}
+
+void __fastcall DigitProcessor_GetPlayerWeaponStatus(PG_SoldierBase pObject, int WeaponAlignType, PG_WeaponBase pWeapon)
+{
+	if (!pObject) return;
+
+	using namespace DigitRenderer;
+	int playerIndex;
+	if (pObject == pLocalCurrentPlayers[0]) playerIndex = 0;
+	else if (pObject == pLocalCurrentPlayers[1]) playerIndex = 1;
+	else return;
+
+	// =================================================
+	int weaponIndex = 0;
+	if (WeaponAlignType != 1) weaponIndex = 1;
+
+	DigitData_Weapon_t out;
+	out.weaponAlignType = WeaponAlignType;
+	out.pWeapon = pWeapon;
+
+	auto curAmmo = pWeapon->CurrentAmmoCount;
+	if (curAmmo > 0) {
+		out.value.s32 = curAmmo;
+		out.weaponStatus = DigitRendererWeaponStatus_Normal;
+		goto checkData;
+	}
+
+	if (pWeapon->reloadType == 1) {
+		if (pWeapon->reloadTime == -1 || pWeapon->reloadTimeCount == pWeapon->reloadTime) {
+			ZeroMemory(&g_DigitProcessor->playerWeaponInfo[playerIndex][weaponIndex], sizeof(DigitData_Damage_t));
+			return;
+		} else {
+			goto reloadBlock;
+		}
+	}
+
+	if (pWeapon->reloadType == 2) {
+		float reloadProgress = pWeapon->reloadTime - pWeapon->reloadTimeCount;
+		reloadProgress /= pWeapon->reloadTime;
+		reloadProgress *= 100.0f;
+		out.value.fp32 = reloadProgress;
+		out.weaponStatus = DigitRendererWeaponStatus_Credit;
+		goto checkData;
+	}
+
+	if (pWeapon->EnergyChargeRequire > 0.0f) {
+		float chargeProgress = pWeapon->EnergyChargeRequire - pWeapon->EnergyChargeCount;
+		chargeProgress /= pWeapon->EnergyChargeRequire;
+		chargeProgress *= 100.0f;
+		out.value.fp32 = chargeProgress;
+		out.weaponStatus = DigitRendererWeaponStatus_Charge;
+		goto checkData;
+	}
+
+reloadBlock:
+	{
+		float remainTime = pWeapon->reloadTimeCount / 60.0f;
+		out.value.fp32 = remainTime;
+		out.weaponStatus = DigitRendererWeaponStatus_Reload;
+	}
+
+checkData:
+	auto checkValue = g_DigitProcessor->playerWeaponInfo[playerIndex][weaponIndex].value.s32;
+	auto checkWeapon = g_DigitProcessor->playerWeaponInfo[playerIndex][weaponIndex].pWeapon;
+	if (checkValue == out.value.s32 && checkWeapon == pWeapon){
+		out.effectTime = g_DigitProcessor->playerWeaponInfo[playerIndex][weaponIndex].effectTime;
+		out.timeIncrement = g_DigitProcessor->playerWeaponInfo[playerIndex][weaponIndex].timeIncrement;
+	} else {
+		out.effectTime = 0;
+		out.timeIncrement = 1;
+	}
+	memcpy(&g_DigitProcessor->playerWeaponInfo[playerIndex][weaponIndex], &out, sizeof(DigitData_Weapon_t));
 }

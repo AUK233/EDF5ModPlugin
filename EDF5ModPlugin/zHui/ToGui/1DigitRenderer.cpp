@@ -150,8 +150,11 @@ void DynamicDigitRenderer_t::CreateSolidColorTextures(ID3D11Device* device)
 {
 	color_texture_srv[DigitRendererColor_Red] = CreateSolidColorSRV(device, 0xFF0000FF);
 	color_texture_srv[DigitRendererColor_Green] = CreateSolidColorSRV(device, 0x00FF00FF);
+	color_texture_srv[DigitRendererColor_GreenHalfA] = CreateSolidColorSRV(device, 0x00FF007F);
 	color_texture_srv[DigitRendererColor_Blue] = CreateSolidColorSRV(device, 0x0000FFFF);
 	color_texture_srv[DigitRendererColor_White] = CreateSolidColorSRV(device, 0xFFFFFFFF);
+	color_texture_srv[DigitRendererColor_Cyan] = CreateSolidColorSRV(device, 0x00FFFFFF);
+	color_texture_srv[DigitRendererColor_Yellow] = CreateSolidColorSRV(device, 0xFFFF00FF);
 }
 
 void DynamicDigitRenderer_t::ReloadDynamicPosShader()

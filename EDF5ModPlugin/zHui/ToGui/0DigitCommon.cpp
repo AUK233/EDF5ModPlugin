@@ -9,6 +9,15 @@
 #include "0DigitCommon.h"
 
 namespace DigitRenderer {
+
+	DigitTextByte FormatNumberToDigitRendererChars_Ammo(int number)
+	{
+		std::string str = std::format("{0}", number);
+
+		auto out = StringToDigitRendererChars(str);
+		return out;
+	}
+
 	DigitTextByte FormatNumberToDigitRendererChars_Damage(float number)
 	{
 		std::string str;

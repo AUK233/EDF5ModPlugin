@@ -1,7 +1,7 @@
 #pragma once
 #include "../HUiHudCommonStruct.h"
 
-typedef struct G_HUiHudPowerGuage_t : G_HUiHudCommonData_t {
+typedef struct G_HUiHudPowerGuage_t : G_HUiHudBase_t {
 	BYTE pad7F0[0x130];
 	// aka Current HP
 	PG_HUiHudCommonText PowText;

@@ -28,6 +28,7 @@
 #include "GameFuncStartup.h"
 #include "GameFunc_vftable.h"
 #include "GFnDisplay.h"
+#include "zHui/ToGui/2ReadINIConfig.h"
 
 // about dlss
 typedef void (__fastcall* callDLSS)(void*);
@@ -75,11 +76,9 @@ constexpr size_t cwslen(wchar_t const (&)[N]) {
 
 #define wcsstart(a, b) (!wcsncmp(a, b, cwslen(b)))
 
-// Calculate ini path
+// Calculate ini path, wait remove
 WCHAR iniPath[MAX_PATH];
 // Configuration
-static UINT ModLog = 0;
-static UINT WEOpen = 1;
 static UINT RTRead = 0;
 static UINT DisplayDamage = 1;
 static UINT PlayerView = 0;
@@ -100,7 +99,6 @@ UINT noThrowAnime = 0;
 UINT newSaveDataUnlock = 0;
 }
 //HANDLE ddThread;
-int weaponEnhance = 0;
 
 // Pointer sets
 typedef struct {
@@ -474,8 +472,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		wcscat_s(iniPath, L"\\1ModOption.ini");
 
 		// Read configuration
-		ModLog = GetPrivateProfileIntW(L"ModOption", L"ModLog", ModLog, iniPath);
-		WEOpen = GetPrivateProfileIntW(L"ModOption", L"EnhancedWP", 1, iniPath);
+		auto ModLog = GetPrivateProfileIntW(L"ModOption", L"ModLog", 0, iniPath);
+		INIConfig_Initialize(iniPath);
+
 		HUDEnhance = GetPrivateProfileIntW(L"ModOption", L"HUDEnhance", 0, iniPath);
 		noThrowAnime = GetPrivateProfileIntW(L"ModOption", L"NoThrowAnime", 0, iniPath);
 		newSaveDataUnlock = GetPrivateProfileIntW(L"ModOption", L"StarterKit", 0, iniPath);
@@ -565,19 +564,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		hModSelf = (PBYTE)GetModuleHandleW(L"1mod.dll");
 		if (ModLogStatus == 1) {
 			PLOG_INFO << "Get self address: " << std::hex << hModSelf;
-		}
-		// Weapon Enhancement
-		if (WEOpen) {
-			weaponEnhance = 1;
-
-			if (ModLogStatus == 1) {
-				PLOG_INFO << "Enable weapon enhancement";
-			}
-		}
-		else {
-			if (ModLogStatus == 1) {
-				PLOG_INFO << "Disable weapon enhancement";
-			}
 		}
 
 		// Restrict the cpu number used by the application

@@ -4,18 +4,25 @@
 typedef void(__fastcall* CallFunc_HUiHudCommonDataFuncP10)(void* pThis, void* pRDX);
 typedef void*(__fastcall* CallFunc_HUiHudCommonData_Free)(void* pThis, int isFree); // +2C
 
-typedef struct G_HUiHudCommonData_t {
+typedef struct G_HUiLayout_t {
 	void* vf_table;
 	char pad8[0x758];
+} *PG_HUiLayout;
+#if 1
+static_assert(sizeof(G_HUiLayout_t) == 0x760);
+#endif
+
+typedef struct G_HUiHudBase_t : G_HUiLayout_t {
 	bool bIsActivated760, pad761[7];
 	void* pPlayerObject;
 	BYTE pad770[0x78];
 	void* pPlayerWeapon; // vehicle may not have it.
-} *PHUiHudCommonData;
+} *PG_HUiHudBase;
 #if 1
-static_assert(offsetof(G_HUiHudCommonData_t, bIsActivated760) == 0x760);
-static_assert(offsetof(G_HUiHudCommonData_t, pPlayerObject) == 0x768);
-static_assert(offsetof(G_HUiHudCommonData_t, pPlayerWeapon) == 0x7E8);
+static_assert(offsetof(G_HUiHudBase_t, bIsActivated760) == 0x760);
+static_assert(offsetof(G_HUiHudBase_t, pPlayerObject) == 0x768);
+static_assert(offsetof(G_HUiHudBase_t, pPlayerWeapon) == 0x7E8);
+static_assert(sizeof(G_HUiHudBase_t) == 0x7F0);
 #endif
 
 typedef struct G_HUiHudTextCommonContent_t {

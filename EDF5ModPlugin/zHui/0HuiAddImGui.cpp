@@ -16,9 +16,11 @@
 #include "ToGui/0GetDXGI.h"
 #include "ToGui/0SetImGui.h"
 #include "ToGui/HUiHudPowerGuage.h"
+#include "ToGui/HUiHudWeapon.h"
 #include "0HuiAddImGui.h"
 
 extern "C" {
+	extern int Config_HUDEnhance;
 	void __fastcall ASMGetDXGISwapChain();
 	uintptr_t GetDXGISwapChainRetAddr;
 
@@ -33,6 +35,12 @@ extern "C" {
 void module_InitializeAddImGui(PBYTE hmodEXE)
 {
 	DXGI_Initialize(hmodEXE);
+
+	//MessageBoxW(NULL, L"test", L"debug", MB_OK);
+
+	// ========================================================================
+	// Next, all features are only available when HUD enhancement is enabled.
+	if (!Config_HUDEnhance) return;
 
 	// EDF5.exe+5E1BB9
 	hookGameBlockWithInt3((void*)(hmodEXE + 0x5E1BB9), (uintptr_t)ASMGetDXGISwapChain);
@@ -49,6 +57,5 @@ void module_InitializeAddImGui(PBYTE hmodEXE)
 	getInflictDamageFromDamageFuncRetAddress = (uintptr_t)(hmodEXE + 0x2DB77C);
 
 	module_UpdateHUiHudPowerGuage(hmodEXE);
-
-	//MessageBoxW(NULL, L"test", L"debug", MB_OK);
+	module_UpdateHUiHudWeapon(hmodEXE);
 }

@@ -304,6 +304,7 @@ static_assert(offsetof(HUiHudTextStruct, RawMatrixSize) == 0x1B0);
 static_assert(offsetof(HUiHudTextStruct, addr228h) == 0x228);
 static_assert(offsetof(HUiHudTextStruct, font_color) == 0x270);
 
+// wait move to HUiHudCommonStruct.hpp
 typedef struct HUiHudWeaponStruct {
 	BYTE pad1[0x7E8];
 	//  vehicle may not have it.

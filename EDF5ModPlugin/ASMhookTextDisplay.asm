@@ -19,7 +19,6 @@ extern rvaB7220 : qword
 extern rva4D86D0 : qword
 extern rva4CA990 : qword
 
-extern _TextWingEnergy6Position : qword
 
 ; L"TextNumericType2"
 wstrTextNumericType2 db 84,0,101,0,120,0,116,0,78,0,117,0,109,0,101,0,114,0,105,0,99,0,84,0,121,0,112,0,101,0,50,0,0,0
@@ -45,231 +44,6 @@ ASMgetHUiHudTextContentPointer ENDP
 
 align 16
 
-ASMreadHUiHudWeapon proc
-
-        xor r13, r13
-        xorps xmm6, xmm6
-        movaps [rdi+0D00h], xmm6
-        movaps [rdi+0D10h], xmm6
-        movaps [rdi+0D20h], xmm6
-        movaps [rdi+0D30h], xmm6
-        movaps [rdi+0D40h], xmm6
-    ; start
-        mov qword ptr [rbp+0E0h], 7
-        mov [rbp+0D8h], r13
-        movups [rbp+0C8h], xmm6
-        mov r8d, 16 ; string length
-        lea rdx, wstrTextNumericType2
-        lea rcx, [rbp+0C8h]
-        call rva27380
-        align 16
-        lea r8, [rbp+0C8h]
-        lea rdx, [rbp+28h]
-        mov rcx, rdi
-        call rva4D86D0
-        mov rbx, [rax+8]
-        mov r15, [rax]
-        test rbx, rbx
-        je node2
-        movups xmm0, [r15+270h]
-        movups [rdi+0D10h], xmm0
-        lock inc dword ptr [rbx+0Ch]
-    ofs4D0BE1:
-        mov rcx, [rdi+0D08h]
-        test rcx, rcx
-        je ofs4D0BFF
-        mov eax, esi
-        lock xadd [rcx+0Ch], eax
-        cmp eax, 1
-        jne ofs4D0BFF
-        mov rax, [rcx]
-        call qword ptr [rax+8]
-        align 16
-    ofs4D0BFF:
-        mov [rdi+0D08h], rbx
-        mov [rdi+0D00h], r15
-        mov rbx, [rbp+30h]
-        test rbx, rbx
-        je ofs4D0C40
-        mov eax, esi
-        lock xadd [rbx+8], eax
-        cmp eax, 1
-        jne ofs4D0C40
-        mov rax, [rbx]
-        mov rcx, rbx
-        call qword ptr [rax]
-        mov eax, esi
-        lock xadd [rbx+0Ch], eax
-        cmp eax, 1
-        jne ofs4D0C40
-        mov rax, [rbx]
-        mov rcx, rbx
-        call qword ptr [rax+8]
-        align 16
-    ofs4D0C40:
-        mov rdx, [rbp+0E0h]
-        cmp rdx, 8
-        jb node2
-        inc rdx
-        mov r8d, 2
-        mov rcx, [rbp+0C8h]
-        call rva27570
-
-    ;TextDamage
-    node2:
-        mov qword ptr [rbp+0E0h], 7
-        mov [rbp+0D8h], r13
-        movups [rbp+0C8h], xmm6
-        mov r8d, 10 ; string length
-        lea rdx, wstrTextDamage
-        lea rcx, [rbp+0C8h]
-        call rva27380
-        align 16
-        lea r8, [rbp+0C8h]
-        lea rdx, [rbp+28h]
-        mov rcx, rdi
-        call rva4D86D0
-        mov rbx, [rax+8]
-        mov r15, [rax]
-        test rbx, rbx
-        je updateWingEnergy
-        lock inc dword ptr [rbx+0Ch]
-        mov rcx, [rdi+0D28h]
-        test rcx, rcx
-        je node2_2
-        mov eax, esi
-        lock xadd [rcx+0Ch], eax
-        cmp eax, 1
-        jne node2_2
-        mov rax, [rcx]
-        call qword ptr [rax+8]
-        align 16
-    node2_2:
-        mov [rdi+0D28h], rbx
-        mov [rdi+0D20h], r15
-        ; copy fontSize
-        mov rcx, [r15+228h]
-        call ASMgetHUiHudTextContentPointer
-        mov rax, [rax+18h]
-        mov [rdi+0D30h], rax
-        ; end
-        mov rbx, [rbp+30h]
-        test rbx, rbx
-        je node2_3
-        mov eax, esi
-        lock xadd [rbx+8], eax
-        cmp eax, 1
-        jne node2_3
-        mov rax, [rbx]
-        mov rcx, rbx
-        call qword ptr [rax]
-        mov eax, esi
-        lock xadd [rbx+0Ch], eax
-        cmp eax, 1
-        jne node2_3
-        mov rax, [rbx]
-        mov rcx, rbx
-        call qword ptr [rax+8]
-        align 16
-    node2_3:
-        mov rdx, [rbp+0E0h]
-        cmp rdx, 16
-        jb node3
-        inc rdx
-        mov r8d, 2
-        mov rcx, [rbp+0C8h]
-        call rva27570
-    ; TextDamage_UP
-    node3:
-        mov qword ptr [rbp+0E0h], 7
-        mov [rbp+0D8h], r13
-        movups [rbp+0C8h], xmm6
-        mov r8d, 13 ; string length
-        lea rdx, wstrTextDamageUP
-        lea rcx, [rbp+0C8h]
-        call rva27380
-        align 16
-        lea r8, [rbp+0C8h]
-        lea rdx, [rbp+28h]
-        mov rcx, rdi
-        call rva4D86D0
-        mov rbx, [rax+8]
-        mov r15, [rax]
-        test rbx, rbx
-        je updateWingEnergy
-        lock inc dword ptr [rbx+0Ch]
-        mov rcx, [rdi+0D48h]
-        test rcx, rcx
-        je node3_2
-        mov eax, esi
-        lock xadd [rcx+0Ch], eax
-        cmp eax, 1
-        jne node3_2
-        mov rax, [rcx]
-        call qword ptr [rax+8]
-        align 16
-    node3_2:
-        mov [rdi+0D48h], rbx
-        mov [rdi+0D40h], r15
-        mov rbx, [rbp+30h]
-        test rbx, rbx
-        je node3_3
-        mov eax, esi
-        lock xadd [rbx+8], eax
-        cmp eax, 1
-        jne node3_3
-        mov rax, [rbx]
-        mov rcx, rbx
-        call qword ptr [rax]
-        mov eax, esi
-        lock xadd [rbx+0Ch], eax
-        cmp eax, 1
-        jne node3_3
-        mov rax, [rbx]
-        mov rcx, rbx
-        call qword ptr [rax+8]
-        align 16
-    node3_3:
-        mov rdx, [rbp+0E0h]
-        cmp rdx, 8
-        jb updateWingEnergy
-        inc rdx
-        mov r8d, 2
-        mov rcx, [rbp+0C8h]
-        call rva27570
-
-    updateWingEnergy:
-        mov r14, [rdi+0A28h] ; get text pointer
-        test r14, r14
-        je original
-        call ASMgetCurrentMissionClassModelType
-		cmp eax, 2
-		jb original
-        mov rdx, _TextWingEnergy6Position
-        mov [r14+1A0h], rdx ; write new pos
-
-    original:
-        mov rax, rdi
-        ; mov rcx, [rbp+128h]
-        ; xor rcx, rsp
-        ; call rva9C6E40
-        mov rbx, [rsp+290h]
-        movaps xmm6, [rsp+230h]
-        add rsp, 240h
-        pop r15
-        pop r14
-        pop r13
-        pop r12
-        pop rdi
-        pop rsi
-        pop rbp
-        ret 
-        int 3
-
-ASMreadHUiHudWeapon ENDP
-
-align 16
-
 ASMHUiHudWeaponUpdateVehicleText proc
 
         cmp qword ptr [rdi+0D20h], 0
@@ -286,7 +60,7 @@ ASMHUiHudWeaponUpdateVehicleText ENDP
 
 align 16
 
-ASMHUiHudWeaponUpdateAmmoText proc
+ASMHUiHudWeaponUpdateAmmoText111 proc
 
         mov rdi, [rsi+0D08h]
         mov r14, [rsi+0D00h]
@@ -374,7 +148,7 @@ ASMHUiHudWeaponUpdateAmmoText proc
         ret 
         int 3
 
-ASMHUiHudWeaponUpdateAmmoText ENDP
+ASMHUiHudWeaponUpdateAmmoText111 ENDP
 
 align 16
 

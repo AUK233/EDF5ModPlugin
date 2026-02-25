@@ -228,6 +228,12 @@
     <ClCompile Include="zHui\ToGui\HUiHudPowerGuage.cpp">
       <Filter>Source Files\Module Hui\ToFui\main</Filter>
     </ClCompile>
+    <ClCompile Include="zHui\ToGui\2ReadINIConfig.cpp">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\HUiHudWeapon.cpp">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMgamelog_hook.asm">
@@ -360,6 +366,9 @@
       <Filter>Source Files\Module Hui\ToFui\main</Filter>
     </MASM>
     <MASM Include="zHui\ToGui\0GetDXGIASM.asm">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </MASM>
+    <MASM Include="zHui\ToGui\HUiHudWeaponASM.asm">
       <Filter>Source Files\Module Hui\ToFui\main</Filter>
     </MASM>
   </ItemGroup>
@@ -618,6 +627,15 @@
     </ClInclude>
     <ClInclude Include="zHui\ToGui\HUiHudPowerGuage.h">
       <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\2ReadINIConfig.h">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\HUiHudWeapon.h">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zEDF\Weapon\EDFWeapon.hpp">
+      <Filter>Source Files\Module EDF\Weapon</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

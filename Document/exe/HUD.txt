@@ -9,14 +9,21 @@ HUiHudPowerGuage初始化
 EDF5.exe+4CC24E 是vft+10
 更新hud的信息，但是要先检查玩家存不存在
 
+EDF5.exe+4C9A19 - C6 87 60070000 01     - mov byte ptr [rdi+00000760],01
 +760 这个8字节只使用了1字节，剩下的我们可以使用
 
 +768是玩家指针
 EDF5.exe+4C9AD0 - 48 89 87 68070000     - mov [rdi+00000768],rax
 这里写入的玩家指针
 ==============================
-EDF5.exe+4D1032
-HUiHudWeapon初始化
+EDF5.exe+4C9970
+HUiLayout初始化，大小是0x760
+
+EDF5.exe+4C9970
+HUiHudBase初始化，大小是0x7F0，父对象是HUiLayout
+
+EDF5.exe+4D1032 
+HUiHudWeapon初始化，父对象是HUiHudBase
 
 +760的16字节和HUiHudPowerGuage的相同
 ==============================
@@ -58,7 +65,7 @@ SceneObject 大小C0
 +34的四字节完全没用过，应该是因为+38是一个指针 EDF5.exe+617568 
 +58看起来是锁的自旋数
 ==
-NetworkObject 大小410 父对象是SceneObject
+NetworkObject 大小0x410 父对象是SceneObject
 初始化 EDF5.exe+2D9A10
 +d8 8字节只用了1字节 EDF5.exe+2D9A6C
 +254 4字节只用了1字节
@@ -68,10 +75,15 @@ EDF5.exe+32C196 - 48 63 87 18020000     - movsxd  rax,dword ptr [rdi+00000218]
 EDF5.exe+2DA7EA - 8B 89 70030000        - mov ecx,[rcx+00000370]
 看起来是当前已过的帧，每帧率修正一次
 ===
-HumanBase 大小 父对象是NetworkObject
+HumanBase 大小0x1580 父对象是NetworkObject
 ===
 SoldierBase 大小1A00 父对象是HumanBase
 初始化 EDF5.exe+3032E0
+
+==============================
+
+WeaponBase 大小0x11A0 父对象是SceneObject
+初始化 EDF5.exe+38C010
 
 
 

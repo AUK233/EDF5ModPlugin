@@ -19,11 +19,17 @@
 #include "0GetDXGI.h"
 #include "1DigitRenderer.h"
 #include "1DigitProcessor.h"
+#include "2ReadINIConfig.h"
 
 #include "0SetImGui.h"
 
 
 //#define DEBUGMODE
+
+extern "C" {
+	extern int Config_RTRead;
+	extern int Config_DisplayDamageType;
+}
 
 DigitRenderer::PDynamicDigitRenderer g_DigitRenderer;
 DigitRenderer::PDynamicDigitProcessor g_DigitProcessor;
@@ -89,6 +95,16 @@ HRESULT __stdcall togui_Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, U
 #if defined(DEBUGMODE)
 	togui_MainDisplay();
 #endif
+
+	static int RefreshTime = 0;
+	if (Config_RTRead) {
+		if (RefreshTime > 60) {
+			INIConfig_ReadIngameConfigurable();
+			RefreshTime = 0;
+		}else{
+			RefreshTime++;
+		}
+	}
 
 	// reload shader
 	/*static bool rKeyDown = false;
@@ -273,18 +289,24 @@ void togui_MainDisplay_ToDigit()
 	togui_MainDisplay_ToDigitTest(pCTX);
 #endif
 
+#ifndef DEBUGMODE
 	g_DigitRenderer->SetRender(pCTX, &g_DigitProcessor->DigitConstantData, DigitRenderer::DigitRendererShader_Fixed);
-
 	auto isSplitScreen = DigitRenderer::GetIsSplitScreen();
 
-	togui_MainDisplay_ToDigit_Damage(0, isSplitScreen);
-
+	togui_MainDisplay_ToDigit_Weapon(0);
 	if (isSplitScreen) {
-		togui_MainDisplay_ToDigit_Damage(1, isSplitScreen);
+		togui_MainDisplay_ToDigit_Weapon(1);
 	}
 
-	// end
+	if (Config_DisplayDamageType == 1) {
+		togui_MainDisplay_ToDigit_Damage(0, isSplitScreen);
 
+		if (isSplitScreen) {
+			togui_MainDisplay_ToDigit_Damage(1, isSplitScreen);
+		}
+		// end
+	}
+#endif
 
 	auto pUmbraSystem = DXGI_GetUmbraSystem125B080();
 	if (pUmbraSystem) {
@@ -292,9 +314,11 @@ void togui_MainDisplay_ToDigit()
 
 		/*auto pGameRender = DXGI_GetGameRenderer1259680();
 		memcpy(&g_DigitRenderer->g_constants0, &pGameRender->ConstantBuffer0, sizeof(xgl_system_CB_t));*/
-		memcpy(g_DigitRenderer->g_constants1.g_xgl_view, pUmbraSystem->matrix_view, sizeof(float) * 4 * 4);
-		memcpy(g_DigitRenderer->g_constants1.g_xgl_projection, pUmbraSystem->matrix_projection, sizeof(float) * 4 * 4);
+		memcpy(g_DigitRenderer->g_constants1.c_xgl_view, pUmbraSystem->matrix_view, sizeof(float) * 4 * 4);
+		memcpy(g_DigitRenderer->g_constants1.c_xgl_projection, pUmbraSystem->matrix_projection, sizeof(float) * 4 * 4);
 		g_DigitRenderer->SetRender(pCTX, &g_DigitProcessor->DigitConstantData, DigitRenderer::DigitRendererShader_Dynamic);
+
+
 
 		DigitFontControl_t fontControl;
 		ZeroMemory(&fontControl, sizeof(DigitFontControl_t));
@@ -306,17 +330,15 @@ void togui_MainDisplay_ToDigit()
 		fontControl.time = 1;
 
 		auto text_damage = FormatNumberToDigitRendererChars_Damage(45.7);
-		g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { 395, 5, 461, 1 }, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_Red);
-		g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { 395, 50, 461, 1 }, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_Blue);
-		g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { 395, 150, 461, 1 }, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_Green);
+		g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { 395, 5, 461, 1 }, &fontControl, DigitRendererColor_Red);
+		g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { 395, 50, 461, 1 }, &fontControl, DigitRendererColor_Blue);
+		g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { 395, 150, 461, 1 }, &fontControl, DigitRendererColor_Green);
 	}
 
 	g_DigitRenderer->EndFrame();
 }
 
-void togui_MainDisplay_ToDigit_Damage(UINT32 index, int isSplitScreen)
-{
-#ifndef DEBUGMODE
+void togui_MainDisplay_ToDigit_Damage(UINT32 index, int isSplitScreen) {
 	using namespace DigitRenderer;
 
 	DigitFontControl_t fontControl;
@@ -349,7 +371,7 @@ void togui_MainDisplay_ToDigit_Damage(UINT32 index, int isSplitScreen)
 			fontControl.fadeFactor = dmg.fadeFactor;
 
 			auto text_damage = FormatNumberToDigitRendererChars_Damage(dmg.value.fp32);
-			g_DigitRenderer->SetImageDataInFixedPos(text_damage, text_pos, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_White);
+			g_DigitRenderer->SetImageDataInFixedPos(text_damage, text_pos, &fontControl, DigitRendererColor_White);
 
 			text_pos = _mm_add_ps(text_pos, pos_factor);
 		}
@@ -380,12 +402,32 @@ void togui_MainDisplay_ToDigit_Damage(UINT32 index, int isSplitScreen)
 	fontControl.fadeFactor = pDmg->fadeFactor;
 
 	text_damage = FormatNumberToDigitRendererChars_Damage(pDmg->value.fp32);
-	g_DigitRenderer->SetImageDataInFixedPos(text_damage, text_pos, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_White);
-#endif
+	g_DigitRenderer->SetImageDataInFixedPos(text_damage, text_pos, &fontControl, DigitRendererColor_White);
 }
 
-void togui_MainDisplay_ToDigitTest(ID3D11DeviceContext* pCTX)
-{
+void togui_MainDisplay_ToDigit_Weapon(UINT32 index) {
+	using namespace DigitRenderer;
+
+	DigitFontControl_t fontControl;
+	ZeroMemory(&fontControl, sizeof(DigitFontControl_t));
+	fontControl.i_fontSize = 18;
+	fontControl.f_fontSize = 18;
+	fontControl.fadeFactor = 0;
+	fontControl.time = 0.5;
+
+	for (int i = 0; i < 2; i++) {
+		auto pWeaponInfo = &g_DigitProcessor->playerWeaponRenderInfo[index][i];
+		if (!pWeaponInfo->isEnabled) continue;
+
+		fontControl.charAlignFactor = pWeaponInfo->pos.m128_f32[3];
+		fontControl.scaleFactor = pWeaponInfo->scaleTime;
+
+		g_DigitRenderer->SetImageDataInFixedPos(pWeaponInfo->text, pWeaponInfo->pos, &fontControl, pWeaponInfo->colorIndex);
+	}
+// end
+}
+
+void togui_MainDisplay_ToDigitTest(ID3D11DeviceContext* pCTX) {
 #ifdef DEBUGMODE
 	using namespace DigitRenderer;
 

@@ -38,6 +38,7 @@ ASMxgsSystemSetPlayerSlot proc
 	int 3
 
 ASMxgsSystemSetPlayerSlot ENDP
+
 align 16
 
 ASMgetInflictDamageFromDamageFunc proc

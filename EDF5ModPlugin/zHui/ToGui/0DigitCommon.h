@@ -5,6 +5,18 @@
 namespace DigitRenderer {
 	typedef std::vector<BYTE> DigitTextByte;
 
+	// used to configure our solid-colour textures
+	enum DigitRendererColor_ : int {
+		DigitRendererColor_Red, // 255, 0, 0, 255
+		DigitRendererColor_Green, // 0, 255, 0, 255
+		DigitRendererColor_GreenHalfA, // 0, 255, 0, 127
+		DigitRendererColor_Blue, // 0, 0, 255, 255
+		DigitRendererColor_Cyan, // 0, 255, 255, 255
+		DigitRendererColor_White, // 255, 255, 255, 255
+		DigitRendererColor_Yellow, // 255, 255, 0, 255
+		DigitRendererColor_ALL,
+	};
+
 	// character index for shader, should be same as shader code.
 	enum DigitRendererChar_ : int {
 		DigitRendererChar_0,
@@ -52,12 +64,35 @@ namespace DigitRenderer {
 		int scaleFactor, fadeFactor;
 	}*PDigitData_Damage;
 
+	typedef struct DigitData_DamageInHit_t {
+		__m128 pos;
+		BaseDigitData_u value;
+	}*PDigitData_DamageInHit;
+
+
+	enum DigitRendererWeaponStatus_ : int {
+		DigitRendererWeaponStatus_Normal,
+		DigitRendererWeaponStatus_Reload, // in reloading
+		DigitRendererWeaponStatus_Charge, // in charging
+		DigitRendererWeaponStatus_Credit, // in waiting for credit
+	};
+
 	typedef struct alignas(16) DigitData_Weapon_t {
 		BaseDigitData_u value;
+		int pad4;
+		void* pWeapon;
 		int effectTime, timeIncrement;
-		int weapon;
+		int weaponAlignType, weaponStatus;
 	}*PDigitData_Weapon;
 
+	typedef struct alignas(16) DigitData_Weapon_Render_t {
+		int isEnabled, scaleTime;
+		DigitTextByte text;
+		__m128 pos;
+		int colorIndex;
+	}*PDigitData_Weapon_Render;
+
+	DigitTextByte FormatNumberToDigitRendererChars_Ammo(int number);
 	DigitTextByte FormatNumberToDigitRendererChars_Damage(float number);
 	DigitTextByte FormatNumberToDigitRendererChars_Percentage(float number);
 	DigitTextByte StringToDigitRendererChars(const std::string& str);

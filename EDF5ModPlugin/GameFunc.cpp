@@ -19,7 +19,6 @@
 #include "GameFunc.h"
 
 extern PBYTE hmodEXE;
-extern int weaponEnhance;
 
 static const unsigned char intNOP32[] = {0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90};
 
@@ -41,7 +40,7 @@ uintptr_t edf4738B0Address;
 uintptr_t edf4BE440Address;
 uintptr_t edf4DC190Address;
 // read sgo node name
-uintptr_t edf5BDF30Address;
+uintptr_t edf5BDF30Address, _SGO_FindNodeFromName;
 //
 uintptr_t edf3AE660Address;
 // get AmmoClass address
@@ -198,6 +197,7 @@ void GetGameFunctions() {
 
 	// get read sgo node function
 	edf5BDF30Address = (uintptr_t)(hmodEXE + 0x5BDF30);
+	_SGO_FindNodeFromName = edf5BDF30Address;
 	//
 	edf3AE660Address = (uintptr_t)(hmodEXE + 0x3AE660);
 	// get get AmmoClass address function
@@ -366,14 +366,14 @@ extern "C" {
 // here hook all changed functions, written in c++
 void hookGameFunctionsC() {
 	rva391230 = (uintptr_t)(hmodEXE + 0x391230);
-	if (weaponEnhance) {
-		// EDF5.exe+4D3402 is the location of the HUD check.
-		// EDF5.exe+4B96B1 is checking the sights.
-		BYTE ofs4D2802[] = { 0xE8, 0xBC, 0xDE, 0xEB, 0xFF};
-		WriteHookToProcess((void*)(hmodEXE + 0x4D3402), &ofs4D2802, 5U);
-		// now override a useless position.
-		hookGameBlock((void *)(hmodEXE + 0x3912C3), (uint64_t)ASMrva391230);
-	}
+
+	// Now it's always on.
+	// EDF5.exe+4D3402 is the location of the HUD check.
+	// EDF5.exe+4B96B1 is checking the sights.
+	BYTE ofs4D2802[] = { 0xE8, 0xBC, 0xDE, 0xEB, 0xFF };
+	WriteHookToProcess((void*)(hmodEXE + 0x4D3402), &ofs4D2802, 5U);
+	// now override a useless position.
+	hookGameBlock((void*)(hmodEXE + 0x3912C3), (uint64_t)ASMrva391230);
 }
 
 
