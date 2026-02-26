@@ -27,13 +27,6 @@ HUiHudWeapon初始化，父对象是HUiHudBase
 
 +760的16字节和HUiHudPowerGuage的相同
 ==============================
-EDF5.exe+2DB615 - F3 0F10 46 50         - movss xmm0,[rsi+50]
-这里造成伤害，rsi是一个指针
-+10 是父对象的指针
-+24 的4字节是team id
-+30 是坐标？
-+50 是伤害
-==============================
 EDF5.exe+9F75A - 88 83 80010000        - mov [rbx+00000180],al
 写入是否显示hud
 EDF5.exe+623FDC - 0F84 81020000         - je EDF5.exe+624263

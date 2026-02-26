@@ -45,6 +45,14 @@ namespace DigitRenderer {
 		return out;
 	}
 
+	DigitTextByte FormatNumberToDigitRendererChars_Second(float number)
+	{
+		auto str = std::format("{:.2f}", number);
+
+		auto out = StringToDigitRendererChars(str);
+		return out;
+	}
+
 	DigitTextByte StringToDigitRendererChars(const std::string& str)
 	{
 		DigitTextByte out;

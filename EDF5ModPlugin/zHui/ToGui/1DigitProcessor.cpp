@@ -21,6 +21,8 @@ static const int i_BaseTimeFactor = 180;
 static const float f_DamageChargeTime = 0.5;
 static const float f_DamageDisplayTime = 3.0;
 static const float f_DamageFadeTime = 0.5;
+static const float f_DamageHitDisplayTime = 0.5;
+static const float f_DamageHitFadeTime = 0.2;
 
 PG_SoldierBase* __fastcall GetLocalCurrentPlayersPointer() {
 	return pLocalCurrentPlayers;
@@ -34,6 +36,7 @@ void DigitProcessor_ProcessData() {
 	if (!pLocalCurrentPlayers[0]) return;
 
 	g_DigitProcessor->ProcessData(0);
+	g_DigitProcessor->ProcessData_DamageInHitMode();
 
 	if (bIsSplitScreen) {
 		if (!pLocalCurrentPlayers[1]) return;
@@ -59,11 +62,16 @@ void DynamicDigitProcessor_t::Initialize() {
 	DigitConstantData.pad18[1] = 0;
 	DigitConstantData.BorderColor = { 0,0,0,1 };
 
+	// reserve vector space to avoid frequent reallocation.
 	v_playerDamage[0].reserve(0x10);
 	v_playerDamage[1].reserve(0x10);
 	v_p1DamageHitInThisFrame.reserve(MAX_DamageHitPerFrame);
+	v_p1DamageHitText.reserve(MAX_DamageHitBufferSize);
+
 	ClearData(0);
 	ClearData(1);
+
+	InitializeCriticalSectionAndSpinCount(&csDamageHit, 4000);
 
 	// initialize damage display (main)
 	ZeroMemory(&DamageDisplayFont_Human, sizeof(DigitFontControl_t));
@@ -88,9 +96,15 @@ void DynamicDigitProcessor_t::Initialize() {
 	DamageDisplayPos_Vehicle[2] = { 1270, 960, 1270 + 40, 960 + 40 };
 
 	// initialize weapon info position
-	WeaponInfoPos[0][0] = { 960 + 30, 540 + 25, 0, 0 };
-	WeaponInfoPos[0][1] = { 960 + 30, 540 - 25, 0, 0 };
-	WeaponInfoPos[0][2] = { 960 - 30, 540 + 25, 0, 1 };
+	WeaponInfoPos[0][0] = { 960 + 40, 540 + 25, 0, 0 };
+	WeaponInfoPos[0][1] = { 960 + 40, 540 - 45, 0, 0 };
+	WeaponInfoPos[0][2] = { 960 - 40, 540 + 25, 0, 1 };
+	WeaponInfoPos[1][0] = { 960 - 480 + 30, 540 + 25, 0, 0 };
+	WeaponInfoPos[1][1] = { 960 - 480 + 30, 540 - 45, 0, 0 };
+	WeaponInfoPos[1][2] = { 960 - 480 - 30, 540 + 25, 0, 1 };
+	WeaponInfoPos[2][0] = { 960 + 480 + 30, 540 + 25, 0, 0 };
+	WeaponInfoPos[2][1] = { 960 + 480 + 30, 540 - 45, 0, 0 };
+	WeaponInfoPos[2][2] = { 960 + 480 - 30, 540 + 25, 0, 1 };
 
 	// initialize weapon info color
 	WeaponInfoColor[0] = DigitRendererColor_Cyan;
@@ -98,7 +112,7 @@ void DynamicDigitProcessor_t::Initialize() {
 	WeaponInfoColor[2] = DigitRendererColor_Cyan;
 	WeaponStatusColor[0] = DigitRendererColor_Red;
 	WeaponStatusColor[1] = DigitRendererColor_Blue;
-	WeaponStatusColor[2] = DigitRendererColor_GreenHalfA;
+	WeaponStatusColor[2] = DigitRendererColor_Green;
 
 #endif // !DEBUGMODE
 }
@@ -116,6 +130,11 @@ void DynamicDigitProcessor_t::ClearData(UINT32 index) {
 	ZeroMemory(&playerWeaponRenderInfo[index][0], sizeof(DigitData_Weapon_Render_t) * 2);
 
 	PlayerInVehicle[index] = 0;
+	PlayerSoldierType[index] = 0;
+
+	if (index) return;
+	v_p1DamageHitInThisFrame.clear();
+	v_p1DamageHitText.clear();
 }
 
 void DynamicDigitProcessor_t::ProcessData(UINT32 index) {
@@ -220,6 +239,67 @@ PG_SoldierBase DynamicDigitProcessor_t::ProcessData_Damage(UINT32 index) {
 #endif
 }
 
+void DynamicDigitProcessor_t::ProcessData_DamageInHitMode()
+{
+	std::vector<DigitData_DamageInHit_t> DamageHit;
+	DamageHit.reserve(MAX_DamageHitPerFrame);
+	//=================================
+	EnterCriticalSection(&csDamageHit);
+	std::swap(DamageHit, v_p1DamageHitInThisFrame);
+	LeaveCriticalSection(&csDamageHit);
+	//=================================
+
+	auto pPlayer = pLocalCurrentPlayers[0];
+	auto currentTime = pPlayer->CurrentTime;
+
+	DigitProcessor_DamageInHit_t temp;
+	DigitProcessor_DamageInHit_Group_t out;
+	out.data.reserve(MAX_DamageHitPerFrame);
+
+	auto bufferSize = DamageHit.size();
+	if (bufferSize) {
+		out.time = currentTime;
+		out.fadeTime = 0;
+		for (int i = 0; i < bufferSize; i++) {
+			auto& dmg = DamageHit[i];
+			temp.pos = dmg.pos;
+			temp.text = FormatNumberToDigitRendererChars_Damage(dmg.value.fp32);
+			out.data.push_back(temp);
+		}
+		// end
+	}
+
+	// check duration
+	auto v_Size = v_p1DamageHitText.size();
+	if (bufferSize && v_Size >= MAX_DamageHitBufferSize){
+		v_p1DamageHitText.pop_back();
+	} else {
+		if (v_Size){
+			auto& last = v_p1DamageHitText.back();
+			auto aliveTime = currentTime - last.time;
+			if (aliveTime > f_DamageHitDisplayTime + f_DamageHitFadeTime) {
+				v_p1DamageHitText.pop_back();
+			}
+		}
+		// end
+	}
+
+	// update data
+	for (auto& group : v_p1DamageHitText) {
+		auto aliveTime = currentTime - group.time;
+		// check need fade
+		if (aliveTime > f_DamageHitDisplayTime) {
+			group.fadeTime = (aliveTime - f_DamageHitDisplayTime) * 10;
+		}
+	}
+
+	// check push
+	if (bufferSize) {
+		v_p1DamageHitText.insert(v_p1DamageHitText.begin(), out);
+	}
+	// end
+}
+
 void DynamicDigitProcessor_t::ProcessData_Weapon(UINT32 index) {
 	ProcessData_Weapon_Update(&playerWeaponInfo[index][0], &playerWeaponRenderInfo[index][0], index);
 	ProcessData_Weapon_Update(&playerWeaponInfo[index][1], &playerWeaponRenderInfo[index][1], index);
@@ -247,16 +327,18 @@ void DynamicDigitProcessor_t::ProcessData_Weapon_Update(PDigitData_Weapon pIn, P
 		}
 
 		pOut->colorIndex = WeaponStatusColor[statusIndex];
-		pOut->text = FormatNumberToDigitRendererChars_Percentage(pIn->value.fp32);
+		if (!statusIndex) {
+			pOut->text = FormatNumberToDigitRendererChars_Second(pIn->value.fp32);
+		} else {
+			pOut->text = FormatNumberToDigitRendererChars_Percentage(pIn->value.fp32);
+		}
 	}
 
 	pOut->isEnabled = 1;
 	pOut->scaleTime = pIn->effectTime;
 
 	pIn->effectTime += pIn->timeIncrement;
-	if (pIn->effectTime > 30) {
-		pIn->timeIncrement = -1;
-	} else if (pIn->effectTime < 0) {
+	if (pIn->effectTime < 0) {
 		pIn->effectTime = 0;
 		pIn->timeIncrement = 0;
 	}
@@ -269,24 +351,31 @@ void DynamicDigitProcessor_t::ProcessData_Weapon_Update(PDigitData_Weapon pIn, P
 int __fastcall DigitProcessor_SetLocalCurrentPlayer(PXGS_System_Camera pCamera, UINT32 pCount) {
 	auto playerID = pCamera->PlayerID;
 	if (pCount > 2) return playerID;
+	using namespace DigitRenderer;
 
 	if (Game_IsOnlineMode()){
-		DigitRenderer::bIsSplitScreen = 0;
+		bIsSplitScreen = 0;
 		if(playerID == 0){
 			auto pPlayerObject = (PG_SoldierBase)pCamera->pGameObject;
-			DigitRenderer::pLocalCurrentPlayers[0] = pPlayerObject;
+			pLocalCurrentPlayers[0] = pPlayerObject;
+
+			auto pVFT = (CallFunc_SoldierBase_GetSoldierType*)pPlayerObject->vf_table;
+			g_DigitProcessor->PlayerSoldierType[0] = pVFT[0x47]();
 		}
 		// end
 	}
 	else{
 		if (pCount == 1) {
-			DigitRenderer::bIsSplitScreen = 0;
+			bIsSplitScreen = 0;
 		} else {
-			DigitRenderer::bIsSplitScreen = 1;
+			bIsSplitScreen = 1;
 		}
 
 		auto pPlayerObject = (PG_SoldierBase)pCamera->pGameObject;
-		DigitRenderer::pLocalCurrentPlayers[playerID] = pPlayerObject;
+		pLocalCurrentPlayers[playerID] = pPlayerObject;
+
+		auto pVFT = (CallFunc_SoldierBase_GetSoldierType*)pPlayerObject->vf_table;
+		g_DigitProcessor->PlayerSoldierType[playerID] = pVFT[0x47]();
 	}
 
 	return playerID;
@@ -317,8 +406,8 @@ void __fastcall DigitProcessor_GetPlayerWeaponStatus(PG_SoldierBase pObject, int
 		goto checkData;
 	}
 
-	if (pWeapon->reloadType == 1) {
-		if (pWeapon->reloadTime == -1 || pWeapon->reloadTimeCount == pWeapon->reloadTime) {
+	if (pWeapon->Info.ReloadType == 1) {
+		if (pWeapon->Info.ReloadTime == -1 || pWeapon->reloadTimeCount == pWeapon->Info.ReloadTime) {
 			ZeroMemory(&g_DigitProcessor->playerWeaponInfo[playerIndex][weaponIndex], sizeof(DigitData_Damage_t));
 			return;
 		} else {
@@ -326,18 +415,18 @@ void __fastcall DigitProcessor_GetPlayerWeaponStatus(PG_SoldierBase pObject, int
 		}
 	}
 
-	if (pWeapon->reloadType == 2) {
-		float reloadProgress = pWeapon->reloadTime - pWeapon->reloadTimeCount;
-		reloadProgress /= pWeapon->reloadTime;
+	if (pWeapon->Info.ReloadType == 2) {
+		float reloadProgress = pWeapon->Info.ReloadTime - pWeapon->reloadTimeCount;
+		reloadProgress /= pWeapon->Info.ReloadTime;
 		reloadProgress *= 100.0f;
 		out.value.fp32 = reloadProgress;
 		out.weaponStatus = DigitRendererWeaponStatus_Credit;
 		goto checkData;
 	}
 
-	if (pWeapon->EnergyChargeRequire > 0.0f) {
-		float chargeProgress = pWeapon->EnergyChargeRequire - pWeapon->EnergyChargeCount;
-		chargeProgress /= pWeapon->EnergyChargeRequire;
+	if (pWeapon->Info.EnergyChargeRequire > 0.0f) {
+		float chargeProgress = pWeapon->Info.EnergyChargeRequire - pWeapon->EnergyChargeCount;
+		chargeProgress /= pWeapon->Info.EnergyChargeRequire;
 		chargeProgress *= 100.0f;
 		out.value.fp32 = chargeProgress;
 		out.weaponStatus = DigitRendererWeaponStatus_Charge;
@@ -354,12 +443,43 @@ reloadBlock:
 checkData:
 	auto checkValue = g_DigitProcessor->playerWeaponInfo[playerIndex][weaponIndex].value.s32;
 	auto checkWeapon = g_DigitProcessor->playerWeaponInfo[playerIndex][weaponIndex].pWeapon;
-	if (checkValue == out.value.s32 && checkWeapon == pWeapon){
+	if (checkWeapon != pWeapon || checkValue == out.value.s32){
 		out.effectTime = g_DigitProcessor->playerWeaponInfo[playerIndex][weaponIndex].effectTime;
 		out.timeIncrement = g_DigitProcessor->playerWeaponInfo[playerIndex][weaponIndex].timeIncrement;
 	} else {
-		out.effectTime = 0;
-		out.timeIncrement = 1;
+		out.effectTime = 15;
+		out.timeIncrement = -1;
 	}
 	memcpy(&g_DigitProcessor->playerWeaponInfo[playerIndex][weaponIndex], &out, sizeof(DigitData_Weapon_t));
+}
+
+float __fastcall DigitProcessor_GetPlayerHitDamage(float damage, Pxgs_DamageData pIn, PG_SoldierBase pObject)
+{
+	using namespace DigitRenderer;
+	auto pPlayer = pLocalCurrentPlayers[0];
+	if (!pPlayer) return damage;
+
+	if (pObject != pPlayer) {
+		if (pObject != pPlayer->pVehicle) return damage;
+	}
+
+	// ==================================================
+	EnterCriticalSection(&g_DigitProcessor->csDamageHit);
+
+	auto bufferSize = g_DigitProcessor->v_p1DamageHitInThisFrame.size();
+	if (bufferSize < DynamicDigitProcessor_t::MAX_DamageHitPerFrame) {
+		auto pPos = pIn->pHitPos;
+		DigitData_DamageInHit_t newData;
+
+		if (pPos) newData.pos = pPos[0];
+		else newData.pos = pIn->pos;
+
+		newData.value.fp32 = damage;
+		g_DigitProcessor->v_p1DamageHitInThisFrame.push_back(newData);
+	}
+
+	LeaveCriticalSection(&g_DigitProcessor->csDamageHit);
+	// ==================================================
+
+	return damage;
 }

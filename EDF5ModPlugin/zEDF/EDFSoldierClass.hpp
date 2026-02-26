@@ -1,6 +1,8 @@
 #pragma once
 #include "Base/base_baseObject.h"
 
+typedef int(__fastcall* CallFunc_SoldierBase_GetSoldierType)(); // vft+238
+
 typedef struct G_HumanBase_t : G_NetworkObject_t {
 	char pad410[0x10];
 	Matrix3D_t transform_human; // copy from transform

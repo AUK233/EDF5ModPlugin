@@ -11,10 +11,20 @@ namespace DigitRenderer {
 	void DigitProcessor_ProcessData();
 	void DigitProcessor_ClearData(UINT32 index);
 
+	struct DigitProcessor_DamageInHit_t {
+		__m128 pos;
+		DigitTextByte text;
+	};
+
+	struct DigitProcessor_DamageInHit_Group_t {
+		std::vector<DigitProcessor_DamageInHit_t> data;
+		float time, fadeTime;
+	};
+
 	class DynamicDigitProcessor_t {
 	public:
 		static const int MAX_DamageHitPerFrame = 32;
-		static const int MAX_DamageHitBufferSize = 32;
+		static const int MAX_DamageHitBufferSize = 42;
 		//
 		DigitConstants_t DigitConstantData;
 
@@ -37,12 +47,15 @@ namespace DigitRenderer {
 		// count 2 players
 		std::vector<DigitData_Damage_t> v_playerDamage[2];
 
+		CRITICAL_SECTION csDamageHit;
 		std::vector<DigitData_DamageInHit_t> v_p1DamageHitInThisFrame;
+		std::vector<DigitProcessor_DamageInHit_Group_t> v_p1DamageHitText;
 
 		DigitFontControl_t DamageDisplayFont_Human;
 		DigitFontControl_t DamageDisplayFont_Vehicle;
 
 		int PlayerInVehicle[2];
+		int PlayerSoldierType[2];
 		int WeaponInfoColor[3];
 		int WeaponStatusColor[3];
 	public:
@@ -50,6 +63,7 @@ namespace DigitRenderer {
 		void ClearData(UINT32 index);
 		void ProcessData(UINT32 index);
 		PG_SoldierBase ProcessData_Damage(UINT32 index);
+		void ProcessData_DamageInHitMode();
 		void ProcessData_Weapon(UINT32 index);
 		void ProcessData_Weapon_Update(PDigitData_Weapon pIn, PDigitData_Weapon_Render pOut, UINT32 index);
 	};
@@ -59,5 +73,6 @@ namespace DigitRenderer {
 extern "C" {
 	int __fastcall DigitProcessor_SetLocalCurrentPlayer(PXGS_System_Camera pCamera, UINT32 pCount);
 	void __fastcall DigitProcessor_GetPlayerWeaponStatus(PG_SoldierBase pObject, int WeaponAlignType, PG_WeaponBase pWeapon);
+	float __fastcall DigitProcessor_GetPlayerHitDamage(float damage, Pxgs_DamageData pIn, PG_SoldierBase pObject);
 }
 

@@ -41,7 +41,8 @@ void module_UpdateHUiHudWeapon(PBYTE hmodEXE)
 	HUiHudWeaponUpdateVehicleTextRet = (uintptr_t)(hmodEXE + 0x4D371E);*/
 
 	// EDF5.exe+4D7110
-	hookGameBlock((void*)(hmodEXE + 0x4D7110), (uintptr_t)ASMHUiHudWeaponUpdateAmmoText);
+	hookGameBlockWithInt3((void*)(hmodEXE + 0x4D7110), (uintptr_t)ASMHUiHudWeaponUpdateAmmoText);
+	WriteHookToProcess((void*)(hmodEXE + 0x4D7110 + 15), (void*)&nop5, 5U);
 	// we still need to continue using rsi
 	BYTE _r14_ = 0x4C;
 	WriteHookToProcess((void*)(hmodEXE + 0x4D70B5), &_r14_, 1U);

@@ -95,6 +95,7 @@ namespace DigitRenderer {
 	DigitTextByte FormatNumberToDigitRendererChars_Ammo(int number);
 	DigitTextByte FormatNumberToDigitRendererChars_Damage(float number);
 	DigitTextByte FormatNumberToDigitRendererChars_Percentage(float number);
+	DigitTextByte FormatNumberToDigitRendererChars_Second(float number);
 	DigitTextByte StringToDigitRendererChars(const std::string& str);
 }
 

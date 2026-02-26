@@ -17,6 +17,7 @@ extern "C" void togui_MainDisplayInMission();
 
 void togui_MainDisplay_ToDigit();
 void togui_MainDisplay_ToDigit_Damage(UINT32 index, int isSplitScreen);
+void togui_MainDisplay_ToDigit_DamageInHitMode();
 void togui_MainDisplay_ToDigit_Weapon(UINT32 index);
 
 void togui_MainDisplay_ToDigitTest(ID3D11DeviceContext* pCTX);

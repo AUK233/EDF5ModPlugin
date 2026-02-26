@@ -294,9 +294,7 @@ void togui_MainDisplay_ToDigit()
 	auto isSplitScreen = DigitRenderer::GetIsSplitScreen();
 
 	togui_MainDisplay_ToDigit_Weapon(0);
-	if (isSplitScreen) {
-		togui_MainDisplay_ToDigit_Weapon(1);
-	}
+	togui_MainDisplay_ToDigit_Weapon(1);
 
 	if (Config_DisplayDamageType == 1) {
 		togui_MainDisplay_ToDigit_Damage(0, isSplitScreen);
@@ -306,21 +304,16 @@ void togui_MainDisplay_ToDigit()
 		}
 		// end
 	}
-#endif
 
 	auto pUmbraSystem = DXGI_GetUmbraSystem125B080();
-	if (pUmbraSystem) {
-		using namespace DigitRenderer;
-
-		/*auto pGameRender = DXGI_GetGameRenderer1259680();
-		memcpy(&g_DigitRenderer->g_constants0, &pGameRender->ConstantBuffer0, sizeof(xgl_system_CB_t));*/
+	if (pUmbraSystem){
 		memcpy(g_DigitRenderer->g_constants1.c_xgl_view, pUmbraSystem->matrix_view, sizeof(float) * 4 * 4);
 		memcpy(g_DigitRenderer->g_constants1.c_xgl_projection, pUmbraSystem->matrix_projection, sizeof(float) * 4 * 4);
 		g_DigitRenderer->SetRender(pCTX, &g_DigitProcessor->DigitConstantData, DigitRenderer::DigitRendererShader_Dynamic);
 
+		togui_MainDisplay_ToDigit_DamageInHitMode();
 
-
-		DigitFontControl_t fontControl;
+		/*DigitFontControl_t fontControl;
 		ZeroMemory(&fontControl, sizeof(DigitFontControl_t));
 		fontControl.charAlignFactor = 0.5;
 		fontControl.i_fontSize = 48;
@@ -332,14 +325,18 @@ void togui_MainDisplay_ToDigit()
 		auto text_damage = FormatNumberToDigitRendererChars_Damage(45.7);
 		g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { 395, 5, 461, 1 }, &fontControl, DigitRendererColor_Red);
 		g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { 395, 50, 461, 1 }, &fontControl, DigitRendererColor_Blue);
-		g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { 395, 150, 461, 1 }, &fontControl, DigitRendererColor_Green);
+		g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { 395, 150, 461, 1 }, &fontControl, DigitRendererColor_Green);*/
 	}
+
+#endif
 
 	g_DigitRenderer->EndFrame();
 }
 
 void togui_MainDisplay_ToDigit_Damage(UINT32 index, int isSplitScreen) {
 	using namespace DigitRenderer;
+
+	static const __m128 offset_PaleWing = { -77, 26, -70, 8 };
 
 	DigitFontControl_t fontControl;
 	__m128 text_pos, pos_factor;
@@ -354,6 +351,10 @@ void togui_MainDisplay_ToDigit_Damage(UINT32 index, int isSplitScreen) {
 			memcpy(&fontControl, &g_DigitProcessor->DamageDisplayFont_Human, sizeof(DigitFontControl_t));
 
 			text_pos = g_DigitProcessor->DamageDisplayPos_Human[index + isSplitScreen];
+			if (g_DigitProcessor->PlayerSoldierType[index] == 1) {
+				text_pos = _mm_add_ps(text_pos, offset_PaleWing);
+			}
+
 			pos_factor = g_DigitProcessor->DamageDisplayPos_HumanFactor;
 		} else {
 			memcpy(&fontControl, &g_DigitProcessor->DamageDisplayFont_Vehicle, sizeof(DigitFontControl_t));
@@ -389,6 +390,10 @@ void togui_MainDisplay_ToDigit_Damage(UINT32 index, int isSplitScreen) {
 
 		static const __m128 offset_human = { -28, 16, -28, 16 };
 		text_pos = _mm_add_ps(text_pos, offset_human);
+
+		if (g_DigitProcessor->PlayerSoldierType[index] == 1) {
+			text_pos = _mm_add_ps(text_pos, offset_PaleWing);
+		}
 	} else {
 		memcpy(&fontControl, &g_DigitProcessor->DamageDisplayFont_Vehicle, sizeof(DigitFontControl_t));
 		text_pos = g_DigitProcessor->DamageDisplayPos_Vehicle[index + isSplitScreen];
@@ -405,15 +410,40 @@ void togui_MainDisplay_ToDigit_Damage(UINT32 index, int isSplitScreen) {
 	g_DigitRenderer->SetImageDataInFixedPos(text_damage, text_pos, &fontControl, DigitRendererColor_White);
 }
 
-void togui_MainDisplay_ToDigit_Weapon(UINT32 index) {
+void togui_MainDisplay_ToDigit_DamageInHitMode() {
 	using namespace DigitRenderer;
+	auto bufferSize = g_DigitProcessor->v_p1DamageHitText.size();
+	if (!bufferSize) return;
 
 	DigitFontControl_t fontControl;
 	ZeroMemory(&fontControl, sizeof(DigitFontControl_t));
-	fontControl.i_fontSize = 18;
-	fontControl.f_fontSize = 18;
-	fontControl.fadeFactor = 0;
-	fontControl.time = 0.5;
+	fontControl.charAlignFactor = 0.5;
+	fontControl.i_fontSize = 24;
+	fontControl.f_fontSize = 24;
+	fontControl.fadeFactor = 80;
+
+	for (auto& v_data : g_DigitProcessor->v_p1DamageHitText) {
+		for (auto& textData : v_data.data) {
+			fontControl.time = v_data.fadeTime;
+			g_DigitRenderer->SetImageDataInDynamicPos(textData.text, textData.pos, &fontControl, DigitRendererColor_White);
+		}
+	}
+	// end
+}
+
+void togui_MainDisplay_ToDigit_Weapon(UINT32 index) {
+	using namespace DigitRenderer;
+
+	auto pPlayer = GetLocalCurrentPlayersPointer();
+	if (!pPlayer[index]) return;
+	if (pPlayer[index]->pVehicle) return;
+
+	DigitFontControl_t fontControl;
+	ZeroMemory(&fontControl, sizeof(DigitFontControl_t));
+	fontControl.i_fontSize = 20;
+	fontControl.f_fontSize = 20;
+	fontControl.fadeFactor = 15;
+	fontControl.time = 2;
 
 	for (int i = 0; i < 2; i++) {
 		auto pWeaponInfo = &g_DigitProcessor->playerWeaponRenderInfo[index][i];

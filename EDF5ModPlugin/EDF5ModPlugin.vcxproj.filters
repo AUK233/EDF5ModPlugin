@@ -637,6 +637,9 @@
     <ClInclude Include="zEDF\Weapon\EDFWeapon.hpp">
       <Filter>Source Files\Module EDF\Weapon</Filter>
     </ClInclude>
+    <ClInclude Include="Base\base_BaseAmmo.hpp">
+      <Filter>Source Files\Base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="zHui\ToGui\DirectXTK\SimpleMath.inl">

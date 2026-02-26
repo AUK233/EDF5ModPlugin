@@ -6,6 +6,8 @@ extern GetDXGISwapChainRetAddr : qword
 extern DigitProcessor_SetLocalCurrentPlayer : proto
 extern xgsSystemSetPlayerSlotRetAddr : qword
 
+extern Config_DisplayDamageType : dword
+extern DigitProcessor_GetPlayerHitDamage : proto
 extern getInflictDamageFromDamageFuncRetAddress : qword
 
 .code
@@ -57,6 +59,16 @@ ASMgetInflictDamageFromDamageFunc proc
 		movss xmm2, dword ptr [rax+34h] ; now is our value
 		addss xmm2, xmm0
 		movss dword ptr [rax+34h], xmm2
+		; check display on hit
+		cmp Config_DisplayDamageType, 0
+		je giveDamageToObject
+		cmp dword ptr [rsi+24h], 0 ; check team id
+		jne giveDamageToObject
+		mov r8, rax
+		mov rdx, rsi
+		; xmm0 needs to be returned
+		call DigitProcessor_GetPlayerHitDamage
+		movss xmm1, dword ptr [rsp+30h]
 
 	giveDamageToObject:
 		mulss xmm0, xmm1
