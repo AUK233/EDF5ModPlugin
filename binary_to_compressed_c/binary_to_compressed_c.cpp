@@ -39,6 +39,7 @@ enum SourceEncoding
     SourceEncoding_U8,      // New default since 2024/11
     SourceEncoding_U32,
     SourceEncoding_Base85,
+    SourceEncoding_Bin,
 };
 
 static bool binary_to_compressed_c(const char* filename, const char* symbol, SourceEncoding source_encoding, bool use_compression, bool use_static);
@@ -64,6 +65,7 @@ int main(int argc, char** argv)
         if (strcmp(argv[argn], "-u8") == 0) { source_encoding = SourceEncoding_U8; argn++; }
         else if (strcmp(argv[argn], "-u32") == 0) { source_encoding = SourceEncoding_U32; argn++; }
         else if (strcmp(argv[argn], "-base85") == 0) { source_encoding = SourceEncoding_Base85; argn++; }
+        else if (strcmp(argv[argn], "-bin") == 0) { source_encoding = SourceEncoding_Bin; argn++; }
         else if (strcmp(argv[argn], "-nocompress") == 0) { use_compression = false; argn++; }
         else if (strcmp(argv[argn], "-nostatic") == 0) { use_static = false; argn++; }
         else
@@ -104,65 +106,76 @@ bool binary_to_compressed_c(const char* filename, const char* symbol, SourceEnco
     if (use_compression)
         memset(compressed + compressed_sz, 0, maxlen - compressed_sz);
 
-    // Output as Base85 encoded
-    FILE* out = stdout;
-    fprintf(out, "// File: '%s' (%d bytes)\n", filename, (int)data_sz);
-    const char* static_str = use_static ? "static " : "";
-    const char* compressed_str = use_compression ? "compressed_" : "";
-    if (source_encoding == SourceEncoding_Base85)
-    {
-        fprintf(out, "// Exported using binary_to_compressed_c.exe -base85 \"%s\" %s\n", filename, symbol);
-        fprintf(out, "%sconst char %s_%sdata_base85[%d+1] =\n    \"", static_str, symbol, compressed_str, (int)((compressed_sz + 3) / 4)*5);
-        char prev_c = 0;
-        for (int src_i = 0; src_i < compressed_sz; src_i += 4)
+    
+    if (source_encoding == SourceEncoding_Bin) {
+        const char* bin_filename = "Z:/TEMP/font_compressed.bin";
+        FILE* bin_file = fopen(bin_filename, "wb");
+        if (bin_file)
         {
-            // This is made a little more complicated by the fact that ??X sequences are interpreted as trigraphs by old C/C++ compilers. So we need to escape pairs of ??.
-            unsigned int d = *(unsigned int*)(compressed + src_i);
-            for (unsigned int n5 = 0; n5 < 5; n5++, d /= 85)
+            fwrite(compressed, 1, compressed_sz, bin_file);
+            fclose(bin_file);
+        }
+    } else {
+        // Output as Base85 encoded
+        FILE* out = stdout;
+        fprintf(out, "// File: '%s' (%d bytes)\n", filename, (int)data_sz);
+        const char* static_str = use_static ? "static " : "";
+        const char* compressed_str = use_compression ? "compressed_" : "";
+        if (source_encoding == SourceEncoding_Base85)
+        {
+            fprintf(out, "// Exported using binary_to_compressed_c.exe -base85 \"%s\" %s\n", filename, symbol);
+            fprintf(out, "%sconst char %s_%sdata_base85[%d+1] =\n    \"", static_str, symbol, compressed_str, (int)((compressed_sz + 3) / 4)*5);
+            char prev_c = 0;
+            for (int src_i = 0; src_i < compressed_sz; src_i += 4)
             {
-                char c = Encode85Byte(d);
-                fprintf(out, (c == '?' && prev_c == '?') ? "\\%c" : "%c", c);
-                prev_c = c;
+                // This is made a little more complicated by the fact that ??X sequences are interpreted as trigraphs by old C/C++ compilers. So we need to escape pairs of ??.
+                unsigned int d = *(unsigned int*)(compressed + src_i);
+                for (unsigned int n5 = 0; n5 < 5; n5++, d /= 85)
+                {
+                    char c = Encode85Byte(d);
+                    fprintf(out, (c == '?' && prev_c == '?') ? "\\%c" : "%c", c);
+                    prev_c = c;
+                }
+                if ((src_i % 112) == 112 - 4)
+                    fprintf(out, "\"\n    \"");
             }
-            if ((src_i % 112) == 112 - 4)
-                fprintf(out, "\"\n    \"");
+            fprintf(out, "\";\n\n");
         }
-        fprintf(out, "\";\n\n");
-    }
-    else if (source_encoding == SourceEncoding_U8)
-    {
-        // As individual bytes, not subject to endianness issues.
-        fprintf(out, "// Exported using binary_to_compressed_c.exe -u8 \"%s\" %s\n", filename, symbol);
-        fprintf(out, "%sconst unsigned int %s_%ssize = %d;\n", static_str, symbol, compressed_str, (int)compressed_sz);
-        fprintf(out, "%sconst unsigned char %s_%sdata[%d] =\n{", static_str, symbol, compressed_str, (int)compressed_sz);
-        int column = 0;
-        for (int i = 0; i < compressed_sz; i++)
+        else if (source_encoding == SourceEncoding_U8)
         {
-            unsigned char d = *(unsigned char*)(compressed + i);
-            if (column == 0)
-                fprintf(out, "\n    ");
-            column += fprintf(out, "%d,", d);
-            if (column >= 180)
-                column = 0;
+            // As individual bytes, not subject to endianness issues.
+            fprintf(out, "// Exported using binary_to_compressed_c.exe -u8 \"%s\" %s\n", filename, symbol);
+            fprintf(out, "%sconst unsigned int %s_%ssize = %d;\n", static_str, symbol, compressed_str, (int)compressed_sz);
+            fprintf(out, "%sconst unsigned char %s_%sdata[%d] =\n{", static_str, symbol, compressed_str, (int)compressed_sz);
+            int column = 0;
+            for (int i = 0; i < compressed_sz; i++)
+            {
+                unsigned char d = *(unsigned char*)(compressed + i);
+                if (column == 0)
+                    fprintf(out, "\n    ");
+                column += fprintf(out, "%d,", d);
+                if (column >= 180)
+                    column = 0;
+            }
+            fprintf(out, "\n};\n\n");
         }
-        fprintf(out, "\n};\n\n");
-    }
-    else if (source_encoding == SourceEncoding_U32)
-    {
-        // As integers
-        fprintf(out, "// Exported using binary_to_compressed_c.exe -u32 \"%s\" %s\n", filename, symbol);
-        fprintf(out, "%sconst unsigned int %s_%ssize = %d;\n", static_str, symbol, compressed_str, (int)compressed_sz);
-        fprintf(out, "%sconst unsigned int %s_%sdata[%d/4] =\n{", static_str, symbol, compressed_str, (int)((compressed_sz + 3) / 4)*4);
-        int column = 0;
-        for (int i = 0; i < compressed_sz; i += 4)
+        else if (source_encoding == SourceEncoding_U32)
         {
-            unsigned int d = *(unsigned int*)(compressed + i);
-            if ((column++ % 14) == 0)
-                fprintf(out, "\n    0x%08x, ", d);
-            else
-                fprintf(out, "0x%08x, ", d);
+            // As integers
+            fprintf(out, "// Exported using binary_to_compressed_c.exe -u32 \"%s\" %s\n", filename, symbol);
+            fprintf(out, "%sconst unsigned int %s_%ssize = %d;\n", static_str, symbol, compressed_str, (int)compressed_sz);
+            fprintf(out, "%sconst unsigned int %s_%sdata[%d/4] =\n{", static_str, symbol, compressed_str, (int)((compressed_sz + 3) / 4)*4);
+            int column = 0;
+            for (int i = 0; i < compressed_sz; i += 4)
+            {
+                unsigned int d = *(unsigned int*)(compressed + i);
+                if ((column++ % 14) == 0)
+                    fprintf(out, "\n    0x%08x, ", d);
+                else
+                    fprintf(out, "0x%08x, ", d);
+            }
+            fprintf(out, "\n};\n\n");
         }
-        fprintf(out, "\n};\n\n");
     }
 
     // Cleanup

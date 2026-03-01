@@ -88,8 +88,6 @@ void GetGameGlobalPointer(PBYTE hmodEXE)
 	vedf125AB90 = (uintptr_t)(hmodEXE + 0x125AB90);
 }
 
-#include "zHui/HuiDisplaySubtitle.h"
-
 extern "C" {
 void __fastcall ASMgameStartupReadVoiceFile();
 uintptr_t gameStartupReadVoiceFileRetAddr;
@@ -144,8 +142,6 @@ void GameStartupHook(PBYTE hmodEXE)
 
 	// EDF5.exe+613A12, Throw invalid filename
 	hookGameBlockRAXWithInt3((void*)(hmodEXE + 0x613A12), (uintptr_t)ASMgameReadInvalidSGO);
-
-	hookDisplaySubtitle(hmodEXE);
 }
 
 extern "C" {

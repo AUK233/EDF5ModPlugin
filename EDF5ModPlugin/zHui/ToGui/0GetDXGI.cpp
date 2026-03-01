@@ -17,6 +17,7 @@
 
 extern "C" {
 	uintptr_t  xgs_umbra_System125B080;
+	int* g_CurrentTextLanguage;
 }
 
 IDXGISwapChain** ppSwapChain;
@@ -41,14 +42,17 @@ void DXGI_Initialize(PBYTE hmodEXE)
 	// EDF5.exe+125B080
 	xgs_umbra_System125B080 = (uintptr_t)(hmodEXE + 0x125B080);
 
+	// EDF5.exe+1137110
+	g_CurrentTextLanguage = (int*)(hmodEXE + 0x1137110);
+	// EDF5.exe+125A9D0
+	tempP = hmodEXE + 0x125A9D0;
+	pRealTimeResolution = (int*)tempP;
+
 
 
 	// EDF5.exe+1256C40
 	tempP = hmodEXE + 0x1256C40;
 	pDXGISwapChainDesc = (DXGI_SWAP_CHAIN_DESC*)tempP;
-	// EDF5.exe+125A9D0
-	tempP = hmodEXE + 0x125A9D0;
-	pRealTimeResolution = (int*)tempP;
 	//
 	tempP = hmodEXE + 0x1256C98;
 	ppSwapChain = (IDXGISwapChain**)tempP;

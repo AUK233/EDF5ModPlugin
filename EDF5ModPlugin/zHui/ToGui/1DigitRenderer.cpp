@@ -127,10 +127,10 @@ void DynamicDigitRenderer_t::Initialize()
 #else
 	//LoadEmbeddedResource(v_data_digit_texture, L"Resource\\DamageUINumber.dds", L"Texture"); // no, this cannot be found.
 	LoadEmbeddedResource(v_data_digit_texture, MAKEINTRESOURCEW(IDR_DamageUINumber), L"Texture");
-	LoadEmbeddedResource(v_data_shader_vs[0], MAKEINTRESOURCEW(IDR_vs_digitFixed), L"Shader");
-	LoadEmbeddedResource(v_data_shader_ps[0], MAKEINTRESOURCEW(IDR_ps_digitFixed), L"Shader");
-	LoadEmbeddedResource(v_data_shader_vs[1], MAKEINTRESOURCEW(IDR_vs_digitDynamic), L"Shader");
-	LoadEmbeddedResource(v_data_shader_ps[1], MAKEINTRESOURCEW(IDR_ps_digitDynamic), L"Shader");
+	LoadEmbeddedResource(v_data_shader_vs[DigitRendererShader_Fixed], MAKEINTRESOURCEW(IDR_vs_digitFixed), L"Shader");
+	LoadEmbeddedResource(v_data_shader_ps[DigitRendererShader_Fixed], MAKEINTRESOURCEW(IDR_ps_digitFixed), L"Shader");
+	LoadEmbeddedResource(v_data_shader_vs[DigitRendererShader_Dynamic], MAKEINTRESOURCEW(IDR_vs_digitDynamic), L"Shader");
+	LoadEmbeddedResource(v_data_shader_ps[DigitRendererShader_Dynamic], MAKEINTRESOURCEW(IDR_ps_digitDynamic), L"Shader");
 
 
 	for (int i = 0; i < DigitRendererShader_ALL; i++) {
@@ -144,17 +144,38 @@ void DynamicDigitRenderer_t::Initialize()
 	// load texture
 	DirectX::CreateDDSTextureFromMemory(device, v_data_digit_texture.data(), v_data_digit_texture.size(), nullptr, &digit_texture_srv);
 #endif
+
+
+	/*ID3DBlob* t_vs_blob = nullptr;
+	ID3DBlob* t_ps_blob = nullptr;
+	ID3DBlob* t_error_blob = nullptr;
+	D3DCompileFromFile(L"./subtitle/test.hlsl", nullptr, nullptr, "VS_main", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &t_vs_blob, &t_error_blob);
+	D3DCompileFromFile(L"./subtitle/test.hlsl", nullptr, nullptr, "PS_main", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &t_ps_blob, &t_error_blob);
+	device->CreateVertexShader(t_vs_blob->GetBufferPointer(), t_vs_blob->GetBufferSize(), nullptr, &vertex_shader[DigitRendererShader_TEST]);
+	device->CreatePixelShader(t_ps_blob->GetBufferPointer(), t_ps_blob->GetBufferSize(), nullptr, &pixel_shader[DigitRendererShader_TEST]);
+
+	D3D11_INPUT_ELEMENT_DESC t_layout[] = {
+		{"POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(ImDrawVert, pos), D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(ImDrawVert, uv), D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{"COLOR", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, offsetof(ImDrawVert, col_u), D3D11_INPUT_PER_VERTEX_DATA, 0},
+	};
+	device->CreateInputLayout(t_layout, _countof(t_layout), t_vs_blob->GetBufferPointer(), t_vs_blob->GetBufferSize(), &input_layout[DigitRendererShader_TEST]);
+
+	t_vs_blob->Release();
+	t_ps_blob->Release();
+	if (t_error_blob) t_error_blob->Release();*/
 }
 
 void DynamicDigitRenderer_t::CreateSolidColorTextures(ID3D11Device* device)
 {
 	color_texture_srv[DigitRendererColor_Red] = CreateSolidColorSRV(device, 0xFF0000FF);
 	color_texture_srv[DigitRendererColor_Green] = CreateSolidColorSRV(device, 0x00FF00FF);
+	color_texture_srv[DigitRendererColor_Yellow] = CreateSolidColorSRV(device, 0xFFFF00FF);
 	color_texture_srv[DigitRendererColor_GreenHalfA] = CreateSolidColorSRV(device, 0x00FF007F);
 	color_texture_srv[DigitRendererColor_Blue] = CreateSolidColorSRV(device, 0x0000FFFF);
-	color_texture_srv[DigitRendererColor_White] = CreateSolidColorSRV(device, 0xFFFFFFFF);
 	color_texture_srv[DigitRendererColor_Cyan] = CreateSolidColorSRV(device, 0x00FFFFFF);
-	color_texture_srv[DigitRendererColor_Yellow] = CreateSolidColorSRV(device, 0xFFFF00FF);
+	color_texture_srv[DigitRendererColor_White] = CreateSolidColorSRV(device, 0xFFFFFFFF);
+	color_texture_srv[DigitRendererColor_WhiteA190] = CreateSolidColorSRV(device, 0xFFFFFFBE);
 }
 
 void DynamicDigitRenderer_t::ReloadDynamicPosShader()

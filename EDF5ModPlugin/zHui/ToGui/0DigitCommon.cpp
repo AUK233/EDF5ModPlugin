@@ -74,4 +74,21 @@ namespace DigitRenderer {
 		}
 		return out;
 	}
+
+	std::string UnicodeToUTF8(LPCWSTR wstr, int length)
+	{
+		if (wstr == nullptr) {
+			return "";
+		}
+
+		int size_needed = WideCharToMultiByte(CP_UTF8, 0, wstr, length, NULL, 0, NULL, NULL);
+		if (size_needed <= 0) {
+			return "";
+		}
+
+		std::string strTo(size_needed - 1, 0);
+
+		WideCharToMultiByte(CP_UTF8, 0, wstr, length, strTo.data(), size_needed, NULL, NULL);
+		return strTo;
+	}
 }

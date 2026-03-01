@@ -1,4 +1,5 @@
 #pragma once
+#include "zEDF/EDFSoldierClass.hpp"
 #include <d3d11.h>
 
 extern "C" {
@@ -15,7 +16,7 @@ void togui_MainDisplay();
 void togui_MainDisplayTest();
 extern "C" void togui_MainDisplayInMission();
 
-void togui_MainDisplay_ToDigit();
+void togui_MainDisplay_ToDigit(PG_SoldierBase* pLCP);
 void togui_MainDisplay_ToDigit_Damage(UINT32 index, int isSplitScreen);
 void togui_MainDisplay_ToDigit_DamageInHitMode();
 void togui_MainDisplay_ToDigit_Weapon(UINT32 index);

@@ -292,62 +292,12 @@ void InitializeSubtitlePointer()
 	}
 }
 
-extern "C" {
-	void __fastcall ASMscript2C_FA0();
-	uintptr_t script2C_FA0ret;
-	void __fastcall ASMscript2C_FA2();
-	void __fastcall ASMscript2C_1004();
-	void __fastcall ASMscript2C_1005();
-	uintptr_t script2C_1005ret;
-	void __fastcall ASMscript2C_1006();
-	uintptr_t script2C_1006ret;
-	void __fastcall ASMscript2C_1007();
-	uintptr_t script2C_1007ret;
-	void __fastcall ASMscript2C_1009();
-	uintptr_t script2C_1009ret;
-}
 
 void hookDisplaySubtitle(PBYTE hmodEXE)
 {
 	EDFCurrentTextLanguage = (int*)(hmodEXE + 0x1137110);
 	InitializeSubtitlePointer();
 
-	// Load subtitle file at the same time when select text language.
-	// EDF5.exe+3D7D22
-	hookGameBlock((void*)(hmodEXE + 0x3D7D22), (uintptr_t)LoadSelectedSubtitleFile);
-	// EDF5.exe+524573
-	hookGameBlock((void*)(hmodEXE + 0x524573), (uintptr_t)LoadSelectedSubtitleFile);
-
-	// EDF5.exe+127CC0, play voice
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x127CC0), (uintptr_t)ASMscript2C_FA0);
-	WriteHookToProcess((void*)(hmodEXE + 0x127CC0 + 15), (void*)&nop2, 2U);
-	script2C_FA0ret = (uintptr_t)(hmodEXE + 0x127CEF);
-
-	// EDF5.exe+116708, wait voice
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x116708), (uintptr_t)ASMscript2C_FA2);
-	WriteHookToProcess((void*)(hmodEXE + 0x116708 + 15), (void*)&nop1, 1U);
-
-	// talk series
-	// EDF5.exe+1280B1, talk ready
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x1280B1), (uintptr_t)ASMscript2C_1004);
-	// EDF5.exe+1281ED, play talk
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x1281ED), (uintptr_t)ASMscript2C_1005);
-	script2C_1005ret = (uintptr_t)(hmodEXE + 0x1281FC);
-
-	// EDF5.exe+12833A, talk push
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x12833A), (uintptr_t)ASMscript2C_1006);
-	WriteHookToProcess((void*)(hmodEXE + 0x12833A + 15), (void*)&nop2, 2U);
-	script2C_1006ret = (uintptr_t)(hmodEXE + 0x12834B);
-
-	// EDF5.exe+1284BA, talk push
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x1284BA), (uintptr_t)ASMscript2C_1007);
-	WriteHookToProcess((void*)(hmodEXE + 0x1284BA + 15), (void*)&nop2, 2U);
-	script2C_1007ret = (uintptr_t)(hmodEXE + 0x1284CB);
-
-	// EDF5.exe+12880A, talk push
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x12880A), (uintptr_t)ASMscript2C_1009);
-	WriteHookToProcess((void*)(hmodEXE + 0x12880A + 15), (void*)&nop2, 2U);
-	script2C_1009ret = (uintptr_t)(hmodEXE + 0x12881B);
 
 	/*
 	play edf6 voice

@@ -20,6 +20,7 @@
 #include "1DigitRenderer.h"
 #include "1DigitProcessor.h"
 #include "2ReadINIConfig.h"
+#include "2SubtitleRenderer.h"
 
 #include "0SetImGui.h"
 
@@ -33,6 +34,7 @@ extern "C" {
 
 DigitRenderer::PDynamicDigitRenderer g_DigitRenderer;
 DigitRenderer::PDynamicDigitProcessor g_DigitProcessor;
+DigitRenderer::PSubtitleRenderer g_SubtitleRenderer;
 
 typedef HRESULT(__stdcall* IDXGISwapChainPresent)(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
 typedef HRESULT(__stdcall* IDXGISwapChainResizeBuffers)(IDXGISwapChain*, UINT BufferCount, UINT Width, UINT Height, DXGI_FORMAT NewFormat, UINT SwapChainFlags);
@@ -41,6 +43,7 @@ WNDPROC oWndProc;
 IDXGISwapChain* g_pSwapChain = nullptr;
 IDXGISwapChainPresent fnIDXGISwapChainPresent = 0;
 IDXGISwapChainResizeBuffers fnIDXGISwapChainResizeBuffers = 0;
+ImFont* MyDefaultFont;
 
 int __fastcall togui_GetDXGISwapChain(int protectECX, IDXGISwapChain* pSwapChain)
 {
@@ -172,6 +175,18 @@ void togui_InitializeImGui()
 	io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
 	//io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 
+	//
+	FILE* f = fopen("./subtitle/font_compressed.bin", "rb");
+	fseek(f, 0, SEEK_END);
+	long size = ftell(f);
+	fseek(f, 0, SEEK_SET);
+
+	std::vector<unsigned char> data(size);
+	fread(data.data(), 1, size, f);
+	fclose(f);
+	MyDefaultFont = io.Fonts->AddFontFromMemoryCompressedTTF(data.data(), size, 32);
+	//
+
 	ImGui::StyleColorsDark();
 
 	ImGui_ImplWin32_Init(pRender->DXGISwapChainDesc.OutputWindow);
@@ -203,7 +218,8 @@ void togui_MainDisplay()
 
 	ImGui::Begin("EDF hook", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoBackground);
 
-	togui_MainDisplay_ToDigit();
+	auto pLCP = DigitRenderer::GetLocalCurrentPlayersPointer();
+	togui_MainDisplay_ToDigit(pLCP);
 
 	ImGui::End();
 
@@ -241,8 +257,8 @@ void togui_MainDisplayTest()
 		ImGui::Text("resolution: %d, %d", pResolution[0], pResolution[1]);
 	}
 #endif
-
 	ImGui::SetWindowFontScale(1.0f);
+	
 	// ====================
 	ImGui::End();
 }
@@ -259,7 +275,9 @@ void togui_MainDisplayInMission() {
 	ImGui::Begin("EDF hook", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoBackground);
 
 	// Todo =====================================================================
-	togui_MainDisplay_ToDigit();
+	auto pLCP = DigitRenderer::GetLocalCurrentPlayersPointer();
+	togui_MainDisplay_ToDigit(pLCP);
+	g_SubtitleRenderer->DisplayCurrentSubtitle(pLCP[0]);
 	// End ======================================================================
 
 	ImGui::End();
@@ -269,7 +287,7 @@ void togui_MainDisplayInMission() {
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
-void togui_MainDisplay_ToDigit()
+void togui_MainDisplay_ToDigit(PG_SoldierBase* pLCP)
 {
 	auto pCTX = DXGI_GetGameDXGIRender()->pD3D11DeviceContext;
 	ImDrawList* pDrawList = ImGui::GetWindowDrawList();
@@ -278,7 +296,6 @@ void togui_MainDisplay_ToDigit()
 	ImVec2 origin = pDrawList->GetClipRectMin();
 	pDrawList->AddCircleFilled(origin, 100, IM_COL32(255, 0, 0, 255));
 #else
-	auto pLCP = DigitRenderer::GetLocalCurrentPlayersPointer();
 	if (!pLCP[0]) return;
 #endif
 
@@ -336,7 +353,7 @@ void togui_MainDisplay_ToDigit()
 void togui_MainDisplay_ToDigit_Damage(UINT32 index, int isSplitScreen) {
 	using namespace DigitRenderer;
 
-	static const __m128 offset_PaleWing = { -77, 26, -70, 8 };
+	static const __m128 offset_PaleWing = { -77, -6, -70, 0 };
 
 	DigitFontControl_t fontControl;
 	__m128 text_pos, pos_factor;
@@ -425,7 +442,7 @@ void togui_MainDisplay_ToDigit_DamageInHitMode() {
 	for (auto& v_data : g_DigitProcessor->v_p1DamageHitText) {
 		for (auto& textData : v_data.data) {
 			fontControl.time = v_data.fadeTime;
-			g_DigitRenderer->SetImageDataInDynamicPos(textData.text, textData.pos, &fontControl, DigitRendererColor_White);
+			g_DigitRenderer->SetImageDataInDynamicPos(textData.text, textData.pos, &fontControl, DigitRendererColor_WhiteA190);
 		}
 	}
 	// end
@@ -491,7 +508,7 @@ void togui_MainDisplay_ToDigitTest(ID3D11DeviceContext* pCTX) {
 	fontControl.time = 1;
 
 	auto textData = FormatNumberToDigitRendererChars_Damage(12.1f);
-	g_DigitRenderer->SetImageDataInFixedPos(textData, v_basePos, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_Blue);
+	g_DigitRenderer->SetImageDataInFixedPos(textData, v_basePos, &fontControl, DigitRendererColor_Blue);
 
 	__m128 v_basePos1 = { 100, 100, 148, 148 };
 	fontControl.charAlignFactor = 0;
@@ -500,7 +517,7 @@ void togui_MainDisplay_ToDigitTest(ID3D11DeviceContext* pCTX) {
 	fontControl.scaleFactor = time;
 	fontControl.fadeFactor = time;
 	auto textData1 = FormatNumberToDigitRendererChars_Percentage(2.34f);
-	g_DigitRenderer->SetImageDataInFixedPos(textData1, v_basePos1, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_Red);
+	g_DigitRenderer->SetImageDataInFixedPos(textData1, v_basePos1, &fontControl, DigitRendererColor_Red);
 
 	__m128 v_basePos2 = { 1340, 860, 1372, 892 };
 	fontControl.charAlignFactor = 0.5;
@@ -509,8 +526,9 @@ void togui_MainDisplay_ToDigitTest(ID3D11DeviceContext* pCTX) {
 	fontControl.scaleFactor = time;
 	fontControl.fadeFactor = 0;
 	auto textData2 = FormatNumberToDigitRendererChars_Damage(121456789.1f);
-	g_DigitRenderer->SetImageDataInFixedPos(textData2, v_basePos2, &fontControl, DynamicDigitRenderer_t::DigitRendererColor_White);
+	g_DigitRenderer->SetImageDataInFixedPos(textData2, v_basePos2, &fontControl, DigitRendererColor_White);
 
 	time++;
+
 #endif // DEBUGMODE
 }

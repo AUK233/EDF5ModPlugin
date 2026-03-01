@@ -11,6 +11,7 @@ namespace DigitRenderer{
         DigitRendererShader_Fixed, // screen position is input by us.
         DigitRendererShader_Dynamic, // input unit position.
         DigitRendererShader_ALL,
+        DigitRendererShader_TEST, // only test
     };
 
     class DynamicDigitRenderer_t {

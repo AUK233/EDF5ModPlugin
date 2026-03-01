@@ -234,9 +234,6 @@
       <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AssemblyAndSourceCode</AssemblerOutput>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Default</StructMemberAlignment>
     </ClCompile>
-    <ClCompile Include="zHui\HuiDisplaySubtitle.cpp">
-      <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NoListing</AssemblerOutput>
-    </ClCompile>
     <ClCompile Include="zHui\HUiHudCommonStruct.cpp">
       <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NoListing</AssemblerOutput>
     </ClCompile>
@@ -251,6 +248,7 @@
       <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NoListing</AssemblerOutput>
     </ClCompile>
     <ClCompile Include="zHui\ToGui\2ReadINIConfig.cpp" />
+    <ClCompile Include="zHui\ToGui\2SubtitleRenderer.cpp" />
     <ClCompile Include="zHui\ToGui\DirectXTK\BinaryReader.cpp" />
     <ClCompile Include="zHui\ToGui\DirectXTK\BufferHelpers.cpp" />
     <ClCompile Include="zHui\ToGui\DirectXTK\CommonStates.cpp" />
@@ -315,11 +313,11 @@
     <MASM Include="zEnemy\ASMxgsGiantAnt.asm" />
     <MASM Include="zEnemy\ASMxgsBigNest.asm" />
     <MASM Include="zHui\0HuiAddImGuiASM.asm" />
-    <MASM Include="zHui\HuiDisplaySubtitleASM.asm" />
     <MASM Include="zHui\HuiModConsoleASM.asm" />
     <MASM Include="zHui\HuiMoreCharacterModelASM.asm" />
     <MASM Include="zHui\HuiObjectClassASM.asm" />
     <MASM Include="zHui\ToGui\0GetDXGIASM.asm" />
+    <MASM Include="zHui\ToGui\2SubtitleRendererASM.asm" />
     <MASM Include="zHui\ToGui\HUiHudPowerGuageASM.asm" />
     <MASM Include="zHui\ToGui\HUiHudWeaponASM.asm" />
   </ItemGroup>
@@ -363,7 +361,6 @@
     <ClInclude Include="zEnemy\EnemyHook_GiantAnt.h" />
     <ClInclude Include="zHui\0HuiAddImGui.h" />
     <ClInclude Include="zHui\HuiCasController.h" />
-    <ClInclude Include="zHui\HuiDisplaySubtitle.h" />
     <ClInclude Include="zHui\HUiHudCommonStruct.h" />
     <ClInclude Include="zHui\HuiModConsole.h" />
     <ClInclude Include="zHui\HuiMoreCharacterModel.h" />
@@ -375,6 +372,7 @@
     <ClInclude Include="zHui\ToGui\1DigitProcessor.h" />
     <ClInclude Include="zHui\ToGui\1DigitRenderer.h" />
     <ClInclude Include="zHui\ToGui\2ReadINIConfig.h" />
+    <ClInclude Include="zHui\ToGui\2SubtitleRenderer.h" />
     <ClInclude Include="zHui\ToGui\DirectXTK\AlignedNew.h" />
     <ClInclude Include="zHui\ToGui\DirectXTK\Audio.h" />
     <ClInclude Include="zHui\ToGui\DirectXTK\Bezier.h" />

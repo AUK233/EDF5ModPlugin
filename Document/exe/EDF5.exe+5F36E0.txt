@@ -38,30 +38,12 @@ EDF5.exe+116903 2C(0xBB8 移除对象
 
 00007FF6427D745B 12685B
 
-EDF5.exe+11667C 2C(0xFA0 call播放声音
-EDF5.exe+1166FC 2C(0xFA2);
-
-EDF5.exe+115074 2C(0x1004)；播放单位声音前置条件
-EDF5.exe+1150F4 2C(0x1006 call压入单位声音，r8是声音名字
-EDF5.exe+115170 2C(0x1007 call压入单位声音，r8是声音名字
-EDF5.exe+115206 2C(0x1009 call压入单位声音，r9是声音名字
-EDF5.exe+1150B8 2C(0x1005); 播放单位声音
-
-EDF5.exe+5AAEA7 inc [rdi+78] 声音播放时增加的计数
-EDF5.exe+5AAEBD mov [rdi+78],00000000 播放完成后置0
-
-
-
-EDF5.exe+11B9ED 播放bgm时寻找文件，没有则返回的al是0
-EDF5.exe+47CA27 播放语音时寻找文件
 
 
 
 
-语音播放检查
-EDF5.exe+5AA03E - C6 41 68 00           - mov byte ptr [rcx+68],00
-EDF5.exe+5AAEA1 - 80 7F 68 00           - cmp byte ptr [rdi+68],00 可能为结束
-EDF5.exe+5A9EC5 - 80 7B 68 00           - cmp byte ptr [rbx+68],00
+
+
 
 48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 0F 29 74 24 20 0F
 EDF5.exe+199000 检查箱子拾取 mov rsi, rcx

@@ -180,9 +180,6 @@
     <ClCompile Include="zHui\HuiCasController.cpp">
       <Filter>Source Files\Module Hui\main</Filter>
     </ClCompile>
-    <ClCompile Include="zHui\HuiDisplaySubtitle.cpp">
-      <Filter>Source Files\Module Hui\main</Filter>
-    </ClCompile>
     <ClCompile Include="zHui\HUiHudCommonStruct.cpp">
       <Filter>Source Files\Module Hui\main</Filter>
     </ClCompile>
@@ -232,6 +229,9 @@
       <Filter>Source Files\Module Hui\ToFui\main</Filter>
     </ClCompile>
     <ClCompile Include="zHui\ToGui\HUiHudWeapon.cpp">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ToGui\2SubtitleRenderer.cpp">
       <Filter>Source Files\Module Hui\ToFui\main</Filter>
     </ClCompile>
   </ItemGroup>
@@ -332,9 +332,6 @@
     <MASM Include="zHui\0HuiAddImGuiASM.asm">
       <Filter>Source Files\Module Hui\main</Filter>
     </MASM>
-    <MASM Include="zHui\HuiDisplaySubtitleASM.asm">
-      <Filter>Source Files\Module Hui\main</Filter>
-    </MASM>
     <MASM Include="zHui\HuiModConsoleASM.asm">
       <Filter>Source Files\Module Hui\main</Filter>
     </MASM>
@@ -369,6 +366,9 @@
       <Filter>Source Files\Module Hui\ToFui\main</Filter>
     </MASM>
     <MASM Include="zHui\ToGui\HUiHudWeaponASM.asm">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </MASM>
+    <MASM Include="zHui\ToGui\2SubtitleRendererASM.asm">
       <Filter>Source Files\Module Hui\ToFui\main</Filter>
     </MASM>
   </ItemGroup>
@@ -571,9 +571,6 @@
     <ClInclude Include="zHui\HuiCasController.h">
       <Filter>Source Files\Module Hui\main</Filter>
     </ClInclude>
-    <ClInclude Include="zHui\HuiDisplaySubtitle.h">
-      <Filter>Source Files\Module Hui\main</Filter>
-    </ClInclude>
     <ClInclude Include="zHui\HUiHudCommonStruct.h">
       <Filter>Source Files\Module Hui\main</Filter>
     </ClInclude>
@@ -639,6 +636,9 @@
     </ClInclude>
     <ClInclude Include="Base\base_BaseAmmo.hpp">
       <Filter>Source Files\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ToGui\2SubtitleRenderer.h">
+      <Filter>Source Files\Module Hui\ToFui\main</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

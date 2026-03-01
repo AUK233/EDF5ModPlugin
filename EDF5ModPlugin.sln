@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36221.1 d17.14
+# Visual Studio Version 18
+VisualStudioVersion = 18.1.11312.151 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EDF5ModPlugin", "EDF5ModPlugin\EDF5ModPlugin.vcxproj", "{684F548A-EDFD-47D3-AA40-4307FCD281AA}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StarCalculator", "StarCalculator\StarCalculator.vcxproj", "{F1BD5137-D8AA-45A3-AD73-EAECA71D698F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NVSL", "NVSL\NVSL.vcxproj", "{252AAD8B-CF83-49C6-9DFD-E4719822EF2D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "binary_to_compressed_c", "binary_to_compressed_c\binary_to_compressed_c.vcxproj", "{98D2FC59-9E31-495C-96C3-B2848500B4DB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,14 @@ Global
 		{252AAD8B-CF83-49C6-9DFD-E4719822EF2D}.Release|x64.Build.0 = Release|x64
 		{252AAD8B-CF83-49C6-9DFD-E4719822EF2D}.Release|x86.ActiveCfg = Release|Win32
 		{252AAD8B-CF83-49C6-9DFD-E4719822EF2D}.Release|x86.Build.0 = Release|Win32
+		{98D2FC59-9E31-495C-96C3-B2848500B4DB}.Debug|x64.ActiveCfg = Debug|x64
+		{98D2FC59-9E31-495C-96C3-B2848500B4DB}.Debug|x64.Build.0 = Debug|x64
+		{98D2FC59-9E31-495C-96C3-B2848500B4DB}.Debug|x86.ActiveCfg = Debug|Win32
+		{98D2FC59-9E31-495C-96C3-B2848500B4DB}.Debug|x86.Build.0 = Debug|Win32
+		{98D2FC59-9E31-495C-96C3-B2848500B4DB}.Release|x64.ActiveCfg = Release|x64
+		{98D2FC59-9E31-495C-96C3-B2848500B4DB}.Release|x64.Build.0 = Release|x64
+		{98D2FC59-9E31-495C-96C3-B2848500B4DB}.Release|x86.ActiveCfg = Release|Win32
+		{98D2FC59-9E31-495C-96C3-B2848500B4DB}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

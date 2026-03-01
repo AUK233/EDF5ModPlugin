@@ -17,6 +17,7 @@
 #include "ToGui/0SetImGui.h"
 #include "ToGui/HUiHudPowerGuage.h"
 #include "ToGui/HUiHudWeapon.h"
+#include "ToGui/2SubtitleRenderer.h"
 #include "0HuiAddImGui.h"
 
 extern "C" {
@@ -58,4 +59,5 @@ void module_InitializeAddImGui(PBYTE hmodEXE)
 
 	module_UpdateHUiHudPowerGuage(hmodEXE);
 	module_UpdateHUiHudWeapon(hmodEXE);
+	DigitRenderer::SubtitleRenderer_Initialization(hmodEXE);
 }

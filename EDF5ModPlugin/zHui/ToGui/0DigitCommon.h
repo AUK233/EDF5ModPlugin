@@ -10,10 +10,11 @@ namespace DigitRenderer {
 		DigitRendererColor_Red, // 255, 0, 0, 255
 		DigitRendererColor_Green, // 0, 255, 0, 255
 		DigitRendererColor_GreenHalfA, // 0, 255, 0, 127
+		DigitRendererColor_Yellow, // 255, 255, 0, 255
 		DigitRendererColor_Blue, // 0, 0, 255, 255
 		DigitRendererColor_Cyan, // 0, 255, 255, 255
 		DigitRendererColor_White, // 255, 255, 255, 255
-		DigitRendererColor_Yellow, // 255, 255, 0, 255
+		DigitRendererColor_WhiteA190, // 255, 255, 255, 190
 		DigitRendererColor_ALL,
 	};
 
@@ -97,5 +98,6 @@ namespace DigitRenderer {
 	DigitTextByte FormatNumberToDigitRendererChars_Percentage(float number);
 	DigitTextByte FormatNumberToDigitRendererChars_Second(float number);
 	DigitTextByte StringToDigitRendererChars(const std::string& str);
+	std::string UnicodeToUTF8(LPCWSTR wstr, int length = -1);
 }
 
