@@ -29,8 +29,11 @@ extern "C"{
 	uintptr_t script2C_FA0ret;
 	void __fastcall ASMscript2C_FA2();
 
-	void __fastcall ASMplayTalkReady();
-	uintptr_t playTalkReady_ret;
+	void __fastcall ASMaddTalkToList();
+	uintptr_t addTalkToList_ret;
+
+	void __fastcall ASMsetPlayTalk();
+	uintptr_t setPlayTalk_ret;
 }
 
 extern DigitRenderer::PSubtitleRenderer g_SubtitleRenderer;
@@ -56,9 +59,31 @@ namespace DigitRenderer {
 		hookGameBlockWithInt3((void*)(hmodEXE + 0x116708), (uintptr_t)ASMscript2C_FA2);
 		WriteHookToProcess((void*)(hmodEXE + 0x116708 + 15), (void*)&nop1, 1U);
 
-		// EDF5.exe+327D35, play talk ready
-		hookGameBlockWithInt3((void*)(hmodEXE + 0x327D35), (uintptr_t)ASMplayTalkReady);
-		playTalkReady_ret = (uintptr_t)(hmodEXE + 0x327D35 + 15);
+		// EDF5.exe+3278F3, initialize talk information
+		BYTE TalkInit[] = {
+			0x89, 0x73, 0x6C,
+			0x90,
+			0x48, 0x8B, 0xC3
+		};
+		WriteHookToProcess((void*)(hmodEXE + 0x3278F3), TalkInit, 7U);
+
+
+		// EDF5.exe+32B2E1, copy talk information
+		BYTE CopyTalkInit[]= {
+			0x8B, 0x47, 0x6C,
+			0x89, 0x43, 0x6C,
+			0x90
+		};
+		WriteHookToProcess((void*)(hmodEXE + 0x32B2E1), CopyTalkInit, 7U);
+
+		// EDF5.exe+326D20, add talk to list
+		hookGameBlockWithInt3((void*)(hmodEXE + 0x326D20), (uintptr_t)ASMaddTalkToList);
+		WriteHookToProcess((void*)(hmodEXE + 0x326D20 + 15), (void*)&nop1, 1U);
+		addTalkToList_ret = (uintptr_t)(hmodEXE + 0x326D30);
+
+		// EDF5.exe+327A2E, set play talk
+		hookGameBlockRAXWithInt3((void*)(hmodEXE + 0x327A2E), (uintptr_t)ASMsetPlayTalk);
+		setPlayTalk_ret = (uintptr_t)(hmodEXE + 0x327A3B);
 
 		// initialize subtitles data
 		HANDLE tempHND = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)SubtitleRenderer_InitSubtitle, NULL, NULL, NULL);
@@ -101,15 +126,17 @@ namespace DigitRenderer {
 				int nodepos, strSize, dataOffset;
 				// read node name
 				WCHAR* pWstr;
-				p->SubtitleName[i].reserve(DataNameCount);
-				p->SubtitleName_index[i].reserve(DataNameCount);
+				p->SubtitleMap[i].rehash(DataNameCount);
+				//p->SubtitleName[i].reserve(DataNameCount);
+				//p->SubtitleName_index[i].reserve(DataNameCount);
 				for (int j = 0; j < DataNameCount; j++) {
 					nodepos = DataNameOffset + (j * 8);
 					dataOffset = *(int*)(pData + nodepos);
 					pWstr = (WCHAR*)(pData + nodepos + dataOffset);
 					auto textID = *(int*)(pData + nodepos + 4);
-					p->SubtitleName[i].push_back(pWstr);
-					p->SubtitleName_index[i].push_back(textID);
+					p->SubtitleMap[i][std::wstring(pWstr)] = textID;
+					//p->SubtitleName[i].push_back(pWstr);
+					//p->SubtitleName_index[i].push_back(textID);
 				}
 				// read node wstring
 				p->SubtitleList[i].resize(DataNodeCount);
@@ -188,7 +215,13 @@ namespace DigitRenderer {
 		auto curLang = *g_CurrentTextLanguage;
 		if ((UINT32)curLang > 3) curLang = 0;
 
-		auto& subtitleMap = SubtitleName_index[curLang];
+		int index = -1;
+		auto& subtitleMap = SubtitleMap[curLang];
+		std::wstring inName(pAudioName, nameSize);
+		auto it = subtitleMap.find(inName);
+		if (it != subtitleMap.end()) index = it->second;
+
+		/*auto& subtitleMap = SubtitleName_index[curLang];
 		auto& subtitleName = SubtitleName[curLang];
 
 		int index = -1;
@@ -198,13 +231,13 @@ namespace DigitRenderer {
 				index = subtitleMap[i];
 				break;
 			}
-		}
+		}*/
 
 		if (index == -1) {
-			/*EnterCriticalSection(&csSubtitle);
+			EnterCriticalSection(&csSubtitle);
 			CurrentSubtitle.text_size = 0;
 			CurrentSubtitle.active_time = 0;
-			LeaveCriticalSection(&csSubtitle);*/
+			LeaveCriticalSection(&csSubtitle);
 			return;
 		}
 
@@ -245,8 +278,8 @@ namespace DigitRenderer {
 		}
 
 		EnterCriticalSection(&csSubtitle);
-		//std::swap(CurrentSubtitle, out);
-		CurrentSubtitle = out;
+		std::swap(CurrentSubtitle, out);
+		//CurrentSubtitle = out;
 		LeaveCriticalSection(&csSubtitle);
 	}
 

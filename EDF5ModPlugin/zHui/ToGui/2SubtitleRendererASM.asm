@@ -4,7 +4,8 @@ extern SubtitleRenderer_GetCurrentSubtitle : proto
 extern script2C_FA0ret : qword
 extern SubtitleRenderer_ClearCurrentSubtitle : proto
 
-extern playTalkReady_ret : qword
+extern addTalkToList_ret : qword
+extern setPlayTalk_ret : qword
 
 .code
 
@@ -72,8 +73,27 @@ ASMscript2C_FA2 ENDP
 
 align 16
 
-ASMplayTalkReady proc
+ASMaddTalkToList proc
 
+		mov dword ptr [rbp+13h], 100h
+		mov eax, [r15+20h]
+		mov [rsp+40h], eax
+		lea rsi, [r15+48h]
+		jmp addTalkToList_ret
+		int 3
+
+ASMaddTalkToList ENDP
+
+align 16
+
+ASMsetPlayTalk proc
+		
+		mov rbx, rcx
+		mov byte ptr [rcx+6Ch], 1
+		; new
+		cmp byte ptr [rbx+6Ch+1], 1
+		jne ofs326E32
+		mov byte ptr [rbx+6Ch+1], 0
 		mov r8, [rbx+28h]
 		mov rdx, [rbx+20h]
 		lea rcx, [rbx+10h]
@@ -82,13 +102,13 @@ ASMplayTalkReady proc
 		mov rcx, [rcx]
 	callFunc:
 		call SubtitleRenderer_GetCurrentSubtitle
-	ofs327135:
-		mov byte ptr [rbp-29], 0
-		mov eax, 3
-		movss xmm0, dword ptr [r15+8]
-		jmp playTalkReady_ret
+
+	ofs326E32:
+		lea rcx, [rbx+50h]
+		lea rdx, [rsp+28h]
+		jmp setPlayTalk_ret
 		int 3
 
-ASMplayTalkReady ENDP
+ASMsetPlayTalk ENDP
 
 END

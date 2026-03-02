@@ -1,5 +1,6 @@
 #pragma once
 #include "Base/SSE.hpp"
+#include <unordered_map>
 
 namespace DigitRenderer {
 	void SubtitleRenderer_Initialization(PBYTE hmodEXE);
@@ -20,8 +21,9 @@ namespace DigitRenderer {
 
 	class SubtitleRenderer_t {
 	public:
-		std::vector<std::wstring> SubtitleName[4];
-		std::vector<int> SubtitleName_index[4];
+		std::unordered_map<std::wstring, int> SubtitleMap[4];
+		//std::vector<std::wstring> SubtitleName[4];
+		//std::vector<int> SubtitleName_index[4];
 		std::vector<SubtitleTextStruct_t> SubtitleList[4];
 
 		CRITICAL_SECTION csSubtitle;

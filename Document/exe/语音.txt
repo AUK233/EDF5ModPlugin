@@ -23,8 +23,29 @@ EDF5.exe+5A9EC5 - 80 7B 68 00           - cmp byte ptr [rbx+68],00
 EDF5.exe+327D44 - 0F2F 05 C9EABB00      - comiss xmm0,[EDF5.exe+EE6814]
 播放语音时读一次，士兵说话时也会读
 这里的rbx+10就是语音名字，但是下面的就会变成动作名
+EDF5.exe+32B200 - 48 89 4C 24 08        - mov [rsp+08],rcx
+这个rbx指针是在这里作为rcx被初始化的
+
+EDF5.exe+326DCF
+这个地方就是增加语音时压入的需要触发的语音
+EDF5.exe+326D20 这地方对应rdi+6c
+
+EDF5.exe+32B2E1 - 0FB6 47 6C            - movzx eax,byte ptr [rdi+6C]
++6c就用了1字节，剩下的可以使用
+EDF5.exe+327A2E - C6 41 6C 01           - mov byte ptr [rcx+6C],01
+这里写入播放？
 
 EDF5.exe+3268DA - F3 0F10 05 32FFBB00   - movss xmm0,[EDF5.exe+EE6814]
-播放语音时读
+播放语音时读，士兵说话时不会触发它
+
+EDF5.exe+3254A8 - 48 8B D0              - mov rdx,rax
+也是增加语音，看起来是负责拷贝的
+EDF5.exe+3278F6 rdi+6c在这里被初始化
+
+EDF5.exe+32BA35 - 48 8B D0              - mov rdx,rax
+语音压入, r9是数据指针
+
+EDF5.exe+3269D2 - 48 8B 3F              - mov rdi,[rdi]
+这里[rdi]，它的+20是语音名，这个rdi是r14+0
 
 
