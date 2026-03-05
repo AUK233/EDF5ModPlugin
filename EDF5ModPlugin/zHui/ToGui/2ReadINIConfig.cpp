@@ -22,13 +22,13 @@ void __fastcall INIConfig_Initialize(LPCWSTR path)
 {
 	ConfigINIPath = path;
 
-	Config_RTRead = GetPrivateProfileIntW(L"ModOption", L"RTRead", 0, path);
 	Config_HUDEnhance = GetPrivateProfileIntW(L"ModOption", L"HUDEnhance", 0, path);
 	INIConfig_ReadIngameConfigurable();
 }
 
 void __fastcall INIConfig_ReadIngameConfigurable()
 {
+	Config_RTRead = GetPrivateProfileIntW(L"ModOption", L"RTRead", 0, ConfigINIPath.c_str());
 	Config_DisplayDamageType = GetPrivateProfileIntW(L"ModOption", L"DisplayDamage", 0, ConfigINIPath.c_str());
 	Config_DisplaySubtitle = GetPrivateProfileIntW(L"ModOption", L"DisplaySubtitle", 0, ConfigINIPath.c_str());
 }

@@ -30,6 +30,7 @@
 extern "C" {
 	extern int Config_RTRead;
 	extern int Config_DisplayDamageType;
+	extern int Config_DisplaySubtitle;
 }
 
 DigitRenderer::PDynamicDigitRenderer g_DigitRenderer;
@@ -277,7 +278,10 @@ void togui_MainDisplayInMission() {
 	// Todo =====================================================================
 	auto pLCP = DigitRenderer::GetLocalCurrentPlayersPointer();
 	togui_MainDisplay_ToDigit(pLCP);
-	g_SubtitleRenderer->DisplayCurrentSubtitle(pLCP[0]);
+
+	if (Config_DisplaySubtitle) {
+		g_SubtitleRenderer->DisplayCurrentSubtitle(pLCP[0]);
+	}
 	// End ======================================================================
 
 	ImGui::End();
@@ -321,29 +325,32 @@ void togui_MainDisplay_ToDigit(PG_SoldierBase* pLCP)
 		}
 		// end
 	}
+	else if (Config_DisplayDamageType == 2) {
+		auto pUmbraSystem = DXGI_GetUmbraSystem125B080();
+		if (pUmbraSystem) {
+			memcpy(g_DigitRenderer->g_constants1.c_xgl_view, pUmbraSystem->matrix_view, sizeof(float) * 4 * 4);
+			memcpy(g_DigitRenderer->g_constants1.c_xgl_projection, pUmbraSystem->matrix_projection, sizeof(float) * 4 * 4);
+			g_DigitRenderer->SetRender(pCTX, &g_DigitProcessor->DigitConstantData, DigitRenderer::DigitRendererShader_Dynamic);
 
-	auto pUmbraSystem = DXGI_GetUmbraSystem125B080();
-	if (pUmbraSystem){
-		memcpy(g_DigitRenderer->g_constants1.c_xgl_view, pUmbraSystem->matrix_view, sizeof(float) * 4 * 4);
-		memcpy(g_DigitRenderer->g_constants1.c_xgl_projection, pUmbraSystem->matrix_projection, sizeof(float) * 4 * 4);
-		g_DigitRenderer->SetRender(pCTX, &g_DigitProcessor->DigitConstantData, DigitRenderer::DigitRendererShader_Dynamic);
+			togui_MainDisplay_ToDigit_DamageInHitMode();
 
-		togui_MainDisplay_ToDigit_DamageInHitMode();
+			/*DigitFontControl_t fontControl;
+			ZeroMemory(&fontControl, sizeof(DigitFontControl_t));
+			fontControl.charAlignFactor = 0.5;
+			fontControl.i_fontSize = 48;
+			fontControl.f_fontSize = 48;
+			fontControl.scaleFactor = 0;
+			fontControl.fadeFactor = 0;
+			fontControl.time = 1;
 
-		/*DigitFontControl_t fontControl;
-		ZeroMemory(&fontControl, sizeof(DigitFontControl_t));
-		fontControl.charAlignFactor = 0.5;
-		fontControl.i_fontSize = 48;
-		fontControl.f_fontSize = 48;
-		fontControl.scaleFactor = 0;
-		fontControl.fadeFactor = 0;
-		fontControl.time = 1;
-
-		auto text_damage = FormatNumberToDigitRendererChars_Damage(45.7);
-		g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { 395, 5, 461, 1 }, &fontControl, DigitRendererColor_Red);
-		g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { 395, 50, 461, 1 }, &fontControl, DigitRendererColor_Blue);
-		g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { 395, 150, 461, 1 }, &fontControl, DigitRendererColor_Green);*/
+			auto text_damage = FormatNumberToDigitRendererChars_Damage(45.7);
+			g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { 395, 5, 461, 1 }, &fontControl, DigitRendererColor_Red);
+			g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { 395, 50, 461, 1 }, &fontControl, DigitRendererColor_Blue);
+			g_DigitRenderer->SetImageDataInDynamicPos(text_damage, { 395, 150, 461, 1 }, &fontControl, DigitRendererColor_Green);*/
+		}
+		// end
 	}
+
 
 #endif
 
@@ -442,7 +449,7 @@ void togui_MainDisplay_ToDigit_DamageInHitMode() {
 	for (auto& v_data : g_DigitProcessor->v_p1DamageHitText) {
 		for (auto& textData : v_data.data) {
 			fontControl.time = v_data.fadeTime;
-			g_DigitRenderer->SetImageDataInDynamicPos(textData.text, textData.pos, &fontControl, DigitRendererColor_WhiteA190);
+			g_DigitRenderer->SetImageDataInDynamicPos(textData.text, textData.pos, &fontControl, DigitRendererColor_White);
 		}
 	}
 	// end

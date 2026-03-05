@@ -60,8 +60,8 @@ ASMgetInflictDamageFromDamageFunc proc
 		addss xmm2, xmm0
 		movss dword ptr [rax+34h], xmm2
 		; check display on hit
-		cmp Config_DisplayDamageType, 0
-		je giveDamageToObject
+		cmp Config_DisplayDamageType, 2
+		jne giveDamageToObject
 		cmp dword ptr [rsi+24h], 0 ; check team id
 		jne giveDamageToObject
 		mov r8, rax

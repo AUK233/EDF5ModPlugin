@@ -72,9 +72,6 @@
     <ClCompile Include="GameFunc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GFnDisplay.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GameFunc_vftable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -234,6 +231,9 @@
     <ClCompile Include="zHui\ToGui\2SubtitleRenderer.cpp">
       <Filter>Source Files\Module Hui\ToFui\main</Filter>
     </ClCompile>
+    <ClCompile Include="zEDF\Weapon\XGS_WeaponBase.cpp">
+      <Filter>Source Files\Module EDF\Weapon</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMgamelog_hook.asm">
@@ -248,13 +248,7 @@
     <MASM Include="ASMplayerViewChange.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
-    <MASM Include="ASMedfWeaponSet.asm">
-      <Filter>Assembly Files</Filter>
-    </MASM>
     <MASM Include="ASMxgsOCmonster501.asm">
-      <Filter>Assembly Files</Filter>
-    </MASM>
-    <MASM Include="ASMhookTextDisplay.asm">
       <Filter>Assembly Files</Filter>
     </MASM>
     <MASM Include="ASMhookGameSystem.asm">
@@ -314,10 +308,10 @@
     <MASM Include="zEnemy\ASMxgsGiantAnt.asm">
       <Filter>Source Files\Module Enemy</Filter>
     </MASM>
-    <MASM Include="zEDF\Weapon\ASMxgs_Weapon_RadioContact.asm">
+    <MASM Include="zEDF\Weapon\XGS_Weapon_RadioContactASM.asm">
       <Filter>Source Files\Module EDF\Weapon</Filter>
     </MASM>
-    <MASM Include="zEDF\Weapon\ASMxgs_Weapon_LaserMarkerCallFire.asm">
+    <MASM Include="zEDF\Weapon\XGS_Weapon_LaserMarkerCallFireASM.asm">
       <Filter>Source Files\Module EDF\Weapon</Filter>
     </MASM>
     <MASM Include="zEnemy\ASMxgsBigNest.asm">
@@ -371,6 +365,9 @@
     <MASM Include="zHui\ToGui\2SubtitleRendererASM.asm">
       <Filter>Source Files\Module Hui\ToFui\main</Filter>
     </MASM>
+    <MASM Include="zEDF\Weapon\XGS_WeaponBaseASM.asm">
+      <Filter>Source Files\Module EDF\Weapon</Filter>
+    </MASM>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PluginAPI.h">
@@ -389,9 +386,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="..\HookLib\HookLib\HookLib\HookLib.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GFnDisplay.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="GameFuncSetup.h">
@@ -639,6 +633,9 @@
     </ClInclude>
     <ClInclude Include="zHui\ToGui\2SubtitleRenderer.h">
       <Filter>Source Files\Module Hui\ToFui\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zEDF\Weapon\XGS_WeaponBase.h">
+      <Filter>Source Files\Module EDF\Weapon</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

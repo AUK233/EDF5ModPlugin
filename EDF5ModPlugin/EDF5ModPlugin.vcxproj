@@ -208,13 +208,6 @@
       <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AssemblyAndSourceCode</AssemblerOutput>
     </ClCompile>
     <ClCompile Include="GameFunc_vftable.cpp" />
-    <ClCompile Include="GFnDisplay.cpp">
-      <OmitFramePointers Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </OmitFramePointers>
-      <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AssemblyAndSourceCode</AssemblerOutput>
-      <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotSet</EnableEnhancedInstructionSet>
-      <FavorSizeOrSpeed Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Neither</FavorSizeOrSpeed>
-    </ClCompile>
     <ClCompile Include="proxy.c" />
     <ClCompile Include="utiliy.cpp">
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdcpp20</LanguageStandard>
@@ -224,6 +217,7 @@
     <ClCompile Include="zEDF\EDFCommonFunction.cpp" />
     <ClCompile Include="zEDF\EDFWeaponFunction.cpp" />
     <ClCompile Include="zEDF\Vehicle\XGS_VehicleBegaruta.cpp" />
+    <ClCompile Include="zEDF\Weapon\XGS_WeaponBase.cpp" />
     <ClCompile Include="zEDF\Weapon\XGS_Weapon_LaserMarkerCallFire.cpp" />
     <ClCompile Include="zEDF\Weapon\XGS_Weapon_RadioContact.cpp" />
     <ClCompile Include="zEnemy\EnemyHook_BigNest.cpp" />
@@ -292,9 +286,7 @@
     <MASM Include="ASMxgsOCgiantSpider.asm" />
     <MASM Include="ASMxgsWGatling.asm" />
     <MASM Include="ASMhookGameSystem.asm" />
-    <MASM Include="ASMhookTextDisplay.asm" />
     <MASM Include="ASMxgsOCmonster501.asm" />
-    <MASM Include="ASMedfWeaponSet.asm" />
     <MASM Include="ASMplayerViewChange.asm" />
     <MASM Include="ASMgamelog_hook.asm" />
     <MASM Include="ASMCallGameFunction.asm" />
@@ -307,8 +299,9 @@
     <MASM Include="zEDF\ASMxgsVehicle501FortressRobo.asm" />
     <MASM Include="zEDF\ASMxgsPaleWing.asm" />
     <MASM Include="zEDF\Vehicle\ASMxgsVehicleBegaruta.asm" />
-    <MASM Include="zEDF\Weapon\ASMxgs_Weapon_LaserMarkerCallFire.asm" />
-    <MASM Include="zEDF\Weapon\ASMxgs_Weapon_RadioContact.asm" />
+    <MASM Include="zEDF\Weapon\XGS_WeaponBaseASM.asm" />
+    <MASM Include="zEDF\Weapon\XGS_Weapon_LaserMarkerCallFireASM.asm" />
+    <MASM Include="zEDF\Weapon\XGS_Weapon_RadioContactASM.asm" />
     <MASM Include="zEnemy\ASMxgsGeneratorPoll_Destroy.asm" />
     <MASM Include="zEnemy\ASMxgsGiantAnt.asm" />
     <MASM Include="zEnemy\ASMxgsBigNest.asm" />
@@ -338,7 +331,6 @@
     <ClInclude Include="GameFunctionInASM.h" />
     <ClInclude Include="GameFunc_Mission.h" />
     <ClInclude Include="GameFunc_vftable.h" />
-    <ClInclude Include="GFnDisplay.h" />
     <ClInclude Include="LoadModule.hpp" />
     <ClInclude Include="LoggerTweaks.h" />
     <ClInclude Include="PluginAPI.h" />
@@ -354,6 +346,7 @@
     <ClInclude Include="zEDF\EDFWeaponFunction.h" />
     <ClInclude Include="zEDF\Vehicle\XGS_VehicleBegaruta.h" />
     <ClInclude Include="zEDF\Weapon\EDFWeapon.hpp" />
+    <ClInclude Include="zEDF\Weapon\XGS_WeaponBase.h" />
     <ClInclude Include="zEDF\Weapon\XGS_Weapon_LaserMarkerCallFire.h" />
     <ClInclude Include="zEDF\Weapon\XGS_Weapon_RadioContact.h" />
     <ClInclude Include="zEnemy\EnemyHook_BigNest.h" />

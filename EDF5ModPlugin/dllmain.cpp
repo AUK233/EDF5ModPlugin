@@ -27,7 +27,6 @@
 #include "GameFuncSetup.h"
 #include "GameFuncStartup.h"
 #include "GameFunc_vftable.h"
-#include "GFnDisplay.h"
 #include "zHui/ToGui/2ReadINIConfig.h"
 
 // about dlss
@@ -426,10 +425,6 @@ static void *__fastcall initterm_hook(void *unk1, void *unk2) {
 		else {
 			MessageBoxW(NULL, L"test", L"error", MB_OK);
 		}*/
-
-		if (HUDEnhance || RTRead) {
-			hookHUDEnhancement();
-		}
 
 		// It needs to be right here
 		if (RTRead) {

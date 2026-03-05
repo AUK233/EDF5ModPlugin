@@ -16,6 +16,7 @@
 #include "commonNOP.h"
 #include "EDFWeaponFunction.h"
 
+#include "Weapon/XGS_WeaponBase.h"
 #include "Weapon/XGS_Weapon_LaserMarkerCallFire.h"
 #include "Weapon/XGS_Weapon_RadioContact.h"
 

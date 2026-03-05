@@ -169,11 +169,10 @@ namespace DigitRenderer {
 
 		std::wstring newText;
 		int newline_count = 0;
+		int eachline_count = 40;
 
-		int eachline_count = 20;
 		int estimated_newlines = textSize / 20;
 		if (language == 1) {
-			eachline_count = 40;
 			estimated_newlines /= 2;
 		}
 
@@ -182,13 +181,18 @@ namespace DigitRenderer {
 		int word_count = 0;
 		for (int i = 0; i < textSize; i++) {
 			newText += pWstr[i];
-			word_count++;
+
+			if (pWstr[i] > 127) {
+				word_count += 2;
+			} else {
+				word_count++;
+			}
 
 			if (pWstr[i] == L'\n') {
 				newline_count++;
 				word_count = 0;
 			} else {
-				if (word_count == eachline_count) {
+				if (word_count >= eachline_count) {
 					newText += L'\n';
 					newline_count++;
 					word_count = 0;

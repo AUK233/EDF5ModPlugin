@@ -61,6 +61,7 @@ _ShotIndicatorCircle db 95,0,83,0,104,0,111,0,116,0,95,0,73,0,110,0,100,0,105,0,
 
 .code
 
+; AreaRender_initialization
 ASMrva3B4F40mod proc
 
         mov rax, rsp
@@ -229,9 +230,11 @@ ASMrva3B4F40mod proc
         jp ofs3B4691
         je ofs3B469C
     ofs3B4691:
-        movaps xmm0, xmm1
-        call __sqrtfAddr
-        movaps xmm6, xmm0
+        ; movaps xmm0, xmm1
+        ; call __sqrtfAddr
+        ; movaps xmm6, xmm0
+        movaps xmm6, xmm1
+        sqrtss xmm6, xmm6
     ofs3B469C:
         movss dword ptr [rbx+1CCh], xmm6
         mov dword ptr [rbx+1D0h], 41080000h

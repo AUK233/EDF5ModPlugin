@@ -1,40 +1,7 @@
 .data
 extern Vehicle403TankMainFireRetAddr : qword
 
-extern playerAddress : qword
-
 .code
-
-ASMgetPlayerAddress proc
-
-        mov r8, 10000h
-        mov rax, [rcx]
-        cmp rax, r8
-        jb returnZero
-        mov rax, [rax+238h]
-        cmp rax, r8
-        jb returnZero
-        mov rax, [rax+290h]
-        cmp rax, r8
-        jb returnZero
-        mov rax, [rax+10h]
-        cmp rax, r8
-        jb returnZero
-        mov [rdx], rax
-        mov rcx, [rax+1168h]
-        mov [rdx+8], rcx
-        ret
-        
-    returnZero:
-        xor rax, rax
-        mov [rdx], rax
-        mov [rdx+8], rax
-        ret
-        int 3
-
-ASMgetPlayerAddress ENDP
-
-align 16
 
 ASMVehicle403TankMainFire proc
 
