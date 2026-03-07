@@ -2,6 +2,19 @@
 #include "Base/base_BaseAmmo.hpp"
 #include "Base/base_baseObject.h"
 
+typedef void(__fastcall* CallFunc_WeaponBase_P90)(void* pThis, __m128* pPos); // vft+90
+
+typedef struct G_AreaRender_t {
+	void* vft_AreaRender;
+	char pad08[0xA8];
+	__m128 StartPos;
+	char padC0[0x150];
+} *PG_AreaRender;
+#if 1
+static_assert(offsetof(G_AreaRender_t, StartPos) == 0xB0);
+static_assert(sizeof(G_AreaRender_t) == 0x210);
+#endif
+
 typedef struct G_ShellCaseBase_t {
 	void* vft_ShellCaseBase;
 	char pad08[0x118];
@@ -11,9 +24,13 @@ static_assert(sizeof(G_ShellCaseBase_t) == 0x120);
 #endif
 
 typedef struct G_WeaponFireInfo_t {
-	char pad00[0x20];
-	int SpreadType; float SpreadWidth; int Count;
-	char padAC[0x94];
+	int Type; // FireType
+	char pad04[12];
+	__m128 Vector; // FireVector
+	int SpreadType; float SpreadWidth; int Count, Interval;
+	int BurstCount, BurstInterval; float Accuracy, Recoil;
+	char Se[0x40]; // FireLoadSe
+	char LoadSe[0x40];
 } *PG_WeaponFireInfo;
 #if 1
 static_assert(offsetof(G_WeaponFireInfo_t, SpreadType) == 0x20);
@@ -23,11 +40,13 @@ static_assert(sizeof(G_WeaponFireInfo_t) == 0xC0);
 // EDF5.exe+38F0E0
 typedef struct G_WeaponInfo_t {
 	char pad00[8];
-	WCHAR* Name; char pad10[0x50];
+	WCHAR* Name; char pad10[0x18];
+	void* pVector168; char pad30[0x30]; // this is a useful pointer.
 	int ReloadType, ReloadTime, ReloadTime2;
 	char pad1A4[0x18];
-	float EnergyChargeRequire, EnergyChargeOriginal, EnergyChargePercent; int MaxAmmoCount;
-	char pad94[0x84];
+	float EnergyChargeRequire, EnergyChargeOriginal, EnergyChargePercent;
+	int MaxAmmoCount; float AmmoOwnerMove;
+	char pad98[0x80];
 	void* vft_ConstantBuffer;
 	char pad120[0x70];
 	G_WeaponFireInfo_t Fire; char pad250[8];
@@ -46,6 +65,7 @@ typedef struct G_WeaponInfo_t {
 } *PG_WeaponInfo;
 #if 1
 static_assert(offsetof(G_WeaponInfo_t, Name) == 8);
+static_assert(offsetof(G_WeaponInfo_t, pVector168) == 0x28);
 static_assert(offsetof(G_WeaponInfo_t, vft_ConstantBuffer) == 0x118);
 static_assert(offsetof(G_WeaponInfo_t, Fire) == 0x190);
 static_assert(offsetof(G_WeaponInfo_t, vft_MuzzleFlashBase) == 0x258);
@@ -60,7 +80,9 @@ typedef struct G_WeaponBase_t : G_SceneObject_t {
 	bool bFireCheck; // To be verified
 	bool bSecondaryFire; // When it's 1, use SecondaryFire
 	char padDC[4];
-	bool addr224; char padE1[0x5F];
+	bool addr224; char padE1[0xF];
+	Matrix3D_t transform_weapon;
+	__m128 vector130; // copy from player+0x520
 	G_WeaponInfo_t Info;
 	char pad590[0x1C];
 	bool addr1452; // current weapon?
@@ -88,14 +110,23 @@ static_assert(offsetof(G_WeaponBase_t, bSecondaryFire) == 0xDB);
 static_assert(offsetof(G_WeaponBase_t, addr224) == 0xE0);
 static_assert(offsetof(G_WeaponBase_t, Info) == 0x140);
 static_assert(offsetof(G_WeaponBase_t, Info.Name) == 0x148);
+static_assert(offsetof(G_WeaponBase_t, Info.pVector168) == 0x168);
 static_assert(offsetof(G_WeaponBase_t, Info.ReloadType) == 0x1A0);
 static_assert(offsetof(G_WeaponBase_t, Info.ReloadTime) == 0x1A4);
 static_assert(offsetof(G_WeaponBase_t, Info.ReloadTime2) == 0x1A8);
 static_assert(offsetof(G_WeaponBase_t, Info.EnergyChargeRequire) == 0x1C4);
 static_assert(offsetof(G_WeaponBase_t, Info.MaxAmmoCount) == 0x1D0);
+static_assert(offsetof(G_WeaponBase_t, Info.AmmoOwnerMove) == 0x1D4);
+static_assert(offsetof(G_WeaponBase_t, Info.Fire.Type) == 0x2D0);
+static_assert(offsetof(G_WeaponBase_t, Info.Fire.Vector) == 0x2E0);
 static_assert(offsetof(G_WeaponBase_t, Info.Fire.SpreadType) == 0x2F0);
 static_assert(offsetof(G_WeaponBase_t, Info.Fire.SpreadWidth) == 0x2F4);
 static_assert(offsetof(G_WeaponBase_t, Info.Fire.Count) == 0x2F8);
+static_assert(offsetof(G_WeaponBase_t, Info.Fire.Interval) == 0x2FC);
+static_assert(offsetof(G_WeaponBase_t, Info.Fire.BurstCount) == 0x300);
+static_assert(offsetof(G_WeaponBase_t, Info.Fire.BurstInterval) == 0x304);
+static_assert(offsetof(G_WeaponBase_t, Info.Fire.Accuracy) == 0x308);
+static_assert(offsetof(G_WeaponBase_t, Info.Fire.Recoil) == 0x30C);
 static_assert(offsetof(G_WeaponBase_t, Info.SecondaryFire_Type) == 0x500);
 static_assert(offsetof(G_WeaponBase_t, Info.SecondaryFire_Parameter) == 0x508);
 static_assert(offsetof(G_WeaponBase_t, Info.LockonType) == 0x510);
@@ -110,6 +141,8 @@ static_assert(offsetof(G_WeaponBase_t, Info.LockonHoldTime) == 0x538);
 static_assert(offsetof(G_WeaponBase_t, Info.LockonFailedTime) == 0x540);
 static_assert(offsetof(G_WeaponBase_t, addr1452) == 0x5AC);
 static_assert(offsetof(G_WeaponBase_t, Ammo) == 0x620);
+static_assert(offsetof(G_WeaponBase_t, Ammo.data.Speed) == 0x694);
+static_assert(offsetof(G_WeaponBase_t, Ammo.data.Alive) == 0x698);
 static_assert(offsetof(G_WeaponBase_t, Ammo.data.Damage) == 0x69C);
 static_assert(offsetof(G_WeaponBase_t, Ammo.data.DamageReduceMin) == 0x6A0);
 static_assert(offsetof(G_WeaponBase_t, Ammo.data.DamageReduceFactor) == 0x6A4);
@@ -121,6 +154,7 @@ static_assert(offsetof(G_WeaponBase_t, Ammo.data.Size) == 0x6B4);
 static_assert(offsetof(G_WeaponBase_t, Ammo.data.HitSizeAdjust) == 0x6B8);
 static_assert(offsetof(G_WeaponBase_t, Ammo.data.HitImpulseAdjust) == 0x6BC);
 static_assert(offsetof(G_WeaponBase_t, Ammo.data.Color) == 0x6D0);
+static_assert(offsetof(G_WeaponBase_t, Ammo.data.GravityFactor) == 0x6E0);
 static_assert(offsetof(G_WeaponBase_t, Ammo.data.CustomParameter) == 0x6E8);
 static_assert(offsetof(G_WeaponBase_t, Ammo770) == 0x770);
 static_assert(offsetof(G_WeaponBase_t, reloadPhase) == 0x8D4);

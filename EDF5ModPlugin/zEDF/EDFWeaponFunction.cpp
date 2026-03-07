@@ -19,6 +19,7 @@
 #include "Weapon/XGS_WeaponBase.h"
 #include "Weapon/XGS_Weapon_LaserMarkerCallFire.h"
 #include "Weapon/XGS_Weapon_RadioContact.h"
+#include "Weapon/XGS_Weapon_Throw.h"
 
 extern "C" {
 	extern PCustomMissionData pMissionCustomData;
@@ -28,6 +29,7 @@ void module_SetFunction_EDFWeapon(PBYTE hmodEXE)
 {
 	xgs_Weapon_LaserMarkerCallFire_Init(hmodEXE);
 	xgs_Weapon_RadioContact_Init(hmodEXE);
+	xgs_Weapon_Throw_Init(hmodEXE);
 }
 
 int __fastcall module_WeaponFunction_SetDelayInt32(int frame)

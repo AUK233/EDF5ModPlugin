@@ -3,15 +3,17 @@
 
 // EDF5.exe+141970
 typedef struct G_BulletCommonData_t {
-	char pad00[0x4C];
-	float Damage, DamageReduceMin, DamageReduceFactor, Explosion;
+	char pad00[0x44];
+	float Speed; int Alive; float Damage;
+	float DamageReduceMin, DamageReduceFactor, Explosion;
 	bool IsPenetration; // 0 is no, 1 is has
 	bool IsFriendlyFire; // 0 is none, 1 is has
 	bool IsFriendlyNonCollision; // 0 is has, 1 is none
 	char pad6AF[5];
 	float Size, HitSizeAdjust, HitImpulseAdjust; char pad6C0[0x10];
 	float Color[4];
-	char pad90[0x8];
+	float GravityFactor;
+	char pad94[4];
 	void* CustomParameter;
 	char padA0[0x40];
 } *PG_BulletCommonData;

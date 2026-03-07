@@ -220,6 +220,7 @@
     <ClCompile Include="zEDF\Weapon\XGS_WeaponBase.cpp" />
     <ClCompile Include="zEDF\Weapon\XGS_Weapon_LaserMarkerCallFire.cpp" />
     <ClCompile Include="zEDF\Weapon\XGS_Weapon_RadioContact.cpp" />
+    <ClCompile Include="zEDF\Weapon\XGS_Weapon_Throw.cpp" />
     <ClCompile Include="zEnemy\EnemyHook_BigNest.cpp" />
     <ClCompile Include="zEnemy\EnemyHook_Common.cpp" />
     <ClCompile Include="zEnemy\EnemyHook_GiantAnt.cpp" />
@@ -302,6 +303,7 @@
     <MASM Include="zEDF\Weapon\XGS_WeaponBaseASM.asm" />
     <MASM Include="zEDF\Weapon\XGS_Weapon_LaserMarkerCallFireASM.asm" />
     <MASM Include="zEDF\Weapon\XGS_Weapon_RadioContactASM.asm" />
+    <MASM Include="zEDF\Weapon\XGS_Weapon_ThrowASM.asm" />
     <MASM Include="zEnemy\ASMxgsGeneratorPoll_Destroy.asm" />
     <MASM Include="zEnemy\ASMxgsGiantAnt.asm" />
     <MASM Include="zEnemy\ASMxgsBigNest.asm" />
@@ -349,6 +351,7 @@
     <ClInclude Include="zEDF\Weapon\XGS_WeaponBase.h" />
     <ClInclude Include="zEDF\Weapon\XGS_Weapon_LaserMarkerCallFire.h" />
     <ClInclude Include="zEDF\Weapon\XGS_Weapon_RadioContact.h" />
+    <ClInclude Include="zEDF\Weapon\XGS_Weapon_Throw.h" />
     <ClInclude Include="zEnemy\EnemyHook_BigNest.h" />
     <ClInclude Include="zEnemy\EnemyHook_Common.h" />
     <ClInclude Include="zEnemy\EnemyHook_GiantAnt.h" />

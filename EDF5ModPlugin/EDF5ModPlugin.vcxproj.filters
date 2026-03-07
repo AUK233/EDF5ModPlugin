@@ -234,6 +234,9 @@
     <ClCompile Include="zEDF\Weapon\XGS_WeaponBase.cpp">
       <Filter>Source Files\Module EDF\Weapon</Filter>
     </ClCompile>
+    <ClCompile Include="zEDF\Weapon\XGS_Weapon_Throw.cpp">
+      <Filter>Source Files\Module EDF\Weapon</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMgamelog_hook.asm">
@@ -366,6 +369,9 @@
       <Filter>Source Files\Module Hui\ToFui\main</Filter>
     </MASM>
     <MASM Include="zEDF\Weapon\XGS_WeaponBaseASM.asm">
+      <Filter>Source Files\Module EDF\Weapon</Filter>
+    </MASM>
+    <MASM Include="zEDF\Weapon\XGS_Weapon_ThrowASM.asm">
       <Filter>Source Files\Module EDF\Weapon</Filter>
     </MASM>
   </ItemGroup>
@@ -635,6 +641,9 @@
       <Filter>Source Files\Module Hui\ToFui\main</Filter>
     </ClInclude>
     <ClInclude Include="zEDF\Weapon\XGS_WeaponBase.h">
+      <Filter>Source Files\Module EDF\Weapon</Filter>
+    </ClInclude>
+    <ClInclude Include="zEDF\Weapon\XGS_Weapon_Throw.h">
       <Filter>Source Files\Module EDF\Weapon</Filter>
     </ClInclude>
   </ItemGroup>

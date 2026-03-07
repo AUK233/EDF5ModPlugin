@@ -13,4 +13,6 @@ void __fastcall ASMrva47C6E0mod(void* pAudio, LPCWSTR FileName, int r8, int r9);
 // pTail size is 0x210
 void __fastcall ASMinitializeAmmoTailSmoke1(void* pAmmo, void* pTail, int tailLength, LPCWSTR tailTextureName, float tailSpeed);
 int __fastcall ASMgetCurrentMissionClassModelType();
+// return 0 means no collision.
+int __fastcall ASMLaserCollisionDetection(__m128* pEnd, const __m128* pStart);
 }
