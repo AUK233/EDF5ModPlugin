@@ -1,28 +1,6 @@
 #pragma once
 #include <vector>
 
-// wait to remove
-typedef struct SubtitleTextStruct {
-	WCHAR* text;
-	union
-	{
-		int id;
-		float posX;
-	} v;
-	int size;
-} *PSubtitleText;
-// 
-__declspec(align(16)) typedef struct CustomSubtitle_t {
-	char* pFile;
-	int pad[2];
-	// vector must be set to 0!!!
-	std::vector<SubtitleTextStruct> v_Name;
-	int pad1[2];
-	std::vector<SubtitleTextStruct> v_Text;
-	int pad2[2];
-} *PCustomSubtitle;
-// ==========================
-
 __declspec(align(16)) typedef struct CustomMissionData_t {
 	int armorBox;
 	int weaponBox;

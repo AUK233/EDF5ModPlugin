@@ -212,6 +212,7 @@
     <ClCompile Include="utiliy.cpp">
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdcpp20</LanguageStandard>
     </ClCompile>
+    <ClCompile Include="zEDF\Class\EDFSoldierHeavyArmor.cpp" />
     <ClCompile Include="zEDF\EDFAmmoFunction.cpp" />
     <ClCompile Include="zEDF\EDFbaseParameterSet.cpp" />
     <ClCompile Include="zEDF\EDFCommonFunction.cpp" />
@@ -296,9 +297,9 @@
     <MASM Include="zEDF\ASMammoSmokeCandleBullet.asm" />
     <MASM Include="zEDF\ASMEDFCommonFunction.asm" />
     <MASM Include="zEDF\ASMxgsArmySoldier.asm" />
-    <MASM Include="zEDF\ASMxgsHeavyArmor.asm" />
     <MASM Include="zEDF\ASMxgsVehicle501FortressRobo.asm" />
     <MASM Include="zEDF\ASMxgsPaleWing.asm" />
+    <MASM Include="zEDF\Class\EDFSoldierHeavyArmorASM.asm" />
     <MASM Include="zEDF\Vehicle\ASMxgsVehicleBegaruta.asm" />
     <MASM Include="zEDF\Weapon\XGS_WeaponBaseASM.asm" />
     <MASM Include="zEDF\Weapon\XGS_Weapon_LaserMarkerCallFireASM.asm" />
@@ -341,6 +342,7 @@
     <ClInclude Include="Resource\LoadShaders.hpp" />
     <ClInclude Include="Resource\snd_ShotIndicatorCircle.h" />
     <ClInclude Include="utiliy.h" />
+    <ClInclude Include="zEDF\Class\EDFSoldierHeavyArmor.h" />
     <ClInclude Include="zEDF\EDFAmmoFunction.h" />
     <ClInclude Include="zEDF\EDFbaseParameterSet.h" />
     <ClInclude Include="zEDF\EDFCommonFunction.h" />
@@ -409,6 +411,7 @@
     <ClInclude Include="zHui\ToGui\imgui\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Base\SSE.inc" />
     <None Include="Resource\digitDynamicPos_ps.cso" />
     <None Include="Resource\digitDynamicPos_vs.cso" />
     <None Include="Resource\digitFixedPos_ps.cso" />
@@ -418,6 +421,7 @@
     <None Include="shader2.bin" />
     <None Include="shader3.bin" />
     <None Include="texture2.bin" />
+    <None Include="zEDF\Class\EDFSoldierClass.inc" />
     <None Include="zHui\ToGui\DirectXTK\SimpleMath.inl" />
     <None Include="zHui\ToGui\DirectXTK\TeapotData.inc" />
   </ItemGroup>

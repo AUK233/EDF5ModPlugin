@@ -1,0 +1,95 @@
+
+
+
+EDF5.exe+2ED3B8 获取玩家指针
++200 4字节，是否紧急充能
++b20 4字节，玩家位？EDF5.exe+2DFB7B 此处写入，总是0
++b50 1字节，是非fencer按下左键
++b52 1字节，是非fencer按下右键
++b54 1字节，是非fencer切换武器
++b5f 1字节，是非fencer切换武器
++b55 1字节，是非fencer装填武器
++b56 1字节，按下跳跃
++b5a 1字节，是非fencer按q
++b60 1字节，是非fencer切换到武器1
++b61 1字节，是非fencer切换到武器2
++b62 1字节，是非fencer切换到武器3
++470 4字节，是判断剑兵
++1168 8字节，指向载具指针
++1590 8字节，指向武器组，武器组是武器指针，含辅助装备
++15A0 4字节，总武器数，含辅助装备
++1610 4字节，辅助装备数
+
+
+EDF5.exe+2ED51B - 88 86 560B0000        - mov [rsi+00000B56],al
+fencer写入按下跳跃按键
+EDF5.exe+2F0913 - 80 B9 560B0000 00     - cmp byte ptr [rcx+00000B56],00
+检查跳跃按键，+b57是按住
+EDF5.exe+2F0B34 - 80 B9 560B0000 00     - cmp byte ptr [rcx+00000B56],00
+侧面移动时检查跳跃键
+EDF5.exe+2F1588 - 80 BB 560B0000 00     - cmp byte ptr [rbx+00000B56],00
+落地检查跳跃键
+
+
+
+EDF5.exe+2E03F0 - 48 83 EC 38           - sub rsp,38
+ranger的跳跃函数
+
+====================================================
+
+EDF5.exe+2E0B7F - 80 BF 5C0B0000 00     - cmp byte ptr [rdi+00000B5C],00
+ranger冲刺中检查按键，56相差220h
+EDF5.exe+2E094F - 48 8D B1 500E0000     - lea rsi,[rcx+00000E50]
+
+6和5的映射
+movss xmm1, dword ptr [rsi+1F6C] 和 movss xmm1, dword ptr [rdi+1A78]
+mov rax, qword ptr [rcx+1EF8] 和 mov rax, qword ptr [rcx+1A28]
+5+1a28->+d60
+rdi+38约等于5的+f18
+
+
+EDF5.exe+308CF3 士兵武器开火判断
+EDF5.exe+308D0F 设置士兵武器开火
+
+2df424
+EDF5.exe+2E007A
+ranger辅助槽使用
+
+====================================================
++1600辅助装备槽指针，+8是大小，+10是容量
+
++0是辅助武器的序号，+4未知，+8是wstring指针
+总大小24字节
+
++1590是武器指针数组
+
+虚表+10中检查是否按下使用辅助装备
+
+EDF5.exe+2E4A00 这是fencer的vft+10
+
+====================================================
+EDF5.exe+30AA9D - 48 8B 01              - mov rax,[rcx]
+更新模型动画？
+
+EDF5.exe+38FD5A - 48 8B 03              - mov rax,[rbx]
+切出武器时激活
+EDF5.exe+38FD08 - 48 8B 03              - mov rax,[rbx]
+切入武器时激活
+
+EDF5.exe+308D0F - C6 81 D9000000 01     - mov byte ptr [rcx+000000D9],01
+设置武器发射
+
+武器指针+de的字节看起来是是否前台
+
+EDF5.exe+3AE1D6 - F6 81 BC020000 01     - test byte ptr [rcx+000002BC],01
++f0c是是否更新模型的位置
+
+EDF5.exe+30AFC3 - 41 B1 01              - mov r9b,01
+将它改为0则切换武器后不显示武器
+EDF5.exe+30AF6D - 45 31 C9              - xor r9d,r9d
+这里r9为1则切换武器时不隐藏武器
+EDF5.exe+38C404 武器初始化阶段就隐藏了模型
+
+EDF5.exe+6172C0 控制武器模型显示和隐藏，r9为0则隐藏，1显示
+
+

@@ -1,6 +1,7 @@
 #pragma once
 #include "EDFPointerStruct.hpp"
 #include "CommonCustomStructure.hpp"
+#include "EDFSoldierClass.hpp"
 
 typedef void(__fastcall* func_Call303E90)(void* pClass);
 
@@ -11,7 +12,7 @@ void __fastcall module_LoadAccessory_InMission(void* p_Class, PCustomMissionData
 
 void __fastcall module_LoadAccessory_AssultSoldier(PEDFAssultSoldier pClass);
 void __fastcall module_LoadAccessory_Engineer(PEDFBaseClass pClass);
-void __fastcall module_LoadAccessory_HeavyArmor(PEDFHeavyArmor pClass);
+void __fastcall module_LoadAccessory_HeavyArmor(PG_HeavyArmor pClass);
 
 extern "C" {
 	void __fastcall module_LoadAccessory_PaleWing(PEDFPaleWing pClass);

@@ -1,3 +1,5 @@
+include EDFSoldierClass.inc
+
 .data
 
 extern edf5BDF30Address : qword
@@ -19,12 +21,17 @@ extern ofs2E4500JmpAddr : qword
 
 extern ofs2E4500JmpAddr : qword
 
+; vft
+extern eHeavyArmorFunc10 : qword
+extern SetModelDisplayStatus6172C0 : qword
+
+extern eHeavyArmorFunc1B8 : qword
+extern eHeavyArmorFunc1C8 : qword
+
 ;L"heavy_booster_color"
 eHeavyBoosterColor db 104,0,101,0,97,0,118,0,121,0,95,0,98,0,111,0,111,0,115,0,116,0,101,0,114,0,95,0,99,0,111,0,108,0,111,0,114,0,0,0
 
 .code
-
-align 16
 
 ASMeHeavyArmorInitialization proc
 
@@ -33,6 +40,8 @@ ASMeHeavyArmorInitialization proc
 		mov [rdi+1C30h], rax
 		mov dword ptr [rdi+1C38h], 240
 		mov dword ptr [rdi+1C3Ch], 90
+		xorps xmm0, xmm0
+		movaps [rdi+ofs_HeavyArmor_pSubWeapon], xmm0
 
 	; heavy_booster_color
 		lea rdx, eHeavyBoosterColor
@@ -325,5 +334,79 @@ ASMeFencerBoostAndDash proc
 		int 3
 
 ASMeFencerBoostAndDash ENDP
+
+align 16
+
+ASMeHeavyArmorFunc10StackSize = 20h
+ASMeHeavyArmorFunc10 proc
+
+		cmp qword ptr [rcx+ofs_HeavyArmor_pSubWeapon], 0 ; check sub weapon
+		mov rax, eHeavyArmorFunc10
+		jne newFunc
+		jmp rax
+	newFunc:
+		mov [rsp+8], rbx
+		push rdi
+		sub rsp, ASMeHeavyArmorFunc10StackSize
+		mov rbx, rcx
+		call rax
+		;
+		mov rdi, [rbx+ofs_HeavyArmor_pSubWeapon]
+		mov r9b, 1
+		cmp [rdi+1070h], r9b
+		je checkJumpKey
+		mov byte ptr [rdi+1070h], r9b
+		lea rcx, [rdi+0C50h]
+		call SetModelDisplayStatus6172C0
+		;
+	checkJumpKey:
+		test byte ptr [rbx+420h], 4
+		jne goBack
+		cmp byte ptr [rbx+ofs_SoldierBase_key_jump_holdon], 0 ; check hold on jump key
+		mov eax, [rbx+ofs_HeavyArmor_SubWeaponButtonTimer]
+		je checkJumpKeyStatus
+		inc eax
+		mov [rbx+ofs_HeavyArmor_SubWeaponButtonTimer], eax
+		cmp eax, 20
+		jbe goBack
+		; to reload
+		mov dword ptr [rbx+ofs_HeavyArmor_SubWeaponButtonTimer], 0
+		mov dword ptr [rbx+ofs_HeavyArmor_SubWeaponButtonCD], 20
+		mov rcx, rdi
+		mov rax, [rdi]
+		call qword ptr [rax+80h] ; Request to reload
+		jmp goBack
+	checkJumpKeyStatus:
+		cmp dword ptr [rbx+ofs_HeavyArmor_SubWeaponButtonCD], 0
+		jle SubWeaponFire
+		dec dword ptr [rbx+ofs_HeavyArmor_SubWeaponButtonCD]
+		jmp goBack
+	SubWeaponFire:
+		test eax, eax
+		jz goBack
+		mov dword ptr [rbx+ofs_HeavyArmor_SubWeaponButtonTimer], 0 ; clear timer
+		mov byte ptr [rdi+0D9h], 1
+		;
+	goBack:
+		mov rbx, [rsp+ASMeHeavyArmorFunc10StackSize+10h]
+		add rsp, ASMeHeavyArmorFunc10StackSize
+		pop rdi
+		ret 
+		int 3
+
+ASMeHeavyArmorFunc10 ENDP
+
+align 16
+
+ASMeHeavyArmorFunc1C8 proc
+
+		cmp qword ptr [rcx+ofs_HeavyArmor_pSubWeapon], 0 
+		jne NoAction
+		jmp eHeavyArmorFunc1C8
+	NoAction:
+		jmp eHeavyArmorFunc1B8
+		int 3
+
+ASMeHeavyArmorFunc1C8 ENDP
 
 END

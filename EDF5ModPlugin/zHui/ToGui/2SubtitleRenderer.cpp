@@ -98,7 +98,7 @@ namespace DigitRenderer {
 
 		p = new(p) SubtitleRenderer_t();
 
-		InitializeCriticalSectionAndSpinCount(&p->csSubtitle, 4000);
+		std::ignore = InitializeCriticalSectionAndSpinCount(&p->csSubtitle, 4000);
 		p->CurrentSubtitle.text_size = 0;
 
 		// load subtitle
@@ -161,7 +161,7 @@ namespace DigitRenderer {
 
 	void __fastcall SubtitleRenderer_CheckSubtitle(LPCWSTR pWstr, int textSize, SubtitleTextStruct_t& data, int language) {
 
-		if (textSize <= 20) {
+		if (textSize <= 28) {
 			data.text = UnicodeToUTF8(pWstr, textSize + 1);
 			data.current_line = std::count(pWstr, pWstr + textSize, L'\n');
 			return;
@@ -169,9 +169,9 @@ namespace DigitRenderer {
 
 		std::wstring newText;
 		int newline_count = 0;
-		int eachline_count = 40;
+		int eachline_count = 52;
 
-		int estimated_newlines = textSize / 20;
+		int estimated_newlines = textSize / 26;
 		if (language == 1) {
 			estimated_newlines /= 2;
 		}
@@ -253,7 +253,7 @@ namespace DigitRenderer {
 		out.text_size = textSize;
 
 		auto hasNewlineN = SubtitleList[curLang][index].current_line;
-		if (hasNewlineN > 4) {
+		if (hasNewlineN > 2) {
 			out.align_factor = 1;
 			out.current_line = hasNewlineN;
 			out.bIsScroll = 1;
@@ -268,9 +268,9 @@ namespace DigitRenderer {
 			}
 
 			// if only one line, it will be displayed at position.
-			if (!hasNewlineN && iSize < 20) {
+			if (!hasNewlineN && iSize < 26) {
 				fSize *= textSize;
-				out.align_factor = fSize / 20.0f;
+				out.align_factor = fSize / 26.0f;
 				out.current_line = 0;
 				out.bIsScroll = 0;
 			} else {
@@ -319,7 +319,7 @@ namespace DigitRenderer {
 		// base
 		static const __m128 v_baseResolution = { 1920, 1080, 1, 1 };
 		__m128 baseOffset_border = { -10, -10, 10, 10 };
-		__m128 baseOffset_main = { -321, -16, 321, 16 }; // 32x20+2/2
+		__m128 baseOffset_main = { -417, -16, 417, 16 }; // 32x26+2/2
 		__m128 basePos = { 960, 770, 960, 770 };
 		// end
 
@@ -360,7 +360,7 @@ namespace DigitRenderer {
 		_mm_storeu_ps(&rectPos[0].x, v_RectPos);
 
 		auto current_line = in.current_line;
-		if (current_line > 4) current_line = 4;
+		if (current_line > 2) current_line = 2;
 
 		float rectHeight = fontSize * current_line;
 		rectPos[1].y += rectHeight;
@@ -374,10 +374,10 @@ namespace DigitRenderer {
 
 		draw_list->PushClipRect(clipPos[0], clipPos[1]);
 
-		if (in.bIsScroll && active_time > 16.0f) {
-			float line_time = in.current_line * 4.0f;
+		if (in.bIsScroll && active_time > 10.0f) {
+			float line_time = in.current_line * 5.0f;
 			line_time = std::fminf(line_time, active_time);
-			textPos.y += (line_time - 16.0f) * -fontSize * 0.25f;
+			textPos.y += (line_time - 10.0f) * -fontSize * 0.2f;
 		}
 		draw_list->AddText(MyDefaultFont, fontSize, textPos, 0xFFFFFFFF, in.text.c_str(), in.text.c_str() + in.text.size());
 

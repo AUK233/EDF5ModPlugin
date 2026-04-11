@@ -52,6 +52,9 @@
     <Filter Include="Source Files\Module EDF\main">
       <UniqueIdentifier>{07132a02-9bbe-4123-8111-8d445afce34d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Module EDF\Class">
+      <UniqueIdentifier>{4ee1d7b2-5a70-4cb3-bcf0-03dcfad1702a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -237,6 +240,9 @@
     <ClCompile Include="zEDF\Weapon\XGS_Weapon_Throw.cpp">
       <Filter>Source Files\Module EDF\Weapon</Filter>
     </ClCompile>
+    <ClCompile Include="zEDF\Class\EDFSoldierHeavyArmor.cpp">
+      <Filter>Source Files\Module EDF\Class</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMgamelog_hook.asm">
@@ -347,9 +353,6 @@
     <MASM Include="zEDF\ASMxgsArmySoldier.asm">
       <Filter>Source Files\Module EDF\main</Filter>
     </MASM>
-    <MASM Include="zEDF\ASMxgsHeavyArmor.asm">
-      <Filter>Source Files\Module EDF\main</Filter>
-    </MASM>
     <MASM Include="zEDF\ASMxgsPaleWing.asm">
       <Filter>Source Files\Module EDF\main</Filter>
     </MASM>
@@ -373,6 +376,9 @@
     </MASM>
     <MASM Include="zEDF\Weapon\XGS_Weapon_ThrowASM.asm">
       <Filter>Source Files\Module EDF\Weapon</Filter>
+    </MASM>
+    <MASM Include="zEDF\Class\EDFSoldierHeavyArmorASM.asm">
+      <Filter>Source Files\Module EDF\Class</Filter>
     </MASM>
   </ItemGroup>
   <ItemGroup>
@@ -646,6 +652,9 @@
     <ClInclude Include="zEDF\Weapon\XGS_Weapon_Throw.h">
       <Filter>Source Files\Module EDF\Weapon</Filter>
     </ClInclude>
+    <ClInclude Include="zEDF\Class\EDFSoldierHeavyArmor.h">
+      <Filter>Source Files\Module EDF\Class</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="zHui\ToGui\DirectXTK\SimpleMath.inl">
@@ -673,6 +682,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="Resource\digitDynamicPos_vs.cso" />
+    <None Include="zEDF\Class\EDFSoldierClass.inc">
+      <Filter>Source Files\Module EDF\Class</Filter>
+    </None>
+    <None Include="Base\SSE.inc">
+      <Filter>Source Files\Base</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="EDF5ModPlugin.rc">

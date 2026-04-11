@@ -72,6 +72,9 @@ __declspec(align(16)) float _CommonRVA_EE7AB0[4] = { 18.0625f, 0.0f, 18.0625f, 1
 __declspec(align(16)) float _ShotIndicatorCircleColor1[4] = { 0.3f, 0.0f, 0.0f, 0.8f };
 __declspec(align(16)) float _ShotIndicatorCircleColor2[4] = { 0.2f, 0.0f, 0.0f, 0.2f };
 __declspec(align(16)) float _ShotIndicatorCircleEdgeColor[4] = { 0.3f, 0.0f, 0.0f, 0.3f };
+__declspec(align(16)) float _ThrowIndicatorCircleColor1[4] = { 0.6f, 0.0f, 0.0f, 0.8f };
+__declspec(align(16)) float _ThrowIndicatorCircleColor2[4] = { 0.4f, 0.0f, 0.0f, 0.2f };
+__declspec(align(16)) float _ThrowIndicatorCircleEdgeColor[4] = { 0.3f, 0.0f, 0.0f, 0.6f };
 
 __declspec(align(8)) float _SubtitlePosition[2] = { 320.0f, 720.0f};
 __declspec(align(8)) float _TextWingEnergy6Position[2] = { 18.0f, 283.0f };

@@ -105,9 +105,7 @@ be0
 a40 2624
 
 EDF5.exe+39067C - 83 BE D0010000 01     - cmp dword ptr [rsi+000001D0],01 { 1 }
-.text:00000001402A067C edf5.exe:$39067C #38FA7C
 EDF5.exe+390580 - 44 39 AE A4010000     - cmp [rsi+000001A4],r13d
-.text:000000013FA70580 edf5.exe:$390580 #38F980
 ×°ÌîÖÐ
 
 

@@ -25,3 +25,22 @@ EDF5.exe+2DB408
 
 EDF5.exe+2DB7AF - 48 8B 4E 78           - mov rcx,[rsi+78]
 +78是可用的，是命中位置指针
+
+==============================
+EDF5.exe+2DB5CF - F6 46 5C 40           - test byte ptr [rsi+5C],40
+无法对茅塔造成伤害时会触发这里
+
+EDF5.exe+33F9E5 - F3 0F10 54 08 44      - movss xmm2,[rax+rcx+44]
+Vehicle501_FortressRobo读取当前动作伤害
+
+EDF5.exe+3B9B0D - 66 89 83 BC000000     - mov [rbx+000000BC],ax
+看起来是这里写入的伤害flag
+
+EDF5.exe+33A731 - 48 89 03              - mov [rbx],rax
+这里写入伤害的指针的指针
+EDF5.exe+3BA50A - E8 51030000           - call EDF5.exe+3BA860
+前面的rax就是伤害指针
+EDF5.exe+3B9873 - 48 89 44 24 20        - mov [rsp+20],rax
+就是这个rax
+EDF5.exe+3B9695 - C7 87 B0000000 47000000 - mov [rdi+000000B0],00000007
+这里写入伤害flag

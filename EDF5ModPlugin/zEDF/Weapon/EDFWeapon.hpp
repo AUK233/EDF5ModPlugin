@@ -8,10 +8,15 @@ typedef struct G_AreaRender_t {
 	void* vft_AreaRender;
 	char pad08[0xA8];
 	__m128 StartPos;
-	char padC0[0x150];
+	char padC0[0x118];
+	float g_color_1[4];
+	float g_color_2[4];
+	float g_edge_color[4];
 } *PG_AreaRender;
 #if 1
 static_assert(offsetof(G_AreaRender_t, StartPos) == 0xB0);
+static_assert(offsetof(G_AreaRender_t, g_color_1) == 0x1D8);
+static_assert(offsetof(G_AreaRender_t, g_edge_color) == 0x1F8);
 static_assert(sizeof(G_AreaRender_t) == 0x210);
 #endif
 
@@ -100,6 +105,7 @@ typedef struct G_WeaponBase_t : G_SceneObject_t {
 	void* reloadFlag; // maybe
 	char pad8[0x8];
 	void* addr3144;
+	// c50 is animation_model
 	char padC50[0x550];
 } *PG_WeaponBase;
 #if 1

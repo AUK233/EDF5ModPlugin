@@ -84,9 +84,7 @@ EDF5.exe+1426AC - EB 08                 - jmp EDF5.exe+1426B6
 EDF5.exe+15953D
 激光命中贴图
 
-2df424
-EDF5.exe+2E007A
-ranger辅助槽使用
+=========================================
 
 EDF5.exe+308CB9 - 44 38 AF 550B0000     - cmp [rdi+00000B55],r13b
 检查是否装填武器
@@ -96,38 +94,6 @@ EDF5.exe+390195 - 80 BE DB000000 01     - cmp byte ptr [rsi+000000DB],01
 EDF5.exe+390FE6 - 48 63 81 00050000     - movsxd  rax,dword ptr [rcx+00000500]
 武器使用secondaryFire
 
-EDF5.exe+2ED3B8 获取玩家指针
-+200 4字节，是否紧急充能
-+b20 4字节，玩家位？EDF5.exe+2DFB7B 此处写入，总是0
-+b50 1字节，是非fencer按下左键
-+b52 1字节，是非fencer按下右键
-+b54 1字节，是非fencer切换武器
-+b5f 1字节，是非fencer切换武器
-+b55 1字节，是非fencer装填武器
-+b56 1字节，是非fencer按下跳跃
-+b5a 1字节，是非fencer按q
-+b60 1字节，是非fencer切换到武器1
-+b61 1字节，是非fencer切换到武器2
-+b62 1字节，是非fencer切换到武器3
-+470 4字节，是判断剑兵
-+1168 8字节，指向载具指针
-+1590 8字节，指向武器组，武器组是武器指针，含辅助装备
-+15A0 4字节，总武器数，含辅助装备
-+1610 4字节，辅助装备数
-
-EDF5.exe+2E0B7F - 80 BF 5C0B0000 00     - cmp byte ptr [rdi+00000B5C],00
-ranger冲刺中检查按键，56相差220h
-EDF5.exe+2E094F - 48 8D B1 500E0000     - lea rsi,[rcx+00000E50]
-
-6和5的映射
-movss xmm1, dword ptr [rsi+1F6C] 和 movss xmm1, dword ptr [rdi+1A78]
-mov rax, qword ptr [rcx+1EF8] 和 mov rax, qword ptr [rcx+1A28]
-5+1a28->+d60
-rdi+38约等于5的+f18
-
-
-EDF5.exe+308CF3 士兵武器开火判断
-EDF5.exe+308D0F 设置士兵武器开火
 
 EDF5.exe+391D2E 武器开火时检查
 

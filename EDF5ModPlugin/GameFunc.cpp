@@ -41,6 +41,8 @@ uintptr_t edf4BE440Address;
 uintptr_t edf4DC190Address;
 // read sgo node name
 uintptr_t edf5BDF30Address, _SGO_FindNodeFromName;
+// set animation_model's visibility, r9b = 0 is hide, r9b = 1 is display
+uintptr_t SetModelDisplayStatus6172C0;
 //
 uintptr_t edf3AE660Address;
 // get AmmoClass address
@@ -198,6 +200,7 @@ void GetGameFunctions() {
 	// get read sgo node function
 	edf5BDF30Address = (uintptr_t)(hmodEXE + 0x5BDF30);
 	_SGO_FindNodeFromName = edf5BDF30Address;
+	SetModelDisplayStatus6172C0 = (uintptr_t)(hmodEXE + 0x6172C0);
 	//
 	edf3AE660Address = (uintptr_t)(hmodEXE + 0x3AE660);
 	// get get AmmoClass address function

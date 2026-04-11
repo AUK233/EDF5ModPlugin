@@ -93,7 +93,7 @@ int __fastcall xgs_Weapon_Throw_SetIndicatorPos(PG_Weapon_Throw pThis, __m128* p
 	__m128 v_start_pos = v_basePos;
 	__m128 v_end_pos = _mm_add_ps(v_basePos, v_speed);
 	__m128 v_out = v_end_pos;
-	for (int i = 0; i < 240; i++) {
+	for (int i = 0; i < 480; i++) {
 		auto isHit = ASMLaserCollisionDetection(&v_out, &v_start_pos);
 		if (isHit) {
 			pThis->indicatorCircle.StartPos = v_out;

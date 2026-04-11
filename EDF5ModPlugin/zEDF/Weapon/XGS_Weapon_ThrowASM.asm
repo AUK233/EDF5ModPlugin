@@ -2,6 +2,9 @@
 
 
 extern ASMrva3B4F40mod: proto
+extern _ThrowIndicatorCircleColor1 : xmmword
+extern _ThrowIndicatorCircleColor2 : xmmword
+extern _ThrowIndicatorCircleEdgeColor : xmmword
 extern _Common_F5P0 : dword
 extern _CommonRVA_EE7460 : xmmword
 extern rva3B5460 : qword
@@ -27,6 +30,12 @@ ASMxgs_Weapon_ThrowInit proc
 	; indicator circle init
 		lea rcx, [rbx+1200h]
 		call ASMrva3B4F40mod
+        movaps xmm0, _ThrowIndicatorCircleColor1
+        movups [rbx+1200h+1D8h], xmm0
+        movaps xmm1, _ThrowIndicatorCircleColor2
+        movups [rbx+1200h+1E8h], xmm1
+        movaps xmm2, _ThrowIndicatorCircleEdgeColor
+        movups [rbx+1200h+1F8h], xmm2
 
 		cmp dword ptr [rbx+6A8h], 0
 		jne GetExplosionRadius
@@ -37,7 +46,7 @@ ASMxgs_Weapon_ThrowInit proc
 		movaps xmm0, xmm3
 		mulss xmm0, dword ptr [rbx+308h] ; FireAccuracy
 		addss xmm3, xmm0
-		
+
 	SetCircleRadius:
 		movaps xmm0, _CommonRVA_EE7460
 		movaps [rsp+30h], xmm0

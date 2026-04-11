@@ -71,7 +71,7 @@ void DynamicDigitProcessor_t::Initialize() {
 	ClearData(0);
 	ClearData(1);
 
-	InitializeCriticalSectionAndSpinCount(&csDamageHit, 4000);
+	std::ignore = InitializeCriticalSectionAndSpinCount(&csDamageHit, 4000);
 
 	// initialize damage display (main)
 	ZeroMemory(&DamageDisplayFont_Human, sizeof(DigitFontControl_t));

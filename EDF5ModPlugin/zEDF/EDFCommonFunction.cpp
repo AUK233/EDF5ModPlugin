@@ -62,7 +62,7 @@ void __fastcall module_LoadAccessory_Engineer(PEDFBaseClass pClass)
 	module_LoadAccessory_InMission(pClass, pData);
 }
 
-void __fastcall module_LoadAccessory_HeavyArmor(PEDFHeavyArmor pClass)
+void __fastcall module_LoadAccessory_HeavyArmor(PG_HeavyArmor pClass)
 {
 	func_Call303E90 LoadClassAccessory = (func_Call303E90)eLoadClassAccessoryAddr;
 	LoadClassAccessory(pClass);
@@ -72,18 +72,18 @@ void __fastcall module_LoadAccessory_HeavyArmor(PEDFHeavyArmor pClass)
 	PCustomMissionData pData = pMissionCustomData;
 
 	int boostCount = ASMeGetAccessoryINT32((uintptr_t)pClass, 302, 2, 3);
-	pClass->thruster.BoostMaxCount = boostCount;
-	pClass->thruster.BoostCurrentCount = boostCount;
+	pClass->BoostMaxCount = boostCount;
+	pClass->BoostCurrentCount = boostCount;
 	float boostSpeed = ASMeGetAccessoryValue((uintptr_t)pClass, 305, 1.0f, 4);
 	boostSpeed *= pData->Fencer_BoostX;
-	pClass->thruster.BoostSpeed = boostSpeed;
+	pClass->BoostSpeed = boostSpeed;
 
 	int dashCount = ASMeGetAccessoryINT32((uintptr_t)pClass, 300, 2, 3);
-	pClass->thruster.DashMaxCount = dashCount;
-	pClass->thruster.DashCurrentCount = dashCount;
+	pClass->DashMaxCount = dashCount;
+	pClass->DashCurrentCount = dashCount;
 	float dashInterval = ASMeGetAccessoryValue((uintptr_t)pClass, 301, 0.5f, 4);
 	dashInterval *= pData->Fencer_DashX;
-	pClass->thruster.DashInterval = dashInterval;
+	pClass->DashInterval = dashInterval;
 
 	// new
 	pClass->IsDashToBoost = ASMeGetAccessoryINT32((uintptr_t)pClass, 1300, 0, 1);

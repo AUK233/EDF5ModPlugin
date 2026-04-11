@@ -116,8 +116,20 @@ align 16
 
 ASMhudShowSupportSlot2 proc
 
-		lea r9, qword ptr [rbp-60h]
-		lea rdx, qword ptr [rbp+48h]
+		cmp dword ptr [r15+470h], 1 ; check is fencer
+		jne SetSlot
+		test ebx, ebx ; check is sub slot 0
+		jnz SetSlot
+		;
+		mov r9, [r15+1590h] ; get weapon group pointer
+		mov r8, [r15+1600h] ; get sub weapon slot pointer
+		movsxd rdx, dword ptr [r8]
+		mov rax, [r9+rdx*8] ; get weapon pointer
+		mov [r15+1C40h], rax ; set sub weapon
+		;
+	SetSlot:
+		lea r9, [rbp-60h]
+		lea rdx, [rbp+48h]
 		cmp ebx, 1
 		je ShowSupportSlot2
 		lea r8, lyt_HudSubWeaponGuageR1

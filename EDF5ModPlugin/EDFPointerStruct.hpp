@@ -249,30 +249,7 @@ static_assert(offsetof(EDFPaleWing_t, FlightDamping) == 0x1D0C);
 static_assert(offsetof(EDFPaleWing_t, f1d1c) == 0x1D1C);
 
 // wait move to EDFSoldierClass.hpp
-// +1BA0
-typedef struct FencerBoostAndDash_t {
-	int BoostRecoveryRemainTime;
-	int BoostMaxCount;
-	int BoostCurrentCount;
-	float BoostSpeed;
-	int DashRecoveryRemainTime;
-	float DashInterval;
-	int DashMaxCount;
-	int DashCurrentCount;
-} *PFencerBoostAndDash;
 
-typedef struct EDFHeavyArmor_t : EDFBaseClass_t {
-	BYTE pad1a00[0x1A0];
-	FencerBoostAndDash_t thruster;
-	BYTE pad1bc0[0x70];
-	// new
-	int IsDashToBoost;
-	int IsBoostToDash;
-	int BoostRecoveryBaseTime;
-	int DashRecoveryBaseTime;
-	//BYTE pad1c30[0x70];
-} *PEDFHeavyArmor;
-static_assert(offsetof(EDFHeavyArmor_t, thruster.BoostRecoveryRemainTime) == 0x1BA0);
 
 // wait move to HUiHudCommonStruct.hpp
 typedef struct HUiHudTextContentStruct {
