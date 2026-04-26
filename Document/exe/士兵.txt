@@ -92,4 +92,11 @@ EDF5.exe+38C404 武器初始化阶段就隐藏了模型
 
 EDF5.exe+6172C0 控制武器模型显示和隐藏，r9为0则隐藏，1显示
 
+EDF5.exe+390596 - 44 38 AE DE000000     - cmp [rsi+000000DE],r13b
+检查武器是否前台
+EDF5.exe+38FC00 - C6 81 DE000000 01     - mov byte ptr [rcx+000000DE],01
+设置武器前台
+EDF5.exe+38FD39 - C6 81 DE000000 00     - mov byte ptr [rcx+000000DE],00
+设置武器后台
+
 

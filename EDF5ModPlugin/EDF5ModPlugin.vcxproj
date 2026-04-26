@@ -196,6 +196,7 @@
   <ItemGroup>
     <ClCompile Include="..\HookLib\HookLib\HookLib\HookLib.c" />
     <ClCompile Include="Base\base_baseObject.cpp" />
+    <ClCompile Include="Base\g_DXresource.cpp" />
     <ClCompile Include="Base\g_gameFunc.cpp" />
     <ClCompile Include="Base\g_system.cpp" />
     <ClCompile Include="dllmain.cpp" />
@@ -226,6 +227,7 @@
     <ClCompile Include="zEnemy\EnemyHook_Common.cpp" />
     <ClCompile Include="zEnemy\EnemyHook_GiantAnt.cpp" />
     <ClCompile Include="zHui\0HuiAddImGui.cpp" />
+    <ClCompile Include="zHui\DLSS\0SetDLSS.cpp" />
     <ClCompile Include="zHui\HuiCasController.cpp">
       <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AssemblyAndSourceCode</AssemblerOutput>
       <StructMemberAlignment Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Default</StructMemberAlignment>
@@ -294,6 +296,7 @@
     <MASM Include="ASMCallGameFunction.asm" />
     <MASM Include="ASMweaponOtherSet.asm" />
     <MASM Include="ASMxgsWHeavyShoot.asm" />
+    <MASM Include="Base\g_DXresourceASM.asm" />
     <MASM Include="zEDF\ASMammoSmokeCandleBullet.asm" />
     <MASM Include="zEDF\ASMEDFCommonFunction.asm" />
     <MASM Include="zEDF\ASMxgsArmySoldier.asm" />
@@ -321,6 +324,7 @@
     <ClInclude Include="..\HookLib\HookLib\HookLib\HookLib.h" />
     <ClInclude Include="Base\base_BaseAmmo.hpp" />
     <ClInclude Include="Base\base_baseObject.h" />
+    <ClInclude Include="Base\g_DXresource.h" />
     <ClInclude Include="Base\g_gameFunc.h" />
     <ClInclude Include="Base\g_system.h" />
     <ClInclude Include="Base\SSE.hpp" />
@@ -358,6 +362,17 @@
     <ClInclude Include="zEnemy\EnemyHook_Common.h" />
     <ClInclude Include="zEnemy\EnemyHook_GiantAnt.h" />
     <ClInclude Include="zHui\0HuiAddImGui.h" />
+    <ClInclude Include="zHui\DLSS\0SetDLSS.h" />
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx.h" />
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_defs.h" />
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_defs_dlssd.h" />
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_defs_dlssg.h" />
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers.h" />
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers_dlssd.h" />
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers_dlssg.h" />
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_params.h" />
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_params_dlssd.h" />
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_params_dlssg.h" />
     <ClInclude Include="zHui\HuiCasController.h" />
     <ClInclude Include="zHui\HUiHudCommonStruct.h" />
     <ClInclude Include="zHui\HuiModConsole.h" />
@@ -430,6 +445,9 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resource\DamageUINumber.dds" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="zHui\DLSS\lib\nvsdk_ngx_d.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

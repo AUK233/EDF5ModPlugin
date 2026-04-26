@@ -54,7 +54,6 @@ extern "C" {
 	// maybe is mission data pointer
 	uintptr_t vedf125AB30;
 	//
-	uintptr_t vedf1259640;
 	uintptr_t vedf1259680;
 	uintptr_t vedf125B080;
 	uintptr_t vedf1153550;
@@ -80,7 +79,6 @@ void GetGameGlobalPointer(PBYTE hmodEXE)
 	vedf125AB68 = (uintptr_t)(hmodEXE + 0x125AB68);
 	vedf125ABA0 = (uintptr_t)(hmodEXE + 0x125ABA0);
 	vedf125AB30 = (uintptr_t)(hmodEXE + 0x125AB30);
-	vedf1259640 = (uintptr_t)(hmodEXE + 0x1259640);
 	vedf1259680 = (uintptr_t)(hmodEXE + 0x1259680);
 	vedf125B080 = (uintptr_t)(hmodEXE + 0x125B080);
 	vedf1153550 = (uintptr_t)(hmodEXE + 0x1153550);

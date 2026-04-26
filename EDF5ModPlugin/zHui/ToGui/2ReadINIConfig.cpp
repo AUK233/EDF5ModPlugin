@@ -16,6 +16,7 @@ extern "C" {
 	int Config_HUDEnhance; // 0 is no, 1 is open
 	int Config_DisplayDamageType; // 0 is none, 1 is fixed pos, 2 is dynamic pos
 	int Config_DisplaySubtitle; // 0 is no, 1 is open
+	int Config_DLAA; // 0 is no, 1 is open
 }
 
 void __fastcall INIConfig_Initialize(LPCWSTR path)
@@ -23,6 +24,7 @@ void __fastcall INIConfig_Initialize(LPCWSTR path)
 	ConfigINIPath = path;
 
 	Config_HUDEnhance = GetPrivateProfileIntW(L"ModOption", L"HUDEnhance", 0, path);
+	Config_DLAA = GetPrivateProfileIntW(L"ModOption", L"DLAA", 0, path);
 	INIConfig_ReadIngameConfigurable();
 }
 

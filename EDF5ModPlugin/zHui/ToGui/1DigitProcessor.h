@@ -41,8 +41,8 @@ namespace DigitRenderer {
 		// count 2 players
 		DigitData_Damage_t playerDamage[2];
 		// 2 weapons for 2 players
-		DigitData_Weapon_t playerWeaponInfo[2][2];
-		DigitData_Weapon_Render_t playerWeaponRenderInfo[2][2];
+		DigitData_Weapon_t playerWeaponInfo[2][3];
+		DigitData_Weapon_Render_t playerWeaponRenderInfo[2][3];
 
 		// count 2 players
 		std::vector<DigitData_Damage_t> v_playerDamage[2];
@@ -72,7 +72,7 @@ namespace DigitRenderer {
 
 extern "C" {
 	int __fastcall DigitProcessor_SetLocalCurrentPlayer(PXGS_System_Camera pCamera, UINT32 pCount);
-	void __fastcall DigitProcessor_GetPlayerWeaponStatus(PG_SoldierBase pObject, int WeaponAlignType, PG_WeaponBase pWeapon);
+	void __fastcall DigitProcessor_GetPlayerWeaponStatus(PG_SoldierBase pObject, UINT32 WeaponAlignType, PG_WeaponBase pWeapon);
 	float __fastcall DigitProcessor_GetPlayerHitDamage(float damage, Pxgs_DamageData pIn, PG_SoldierBase pObject);
 }
 

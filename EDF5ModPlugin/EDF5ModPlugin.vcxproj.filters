@@ -55,6 +55,12 @@
     <Filter Include="Source Files\Module EDF\Class">
       <UniqueIdentifier>{4ee1d7b2-5a70-4cb3-bcf0-03dcfad1702a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Module Hui\DLSS">
+      <UniqueIdentifier>{cdf80cbe-dcb9-4a9d-9c94-5b227d2e0cfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Module Hui\DLSS\lib">
+      <UniqueIdentifier>{6d2b8b4d-07fc-4739-85e8-fe93295bee77}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -243,6 +249,12 @@
     <ClCompile Include="zEDF\Class\EDFSoldierHeavyArmor.cpp">
       <Filter>Source Files\Module EDF\Class</Filter>
     </ClCompile>
+    <ClCompile Include="zHui\DLSS\0SetDLSS.cpp">
+      <Filter>Source Files\Module Hui\DLSS</Filter>
+    </ClCompile>
+    <ClCompile Include="Base\g_DXresource.cpp">
+      <Filter>Source Files\Base</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMgamelog_hook.asm">
@@ -379,6 +391,9 @@
     </MASM>
     <MASM Include="zEDF\Class\EDFSoldierHeavyArmorASM.asm">
       <Filter>Source Files\Module EDF\Class</Filter>
+    </MASM>
+    <MASM Include="Base\g_DXresourceASM.asm">
+      <Filter>Source Files\Base</Filter>
     </MASM>
   </ItemGroup>
   <ItemGroup>
@@ -655,6 +670,42 @@
     <ClInclude Include="zEDF\Class\EDFSoldierHeavyArmor.h">
       <Filter>Source Files\Module EDF\Class</Filter>
     </ClInclude>
+    <ClInclude Include="zHui\DLSS\0SetDLSS.h">
+      <Filter>Source Files\Module Hui\DLSS</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_params.h">
+      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_params_dlssd.h">
+      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_params_dlssg.h">
+      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx.h">
+      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_defs.h">
+      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_defs_dlssd.h">
+      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_defs_dlssg.h">
+      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers.h">
+      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers_dlssd.h">
+      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers_dlssg.h">
+      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\g_DXresource.h">
+      <Filter>Source Files\Base</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="zHui\ToGui\DirectXTK\SimpleMath.inl">
@@ -698,5 +749,10 @@
     <Image Include="Resource\DamageUINumber.dds">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="zHui\DLSS\lib\nvsdk_ngx_d.lib">
+      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
+    </Library>
   </ItemGroup>
 </Project>

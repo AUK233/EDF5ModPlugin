@@ -14,6 +14,7 @@
 
 #include "Base/g_gameFunc.h"
 #include "Base/g_system.h"
+#include "Base/g_DXresource.h"
 #include "Base/base_baseObject.h"
 
 #include "GameFunc.h"
@@ -269,6 +270,7 @@ void GetGameFunctions() {
 	GetAmmoFunctions();
 	XGS_SystemFunction_Initialize(hmodEXE);
 	XGS_GetGameFunction_Initialize(hmodEXE);
+	XGS_DXresource_Initialize(hmodEXE);
 	XGS_BaseObject_Initialize(hmodEXE);
 }
 

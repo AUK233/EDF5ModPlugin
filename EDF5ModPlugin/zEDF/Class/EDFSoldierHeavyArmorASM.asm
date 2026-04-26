@@ -355,6 +355,8 @@ ASMeHeavyArmorFunc10 proc
 		mov r9b, 1
 		cmp [rdi+1070h], r9b
 		je checkJumpKey
+		mov byte ptr [rdi+0DEh], r9b ; set active
+		mov byte ptr [rdi+5ACh], r9b ; set current
 		mov byte ptr [rdi+1070h], r9b
 		lea rcx, [rdi+0C50h]
 		call SetModelDisplayStatus6172C0

@@ -469,7 +469,7 @@ void togui_MainDisplay_ToDigit_Weapon(UINT32 index) {
 	fontControl.fadeFactor = 15;
 	fontControl.time = 2;
 
-	for (int i = 0; i < 2; i++) {
+	for (int i = 0; i < 3; i++) {
 		auto pWeaponInfo = &g_DigitProcessor->playerWeaponRenderInfo[index][i];
 		if (!pWeaponInfo->isEnabled) continue;
 

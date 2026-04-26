@@ -126,8 +126,8 @@ void DynamicDigitProcessor_t::ClearData(UINT32 index) {
 	v_playerDamage[index].clear();
 
 	ZeroMemory(&playerDamage[index], sizeof(DigitData_Damage_t));
-	ZeroMemory(&playerWeaponInfo[index][0], sizeof(DigitData_Weapon_t) * 2);
-	ZeroMemory(&playerWeaponRenderInfo[index][0], sizeof(DigitData_Weapon_Render_t) * 2);
+	ZeroMemory(&playerWeaponInfo[index][0], sizeof(DigitData_Weapon_t) * 3);
+	ZeroMemory(&playerWeaponRenderInfo[index][0], sizeof(DigitData_Weapon_Render_t) * 3);
 
 	PlayerInVehicle[index] = 0;
 	PlayerSoldierType[index] = 0;
@@ -303,6 +303,7 @@ void DynamicDigitProcessor_t::ProcessData_DamageInHitMode()
 void DynamicDigitProcessor_t::ProcessData_Weapon(UINT32 index) {
 	ProcessData_Weapon_Update(&playerWeaponInfo[index][0], &playerWeaponRenderInfo[index][0], index);
 	ProcessData_Weapon_Update(&playerWeaponInfo[index][1], &playerWeaponRenderInfo[index][1], index);
+	ProcessData_Weapon_Update(&playerWeaponInfo[index][2], &playerWeaponRenderInfo[index][2], index);
 }
 
 void DynamicDigitProcessor_t::ProcessData_Weapon_Update(PDigitData_Weapon pIn, PDigitData_Weapon_Render pOut, UINT32 index) {
@@ -381,8 +382,9 @@ int __fastcall DigitProcessor_SetLocalCurrentPlayer(PXGS_System_Camera pCamera, 
 	return playerID;
 }
 
-void __fastcall DigitProcessor_GetPlayerWeaponStatus(PG_SoldierBase pObject, int WeaponAlignType, PG_WeaponBase pWeapon)
+void __fastcall DigitProcessor_GetPlayerWeaponStatus(PG_SoldierBase pObject, UINT32 WeaponAlignType, PG_WeaponBase pWeapon)
 {
+	if (WeaponAlignType > 3) return;
 	if (!pObject) return;
 
 	using namespace DigitRenderer;
@@ -392,8 +394,7 @@ void __fastcall DigitProcessor_GetPlayerWeaponStatus(PG_SoldierBase pObject, int
 	else return;
 
 	// =================================================
-	int weaponIndex = 0;
-	if (WeaponAlignType != 1) weaponIndex = 1;
+	int weaponIndex = WeaponAlignType - 1;
 
 	DigitData_Weapon_t out;
 	out.weaponAlignType = WeaponAlignType;

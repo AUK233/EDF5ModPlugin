@@ -52,5 +52,49 @@ EDF5.exe+5E1EF8 - 41 FF 52 68           - call qword ptr [r10+68]
 EDF5.exe+5E10F0 D3D11CreateDevice
 
 
+EDF5.exe+635AE5 - FF 50 28              - call qword ptr [rax+28]
+call CreateTexture2D
+d3d11.dll+19610 CreateTexture2D的地址
+
+==================================================
+
+EDF5.exe+9DCE0 - FF 90 08010000        - call qword ptr [rax+00000108]
+rdx是0
+EDF5.exe+A133E - FF 90 08010000        - call qword ptr [rax+00000108]
+rdx是1
+
+EDF5.exe+5DAD77 - BA 08000000           - mov edx,00000008
+r9+8是pDepthStencilView
+EDF5.exe+5EF8E1 - FF 90 08010000        - call qword ptr [rax+00000108]
+rdx是8
+从EDF5.exe+5E2703 call的
+
+call OMSetRenderTargets
+d3d11.dll+100640  OMSetRenderTargets的地址
+
+EDF5.exe+A1331 - 4C 8B 4E 70           - mov r9,[rsi+70]
+这里读了pDepthStencilView且NumViews为1
+EDF5.exe+5E2D9F - 4C 8B 4F 50           - mov r9,[rdi+50]
+同上
+
+EDF5.exe+5F0226 - FF 50 68              - call qword ptr [rax+68]
+这里调用的draw
+d3d11.dll+101D90
+
+EDF5.exe+5F00F6 - FF 90 90000000        - call qword ptr [rax+00000090]
+这里调用IASetVertexBuffers
+d3d11.dll+104950 
+
+EDF5.exe+5F0081 - 41 FF 51 78           - call qword ptr [r9+78]
+这里调用Unmap
+d3d11.dll+105880 
+
+EDF5.exe+5ECEA3 - 48 81 C4 98000000     - add rsp,00000098
+将渲染的buffer转换到输出屏幕的buffer
+
+EDF5.exe+9DD86 - 4A 8B 4C C9 10        - mov rcx,[rcx+r9*8+10]
+这个地方拿到游戏的dx资源指针
+这个指针的+10的+18指向dx资源指针
+接下来的这个指针+0是buffer指针，+8是rtv指针，+10是srv指针，+18是uav指针，+20是分辨率
 
 

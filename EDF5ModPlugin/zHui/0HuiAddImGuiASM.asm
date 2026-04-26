@@ -1,5 +1,13 @@
 .data
 
+extern module_InitializeD3D11 : proto
+extern dx11CreateDeviceRetAddr : qword
+
+extern DLSS_Release : proto
+
+extern DLSS_Tese : proto
+extern RenderBufferToScreenBufferRetAddr : qword
+
 extern togui_GetDXGISwapChain : proto
 extern GetDXGISwapChainRetAddr : qword
 
@@ -11,6 +19,20 @@ extern DigitProcessor_GetPlayerHitDamage : proto
 extern getInflictDamageFromDamageFuncRetAddress : qword
 
 .code
+
+ASMdx11CreateDevice proc
+
+	xor r9d, r9d
+	xor r8d, r8d
+	lea rcx, [rbp-49h] ; DXGI_SWAP_CHAIN_DESC
+	call module_InitializeD3D11
+	mov esi, eax
+	jmp dx11CreateDeviceRetAddr
+	int 3
+
+ASMdx11CreateDevice ENDP
+
+align 16
 
 ASMGetDXGISwapChain proc
 
@@ -27,6 +49,41 @@ ASMGetDXGISwapChain proc
 	int 3
 
 ASMGetDXGISwapChain ENDP
+
+align 16
+
+ASMsysExitGame proc
+
+	add rsp, 0B0h
+	pop rdi
+	pop rsi
+	pop rbp
+	jmp DLSS_Release
+	int 3
+
+ASMsysExitGame ENDP
+
+align 16
+
+ASMRenderBufferToScreenBuffer proc
+
+	mov [rsp+30h], rcx
+	mov [rsp+38h], rdx
+	mov [rsp+40h], r8
+	mov [rsp+48h], r9
+	call DLSS_Tese
+	mov r9, [rsp+48h]
+	mov r8, [rsp+40h]
+	mov rdx, [rsp+38h]
+	mov rcx, [rsp+30h]
+	; old
+	mov rax, [rsp+0C0h]
+	mov dword ptr [rsp+48h], 0
+	lea r11, [rsp+98h]
+	jmp RenderBufferToScreenBufferRetAddr
+	int 3
+
+ASMRenderBufferToScreenBuffer ENDP
 
 align 16
 
