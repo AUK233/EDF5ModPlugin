@@ -49,12 +49,10 @@ extern "C" {
 	// read audio file
 	uintptr_t rva47C9D0;
 	//
-	uintptr_t vedf125AB68;
 	uintptr_t vedf125ABA0;
 	// maybe is mission data pointer
 	uintptr_t vedf125AB30;
 	//
-	uintptr_t vedf1259680;
 	uintptr_t vedf125B080;
 	uintptr_t vedf1153550;
 	uintptr_t vedf1256BD0; // pGameDXGIRenderer
@@ -76,10 +74,8 @@ void GetGameGlobalPointer(PBYTE hmodEXE)
 	rva4781C0 = (uintptr_t)(hmodEXE + 0x4781C0);
 	rva47C9D0 = (uintptr_t)(hmodEXE + 0x47C9D0);
 	//
-	vedf125AB68 = (uintptr_t)(hmodEXE + 0x125AB68);
 	vedf125ABA0 = (uintptr_t)(hmodEXE + 0x125ABA0);
 	vedf125AB30 = (uintptr_t)(hmodEXE + 0x125AB30);
-	vedf1259680 = (uintptr_t)(hmodEXE + 0x1259680);
 	vedf125B080 = (uintptr_t)(hmodEXE + 0x125B080);
 	vedf1153550 = (uintptr_t)(hmodEXE + 0x1153550);
 	vedf1256BD0 = (uintptr_t)(hmodEXE + 0x1256BD0);

@@ -14,8 +14,16 @@ void __fastcall module_LoadAccessory_AssultSoldier(PEDFAssultSoldier pClass);
 void __fastcall module_LoadAccessory_Engineer(PEDFBaseClass pClass);
 void __fastcall module_LoadAccessory_HeavyArmor(PG_HeavyArmor pClass);
 
+void __fastcall module_LoadAccessoryInMission_PaleWing(PG_PaleWing pClass);
+
+// (fetchType: 0 is Direct return, 1 is Take maximum, 2 is Take minimum)
+// (fetchType: 3 is Default + Acquired, 4 is Default * Acquired)
+float __fastcall EDFSoldier_GetAccessoryValue(void* p_Class, UINT32 accessoryType, float defaultValue, int fetchType);
+
+void __fastcall PaleWing_GetAccessoryBoostSpeed(void* p_Class, __m128* out, int uselessR8, __m128* defaultValue);
+float __fastcall PaleWing_GetAccessoryCurrentEnergy(void* p_Class, float defaultValue);
+
 extern "C" {
-	void __fastcall module_LoadAccessory_PaleWing(PEDFPaleWing pClass);
 	// new accessory functions
 	int __fastcall module_LoadAccessory_ExtraWeapon(const uintptr_t p_Class);
 	// get accessory value

@@ -44,6 +44,32 @@ static_assert(sizeof(G_SoldierBase_t) == 0x1A00);
 #endif
 
 // ==================================================
+// wing diver
+typedef struct G_PaleWing_t : G_SoldierBase_t {
+	char pad1a00[0x2E0];
+	float DeadWeight; // Affect recoil.
+	float ChargeSpeed, EmergencyChargeSpeed;
+	float FlightConsumption, BoostConsumption;
+	float WeaponChargeSpeed;
+	bool IsFlying, pad1cf9[3];
+	float WDWalkSpeed, pad1D00, FlyingSpeed;
+	float TakeoffSpeed; // affect height.
+	float FlightDamping;
+	float BoostSpeed[4]; // 0 is Sideways, 1 is Forward, 2 is Backward, 3 is always is 1.0f
+} *PG_PaleWing;
+static_assert(offsetof(G_PaleWing_t, DeadWeight) == 0x1CE0);
+static_assert(offsetof(G_PaleWing_t, ChargeSpeed) == 0x1CE4);
+static_assert(offsetof(G_PaleWing_t, FlightConsumption) == 0x1CEC);
+static_assert(offsetof(G_PaleWing_t, BoostConsumption) == 0x1CF0);
+static_assert(offsetof(G_PaleWing_t, WeaponChargeSpeed) == 0x1CF4);
+static_assert(offsetof(G_PaleWing_t, IsFlying) == 0x1CF8);
+static_assert(offsetof(G_PaleWing_t, FlyingSpeed) == 0x1D04);
+static_assert(offsetof(G_PaleWing_t, TakeoffSpeed) == 0x1D08);
+static_assert(offsetof(G_PaleWing_t, FlightDamping) == 0x1D0C);
+static_assert(offsetof(G_PaleWing_t, BoostSpeed) == 0x1D10);
+// ==================================================
+
+// ==================================================
 // Fencer
 typedef struct G_HeavyArmor_t : G_SoldierBase_t {
 	char pad1a00[0x1A0];

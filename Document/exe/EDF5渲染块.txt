@@ -23,12 +23,20 @@ EDF5.exe+5F0467 - 49 8B 8D B8000000     - mov rcx,[r13+000000B8]
 EDF5.exe+5F04EA - 49 8B 8D B8000000     - mov rcx,[r13+000000B8]
 任务中使用ID3D11Device，是同一函数
 
-EDF5.exe+1256C40是DXGI_SWAP_CHAIN_DESC
+
+
+EDF5.exe+1256C40是DXGI_SWAP_CHAIN_DESC，是EDF5.exe+1256BD0+70
+
+EDF5.exe+485AE1 - 8B 05 E94EDD00        - mov eax,[EDF5.exe+125A9D0]
+这里复制窗口大小
 
 
 EDF5.exe+5E22AF - 8B 2D 1B87C700        - mov ebp,[EDF5.exe+125A9D0]
 实时渲染获取窗口宽度
 EDF5.exe+125A9C8 窗口句柄
+
+EDF5.exe+125A9E0 渲染时读取p1窗口大小
+
 
 EDF5.exe+60B871 - FF 15 D1BF6800        - call qword ptr [EDF5.exe+C97848]
 实时设置窗口大小
@@ -64,7 +72,7 @@ EDF5.exe+A133E - FF 90 08010000        - call qword ptr [rax+00000108]
 rdx是1
 
 EDF5.exe+5DAD77 - BA 08000000           - mov edx,00000008
-r9+8是pDepthStencilView
+这里的r9+8是pDepthStencilView
 EDF5.exe+5EF8E1 - FF 90 08010000        - call qword ptr [rax+00000108]
 rdx是8
 从EDF5.exe+5E2703 call的
@@ -91,10 +99,60 @@ d3d11.dll+105880
 
 EDF5.exe+5ECEA3 - 48 81 C4 98000000     - add rsp,00000098
 将渲染的buffer转换到输出屏幕的buffer
+EDF5.exe+5ED068 - E8 53FDFFFF           - call EDF5.exe+5ECDC0
+实际应该是这里
 
 EDF5.exe+9DD86 - 4A 8B 4C C9 10        - mov rcx,[rcx+r9*8+10]
 这个地方拿到游戏的dx资源指针
 这个指针的+10的+18指向dx资源指针
 接下来的这个指针+0是buffer指针，+8是rtv指针，+10是srv指针，+18是uav指针，+20是分辨率
+
+EDF5.exe+5DBA35 - 48 8B 83 E8050000     - mov rax,[rbx+000005E8]
+获取g_xgl_viewXYZ_id_texture，注意rbx是GameRenderer1259680
+
+EDF5.exe+5DA88D - 4C 8B 8F E0080000     - mov r9,[rdi+000008E0]
+获取g_viewXYZ_id，rdi是GameRenderer1259680
+
+EDF5.exe+5DAFE0 - 40 53                 - push rbx
+这个函数覆写g_xgl_view
+EDF5.exe+7CEB6 - 0F29 01               - movaps [rcx],xmm0
+这里覆盖g_xgl_view_projection
+
+EDF5.exe+1259680 这个指针
++668的，+0是buffer，+8是pDepthStencilView，+20是分辨率
+EDF5.exe+5DACFD - 4C 8B 89 68060000     - mov r9,[rcx+00000668]
+可从这里验证
+EDF5.exe+5DB9F6 可能是选择读哪个dsv指针
+
+
+EDF5.exe+5DB5E1 - 48 8B 81 C0060000     - mov rax,[rcx+000006C0]
+获取指针，根据edx，是rtv数量为8时的rt0-7
+
+
+EDF5.exe+636008 - E8 83F9FFFF           - call EDF5.exe+635990
+这里call的下面的
+EDF5.exe+635AE8 - 8B D8                 - mov ebx,eax
+call CreateTexture2D的返回
+d3d11.dll+19613 CreateTexture2D
+
+EDF5.exe+635891 - 48 89 30              - mov [rax],rsi
+这个写入分辨率的y？
+
+EDF5.exe+7086A 释放了d3d资源
+
+EDF5.exe+5DA72C - E8 2F3AA9FF           - call EDF5.exe+6E160
+这里写入了渲染模型时所需的dsv
+EDF5.exe+5DFBC3 - E8 98E5A8FF           - call EDF5.exe+6E160
+实际是这里
+
+==================================================
+
+EDF5.exe+01253708
+的+a8是dsv
++a0的+8同样是dsv，他们应该是一个结构
+
+EDF5.exe+3D61C9 - 49 89 04 24           - mov [r12],rax
+这里写入虚表
+
 
 

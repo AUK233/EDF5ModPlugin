@@ -255,6 +255,9 @@
     <ClCompile Include="Base\g_DXresource.cpp">
       <Filter>Source Files\Base</Filter>
     </ClCompile>
+    <ClCompile Include="zEDF\Class\EDFSoldierPaleWing.cpp">
+      <Filter>Source Files\Module EDF\Class</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMgamelog_hook.asm">
@@ -365,9 +368,6 @@
     <MASM Include="zEDF\ASMxgsArmySoldier.asm">
       <Filter>Source Files\Module EDF\main</Filter>
     </MASM>
-    <MASM Include="zEDF\ASMxgsPaleWing.asm">
-      <Filter>Source Files\Module EDF\main</Filter>
-    </MASM>
     <MASM Include="zEDF\ASMxgsVehicle501FortressRobo.asm">
       <Filter>Source Files\Module EDF\main</Filter>
     </MASM>
@@ -394,6 +394,9 @@
     </MASM>
     <MASM Include="Base\g_DXresourceASM.asm">
       <Filter>Source Files\Base</Filter>
+    </MASM>
+    <MASM Include="zEDF\Class\EDFSoldierPaleWingASM.asm">
+      <Filter>Source Files\Module EDF\Class</Filter>
     </MASM>
   </ItemGroup>
   <ItemGroup>
@@ -676,35 +679,20 @@
     <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_params.h">
       <Filter>Source Files\Module Hui\DLSS\lib</Filter>
     </ClInclude>
-    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_params_dlssd.h">
-      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_params_dlssg.h">
-      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
-    </ClInclude>
     <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx.h">
       <Filter>Source Files\Module Hui\DLSS\lib</Filter>
     </ClInclude>
     <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_defs.h">
       <Filter>Source Files\Module Hui\DLSS\lib</Filter>
     </ClInclude>
-    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_defs_dlssd.h">
-      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_defs_dlssg.h">
-      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
-    </ClInclude>
     <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers.h">
-      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers_dlssd.h">
-      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers_dlssg.h">
       <Filter>Source Files\Module Hui\DLSS\lib</Filter>
     </ClInclude>
     <ClInclude Include="Base\g_DXresource.h">
       <Filter>Source Files\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="zEDF\Class\EDFSoldierPaleWing.h">
+      <Filter>Source Files\Module EDF\Class</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

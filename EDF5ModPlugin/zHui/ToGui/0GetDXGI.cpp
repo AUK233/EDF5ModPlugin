@@ -27,17 +27,12 @@ DXGI_SWAP_CHAIN_DESC* pDXGISwapChainDesc;
 int* pRealTimeResolution;
 
 PGameDXGIRender pGameDXGIRenderer;
-PGameRenderer1259680* pGameRenderer1259680;
 
 void DXGI_Initialize(PBYTE hmodEXE)
 {
 	// EDF5.exe+1256BD0
 	auto tempP = hmodEXE + 0x1256BD0;
 	pGameDXGIRenderer = (PGameDXGIRender)tempP;
-
-	// EDF5.exe+1259680
-	tempP = hmodEXE + 0x1259680;
-	pGameRenderer1259680 = (PGameRenderer1259680*)tempP;
 
 	// EDF5.exe+125B080
 	xgs_umbra_System125B080 = (uintptr_t)(hmodEXE + 0x125B080);
@@ -47,8 +42,6 @@ void DXGI_Initialize(PBYTE hmodEXE)
 	// EDF5.exe+125A9D0
 	tempP = hmodEXE + 0x125A9D0;
 	pRealTimeResolution = (int*)tempP;
-
-
 
 	// EDF5.exe+1256C40
 	tempP = hmodEXE + 0x1256C40;
@@ -60,10 +53,6 @@ void DXGI_Initialize(PBYTE hmodEXE)
 
 PGameDXGIRender __fastcall DXGI_GetGameDXGIRender() {
 	return pGameDXGIRenderer;
-}
-
-PGameRenderer1259680 __fastcall DXGI_GetGameRenderer1259680() {
-	return *pGameRenderer1259680;
 }
 
 Pxgs_umbra_System125B080 __fastcall DXGI_GetUmbraSystem125B080() {

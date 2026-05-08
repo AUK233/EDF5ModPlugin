@@ -51,15 +51,15 @@ void module_InitializeAddImGui(PBYTE hmodEXE)
 	hookGameBlockWithInt3((void*)(hmodEXE + 0x5E10F0), (uintptr_t)ASMdx11CreateDevice);
 	WriteHookToProcess((void*)(hmodEXE + 0x5E10F0 + 15), (void*)&nop1, 1U);
 	dx11CreateDeviceRetAddr = (uintptr_t)(hmodEXE + 0x5E1100);
+
 	if (Config_DLAA){
 		// EDF5.exe+50732A, Sys_Exit_Game
 		hookGameBlock((void*)(hmodEXE + 0x50732A), (uintptr_t)ASMsysExitGame);
-	}
 
-	// EDF5.exe+5ECDCA
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x5ECDCA), (uintptr_t)ASMRenderBufferToScreenBuffer);
-	WriteHookToProcess((void*)(hmodEXE + 0x5ECDCA + 15), (void*)&nop1, 1U);
-	RenderBufferToScreenBufferRetAddr = (uintptr_t)(hmodEXE + 0x5ECDDA);
+		// EDF5.exe+5ED031
+		hookGameBlockWithInt3((void*)(hmodEXE + 0x5ED031), (uintptr_t)ASMRenderBufferToScreenBuffer);
+		RenderBufferToScreenBufferRetAddr = (uintptr_t)(hmodEXE + 0x5ED040);
+	}
 
 
 	//MessageBoxW(NULL, L"test", L"debug", MB_OK);
@@ -151,7 +151,7 @@ HRESULT WINAPI New_CreateTexture2D(ID3D11Device* pDevice, const D3D11_TEXTURE2D_
 
 void New_OMSetRenderTargets(ID3D11DeviceContext* pContext, UINT NumViews, ID3D11RenderTargetView** ppRenderTargetViews, ID3D11DepthStencilView* pDepthStencilView) {
 	
-	DLSS_GetBuffer(pContext, NumViews, ppRenderTargetViews, pDepthStencilView);
+	//DLSS_GetBuffer(pContext, NumViews, ppRenderTargetViews, pDepthStencilView);
 	return fnID3D11DeviceContext_OMSetRenderTargets(pContext, NumViews, ppRenderTargetViews, pDepthStencilView);
 
 }

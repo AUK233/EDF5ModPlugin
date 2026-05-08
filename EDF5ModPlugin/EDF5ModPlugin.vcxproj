@@ -214,6 +214,7 @@
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdcpp20</LanguageStandard>
     </ClCompile>
     <ClCompile Include="zEDF\Class\EDFSoldierHeavyArmor.cpp" />
+    <ClCompile Include="zEDF\Class\EDFSoldierPaleWing.cpp" />
     <ClCompile Include="zEDF\EDFAmmoFunction.cpp" />
     <ClCompile Include="zEDF\EDFbaseParameterSet.cpp" />
     <ClCompile Include="zEDF\EDFCommonFunction.cpp" />
@@ -301,8 +302,8 @@
     <MASM Include="zEDF\ASMEDFCommonFunction.asm" />
     <MASM Include="zEDF\ASMxgsArmySoldier.asm" />
     <MASM Include="zEDF\ASMxgsVehicle501FortressRobo.asm" />
-    <MASM Include="zEDF\ASMxgsPaleWing.asm" />
     <MASM Include="zEDF\Class\EDFSoldierHeavyArmorASM.asm" />
+    <MASM Include="zEDF\Class\EDFSoldierPaleWingASM.asm" />
     <MASM Include="zEDF\Vehicle\ASMxgsVehicleBegaruta.asm" />
     <MASM Include="zEDF\Weapon\XGS_WeaponBaseASM.asm" />
     <MASM Include="zEDF\Weapon\XGS_Weapon_LaserMarkerCallFireASM.asm" />
@@ -347,6 +348,7 @@
     <ClInclude Include="Resource\snd_ShotIndicatorCircle.h" />
     <ClInclude Include="utiliy.h" />
     <ClInclude Include="zEDF\Class\EDFSoldierHeavyArmor.h" />
+    <ClInclude Include="zEDF\Class\EDFSoldierPaleWing.h" />
     <ClInclude Include="zEDF\EDFAmmoFunction.h" />
     <ClInclude Include="zEDF\EDFbaseParameterSet.h" />
     <ClInclude Include="zEDF\EDFCommonFunction.h" />
@@ -365,14 +367,8 @@
     <ClInclude Include="zHui\DLSS\0SetDLSS.h" />
     <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx.h" />
     <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_defs.h" />
-    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_defs_dlssd.h" />
-    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_defs_dlssg.h" />
     <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers.h" />
-    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers_dlssd.h" />
-    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers_dlssg.h" />
     <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_params.h" />
-    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_params_dlssd.h" />
-    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_params_dlssg.h" />
     <ClInclude Include="zHui\HuiCasController.h" />
     <ClInclude Include="zHui\HUiHudCommonStruct.h" />
     <ClInclude Include="zHui\HuiModConsole.h" />

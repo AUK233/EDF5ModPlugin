@@ -19,6 +19,8 @@ extern "C" {
 
 	uintptr_t eGetAccessoryValueAddr;
 	uintptr_t eGetAccessoryINT32Addr;
+	uintptr_t eGetAccessoryBoostSpeedAddr;
+	uintptr_t eGetAccessoryCurrentEnergyAddr;
 	uintptr_t eLoadClassAccessoryAddr;
 }
 
@@ -26,6 +28,8 @@ void module_EDFCommonFunctionInitialization(PBYTE hmodEXE)
 {
 	eGetAccessoryINT32Addr = (uintptr_t)(hmodEXE + 0x3072F0);
 	eGetAccessoryValueAddr = (uintptr_t)(hmodEXE + 0x307400);
+	eGetAccessoryBoostSpeedAddr = (uintptr_t)(hmodEXE + 0x307530);
+	eGetAccessoryCurrentEnergyAddr = (uintptr_t)(hmodEXE + 0x3076F0);
 	eLoadClassAccessoryAddr = (uintptr_t)(hmodEXE + 0x303E90);
 }
 
@@ -98,10 +102,7 @@ void __fastcall module_LoadAccessory_HeavyArmor(PG_HeavyArmor pClass)
 	module_LoadAccessory_InMission(pClass, pData);
 }
 
-void __fastcall module_LoadAccessory_PaleWing(PEDFPaleWing pClass)
-{
-	module_LoadAccessory_ExtraWeapon((uintptr_t)pClass);
-
+void __fastcall module_LoadAccessoryInMission_PaleWing(PG_PaleWing pClass) {
 	PCustomMissionData pData = pMissionCustomData;
 	module_LoadAccessory_InMission(pClass, pData);
 
@@ -110,9 +111,27 @@ void __fastcall module_LoadAccessory_PaleWing(PEDFPaleWing pClass)
 	//
 	pClass->WeaponChargeSpeed *= pData->PaleWing_WeaponChargeX;
 	//
-	pClass->BoostSidewaySpeed *= pData->PaleWing_BoostSpeedX;
-	pClass->BoostForwardSpeed *= pData->PaleWing_BoostSpeedX;
-	pClass->BoostBackwardSpeed *= pData->PaleWing_BoostSpeedX;
+	pClass->BoostSpeed[0] *= pData->PaleWing_BoostSpeedX;
+	pClass->BoostSpeed[1] *= pData->PaleWing_BoostSpeedX;
+	pClass->BoostSpeed[2] *= pData->PaleWing_BoostSpeedX;
+}
+
+float __fastcall EDFSoldier_GetAccessoryValue(void* p_Class, UINT32 accessoryType, float defaultValue, int fetchType) {
+	typedef float(__fastcall* callFunc)(void* p_Class, UINT32 accessoryType, float defaultValue, int fetchType);
+	callFunc func = (callFunc)eGetAccessoryValueAddr;
+	return func(p_Class, accessoryType, defaultValue, fetchType);
+}
+
+void __fastcall PaleWing_GetAccessoryBoostSpeed(void* p_Class, __m128* out, int uselessR8, __m128* defaultValue) {
+	typedef void(__fastcall* callFunc)(void* p_Class, __m128* out, int uselessR8, __m128* defaultValue);
+	callFunc func = (callFunc)eGetAccessoryBoostSpeedAddr;
+	return func(p_Class, out, uselessR8, defaultValue);
+}
+
+float __fastcall PaleWing_GetAccessoryCurrentEnergy(void* p_Class, float defaultValue) {
+	typedef float(__fastcall* callFunc)(void* p_Class, float defaultValue);
+	callFunc func = (callFunc)eGetAccessoryCurrentEnergyAddr;
+	return func(p_Class, defaultValue);
 }
 
 int __fastcall module_LoadAccessory_ExtraWeapon(const uintptr_t p_Class) {

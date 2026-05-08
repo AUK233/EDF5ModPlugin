@@ -13,12 +13,14 @@
 
 #include "utiliy.h"
 #include "commonNOP.h"
-#include "EDFbaseParameterSet.h"
 #include "EDFCommonFunction.h"
 #include "EDFAmmoFunction.h"
 #include "EDFWeaponFunction.h"
 #include "EDFSoldierClass.hpp"
 #include "Class/EDFSoldierHeavyArmor.h"
+#include "Class/EDFSoldierPaleWing.h"
+
+#include "EDFbaseParameterSet.h"
 
 void module_SetEDFSeriesFunction(PBYTE hmodEXE)
 {
@@ -115,67 +117,6 @@ void module_SetFunction_AssultSoldier(PBYTE hmodEXE)
 	// EDF5.exe+EAD278, is vft+230
 	uintptr_t newLoadAccessory = (uintptr_t)module_LoadAccessory_AssultSoldier;
 	WriteHookToProcess((void*)(hmodEXE + 0xEAD048 + 0x230), &newLoadAccessory, 8U);
-}
-
-extern "C" {
-	// wing diver!
-	void __fastcall ASMePaleWingInitialization();
-	uintptr_t vft_EAF348;
-	void __fastcall ASMePaleWingLoadAccessory();
-	// initialize emergency charge FX
-	uintptr_t edf2FDB10Address;
-	//
-	void __fastcall ASMePaleWingActivateRechargeFX();
-	uintptr_t edf2FBA30Address;
-}
-
-void module_SetFunction_PaleWing(PBYTE hmodEXE)
-{
-	// wing diver!
-	int newPaleWingSize = 0x2000;
-	// PaleWing 0x1DF0
-	// start: 0x1E00, size: 0x18, function: extra emergency recharge
-	WriteHookToProcessCheckECX((void*)(hmodEXE + 0x2F6D17 + 1), &newPaleWingSize, 4U);
-	// EDF5.exe+2F7F46
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x2F7F46), (uintptr_t)ASMePaleWingInitialization);
-	WriteHookToProcess((void*)(hmodEXE + 0x2F7F46 + 15), (void*)&nop3, 3U);
-	vft_EAF348 = (uintptr_t)(hmodEXE + 0xEAF348);
-	// initialize emergency charge FX
-	edf2FDB10Address = (uintptr_t)(hmodEXE + 0x2FDB10);
-	// EDF5.exe+2FB964, activate emergency recharge FX
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x2FB964), (uintptr_t)ASMePaleWingActivateRechargeFX);
-	WriteHookToProcess((void*)(hmodEXE + 0x2FB964 + 15), (void*)&nop2, 2U);
-	edf2FBA30Address = (uintptr_t)(hmodEXE + 0x2FBA30);
-	// EDF5.exe+2F863E
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x2F863E), (uintptr_t)ASMePaleWingLoadAccessory);
-
-	// Flying Speed, default is 0.4f
-	//unsigned char newWDFlying[] = {0x51, 0xE5};
-	//float WDspeedFly = 0.27f;
-	// up to 2x
-	unsigned char newWDFlying[] = { 0xB9, 0xE5 };
-	float WDspeedFly = 0.55f;
-	WriteHookToProcess((void*)(hmodEXE + 0x2F6F65 + 7), &WDspeedFly, 4U);
-	WriteHookToProcess((void*)(hmodEXE + 0x2F848B + 4), &newWDFlying[0], 1U);
-	// Takeoff Speed, default is 0.007f
-	// float WDspeedTakeoff = 0.005f;
-	//WriteHookToProcess((void *)(hmodEXE + 0x2F6F7B + 7), &WDspeedTakeoff, 4U);
-	//WriteHookToProcess((void *)(hmodEXE + 0x2F84D3 + 4), &newWDFlying[1], 1U);
-
-	// Flight Consumption, default is 0.25f
-	// now it is 0.2f
-	//unsigned char newWDFlyEnergy[] = {0x51, 0x9A
-	// up to 0.4f
-	unsigned char newWDFlyEnergy[] = { 0xB1, 0xFA };
-	WriteHookToProcess((void*)(hmodEXE + 0x2F7263 + 4), &newWDFlyEnergy[0], 1U);
-	WriteHookToProcess((void*)(hmodEXE + 0x2F861A + 4), &newWDFlyEnergy[1], 1U);
-	// Emergency Charge, default is 0.2f
-	// now it is 0.3f, EDF5.exe+2F85D3
-	unsigned char newWDEmergencyCharge[] = { 0x11, 0xDD };
-	WriteHookToProcess((void*)(hmodEXE + 0x2F85D3 + 4), &newWDEmergencyCharge, 2U);
-	// EDF5.exe+2F724F
-	unsigned char newWDEmergencyChargeInit = 0x95;
-	WriteHookToProcess((void*)(hmodEXE + 0x2F724F + 4), &newWDEmergencyChargeInit, 1U);
 }
 
 extern "C" {

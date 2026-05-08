@@ -230,26 +230,7 @@ typedef struct EDFAssultSoldier_t : EDFBaseClass_t {
 } *PEDFAssultSoldier;
 static_assert(offsetof(EDFAssultSoldier_t, DashSpeed) == 0x1A70);
 
-typedef struct EDFPaleWing_t : EDFBaseClass_t {
-	BYTE pad1a00[0x2E0];
-	float Deadweight; // Affect recoil.
-	float ChargeSpeed, EmergencyChargeSpeed;
-	float FlightConsumption, BoostConsumption;
-	float WeaponChargeSpeed;
-	BYTE pad1cf8[0xC]; // move speed?
-	float FlyingSpeed;
-	float TakeoffSpeed; // affect height.
-	float FlightDamping;
-	float BoostSidewaySpeed, BoostForwardSpeed, BoostBackwardSpeed;
-	float f1d1c; // always is 100.0f
-} *PEDFPaleWing;
-static_assert(offsetof(EDFPaleWing_t, FlightConsumption) == 0x1CEC);
-static_assert(offsetof(EDFPaleWing_t, WeaponChargeSpeed) == 0x1CF4);
-static_assert(offsetof(EDFPaleWing_t, FlightDamping) == 0x1D0C);
-static_assert(offsetof(EDFPaleWing_t, f1d1c) == 0x1D1C);
-
 // wait move to EDFSoldierClass.hpp
-
 
 // wait move to HUiHudCommonStruct.hpp
 typedef struct HUiHudTextContentStruct {

@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <d3d11.h>
 #include <vector>
+#include "Base/g_DXresource.h"
 #include "0DigitCommon.h"
 
 namespace DigitRenderer{

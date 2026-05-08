@@ -16,6 +16,7 @@
 #include "EDFSoldierHeavyArmor.h"
 
 extern "C" {
+	// fencer!
 	void __fastcall ASMeHeavyArmorInitialization();
 	void __fastcall ASMeHeavyArmorSetDashCoolDown();
 

@@ -13,6 +13,7 @@
 #include "commonNOP.h"
 #include "utiliy.h"
 #include "GameFunctionInASM.h"
+#include "zHui/DLSS/0SetDLSS.h"
 
 #include "GameFunc_Mission.h"
 
@@ -108,6 +109,12 @@ void __fastcall CustomMissionData_SetWeaponIconColor()
 	ModConsoleStatus = 0;
 }
 
+void __fastcall CustomMissionData_OtherSettingInit() {
+	CustomMissionData_SetWeaponIconColor();
+
+	DLSS_Reset();
+}
+
 void __fastcall CustomMissionData_InitializationMore(PCustomMissionData pData)
 {
 	pData->Class_SpeedX = 1.0f;
@@ -130,8 +137,7 @@ void __fastcall CustomMissionData_initialization(PCustomMissionData pData)
 	pData->Fencer_ChargeX = 1.0f;
 	CustomMissionData_InitializationMore(pData);
 
-	// other settings
-	CustomMissionData_SetWeaponIconColor();
+	CustomMissionData_OtherSettingInit();
 }
 
 void __fastcall CustomMissionData_SetToCurrentMission(uintptr_t pSGONode, int nodeNum)
@@ -176,8 +182,7 @@ void __fastcall CustomMissionData_SetToCurrentMission(uintptr_t pSGONode, int no
 		}
 	}
 
-	// other settings
-	CustomMissionData_SetWeaponIconColor();
+	CustomMissionData_OtherSettingInit();
 }
 
 int __fastcall CustomMissionData_GetSGONodeType(uintptr_t pSGONode, int nodeIndex)

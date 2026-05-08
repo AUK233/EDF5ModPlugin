@@ -9,17 +9,19 @@
 #include "g_system.h"
 
 extern "C" {
-	uintptr_t _F_XGS_System_Pointer_; // EDF5.exe+125AB68
+	uintptr_t vedf125AB68; // EDF5.exe+125AB68
+	PXGS_System* pGameSystem125AB68;
 }
 
 void __fastcall XGS_SystemFunction_Initialize(PBYTE hmodEXE)
 {
-	_F_XGS_System_Pointer_ = (uintptr_t)(hmodEXE + 0x125AB68);
+	vedf125AB68 = (uintptr_t)(hmodEXE + 0x125AB68);
+	pGameSystem125AB68 = (PXGS_System*)vedf125AB68;
 }
 
 PXGS_System __fastcall XGS_GetXGSSystemPointer()
 {
-	return *(PXGS_System*)_F_XGS_System_Pointer_;
+	return *pGameSystem125AB68;
 }
 
 PXGS_System_Player __fastcall XGS_GetSystemPlayerPointer(PXGS_System pSystem, int index)

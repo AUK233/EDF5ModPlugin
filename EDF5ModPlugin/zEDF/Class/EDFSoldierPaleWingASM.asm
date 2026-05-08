@@ -1,6 +1,6 @@
-.data
+include EDFSoldierClass.inc
 
-extern module_LoadAccessory_PaleWing : proto
+.data
 
 extern edf5BDF30Address : qword
 extern edf3AE660Address : qword
@@ -147,16 +147,6 @@ ASMePaleWingInitialization proc
 		int 3
 
 ASMePaleWingInitialization ENDP
-
-align 16
-
-ASMePaleWingLoadAccessory proc
-		mov rcx, rbx
-		add rsp, 70h
-		pop rbx
-		jmp module_LoadAccessory_PaleWing
-		int 3
-ASMePaleWingLoadAccessory ENDP
 
 align 16
 

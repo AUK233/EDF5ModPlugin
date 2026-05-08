@@ -5,7 +5,7 @@ extern dx11CreateDeviceRetAddr : qword
 
 extern DLSS_Release : proto
 
-extern DLSS_Tese : proto
+extern DLSS_Draw : proto
 extern RenderBufferToScreenBufferRetAddr : qword
 
 extern togui_GetDXGISwapChain : proto
@@ -67,19 +67,12 @@ align 16
 
 ASMRenderBufferToScreenBuffer proc
 
-	mov [rsp+30h], rcx
-	mov [rsp+38h], rdx
-	mov [rsp+40h], r8
-	mov [rsp+48h], r9
-	call DLSS_Tese
-	mov r9, [rsp+48h]
-	mov r8, [rsp+40h]
-	mov rdx, [rsp+38h]
-	mov rcx, [rsp+30h]
-	; old
-	mov rax, [rsp+0C0h]
-	mov dword ptr [rsp+48h], 0
-	lea r11, [rsp+98h]
+	mov rcx, [rdi+8]
+	call DLSS_Draw
+	mov rax, [rbx]
+	add dword ptr [rbx+8], -8
+	add dword ptr [rbx+12], 8
+	movsxd rcx, dword ptr [rbx+10h]
 	jmp RenderBufferToScreenBufferRetAddr
 	int 3
 

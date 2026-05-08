@@ -48,6 +48,7 @@ typedef struct G_NetworkObject_t : G_SceneObject_t {
 static_assert(offsetof(G_NetworkObject_t, base_camera) == 0x100);
 static_assert(offsetof(G_NetworkObject_t, mapping_camera) == 0x180);
 static_assert(offsetof(G_NetworkObject_t, unk1F0) == 0x1F0);
+static_assert(offsetof(G_NetworkObject_t, TotalEnergy) == 0x208);
 static_assert(offsetof(G_NetworkObject_t, game_object_destroy_score_adjust) == 0x210);
 static_assert(offsetof(G_NetworkObject_t, CurrentTime) == 0x214);
 static_assert(offsetof(G_NetworkObject_t, game_object_vehicle_mask) == 0x220);
