@@ -28,6 +28,7 @@ extern "C" {
 	void __fastcall ASMdx11CreateDevice();
 	uintptr_t dx11CreateDeviceRetAddr;
 	void __fastcall ASMsysExitGame();
+	void __fastcall ASMgetPlayerCountInHQ(); // HUiHQCurrentStatus
 
 	void __fastcall ASMRenderBufferToScreenBuffer();
 	uintptr_t RenderBufferToScreenBufferRetAddr;
@@ -56,9 +57,13 @@ void module_InitializeAddImGui(PBYTE hmodEXE)
 		// EDF5.exe+50732A, Sys_Exit_Game
 		hookGameBlock((void*)(hmodEXE + 0x50732A), (uintptr_t)ASMsysExitGame);
 
+		// EDF5.exe+510A1F
+		hookGameBlockWithInt3((void*)(hmodEXE + 0x510A1F), (uintptr_t)ASMgetPlayerCountInHQ);
+		WriteHookToProcess((void*)(hmodEXE + 0x510A1F + 15), (void*)&nop3, 3U);
+
 		// EDF5.exe+5ED031
 		hookGameBlockWithInt3((void*)(hmodEXE + 0x5ED031), (uintptr_t)ASMRenderBufferToScreenBuffer);
-		RenderBufferToScreenBufferRetAddr = (uintptr_t)(hmodEXE + 0x5ED040);
+		RenderBufferToScreenBufferRetAddr = (uintptr_t)(hmodEXE + 0x5ED065);
 	}
 
 
@@ -113,14 +118,13 @@ HRESULT WINAPI module_InitializeD3D11(DXGI_SWAP_CHAIN_DESC* pChainDesc, D3D_DRIV
 			//auto addrToHook = (uintptr_t)New_CreateTexture2D;
 			//WriteHookToProcess(addrCreateTexture2D, &addrToHook, 8U);
 		}
-
 		if (!fnID3D11DeviceContext_OMSetRenderTargets) {
 			auto pVTable = *(ID3D11DeviceContext_OMSetRenderTargets**)(*ppImmediateContext);
 			auto addrOMSetRenderTargets = &pVTable[33]; // vft+0x108
 			fnID3D11DeviceContext_OMSetRenderTargets = *addrOMSetRenderTargets;
 
-			auto addrToHook = (uintptr_t)New_OMSetRenderTargets;
-			WriteHookToProcess(addrOMSetRenderTargets, &addrToHook, 8U);
+			//auto addrToHook = (uintptr_t)New_OMSetRenderTargets;
+			//WriteHookToProcess(addrOMSetRenderTargets, &addrToHook, 8U);
 		}
 
 		DLSS_Initialization(ppDevice, ppImmediateContext, pChainDesc);

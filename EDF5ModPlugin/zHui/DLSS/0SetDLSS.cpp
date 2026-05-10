@@ -11,7 +11,6 @@
 #include <list>
 #include <cstdlib>
 #include <vector>
-#include <d3dcompiler.h>
 
 #include "lib/nvsdk_ngx.h"
 #include "lib/nvsdk_ngx_defs.h"
@@ -21,82 +20,104 @@
 
 #include "Base/g_DXresource.h"
 #include "Base/g_system.h"
+#include "1SetPostProcess.h"
 
 #include "0SetDLSS.h"
 
 //#define DEBUGMODE
 __declspec(align(16)) typedef struct NGX_DLSS_t {
-	ID3D11Device* Device;
-	ID3D11DeviceContext* Context;
 	ID3D11Texture2D* ColorBuffer;
+	ID3D11Texture2D* OutColor;
 	ID3D11Texture2D* DepthBuffer;
-	ID3D11Texture2D* MVBuffer;
 	int resolution[2];
 	NVSDK_NGX_Parameter* m_ngxParameters;
 	NVSDK_NGX_Handle* m_dlssFeature;
 	int m_bDlssAvailable;
 	int JitterIndex;
 	int IsReset;
+	int IsSplitScreen;
 	int IsReady;
 } *PNGX_DLSS;
 
 PNGX_DLSS pNGX_dlss = nullptr;
+D3D::PD3DPostProcess pD3DPostProcess = nullptr;
 
-ID3D11Texture2D* pOutColor = nullptr;
-ID3D11UnorderedAccessView* pOutUAV = nullptr;
-ID3D11Texture2D* pBlackMV = nullptr;
-ID3D11ComputeShader* pCSTest = nullptr;
+void __fastcall DLSS_CreateFeature(int playerCount) {
+	if (!pD3DPostProcess) return;
+	if (pD3DPostProcess->PlayerCount == playerCount) return;
 
-void __fastcall DLSS_Draw(ID3D11DeviceContext* pContext){
-	if (!pNGX_dlss) return;
+	pD3DPostProcess->PlayerCount = playerCount;
 
-	int dlssReady = 0;
-	D3D11_TEXTURE2D_DESC inDesc;
+	auto pTexBack = DXGI_GetTextureBackBuffer1256CB8();
+	auto pBuffer = pTexBack->pInfo;
 
-	auto sys = XGS_GetXGSSystemPointer();
-	auto pColorRes = (Pg_D3D_ResourceInfo)sys->player[0].pDrawColorInfo;
-	//auto pColorRes = Get_g_xgl_draw_utility_color_textrure();
-	if (pColorRes) {
-		auto pTexture = pColorRes->pTexture;
-		pTexture->GetDesc(&inDesc);
-		// pNGX_dlss->IsReady && 
-		if (inDesc.Format == DXGI_FORMAT_R16G16B16A16_FLOAT && pColorRes->pUAV){
-			//pContext->CopyResource(pOutColor, pColorRes->pTexture);
-
-			pContext->CSSetShaderResources(0, 1, &pColorRes->pSRV);
-			pContext->CSSetShader(pCSTest, nullptr, 0);
-			pContext->CSSetUnorderedAccessViews(0, 1, &pOutUAV, nullptr);
-			pContext->Dispatch((pColorRes->width + 7) / 8, (pColorRes->height + 7) / 8, 1);
-
-			pNGX_dlss->ColorBuffer = pColorRes->pTexture;
-			pNGX_dlss->resolution[0] = pColorRes->width;
-			pNGX_dlss->resolution[1] = pColorRes->height;
-
-			pNGX_dlss->Context = pContext;
-
-			/**/
-			ID3D11Texture2D* depthBuffer = 0;
-			auto pDSVInfo = (Pg_D3D_ResourceInfo)sys->player[0].pDSVInfo;
-			if (pDSVInfo) {
-				depthBuffer = pDSVInfo->pTexture;
-			}
-			pNGX_dlss->DepthBuffer = depthBuffer;
-
-			DLSS_Evaluate();
-		}
+	int res[2];
+	res[0] = pBuffer->width;
+	res[1] = pBuffer->height;
+	if (playerCount == 2) {
+		res[0] /= 2;
 	}
 
-	/*auto pMVRes = Get_g_xgl_viewXYZ_id_texture();
-	if (pMVRes) {
-		auto pMVbuffer = pMVRes->pTexture;
-		pMVbuffer->GetDesc(&inDesc);
+	pD3DPostProcess->SetBuffer(res[0], res[1]);
 
-		if (inDesc.Format == DXGI_FORMAT_R16G16B16A16_FLOAT && pMVRes->pSRV) {
-
-			pNGX_dlss->MVBuffer = pMVRes->pTexture;
-			dlssReady++;
+	if (pNGX_dlss){
+		if (playerCount == 2) {
+			pNGX_dlss->IsSplitScreen = 1;
 		}
-	}*/
+		else {
+			pNGX_dlss->IsSplitScreen = 0;
+		}
+
+		DLSS_SetFeature(pD3DPostProcess->Context, res[0], res[1]);
+	}
+	// end
+}
+
+void* __fastcall DLSS_Draw(ID3D11DeviceContext* pContext, int OutOffset, void* saveRCX){
+	if (!pD3DPostProcess) return saveRCX;
+	if (!pNGX_dlss) return saveRCX;
+
+	int playerIndex = 0;
+	if (OutOffset) playerIndex = 1;
+
+
+	auto sys = XGS_GetXGSSystemPointer();
+	auto pColorRes = (Pg_D3D_ResourceInfo)sys->player[playerIndex].pDrawColorInfo;
+	//auto pColorRes = Get_g_xgl_draw_utility_color_textrure();
+	if (!pColorRes) return saveRCX;
+	if (!pColorRes->pUAV) return saveRCX;
+
+	D3D11_TEXTURE2D_DESC inDesc;
+	auto pTexture = pColorRes->pTexture;
+	pTexture->GetDesc(&inDesc);
+	// pNGX_dlss->IsReady &&
+	if (inDesc.Format != DXGI_FORMAT_R16G16B16A16_FLOAT) return saveRCX;
+		
+	//pContext->CopyResource(pOutColor, pColorRes->pTexture);
+
+	pContext->CSSetShaderResources(0, 1, &pColorRes->pSRV);
+	pContext->CSSetShader(pD3DPostProcess->PostProcessCS, nullptr, 0);
+	pContext->CSSetUnorderedAccessViews(0, 1, &pD3DPostProcess->OutUAV[playerIndex], nullptr);
+	pContext->Dispatch((pColorRes->width + 15) / 16, (pColorRes->height + 15) / 16, 1);
+
+	pNGX_dlss->ColorBuffer = pD3DPostProcess->OutColor[playerIndex];
+	pD3DPostProcess->Context = pContext;
+
+	pNGX_dlss->OutColor = pColorRes->pTexture;
+	pNGX_dlss->resolution[0] = pColorRes->width;
+	pNGX_dlss->resolution[1] = pColorRes->height;
+
+	/**/
+	ID3D11Texture2D* depthBuffer = 0;
+	auto pDSVInfo = (Pg_D3D_ResourceInfo)sys->player[playerIndex].pDSVInfo;
+	if (pDSVInfo) {
+		depthBuffer = pDSVInfo->pTexture;
+	}
+	pNGX_dlss->DepthBuffer = depthBuffer;
+
+	DLSS_Evaluate();
+	return saveRCX;
+	// end
 }
 
 void __fastcall DLSS_Release(){
@@ -110,10 +131,29 @@ void __fastcall DLSS_Release(){
 		pNGX_dlss = nullptr;
 	}
 
+	if (pD3DPostProcess) {
+		pD3DPostProcess->ReleaseBuffer();
+		_aligned_free(pD3DPostProcess);
+		pD3DPostProcess = nullptr;
+	}
+
 	NVSDK_NGX_D3D11_Shutdown1(nullptr);
 }
 
 void __fastcall DLSS_Initialization(ID3D11Device** ppDevice, ID3D11DeviceContext** ppImmediateContext, DXGI_SWAP_CHAIN_DESC* pChainDesc) {
+	auto device = *ppDevice;
+	auto context = *ppImmediateContext;
+
+	if (!pD3DPostProcess) {
+		auto pD3D = (D3D::PD3DPostProcess)_aligned_malloc(sizeof(D3D::D3DPostProcess_t), 16U);
+		if (pD3D) {
+			pD3DPostProcess = pD3D;
+			ZeroMemory(pD3D, sizeof(D3D::D3DPostProcess_t));
+			pD3D->Initialize(device, context, pChainDesc);
+		}
+		// end
+	}
+
 	if (pNGX_dlss) return;
 
 	auto p = (PNGX_DLSS)_aligned_malloc(sizeof(NGX_DLSS_t), 16U);
@@ -122,18 +162,16 @@ void __fastcall DLSS_Initialization(ID3D11Device** ppDevice, ID3D11DeviceContext
 	ZeroMemory(p, sizeof(NGX_DLSS_t));
 	pNGX_dlss = p;
 
-	p->Device = *ppDevice;
-	p->Context = *ppImmediateContext;
 	p->JitterIndex = 1;
 
 	NVSDK_NGX_FeatureCommonInfo featureCommonInfo = {};
 	featureCommonInfo.LoggingInfo.DisableOtherLoggingSinks = false;
 	featureCommonInfo.LoggingInfo.MinimumLoggingLevel = NVSDK_NGX_LOGGING_LEVEL_VERBOSE;
 	/*
-	NVSDK_NGX_D3D11_Init(0x3AC09EF, L".", p->Device);
+	NVSDK_NGX_D3D11_Init(0x3AC09EF, L".", device);
 	*/
 
-	auto slresult = NVSDK_NGX_D3D11_Init(231313132, L"Z:\\TEMP", p->Device, &featureCommonInfo); // this id is from ngx_dlss_demo 
+	auto slresult = NVSDK_NGX_D3D11_Init(231313132, L"Z:\\TEMP", device, &featureCommonInfo); // this id is from ngx_dlss_demo 
 	if (slresult != NVSDK_NGX_Result_Success) {
 		DLSS_TriggerFailureResult((UINT32)slresult - NVSDK_NGX_Result_Fail, 1);
 		return;
@@ -146,69 +184,6 @@ void __fastcall DLSS_Initialization(ID3D11Device** ppDevice, ID3D11DeviceContext
 	}
 
 	NVSDK_NGX_Parameter_SetUI(p->m_ngxParameters, NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_DLAA, NVSDK_NGX_DLSS_Hint_Render_Preset_Default);
-
-	NVSDK_NGX_DLSS_Create_Params DlssCreateParams;
-	memset(&DlssCreateParams, 0, sizeof(DlssCreateParams));
-
-	DlssCreateParams.Feature.InWidth = pChainDesc->BufferDesc.Width;
-	DlssCreateParams.Feature.InHeight = pChainDesc->BufferDesc.Height;
-	DlssCreateParams.Feature.InTargetWidth = pChainDesc->BufferDesc.Width;
-	DlssCreateParams.Feature.InTargetHeight = pChainDesc->BufferDesc.Height;
-	DlssCreateParams.Feature.InPerfQualityValue = NVSDK_NGX_PerfQuality_Value_DLAA;
-	DlssCreateParams.InFeatureCreateFlags = NVSDK_NGX_DLSS_Feature_Flags_None;
-	DlssCreateParams.InEnableOutputSubrects = false;
-
-
-	auto ResultDLSS = NGX_D3D11_CREATE_DLSS_EXT(p->Context, &p->m_dlssFeature, p->m_ngxParameters, &DlssCreateParams);
-	if (ResultDLSS != NVSDK_NGX_Result_Success) {
-		DLSS_TriggerFailureResult((UINT32)ResultDLSS, 1);
-		return;
-	}
-
-	p->m_bDlssAvailable = 1;
-
-	D3D11_TEXTURE2D_DESC outDesc = {};
-	outDesc.Width = pChainDesc->BufferDesc.Width;
-	outDesc.Height = pChainDesc->BufferDesc.Height;
-	outDesc.MipLevels = 1;
-	outDesc.ArraySize = 1;
-	outDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-	outDesc.SampleDesc.Count = 1;
-	outDesc.SampleDesc.Quality = 0;
-	outDesc.Usage = D3D11_USAGE_DEFAULT;
-	outDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET | D3D11_BIND_UNORDERED_ACCESS;
-	outDesc.CPUAccessFlags = 0;
-	outDesc.MiscFlags = 0;
-	p->Device->CreateTexture2D(&outDesc, 0, &pOutColor);
-
-	D3D11_UNORDERED_ACCESS_VIEW_DESC uavDesc = {};
-	uavDesc.Format = outDesc.Format;
-	uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
-	uavDesc.Texture2D.MipSlice = 0;
-	p->Device->CreateUnorderedAccessView(pOutColor, &uavDesc, &pOutUAV);
-
-	// set black mv buffer
-	outDesc.Format = DXGI_FORMAT_R16G16_FLOAT;
-	outDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-
-	UINT pixelSize = pChainDesc->BufferDesc.Width * 4;  // 2 bytes (X) + 2 bytes (Y)
-	UINT dataSize = pChainDesc->BufferDesc.Height * pixelSize;
-	std::vector<BYTE> zeroData(dataSize, 0);
-	D3D11_SUBRESOURCE_DATA initData = {};
-	initData.pSysMem = zeroData.data();
-	initData.SysMemPitch = pixelSize;
-	initData.SysMemSlicePitch = dataSize;
-	p->Device->CreateTexture2D(&outDesc, &initData, &pBlackMV);
-
-
-	ID3DBlob* cs_blob = nullptr;
-	ID3DBlob* error_blob = nullptr;
-	D3DCompileFromFile(L"./subtitle/test.hlsl", nullptr, nullptr, "CS_main", "cs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &cs_blob, &error_blob);
-	ID3D11ComputeShader* newCS = nullptr;
-	p->Device->CreateComputeShader(cs_blob->GetBufferPointer(), cs_blob->GetBufferSize(), nullptr, &newCS);
-	pCSTest = newCS;
-	cs_blob->Release();
-	if (error_blob) error_blob->Release();
 }
 
 void __fastcall DLSS_TriggerFailureResult(UINT32 slresult, int FreeDLSS) {
@@ -222,6 +197,38 @@ void __fastcall DLSS_TriggerFailureResult(UINT32 slresult, int FreeDLSS) {
 			pNGX_dlss = nullptr;
 		}
 	}
+}
+
+void __fastcall DLSS_SetFeature(ID3D11DeviceContext* pContext, UINT Width, UINT Height) {
+	auto p = pNGX_dlss;
+
+	if (!p) return;
+	p->m_bDlssAvailable = 0;
+
+	if (p->m_bDlssAvailable) {
+		NVSDK_NGX_D3D11_ReleaseFeature(pNGX_dlss->m_dlssFeature);
+		DLSS_Reset();
+	}
+
+	NVSDK_NGX_DLSS_Create_Params DlssCreateParams;
+	memset(&DlssCreateParams, 0, sizeof(DlssCreateParams));
+
+	DlssCreateParams.Feature.InWidth = Width;
+	DlssCreateParams.Feature.InHeight = Height;
+	DlssCreateParams.Feature.InTargetWidth = Width;
+	DlssCreateParams.Feature.InTargetHeight = Height;
+	DlssCreateParams.Feature.InPerfQualityValue = NVSDK_NGX_PerfQuality_Value_DLAA;
+	DlssCreateParams.InFeatureCreateFlags = NVSDK_NGX_DLSS_Feature_Flags_None;
+	DlssCreateParams.InEnableOutputSubrects = false;
+
+
+	auto ResultDLSS = NGX_D3D11_CREATE_DLSS_EXT(pContext, &p->m_dlssFeature, p->m_ngxParameters, &DlssCreateParams);
+	if (ResultDLSS != NVSDK_NGX_Result_Success) {
+		DLSS_TriggerFailureResult((UINT32)ResultDLSS, 1);
+		return;
+	}
+
+	p->m_bDlssAvailable = 1;
 }
 
 void __fastcall DLSS_GetBuffer(ID3D11DeviceContext* pContext, UINT NumViews, ID3D11RenderTargetView** ppRenderTargetViews, ID3D11DepthStencilView* pDepthStencilView){
@@ -256,6 +263,7 @@ void __fastcall DLSS_GetBuffer(ID3D11DeviceContext* pContext, UINT NumViews, ID3
 
 void __fastcall DLSS_ClearBuffer(){
 	pNGX_dlss->ColorBuffer = nullptr;
+	pNGX_dlss->OutColor = nullptr;
 	pNGX_dlss->DepthBuffer = nullptr;
 
 	/*if (pNGX_dlss->ColorBuffer) {
@@ -273,9 +281,6 @@ void __fastcall DLSS_ClearBuffer(){
 		pNGX_dlss->DepthBuffer = nullptr;
 	}
 	*/
-
-	
-
 	pNGX_dlss->IsReady = 0;
 }
 
@@ -302,29 +307,36 @@ float __fastcall DLSS_Halton(int index, int base){
 void __fastcall DLSS_GetJitter(float* out){
 	if (!pNGX_dlss) return;
 
+	if (pNGX_dlss->IsSplitScreen){
+		*(UINT64*)out = 0;
+		pNGX_dlss->IsReset = 1;
+		return;
+	}
+
 	out[0] = DLSS_Halton(pNGX_dlss->JitterIndex, 2);
 	out[1] = DLSS_Halton(pNGX_dlss->JitterIndex, 3);
 	pNGX_dlss->JitterIndex++;
 }
 
 void __fastcall DLSS_Evaluate(){
+	if (!pD3DPostProcess) return;
 	if (!pNGX_dlss) return;
 
 	auto ColorBuffer = pNGX_dlss->ColorBuffer;
+	auto OutColor = pNGX_dlss->OutColor;
 	auto DepthBuffer = pNGX_dlss->DepthBuffer;
-	//auto MVBuffer = pNGX_dlss->MVBuffer;
-	if (ColorBuffer && DepthBuffer){
+	if (OutColor && DepthBuffer){
 		float jitter[2];
 		DLSS_GetJitter(jitter);
 		NVSDK_NGX_D3D11_DLSS_Eval_Params D3D11DlssEvalParams;
 		memset(&D3D11DlssEvalParams, 0, sizeof(D3D11DlssEvalParams));
 
-		D3D11DlssEvalParams.Feature.pInColor = pOutColor;
-		D3D11DlssEvalParams.Feature.pInOutput = ColorBuffer;
-		D3D11DlssEvalParams.Feature.InSharpness = 0.3;
+		D3D11DlssEvalParams.Feature.pInColor = ColorBuffer;
+		D3D11DlssEvalParams.Feature.pInOutput = OutColor;
+		D3D11DlssEvalParams.Feature.InSharpness = 1;
 
 		D3D11DlssEvalParams.pInDepth = DepthBuffer;
-		D3D11DlssEvalParams.pInMotionVectors = pBlackMV;
+		D3D11DlssEvalParams.pInMotionVectors = pD3DPostProcess->BlackMV;
 
 		D3D11DlssEvalParams.InJitterOffsetX = jitter[0];
 		D3D11DlssEvalParams.InJitterOffsetY = jitter[1];
@@ -335,7 +347,8 @@ void __fastcall DLSS_Evaluate(){
 		D3D11DlssEvalParams.InMVScaleX = 1.0;
 		D3D11DlssEvalParams.InMVScaleY = 1.0;
 
-		auto result = NGX_D3D11_EVALUATE_DLSS_EXT(pNGX_dlss->Context, pNGX_dlss->m_dlssFeature, pNGX_dlss->m_ngxParameters, &D3D11DlssEvalParams);
+		auto result = NGX_D3D11_EVALUATE_DLSS_EXT(pD3DPostProcess->Context, pNGX_dlss->m_dlssFeature, pNGX_dlss->m_ngxParameters, &D3D11DlssEvalParams);
+
 		pNGX_dlss->IsReset = 0;
 	}
 

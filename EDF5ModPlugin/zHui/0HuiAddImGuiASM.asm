@@ -3,6 +3,9 @@
 extern module_InitializeD3D11 : proto
 extern dx11CreateDeviceRetAddr : qword
 
+extern DLSS_CreateFeature : proto
+extern vedf125AB30 : qword
+
 extern DLSS_Release : proto
 
 extern DLSS_Draw : proto
@@ -31,6 +34,29 @@ ASMdx11CreateDevice proc
 	int 3
 
 ASMdx11CreateDevice ENDP
+
+align 16
+
+ASMgetPlayerCountInHQ proc
+
+	mov rdx, [vedf125AB30]
+	mov rax, [rdx]
+	mov rcx, [rax+2459Ch]
+	call DLSS_CreateFeature
+	mov rax, rsi
+	mov rbx, [rsp+2B0h]
+	add rsp, 260h
+	pop r15
+	pop r14
+	pop r13
+	pop r12
+	pop rdi
+	pop rsi
+	pop rbp
+	ret
+	int 3
+
+ASMgetPlayerCountInHQ ENDP
 
 align 16
 
@@ -67,12 +93,25 @@ align 16
 
 ASMRenderBufferToScreenBuffer proc
 
-	mov rcx, [rdi+8]
-	call DLSS_Draw
 	mov rax, [rbx]
 	add dword ptr [rbx+8], -8
 	add dword ptr [rbx+12], 8
 	movsxd rcx, dword ptr [rbx+10h]
+	shl rcx, 4
+	add rcx, [rax+28h]
+	lea r9, [rcx+60h]
+	lea rax, [rcx+70h]
+	mov [rsp+28h], rax
+	mov [rsp+20h], r9
+	;
+	mov r8, rcx
+	mov rdx, [r9]
+	mov rcx, [rdi+8]
+	call DLSS_Draw
+	;
+	lea r9, [rax+50h]
+	lea r8, [rax+10h]
+	mov rcx, [rax]
 	jmp RenderBufferToScreenBufferRetAddr
 	int 3
 

@@ -69,6 +69,16 @@ static_assert(offsetof(GameRenderer1259680_t, pColorPass1RT6) == 0x7E0);
 static_assert(offsetof(GameRenderer1259680_t, pColorPass1RT7) == 0x810);
 #endif
 
+// size is 0x38, in EDF5.exe+5E1C6E
+typedef struct alignas(16) G_TextureBackBuffer_t {
+	void* vf_table;
+	char pad08[8];
+	void* pResource; Pg_D3D_ResourceInfo pInfo;
+}*PG_TextureBackBuffer;
+#if 1
+static_assert(offsetof(G_TextureBackBuffer_t, pInfo) == 0x18);
+#endif
+
 // size is 0xC0, in EDF5.exe+3D8DF8
 typedef struct alignas(16) G_Application_t {
 	void* vf_table;
@@ -85,6 +95,7 @@ void __fastcall XGS_DXresource_Initialize(PBYTE hmodEXE);
 
 PGameRenderer1259680 __fastcall DXGI_GetGameRenderer1259680();
 PG_Application __fastcall DXGI_GetApplication1253708();
+PG_TextureBackBuffer __fastcall DXGI_GetTextureBackBuffer1256CB8();
 
 extern "C"{
 	Pg_D3D_ResourceInfo __fastcall Get_g_xgl_draw_utility_color_textrure();

@@ -258,6 +258,9 @@
     <ClCompile Include="zEDF\Class\EDFSoldierPaleWing.cpp">
       <Filter>Source Files\Module EDF\Class</Filter>
     </ClCompile>
+    <ClCompile Include="zHui\DLSS\1SetPostProcess.cpp">
+      <Filter>Source Files\Module Hui\DLSS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMgamelog_hook.asm">
@@ -693,6 +696,9 @@
     </ClInclude>
     <ClInclude Include="zEDF\Class\EDFSoldierPaleWing.h">
       <Filter>Source Files\Module EDF\Class</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\1SetPostProcess.h">
+      <Filter>Source Files\Module Hui\DLSS</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

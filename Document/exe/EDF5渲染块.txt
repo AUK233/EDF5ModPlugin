@@ -35,11 +35,42 @@ EDF5.exe+5E22AF - 8B 2D 1B87C700        - mov ebp,[EDF5.exe+125A9D0]
 实时渲染获取窗口宽度
 EDF5.exe+125A9C8 窗口句柄
 
-EDF5.exe+125A9E0 渲染时读取p1窗口大小
+EDF5.exe+125A9E0 渲染分辨率，可以超过实际窗口大小
+EDF5.exe+115408C 1字节
 
+EDF5.exe+3D8BFC - 0F10 84 11 64020000   - movups xmm0,[rcx+rdx+00000264]
+这里获取当前玩家的窗口大小，是后两个值
+EDF5.exe+11D32B - 0F11 41 34            - movups [rcx+34],xmm0
+这里写入
+
+EDF5.exe+11D2F1 - 8B 8D 78010000        - mov ecx,[rbp+00000178]
+这里获取本机当前玩家数
+EDF5.exe+11DC18 - 89 44 24 28           - mov [rsp+28],eax
+这个eax就是玩家数
+EDF5.exe+11D81A - 41 89 00              - mov [r8],eax
+这里写入的玩家数
+
+EDF5.exe+89FA6 - C7 83 9C450200 01000000 - mov [rbx+0002459C],00000001
+EDF5.exe+3E4E44 - C7 80 9C450200 01000000 - mov [rax+0002459C],00000001
+写入玩家数1
+
+EDF5.exe+53F195 - C7 80 9C450200 02000000 - mov [rax+0002459C],00000002
+这里写入玩家数2
+
+EDF5.exe+613EC5 - 49 89 96 50020000     - mov [r14+00000250],rdx
+这里写入激活当前玩家
+
+EDF5.exe+525217 - 44 8B A8 9C450200     - mov r13d,[rax+0002459C]
+这里的r13d进入hq时读取一次
+
+EDF5.exe+5ED059 - 48 89 54 24 20        - mov [rsp+20],rdx
+这里的rdx是一个指针+0是偏移的浮点分辨率，p1应该是0
 
 EDF5.exe+60B871 - FF 15 D1BF6800        - call qword ptr [EDF5.exe+C97848]
 实时设置窗口大小
+
+EDF5.exe+5E257F - 48 8D 0D 5AC28F00     - lea rcx,[EDF5.exe+EDE7E0]
+看起来是切换抗锯齿
 
 IDXGISwapChain::Present返回
 EDF5.exe+5E3187 - 48 8D 9F 40290000     - lea rbx,[rdi+00002940]
