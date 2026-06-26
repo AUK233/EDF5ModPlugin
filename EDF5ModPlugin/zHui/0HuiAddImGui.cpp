@@ -23,6 +23,7 @@
 
 extern "C" {
 	extern int Config_HUDEnhance;
+	extern int Config_PostProcess;
 	extern int Config_DLAA;
 
 	void __fastcall ASMdx11CreateDevice();
@@ -53,7 +54,7 @@ void module_InitializeAddImGui(PBYTE hmodEXE)
 	WriteHookToProcess((void*)(hmodEXE + 0x5E10F0 + 15), (void*)&nop1, 1U);
 	dx11CreateDeviceRetAddr = (uintptr_t)(hmodEXE + 0x5E1100);
 
-	if (Config_DLAA){
+	if (Config_DLAA || Config_PostProcess){
 		// EDF5.exe+50732A, Sys_Exit_Game
 		hookGameBlock((void*)(hmodEXE + 0x50732A), (uintptr_t)ASMsysExitGame);
 
@@ -106,7 +107,7 @@ HRESULT WINAPI module_InitializeD3D11(DXGI_SWAP_CHAIN_DESC* pChainDesc, D3D_DRIV
 	auto result = D3D11CreateDevice(0, DriverType, Software, Flags, pFeatureLevels, FeatureLevels, SDKVersion, ppDevice, pFeatureLevel, ppImmediateContext);
 	if (result < 0) return result;
 
-	if (Config_DLAA) {
+	if (Config_DLAA || Config_PostProcess) {
 		pChainDesc->SampleDesc.Count = 1; // old is 8
 		pChainDesc->SampleDesc.Quality = 0;
 

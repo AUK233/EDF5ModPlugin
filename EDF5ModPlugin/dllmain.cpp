@@ -84,7 +84,7 @@ static UINT PlayerView = 0;
 static UINT HUDEnhance = 0;
 static UINT DisplaySubtitle = 0;
 // Old configuration
-static BOOL RedirectRead = TRUE;
+static BOOL RedirectRead = FALSE;
 static BOOL LoadPluginsB = FALSE;
 static BOOL GameLog = FALSE;
 

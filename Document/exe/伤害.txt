@@ -44,3 +44,14 @@ EDF5.exe+3B9873 - 48 89 44 24 20        - mov [rsp+20],rax
 就是这个rax
 EDF5.exe+3B9695 - C7 87 B0000000 47000000 - mov [rdi+000000B0],00000007
 这里写入伤害flag
+
+==============================
+EDF5.exe+146EC0 对应 edf.dll+238000
+EDF5.exe+1430B9 对应 edf.dll+233C9D
+EDF5.exe+14325F 对应 edf.dll+2343CF
+
+EDF5.exe+143A8E - C7 44 24 28 0C000000  - mov [rsp+28],0000000C
+碰撞flag，被固定了，6的卡巴炮是17和1d
+
+
+

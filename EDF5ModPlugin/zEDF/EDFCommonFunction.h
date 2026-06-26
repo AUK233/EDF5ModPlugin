@@ -22,6 +22,7 @@ float __fastcall EDFSoldier_GetAccessoryValue(void* p_Class, UINT32 accessoryTyp
 
 void __fastcall PaleWing_GetAccessoryBoostSpeed(void* p_Class, __m128* out, int uselessR8, __m128* defaultValue);
 float __fastcall PaleWing_GetAccessoryCurrentEnergy(void* p_Class, float defaultValue);
+float __fastcall PaleWing_GetAccessoryCoreBaseEnergy(void* p_Class);
 
 extern "C" {
 	// new accessory functions

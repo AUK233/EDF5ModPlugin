@@ -53,39 +53,9 @@ void module_SetFunction_PaleWing(PBYTE hmodEXE)
 	//vft + 230
 	uintptr_t newLoadAccessory = (uintptr_t)module_LoadAccessory_PaleWing;
 	WriteHookToProcess((void*)(vft_wingDiver + 0x230), &newLoadAccessory, 8U);
-
-	// Flying Speed, default is 0.4f
-	//unsigned char newWDFlying[] = {0x51, 0xE5};
-	//float WDspeedFly = 0.27f;
-	// up to 2x
-	//unsigned char newWDFlying[] = { 0xB9, 0xE5 };
-	//float WDspeedFly = 0.55f;
-	//WriteHookToProcess((void*)(hmodEXE + 0x2F6F65 + 7), &WDspeedFly, 4U);
-	//WriteHookToProcess((void*)(hmodEXE + 0x2F848B + 4), &newWDFlying[0], 1U);
-	
-	// Takeoff Speed, default is 0.007f
-	// float WDspeedTakeoff = 0.005f;
-	//WriteHookToProcess((void *)(hmodEXE + 0x2F6F7B + 7), &WDspeedTakeoff, 4U);
-	//WriteHookToProcess((void *)(hmodEXE + 0x2F84D3 + 4), &newWDFlying[1], 1U);
-
-	// Flight Consumption, default is 0.25f
-	// now it is 0.2f
-	//unsigned char newWDFlyEnergy[] = {0x51, 0x9A
-	// up to 0.4f
-	//unsigned char newWDFlyEnergy[] = { 0xB1, 0xFA };
-	//WriteHookToProcess((void*)(hmodEXE + 0x2F7263 + 4), &newWDFlyEnergy[0], 1U);
-	//WriteHookToProcess((void*)(hmodEXE + 0x2F861A + 4), &newWDFlyEnergy[1], 1U);
-	// Emergency Charge, default is 0.2f
-	// now it is 0.3f, EDF5.exe+2F85D3
-	//unsigned char newWDEmergencyCharge[] = { 0x11, 0xDD };
-	//WriteHookToProcess((void*)(hmodEXE + 0x2F85D3 + 4), &newWDEmergencyCharge, 2U);
-	// EDF5.exe+2F724F
-	//unsigned char newWDEmergencyChargeInit = 0x95;
-	//WriteHookToProcess((void*)(hmodEXE + 0x2F724F + 4), &newWDEmergencyChargeInit, 1U);
 }
 
-void __fastcall module_LoadAccessory_PaleWing(PG_PaleWing pClass)
-{
+void __fastcall module_LoadAccessory_PaleWing(PG_PaleWing pClass) {
 	// EDF5.exe+2F8450
 	func_Call303E90 LoadClassAccessory = (func_Call303E90)eLoadClassAccessoryAddr;
 	LoadClassAccessory(pClass);
@@ -100,7 +70,9 @@ void __fastcall module_LoadAccessory_PaleWing(PG_PaleWing pClass)
 	__m128 boostSpeedDefault = { 1, 1, 1, 1 };
 	__m128 boostSpeed;
 	PaleWing_GetAccessoryBoostSpeed(pClass, &boostSpeed, 0, &boostSpeedDefault);
-	_mm_store_ps(pClass->BoostSpeed, boostSpeed);
+	__m128 newBoostSpeed = { 2.5, 3, 2, 1 };
+	newBoostSpeed = _mm_mul_ps(boostSpeed, newBoostSpeed);
+	_mm_store_ps(pClass->BoostSpeed, newBoostSpeed);
 
 	float deadWeight = EDFSoldier_GetAccessoryValue(pClass, 210, 1.0f, 0);
 	pClass->DeadWeight = deadWeight;
@@ -112,17 +84,19 @@ void __fastcall module_LoadAccessory_PaleWing(PG_PaleWing pClass)
 	pClass->CurrentEnergy = currentEnergy;
 	float csEnergy = currentEnergy / 100.0f;
 
-	// ok, skip base energy gain now to set recharge speed to a fixed value.
-
 	float chargeSpeed = EDFSoldier_GetAccessoryValue(pClass, 208, 1.0f, 0);
-	pClass->ChargeSpeed = csEnergy * chargeSpeed * 0.1f;
+	pClass->ChargeSpeed = csEnergy * chargeSpeed * 0.2f; // old is 0.1
 	float emergencyChargeSpeed = EDFSoldier_GetAccessoryValue(pClass, 209, 1.0f, 0);
-	pClass->EmergencyChargeSpeed = csEnergy * emergencyChargeSpeed * 0.2f;
+	pClass->EmergencyChargeSpeed = csEnergy * emergencyChargeSpeed * 0.45f; // old is 0.2
+
+	// now only consumption is calculated based on base energy.
+	float baseEnergy = PaleWing_GetAccessoryCoreBaseEnergy(pClass);
+	csEnergy = baseEnergy / 100.0f;
 
 	float boostConsumption = EDFSoldier_GetAccessoryValue(pClass, 201, 1.0f, 0);
-	pClass->BoostConsumption = csEnergy * boostConsumption * 3.0f;
+	pClass->BoostConsumption = csEnergy * boostConsumption * 9.0f; // old is 3
 	float flightConsumption = EDFSoldier_GetAccessoryValue(pClass, 205, 1.0f, 0);
-	pClass->FlightConsumption = csEnergy * flightConsumption * 0.25f;
+	pClass->FlightConsumption = csEnergy * flightConsumption * 0.6f; // old is 0.25
 
 	module_LoadAccessory_ExtraWeapon((uintptr_t)pClass);
 	module_LoadAccessoryInMission_PaleWing(pClass);

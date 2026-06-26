@@ -62,6 +62,28 @@ namespace D3D {
 		}
 
 		// ===========================
+		/*
+		if (LinearDepthUAV[0]) {
+			LinearDepthUAV[0]->Release();
+			LinearDepthUAV[0] = nullptr;
+		}
+
+		if (LinearDepth[0]) {
+			LinearDepth[0]->Release();
+			LinearDepth[0] = nullptr;
+		}
+
+		if (LinearDepthUAV[1]) {
+			LinearDepthUAV[1]->Release();
+			LinearDepthUAV[1] = nullptr;
+		}
+
+		if (LinearDepth[1]) {
+			LinearDepth[1]->Release();
+			LinearDepth[1] = nullptr;
+		}*/
+
+		// ===========================
 
 		if (BlackMV) {
 			BlackMV->Release();
@@ -97,6 +119,18 @@ namespace D3D {
 			Device->CreateTexture2D(&outDesc, 0, &OutColor[1]);
 			Device->CreateUnorderedAccessView(OutColor[1], &uavDesc, &OutUAV[1]);
 		}
+
+		// set linear depth buffer
+		/*
+		outDesc.Format = DXGI_FORMAT_R32_FLOAT;
+		Device->CreateTexture2D(&outDesc, 0, &LinearDepth[0]);
+		uavDesc.Format = DXGI_FORMAT_R32_FLOAT;
+		Device->CreateUnorderedAccessView(LinearDepth[0], &uavDesc, &LinearDepthUAV[0]);
+
+		if (PlayerCount == 2) {
+			Device->CreateTexture2D(&outDesc, 0, &LinearDepth[1]);
+			Device->CreateUnorderedAccessView(LinearDepth[1], &uavDesc, &LinearDepthUAV[1]);
+		}*/
 
 		// set black mv buffer
 		outDesc.Format = DXGI_FORMAT_R16G16_FLOAT;

@@ -9,6 +9,10 @@ namespace D3D {
 
 		ID3D11Texture2D* OutColor[2];
 		ID3D11UnorderedAccessView* OutUAV[2];
+
+		//ID3D11Texture2D* LinearDepth[2];
+		//ID3D11UnorderedAccessView* LinearDepthUAV[2];
+
 		ID3D11ComputeShader* PostProcessCS;
 		ID3D11Texture2D* BlackMV;
 

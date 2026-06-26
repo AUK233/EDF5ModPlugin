@@ -21,6 +21,7 @@ extern "C" {
 	uintptr_t eGetAccessoryINT32Addr;
 	uintptr_t eGetAccessoryBoostSpeedAddr;
 	uintptr_t eGetAccessoryCurrentEnergyAddr;
+	uintptr_t eGetAccessoryCoreBaseEnergyAddr;
 	uintptr_t eLoadClassAccessoryAddr;
 }
 
@@ -30,6 +31,7 @@ void module_EDFCommonFunctionInitialization(PBYTE hmodEXE)
 	eGetAccessoryValueAddr = (uintptr_t)(hmodEXE + 0x307400);
 	eGetAccessoryBoostSpeedAddr = (uintptr_t)(hmodEXE + 0x307530);
 	eGetAccessoryCurrentEnergyAddr = (uintptr_t)(hmodEXE + 0x3076F0);
+	eGetAccessoryCoreBaseEnergyAddr = (uintptr_t)(hmodEXE + 0x3077B0);
 	eLoadClassAccessoryAddr = (uintptr_t)(hmodEXE + 0x303E90);
 }
 
@@ -132,6 +134,12 @@ float __fastcall PaleWing_GetAccessoryCurrentEnergy(void* p_Class, float default
 	typedef float(__fastcall* callFunc)(void* p_Class, float defaultValue);
 	callFunc func = (callFunc)eGetAccessoryCurrentEnergyAddr;
 	return func(p_Class, defaultValue);
+}
+
+float __fastcall PaleWing_GetAccessoryCoreBaseEnergy(void* p_Class) {
+	typedef float(__fastcall* callFunc)(void* p_Class);
+	callFunc func = (callFunc)eGetAccessoryCoreBaseEnergyAddr;
+	return func(p_Class);
 }
 
 int __fastcall module_LoadAccessory_ExtraWeapon(const uintptr_t p_Class) {
