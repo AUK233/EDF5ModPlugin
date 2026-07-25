@@ -261,6 +261,9 @@
     <ClCompile Include="zHui\DLSS\1SetPostProcess.cpp">
       <Filter>Source Files\Module Hui\DLSS</Filter>
     </ClCompile>
+    <ClCompile Include="zHui\DLSS\1FullAO.cpp">
+      <Filter>Source Files\Module Hui\DLSS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMgamelog_hook.asm">
@@ -698,6 +701,12 @@
       <Filter>Source Files\Module EDF\Class</Filter>
     </ClInclude>
     <ClInclude Include="zHui\DLSS\1SetPostProcess.h">
+      <Filter>Source Files\Module Hui\DLSS</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\1FullAO.h">
+      <Filter>Source Files\Module Hui\DLSS</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\1FullAOData.hpp">
       <Filter>Source Files\Module Hui\DLSS</Filter>
     </ClInclude>
   </ItemGroup>

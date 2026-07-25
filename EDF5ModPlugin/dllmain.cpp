@@ -29,9 +29,6 @@
 #include "GameFunc_vftable.h"
 #include "zHui/ToGui/2ReadINIConfig.h"
 
-// about dlss
-typedef void (__fastcall* callDLSS)(void*);
-
 typedef struct {
 	PluginInfo *info;
 	void *module;
@@ -85,7 +82,6 @@ static UINT HUDEnhance = 0;
 static UINT DisplaySubtitle = 0;
 // Old configuration
 static BOOL RedirectRead = FALSE;
-static BOOL LoadPluginsB = FALSE;
 static BOOL GameLog = FALSE;
 
 extern "C" {
@@ -112,84 +108,6 @@ typedef struct {
 PointerSet psets[1] = { //
 	{0xebcbd0, L"EarthDefenceForce 5 for PC", "EDF5", "EML5_Load", {0x9c835a, 0x244d0, 0x27380, 0x27680}},
 };
-
-// Search and load all *.dll files in 1mod\Plugins\ folder
-static void LoadPlugins(void) {
-	WIN32_FIND_DATAW ffd;
-	PLOG_INFO << "Loading plugins";
-	HANDLE hFind = FindFirstFileW(L"1mod\\Plugins\\*.dll", &ffd);
-
-	if (hFind != INVALID_HANDLE_VALUE) {
-		do {
-			if (!(ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
-				PLOG_INFO << "Loading Plugin: " << ffd.cFileName;
-				wchar_t plugpath[MAX_PATH];
-				wcscpy_s(plugpath, L"1mod\\Plugins\\");
-				wcscat_s(plugpath, ffd.cFileName);
-				HMODULE plugin = LoadLibraryW(plugpath);
-				if (plugin != NULL) {
-					LoadDef loadfunc = (LoadDef)GetProcAddress(plugin, psets[0].plugfunc);
-					bool unload = false;
-					if (loadfunc != NULL) {
-						PluginInfo *pluginInfo = new PluginInfo();
-						pluginInfo->infoVersion = 0;
-						if (loadfunc(pluginInfo)) {
-							// Validate PluginInfo
-							if (pluginInfo->infoVersion == 0) {
-								PLOG_ERROR << "PluginInfo infoVersion 0, expected " << PluginInfo::MaxInfoVer;
-								unload = true;
-							} else if (pluginInfo->name == NULL) {
-								PLOG_ERROR << "Plugin missing name";
-								unload = true;
-							} else if (pluginInfo->infoVersion > PluginInfo::MaxInfoVer) {
-								PLOG_ERROR << "Plugin has unsupported infoVersion " << pluginInfo->infoVersion << " expected " << PluginInfo::MaxInfoVer;
-								unload = true;
-							} else {
-								switch (pluginInfo->infoVersion) {
-								case 1:
-								default:
-									// Latest info version
-									PluginData *pluginData = new PluginData;
-									pluginData->info = pluginInfo;
-									pluginData->module = plugin;
-									plugins.push_back(pluginData);
-									break;
-								}
-								static_assert(PluginInfo::MaxInfoVer == 1, "Supported version changed, update version handling and this number");
-							}
-						} else {
-							PLOG_INFO << "Unloading plugin";
-							unload = true;
-						}
-						if (unload) {
-							delete pluginInfo;
-						}
-					} else {
-						PLOG_WARNING << "Plugin does not contain " << psets[0].plugfunc << " function";
-						unload = true;
-					}
-					if (unload) {
-						FreeLibrary(plugin);
-					}
-				} else {
-					DWORD dwError = GetLastError();
-					PLOG_ERROR << "Failed to load plugin: error " << dwError;
-				}
-			}
-		} while (FindNextFileW(hFind, &ffd) != 0);
-		// Check if finished with error
-		DWORD dwError = GetLastError();
-		if (dwError != ERROR_NO_MORE_FILES) {
-			PLOG_ERROR << "Failed to search for plugins: error " << dwError;
-		}
-		FindClose(hFind);
-	} else {
-		DWORD dwError = GetLastError();
-		if (dwError != ERROR_FILE_NOT_FOUND && dwError != ERROR_PATH_NOT_FOUND) {
-			PLOG_ERROR << "Failed to search for plugins: error " << dwError;
-		}
-	}
-}
 
 struct oddstr {
 	wchar_t *str;
@@ -416,16 +334,6 @@ static void *__fastcall initterm_hook(void *unk1, void *unk2) {
 		ReadINIconfig();
 		// Now inject only when needed, for crash rate reduction
 
-		// There is a problem with the dlss execution, so it is not used now.
-		/*auto dlss = LoadLibraryW(L"NVSL.dll");
-		if (dlss) {
-			auto initDLSS = (callDLSS)GetProcAddress(dlss, "InitializeDLL");
-			initDLSS(hmodEXE);
-		}
-		else {
-			MessageBoxW(NULL, L"test", L"error", MB_OK);
-		}*/
-
 		// It needs to be right here
 		if (RTRead) {
 			HANDLE tempHND = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ReadINILoop, NULL, NULL, NULL);
@@ -436,11 +344,6 @@ static void *__fastcall initterm_hook(void *unk1, void *unk2) {
 			if (ModLogStatus == 1) {
 				PLOG_INFO << "Enable real-time read profiles";
 			}
-		}
-
-		// Load plugins
-		if (LoadPluginsB) {
-			LoadPlugins();
 		}
 
 		if (ModLogStatus == 1) {
@@ -473,7 +376,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 		HUDEnhance = GetPrivateProfileIntW(L"ModOption", L"HUDEnhance", 0, iniPath);
 		noThrowAnime = GetPrivateProfileIntW(L"ModOption", L"NoThrowAnime", 0, iniPath);
 		newSaveDataUnlock = GetPrivateProfileIntW(L"ModOption", L"StarterKit", 0, iniPath);
-		//LoadPluginsB = GetPrivateProfileBoolW(L"ModOption", L"LoadPlugins", LoadPluginsB, iniPath);
 		//Redirect = GetPrivateProfileBoolW(L"ModOption", L"Redirect", Redirect, iniPath);
 		//GameLog = GetPrivateProfileBoolW(L"ModOption", L"GameLog", GameLog, iniPath);
 

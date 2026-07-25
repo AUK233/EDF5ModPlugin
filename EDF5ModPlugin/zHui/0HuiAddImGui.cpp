@@ -19,6 +19,8 @@
 #include "ToGui/HUiHudWeapon.h"
 #include "ToGui/2SubtitleRenderer.h"
 #include "DLSS/0SetDLSS.h"
+#include "DLSS/1FullAO.h"
+
 #include "0HuiAddImGui.h"
 
 extern "C" {
@@ -68,7 +70,7 @@ void module_InitializeAddImGui(PBYTE hmodEXE)
 	}
 
 
-	//MessageBoxW(NULL, L"test", L"debug", MB_OK);
+	MessageBoxW(NULL, L"test", L"debug", MB_OK);
 
 	// ========================================================================
 	// Next, all features are only available when HUD enhancement is enabled.
@@ -130,6 +132,8 @@ HRESULT WINAPI module_InitializeD3D11(DXGI_SWAP_CHAIN_DESC* pChainDesc, D3D_DRIV
 
 		DLSS_Initialization(ppDevice, ppImmediateContext, pChainDesc);
 	}
+
+	HookFunction_D3D11_FullAO(*ppDevice);
 
 	return result;
 }

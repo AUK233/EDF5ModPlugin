@@ -229,6 +229,7 @@
     <ClCompile Include="zEnemy\EnemyHook_GiantAnt.cpp" />
     <ClCompile Include="zHui\0HuiAddImGui.cpp" />
     <ClCompile Include="zHui\DLSS\0SetDLSS.cpp" />
+    <ClCompile Include="zHui\DLSS\1FullAO.cpp" />
     <ClCompile Include="zHui\DLSS\1SetPostProcess.cpp" />
     <ClCompile Include="zHui\HuiCasController.cpp">
       <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AssemblyAndSourceCode</AssemblerOutput>
@@ -366,6 +367,8 @@
     <ClInclude Include="zEnemy\EnemyHook_GiantAnt.h" />
     <ClInclude Include="zHui\0HuiAddImGui.h" />
     <ClInclude Include="zHui\DLSS\0SetDLSS.h" />
+    <ClInclude Include="zHui\DLSS\1FullAO.h" />
+    <ClInclude Include="zHui\DLSS\1FullAOData.hpp" />
     <ClInclude Include="zHui\DLSS\1SetPostProcess.h" />
     <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx.h" />
     <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_defs.h" />
