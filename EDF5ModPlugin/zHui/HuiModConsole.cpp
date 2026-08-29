@@ -16,6 +16,91 @@
 #include "ToGui/0GetDXGI.h"
 #include "HuiModConsole.h"
 
+Pcmd_KeyState cmd_keyState;
+
+void cmd_ModConsole_Initialize(PBYTE hmodEXE) {
+	auto p = (Pcmd_KeyState)_aligned_malloc(sizeof(cmd_KeyState_t), 16U);
+	cmd_keyState = p;
+	if (p) {
+		ZeroMemory(p, sizeof(cmd_KeyState_t));
+
+		HANDLE tempHND = CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)cmd_ModConsole_MonitorKeys, NULL, NULL, NULL);
+		if (tempHND) {
+			CloseHandle(tempHND);
+		}
+	}
+	// end
+}
+
+void cmd_ModConsole_MonitorKeys() {
+	static bool state_cheatonce = false;
+	// delayed startup by 10 seconds.
+	Sleep(10000);
+
+	while (true) {
+		auto pDXGI = DXGI_GetDXGISwapChainDesc();
+		if (GetForegroundWindow() != pDXGI->OutputWindow) {
+			ZeroMemory(cmd_keyState, sizeof(cmd_KeyState_t));
+			goto gotoSleep;
+		}
+
+		cmd_ModConsole_SetKeyState();
+
+	gotoSleep:
+		Sleep(10);
+	}
+	//end
+}
+
+void cmd_ModConsole_SetKeyState(){
+	// ctrl
+	if (GetAsyncKeyState(VK_CONTROL) & 0x8000) {
+		cmd_keyState->ctrl += 1;
+	} else {
+		cmd_keyState->ctrl = 0;
+	}
+
+	// alt
+	if (GetAsyncKeyState(VK_MENU) & 0x8000) {
+		cmd_keyState->alt += 1;
+	} else {
+		cmd_keyState->alt = 0;
+	}
+
+	// add
+	if (GetAsyncKeyState(VK_ADD) & 0x8000) {
+		cmd_keyState->Add += 1;
+	} else {
+		cmd_keyState->Add = 0;
+	}
+
+	// subtract
+	if (GetAsyncKeyState(VK_SUBTRACT) & 0x8000) {
+		cmd_keyState->Subtract += 1;
+	} else {
+		cmd_keyState->Subtract = 0;
+	}
+
+	// F1-F12
+	for (int i = 0; i < 12; ++i) {
+		if (GetAsyncKeyState(VK_F1 + i) & 0x8000) {
+			cmd_keyState->F_key[i] += 1;
+		} else {
+			cmd_keyState->F_key[i] = 0;
+		}
+	}
+
+	// A-Z
+	for (int i = 0; i < 26; ++i) {
+		if (GetAsyncKeyState('A' + i) & 0x8000) {
+			cmd_keyState->AlphabetKey[i] += 1;
+		} else {
+			cmd_keyState->AlphabetKey[i] = 0;
+		}
+	}
+	// end
+}
+
 int ModConsoleStatus;
 HUiModConsoleFunctionMap* pHuiModConsoleFunction;
 

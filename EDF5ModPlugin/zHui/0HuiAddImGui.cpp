@@ -27,6 +27,7 @@ extern "C" {
 	extern int Config_HUDEnhance;
 	extern int Config_PostProcess;
 	extern int Config_DLAA;
+	extern int Config_EnhanceAO;
 
 	void __fastcall ASMdx11CreateDevice();
 	uintptr_t dx11CreateDeviceRetAddr;
@@ -51,12 +52,12 @@ void module_InitializeAddImGui(PBYTE hmodEXE)
 {
 	DXGI_Initialize(hmodEXE);
 
-	// EDF5.exe+5E10F0
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x5E10F0), (uintptr_t)ASMdx11CreateDevice);
-	WriteHookToProcess((void*)(hmodEXE + 0x5E10F0 + 15), (void*)&nop1, 1U);
-	dx11CreateDeviceRetAddr = (uintptr_t)(hmodEXE + 0x5E1100);
-
 	if (Config_DLAA || Config_PostProcess){
+		// EDF5.exe+5E10F0
+		hookGameBlockWithInt3((void*)(hmodEXE + 0x5E10F0), (uintptr_t)ASMdx11CreateDevice);
+		WriteHookToProcess((void*)(hmodEXE + 0x5E10F0 + 15), (void*)&nop1, 1U);
+		dx11CreateDeviceRetAddr = (uintptr_t)(hmodEXE + 0x5E1100);
+
 		// EDF5.exe+50732A, Sys_Exit_Game
 		hookGameBlock((void*)(hmodEXE + 0x50732A), (uintptr_t)ASMsysExitGame);
 
@@ -69,8 +70,11 @@ void module_InitializeAddImGui(PBYTE hmodEXE)
 		RenderBufferToScreenBufferRetAddr = (uintptr_t)(hmodEXE + 0x5ED065);
 	}
 
+	if (Config_EnhanceAO) {
+		HookFunction_D3D11_FullAO();
+	}
 
-	MessageBoxW(NULL, L"test", L"debug", MB_OK);
+	//MessageBoxW(NULL, L"test", L"debug", MB_OK);
 
 	// ========================================================================
 	// Next, all features are only available when HUD enhancement is enabled.
@@ -132,8 +136,6 @@ HRESULT WINAPI module_InitializeD3D11(DXGI_SWAP_CHAIN_DESC* pChainDesc, D3D_DRIV
 
 		DLSS_Initialization(ppDevice, ppImmediateContext, pChainDesc);
 	}
-
-	HookFunction_D3D11_FullAO(*ppDevice);
 
 	return result;
 }

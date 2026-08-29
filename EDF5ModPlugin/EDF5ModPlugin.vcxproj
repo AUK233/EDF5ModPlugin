@@ -196,6 +196,7 @@
   <ItemGroup>
     <ClCompile Include="..\HookLib\HookLib\HookLib\HookLib.c" />
     <ClCompile Include="Base\base_baseObject.cpp" />
+    <ClCompile Include="Base\g_criFS.cpp" />
     <ClCompile Include="Base\g_DXresource.cpp" />
     <ClCompile Include="Base\g_gameFunc.cpp" />
     <ClCompile Include="Base\g_system.cpp" />
@@ -213,6 +214,7 @@
     <ClCompile Include="utiliy.cpp">
       <LanguageStandard Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">stdcpp20</LanguageStandard>
     </ClCompile>
+    <ClCompile Include="zEDF\Ammo\XGS_Ammo_Common.cpp" />
     <ClCompile Include="zEDF\Class\EDFSoldierHeavyArmor.cpp" />
     <ClCompile Include="zEDF\Class\EDFSoldierPaleWing.cpp" />
     <ClCompile Include="zEDF\EDFAmmoFunction.cpp" />
@@ -228,6 +230,7 @@
     <ClCompile Include="zEnemy\EnemyHook_Common.cpp" />
     <ClCompile Include="zEnemy\EnemyHook_GiantAnt.cpp" />
     <ClCompile Include="zHui\0HuiAddImGui.cpp" />
+    <ClCompile Include="zHui\ASFunc_Hook.cpp" />
     <ClCompile Include="zHui\DLSS\0SetDLSS.cpp" />
     <ClCompile Include="zHui\DLSS\1FullAO.cpp" />
     <ClCompile Include="zHui\DLSS\1SetPostProcess.cpp" />
@@ -300,6 +303,7 @@
     <MASM Include="ASMweaponOtherSet.asm" />
     <MASM Include="ASMxgsWHeavyShoot.asm" />
     <MASM Include="Base\g_DXresourceASM.asm" />
+    <MASM Include="zEDF\Ammo\XGS_Ammo_CommonASM.asm" />
     <MASM Include="zEDF\ASMammoSmokeCandleBullet.asm" />
     <MASM Include="zEDF\ASMEDFCommonFunction.asm" />
     <MASM Include="zEDF\ASMxgsArmySoldier.asm" />
@@ -315,6 +319,7 @@
     <MASM Include="zEnemy\ASMxgsGiantAnt.asm" />
     <MASM Include="zEnemy\ASMxgsBigNest.asm" />
     <MASM Include="zHui\0HuiAddImGuiASM.asm" />
+    <MASM Include="zHui\ASFunc_HookASM.asm" />
     <MASM Include="zHui\HuiModConsoleASM.asm" />
     <MASM Include="zHui\HuiMoreCharacterModelASM.asm" />
     <MASM Include="zHui\HuiObjectClassASM.asm" />
@@ -327,6 +332,7 @@
     <ClInclude Include="..\HookLib\HookLib\HookLib\HookLib.h" />
     <ClInclude Include="Base\base_BaseAmmo.hpp" />
     <ClInclude Include="Base\base_baseObject.h" />
+    <ClInclude Include="Base\g_criFS.h" />
     <ClInclude Include="Base\g_DXresource.h" />
     <ClInclude Include="Base\g_gameFunc.h" />
     <ClInclude Include="Base\g_system.h" />
@@ -349,6 +355,7 @@
     <ClInclude Include="Resource\LoadShaders.hpp" />
     <ClInclude Include="Resource\snd_ShotIndicatorCircle.h" />
     <ClInclude Include="utiliy.h" />
+    <ClInclude Include="zEDF\Ammo\XGS_Ammo_Common.h" />
     <ClInclude Include="zEDF\Class\EDFSoldierHeavyArmor.h" />
     <ClInclude Include="zEDF\Class\EDFSoldierPaleWing.h" />
     <ClInclude Include="zEDF\EDFAmmoFunction.h" />
@@ -366,6 +373,7 @@
     <ClInclude Include="zEnemy\EnemyHook_Common.h" />
     <ClInclude Include="zEnemy\EnemyHook_GiantAnt.h" />
     <ClInclude Include="zHui\0HuiAddImGui.h" />
+    <ClInclude Include="zHui\ASFunc_Hook.h" />
     <ClInclude Include="zHui\DLSS\0SetDLSS.h" />
     <ClInclude Include="zHui\DLSS\1FullAO.h" />
     <ClInclude Include="zHui\DLSS\1FullAOData.hpp" />
@@ -438,7 +446,6 @@
     <None Include="shader3.bin" />
     <None Include="texture2.bin" />
     <None Include="zEDF\Class\EDFSoldierClass.inc" />
-    <None Include="zHui\ToGui\DirectXTK\SimpleMath.inl" />
     <None Include="zHui\ToGui\DirectXTK\TeapotData.inc" />
   </ItemGroup>
   <ItemGroup>

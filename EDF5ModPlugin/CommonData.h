@@ -50,7 +50,8 @@ float _Common_F1P0N = -1.0f;
 float _Common_NPI2 = -1.5708f;
 float _Common_F1P58N = -1.58f;
 
-__declspec(align(16)) float _CommonRVA_EE7700[4] = { 0.001f, 0.001f, 0.001f, 1.0f};
+__declspec(align(16)) float _CommonRVA_EE7700[4] = { 0.001f, 0.001f, 0.001f, 1.0f };
+__declspec(align(16)) float _CommonRVA_EE7790[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 __declspec(align(16)) float _CommonRVA_EE80D0[4] = { -1.0f, -1.0f, -1.0f, -1.0f };
 __declspec(align(16)) float _CommonRVA_EE7350[4] = { 1.0f, 1.0f, 1.0f, 0.5f };
 __declspec(align(16)) float _CommonRVA_EE6BE0[4] = { 1.0f, 1.0f, 1.0f, 0.0f };

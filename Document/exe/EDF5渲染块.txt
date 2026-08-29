@@ -194,7 +194,28 @@ EDF5.exe+5DD29C - 48 8B 97 C80A0000     - mov rdx,[rdi+00000AC8]
 这里读，是EDF5.exe+1259680的+ab8+10
 +ad8是地下用
 
+EDF5.exe+5DD337 - 48 8B 97 A80A0000     - mov rdx,[rdi+00000AA8]
+无阴影使用这个
+
 EDF5.exe+607327
 转线性深度buffer的初始化
+
+EDF5.exe+6075D5
+转线性深度，cs是D38+1b8
+EDF5.exe+607097 这里加载的cs
+
+EDF5.exe+5DCC59 - FF 90 80010000        - call qword ptr [rax+00000180]
+这里更新的xgl_system内容
+
+EDF5.exe+5DCCBC - FF 90 38020000        - call qword ptr [rax+00000238]
+这里设置xgl_system到cb0
+
+==================================================
+
+EDF5.exe+83D90 - 48 89 5C 24 10        - mov [rsp+10],rbx
+读cpk文件，rcx是输出，rdx是路径
+
+
+
 
 

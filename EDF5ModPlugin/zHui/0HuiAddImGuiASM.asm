@@ -106,7 +106,7 @@ ASMRenderBufferToScreenBuffer proc
 	;
 	mov r8, rcx
 	mov rdx, [r9]
-	mov rcx, [rdi+8]
+	mov rcx, rdi
 	call DLSS_Draw
 	;
 	lea r9, [rax+50h]

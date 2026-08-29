@@ -2,7 +2,18 @@
 #include <unordered_map>
 #include "EDFPointerStruct.hpp"
 
+typedef struct cmd_KeyState_t {
+	int ctrl, alt;
+	int Add, Subtract;
+	int AlphabetKey[26];
+	int F_key[12];
+} *Pcmd_KeyState;
 typedef void(__fastcall* ModConsoleFuncPTR)();
+
+void cmd_ModConsole_Initialize(PBYTE hmodEXE);
+void cmd_ModConsole_MonitorKeys();
+void cmd_ModConsole_SetKeyState();
+
 typedef std::unordered_map<std::wstring_view, ModConsoleFuncPTR> HUiModConsoleFunctionMap;
 
 void module_UpdateHuiModConsole(PBYTE hmodEXE);

@@ -17,22 +17,25 @@ extern weaponSetShotStatusRetAddr : qword
 
 ; L"ReloadInit"
 wReloadInit db 82,0,101,0,108,0,111,0,97,0,100,0,73,0,110,0,105,0,116,0,0,0
-align 16
+align 8
 ; L"ReloadPadType"
 wReloadPadType db 82,0,101,0,108,0,111,0,97,0,100,0,80,0,97,0,100,0,84,0,121,0,112,0,101,0,0,0
-align 16
+align 8
 ; L"ReloadIsSupport"
 wReloadIsSupport db 82,0,101,0,108,0,111,0,97,0,100,0,73,0,115,0,83,0,117,0,112,0,112,0,111,0,114,0,116,0,0,0
-align 16
+align 8
 ; L"use_extraShotType"
 wUseExtraShotType db 117,0,115,0,101,0,95,0,101,0,120,0,116,0,114,0,97,0,83,0,104,0,111,0,116,0,84,0,121,0,112,0,101,0,0,0
-align 16
+align 8
 ; L"AmmoIsFriendlyFire"
 wAmmoIsFriendlyFire db 65,0,109,0,109,0,111,0,73,0,115,0,70,0,114,0,105,0,101,0,110,0,100,0,108,0,121,0,70,0,105,0,114,0,101,0,0,0
-align 16
+align 8
 ; L"AmmoIsFriendlyNonCollision"
 wAmmoIsFriendlyNonCollision db 65,0,109,0,109,0,111,0,73,0,115,0,70,0,114,0,105,0,101,0,110,0,100,0,108,0,121,0
 db 78,0,111,0,110,0,67,0,111,0,108,0,108,0,105,0,115,0,105,0,111,0,110,0,0,0
+align 8
+; L"AmmoIsUnitNonCollision"
+wAmmoIsUnitNonCollision db 65,0,109,0,109,0,111,0,73,0,115,0,85,0,110,0,105,0,116,0,78,0,111,0,110,0,67,0,111,0,108,0,108,0,105,0,115,0,105,0,111,0,110,0,0,0
 
 align 4
 ; 0.99f
@@ -151,10 +154,10 @@ ASMreadWeaponSgoNode proc
 		movsxd rcx, eax
 		cmp ecx, -1
 		je AmmoIsFriendlyNonCollisionBlock ; if node does not exist, jump
-		mov rax, qword ptr [r14]
+		mov rax, [r14]
 		movsxd rdx, dword ptr [rax+12]
 		add rdx, rax
-		lea rcx, qword ptr [rcx+rcx*2]
+		lea rcx, [rcx+rcx*2]
 		mov eax, [rdx+rcx*4+8]
 		mov [rsi+2514h], eax ; AmmoFriendlyFireType
 		
@@ -164,15 +167,33 @@ ASMreadWeaponSgoNode proc
 		call edf5BDF30Address
 		movsxd rcx, eax
 		cmp ecx, -1
-		je ReloadPadTypeBlock ; if node does not exist, jump
-		mov rax, qword ptr [r14]
+		je AmmoIsUnitNonCollisionBlock ; if node does not exist, jump
+		mov rax, [r14]
 		movsxd rdx, dword ptr [rax+12]
 		add rdx, rax
-		lea rcx, qword ptr [rcx+rcx*2]
-		lea rax, qword ptr [rdx+rcx*4]
+		lea rcx, [rcx+rcx*2]
+		lea rax, [rdx+rcx*4]
 		cmp dword ptr [rax+8], 0
 		setne al
 		mov [rsi+6AEh], al
+
+	AmmoIsUnitNonCollisionBlock:
+		lea rdx, wAmmoIsUnitNonCollision
+		mov rcx, r14
+		call edf5BDF30Address
+		movsxd rcx, eax
+		cmp ecx, -1
+		je ReloadPadTypeBlock ; if node does not exist, jump
+		mov rax, [r14]
+		movsxd rdx, dword ptr [rax+12]
+		add rdx, rax
+		lea rcx, [rcx+rcx*2]
+		lea rax, [rdx+rcx*4]
+		cmp dword ptr [rax+8], 0
+		; setne al
+		; mov [rsi+6B1h], al ; AmmoIsUnitNonCollision
+		je ReloadPadTypeBlock
+		mov byte ptr [rsi+6AEh], -1
 
 	; read new function "ReloadPadType"
 	ReloadPadTypeBlock:

@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include "g_system.h"
 
+#include "g_criFS.h"
 #include "g_gameFunc.h"
 
 extern "C" {
@@ -16,6 +17,7 @@ extern "C" {
 void __fastcall XGS_GetGameFunction_Initialize(PBYTE hmodEXE)
 {
 	_F_IsOnlineMode_ = (uintptr_t)(hmodEXE + 0x3944B0);
+	CriFileSystem_Initialize(hmodEXE);
 }
 
 bool __fastcall Game_IsOnlineMode()

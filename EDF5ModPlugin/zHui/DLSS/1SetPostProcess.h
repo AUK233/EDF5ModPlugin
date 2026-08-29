@@ -13,8 +13,14 @@ namespace D3D {
 		//ID3D11Texture2D* LinearDepth[2];
 		//ID3D11UnorderedAccessView* LinearDepthUAV[2];
 
+		ID3D11SamplerState* LUTSamplerLinear;
+		ID3D11ShaderResourceView* LookupTable_SRV;
 		ID3D11ComputeShader* PostProcessCS;
+
 		ID3D11Texture2D* BlackMV;
+		ID3D11UnorderedAccessView* MotionVectorUAV;
+		ID3D11Buffer* PreviousCB_xgl_system;
+		ID3D11ComputeShader* MotionVectorCS;
 
 		int PlayerCount;
 
@@ -22,6 +28,7 @@ namespace D3D {
 		void LoadComputeShader();
 		void ReleaseBuffer();
 		void SetBuffer(UINT Width, UINT Height);
+		void LoadLUTBuffer();
 	};
 
 	typedef D3DPostProcess_t* PD3DPostProcess;

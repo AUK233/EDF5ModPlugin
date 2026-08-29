@@ -13,8 +13,17 @@
 #include <cstdlib>
 #include <d3dcompiler.h>
 #include <wrl.h>
+#include "zHui/ToGui/DirectXTK/DDSTextureLoader.h"
 
+#include "Base/g_DXresource.h"
+#include "Base/g_criFS.h"
+#include "shader/1SetPostProcess_CS.hpp"
+#include "shader/1SetPostProcess_MV.hpp"
 #include "1SetPostProcess.h"
+
+extern "C" {
+	extern int Config_PostProcess;
+}
 
 namespace D3D {
 	void D3DPostProcess_t::Initialize(ID3D11Device* device, ID3D11DeviceContext* context, DXGI_SWAP_CHAIN_DESC* pChainDesc) {
@@ -24,6 +33,14 @@ namespace D3D {
 
 		//SetBuffer(pChainDesc->BufferDesc.Width, pChainDesc->BufferDesc.Height);
 		LoadComputeShader();
+
+		// create constant buffer
+		D3D11_BUFFER_DESC cb_desc0 = {};
+		cb_desc0.Usage = D3D11_USAGE_DEFAULT;
+		cb_desc0.ByteWidth = sizeof(xgl_system_CB_t);
+		cb_desc0.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		cb_desc0.CPUAccessFlags = 0;
+		device->CreateBuffer(&cb_desc0, nullptr, &PreviousCB_xgl_system);
 	}
 
 	void D3DPostProcess_t::LoadComputeShader() {
@@ -32,10 +49,17 @@ namespace D3D {
 		//ID3DBlob* cs_blob = nullptr;
 		//ID3DBlob* error_blob = nullptr;
 
-		auto hr = D3DCompileFromFile(L"./subtitle/test.hlsl", nullptr, nullptr, "CS_main", "cs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &cs_blob, &error_blob);
-		if (hr == S_OK) {
-			Device->CreateComputeShader(cs_blob->GetBufferPointer(), cs_blob->GetBufferSize(), nullptr, &PostProcessCS);
+		if (Config_PostProcess == 2) {
+			auto hr = D3DCompileFromFile(L"./subtitle/test.hlsl", nullptr, nullptr, "CS_main", "cs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &cs_blob, &error_blob);
+			if (hr == S_OK) {
+				Device->CreateComputeShader(cs_blob->GetBufferPointer(), cs_blob->GetBufferSize(), nullptr, &PostProcessCS);
+			}
+		} else {
+			Device->CreateComputeShader(D3DPostProcess_ComputeShader, sizeof(D3DPostProcess_ComputeShader), nullptr, &PostProcessCS);
 		}
+
+		Device->CreateComputeShader(D3DPostProcess_MotionVector, sizeof(D3DPostProcess_MotionVector), nullptr, &MotionVectorCS);
+		// end
 	}
 
 	void D3DPostProcess_t::ReleaseBuffer() {
@@ -85,11 +109,15 @@ namespace D3D {
 
 		// ===========================
 
+		if (MotionVectorUAV) {
+			MotionVectorUAV->Release();
+			MotionVectorUAV = nullptr;
+		}
+
 		if (BlackMV) {
 			BlackMV->Release();
 			BlackMV = nullptr;
 		}
-
 	}
 
 	void D3DPostProcess_t::SetBuffer(UINT Width, UINT Height) {
@@ -113,11 +141,17 @@ namespace D3D {
 		uavDesc.Format = outDesc.Format;
 		uavDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
 		uavDesc.Texture2D.MipSlice = 0;
-		Device->CreateUnorderedAccessView(OutColor[0], &uavDesc, &OutUAV[0]);
+
+		if (OutColor[0]) {
+			Device->CreateUnorderedAccessView(OutColor[0], &uavDesc, &OutUAV[0]);
+		}
 
 		if (PlayerCount == 2) {
 			Device->CreateTexture2D(&outDesc, 0, &OutColor[1]);
-			Device->CreateUnorderedAccessView(OutColor[1], &uavDesc, &OutUAV[1]);
+
+			if (OutColor[1]) {
+				Device->CreateUnorderedAccessView(OutColor[1], &uavDesc, &OutUAV[1]);
+			}
 		}
 
 		// set linear depth buffer
@@ -134,16 +168,44 @@ namespace D3D {
 
 		// set black mv buffer
 		outDesc.Format = DXGI_FORMAT_R16G16_FLOAT;
-		outDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		//outDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET | D3D11_BIND_UNORDERED_ACCESS;
 
-		UINT pixelSize = Width * 4;  // 2 bytes (X) + 2 bytes (Y)
-		UINT dataSize = Height * pixelSize;
+		//UINT pixelSize = Width * 4;  // 2 bytes (X) + 2 bytes (Y)
+		/*UINT dataSize = Height * pixelSize;
 		std::vector<BYTE> zeroData(dataSize, 0);
 		D3D11_SUBRESOURCE_DATA initData = {};
 		initData.pSysMem = zeroData.data();
 		initData.SysMemPitch = pixelSize;
 		initData.SysMemSlicePitch = dataSize;
-		Device->CreateTexture2D(&outDesc, &initData, &BlackMV);
+		Device->CreateTexture2D(&outDesc, &initData, &BlackMV);*/
+		Device->CreateTexture2D(&outDesc, 0, &BlackMV);
+		if (BlackMV) {
+			uavDesc.Format = DXGI_FORMAT_R16G16_FLOAT;
+			Device->CreateUnorderedAccessView(BlackMV, &uavDesc, &MotionVectorUAV);
+
+			FLOAT clearValues[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+			Context->ClearUnorderedAccessViewFloat(MotionVectorUAV, clearValues);
+		}
+		// end
+	}
+
+	void D3DPostProcess_t::LoadLUTBuffer() {
+		D3D11_SAMPLER_DESC samp_desc = {};
+		samp_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+		samp_desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		samp_desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		samp_desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+		samp_desc.MaxAnisotropy = 1;
+		samp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		samp_desc.MinLOD = 0;
+		samp_desc.MaxLOD = D3D11_FLOAT32_MAX;
+
+		HRESULT hr = Device->CreateSamplerState(&samp_desc, &LUTSamplerLinear);
+
+		CriFileSystemGet_t getFile;
+		auto fileIsExist = getFile.Open(L"app:/ui/LUT_DefaultEnhance.dds");
+
+		DirectX::CreateDDSTextureFromMemory(Device, getFile.fs->data, getFile.fs->data_size, nullptr, &LookupTable_SRV);
 	}
 
 // end

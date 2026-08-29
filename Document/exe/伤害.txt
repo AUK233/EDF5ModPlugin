@@ -53,5 +53,14 @@ EDF5.exe+14325F 对应 edf.dll+2343CF
 EDF5.exe+143A8E - C7 44 24 28 0C000000  - mov [rsp+28],0000000C
 碰撞flag，被固定了，6的卡巴炮是17和1d
 
+EDF5.exe+14285A - 0FB6 43 60            - movzx eax,byte ptr [rbx+60]
+复制弹药flag，这是最后一个
+
+EDF5.exe+142F5C - 41 38 BF 8F020000     - cmp [r15+0000028F],dil
+这是读+5F
+
+EDF5.exe+1419FA 这里初始化的+60
+对应弹头指针的+290
+
 
 

@@ -314,6 +314,7 @@ void hookEDFClassFunctions() {
 	module_CasControllerInitialization(hmodEXE);
 
 	module_UpdateHuiObjectClass(hmodEXE);
+	ASFunc_Hook_Initialize(hmodEXE);
 
 	module_UpdateHuiModConsole(hmodEXE);
 	module_InitializeAddImGui(hmodEXE);

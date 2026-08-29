@@ -1,5 +1,6 @@
 #pragma once
 #include "SSE.hpp"
+#include "g_DXresource.h"
 
 // size is 0xB10, in EDF5.exe+772EC 
 typedef struct XGS_System_Camera_t {
@@ -57,11 +58,13 @@ typedef struct XGS_System_Player_t {
 	void* pDrawColorResource; void* pDrawColorInfo;
 	char pad110[0x20];
 	void* pDSVResource; void* pDSVInfo;
-	char pad140[0x48];
+	char pad140[0x38];
+	PGameRenderer_RTV pRTV; void* pRTV_Lock;
 } *PXGS_System_Player;
 #if 1
 static_assert(offsetof(XGS_System_Player_t, pDrawColorInfo) == 0x108);
 static_assert(offsetof(XGS_System_Player_t, pDSVInfo) == 0x138);
+static_assert(offsetof(XGS_System_Player_t, pRTV) == 0x178);
 static_assert(sizeof(XGS_System_Player_t) == 0x188);
 #endif
 

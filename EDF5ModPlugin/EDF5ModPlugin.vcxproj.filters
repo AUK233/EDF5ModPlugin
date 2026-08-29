@@ -61,6 +61,9 @@
     <Filter Include="Source Files\Module Hui\DLSS\lib">
       <UniqueIdentifier>{6d2b8b4d-07fc-4739-85e8-fe93295bee77}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Module EDF\Ammo">
+      <UniqueIdentifier>{457f2da0-d499-4c26-8b30-6b4af7572c15}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -264,6 +267,15 @@
     <ClCompile Include="zHui\DLSS\1FullAO.cpp">
       <Filter>Source Files\Module Hui\DLSS</Filter>
     </ClCompile>
+    <ClCompile Include="zEDF\Ammo\XGS_Ammo_Common.cpp">
+      <Filter>Source Files\Module EDF\Ammo</Filter>
+    </ClCompile>
+    <ClCompile Include="Base\g_criFS.cpp">
+      <Filter>Source Files\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\ASFunc_Hook.cpp">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMgamelog_hook.asm">
@@ -403,6 +415,12 @@
     </MASM>
     <MASM Include="zEDF\Class\EDFSoldierPaleWingASM.asm">
       <Filter>Source Files\Module EDF\Class</Filter>
+    </MASM>
+    <MASM Include="zEDF\Ammo\XGS_Ammo_CommonASM.asm">
+      <Filter>Source Files\Module EDF\Ammo</Filter>
+    </MASM>
+    <MASM Include="zHui\ASFunc_HookASM.asm">
+      <Filter>Source Files\Module Hui\main</Filter>
     </MASM>
   </ItemGroup>
   <ItemGroup>
@@ -709,11 +727,17 @@
     <ClInclude Include="zHui\DLSS\1FullAOData.hpp">
       <Filter>Source Files\Module Hui\DLSS</Filter>
     </ClInclude>
+    <ClInclude Include="zEDF\Ammo\XGS_Ammo_Common.h">
+      <Filter>Source Files\Module EDF\Ammo</Filter>
+    </ClInclude>
+    <ClInclude Include="Base\g_criFS.h">
+      <Filter>Source Files\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\ASFunc_Hook.h">
+      <Filter>Source Files\Module Hui\main</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="zHui\ToGui\DirectXTK\SimpleMath.inl">
-      <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
-    </None>
     <None Include="zHui\ToGui\DirectXTK\TeapotData.inc">
       <Filter>Source Files\Module Hui\ToFui\DirectXTK</Filter>
     </None>

@@ -11,6 +11,7 @@
 #include <list>
 #include <cstdlib>
 
+#include "Ammo/XGS_Ammo_Common.h"
 #include "CommonCustomStructure.hpp"
 #include "utiliy.h"
 #include "commonNOP.h"
@@ -20,6 +21,7 @@
 void module_SetFunction_EDFAmmo(PBYTE hmodEXE)
 {
 	module_EDFAmmo_SmokeCandleBullet(hmodEXE);
+	module_EDFAmmo_Common(hmodEXE);
 }
 
 extern "C" {

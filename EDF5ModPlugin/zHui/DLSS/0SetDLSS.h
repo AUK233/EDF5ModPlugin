@@ -1,9 +1,10 @@
 #pragma once
 #include <d3d11.h>
+#include "Base/g_DXresource.h"
 
 extern "C" {
 	void __fastcall DLSS_CreateFeature(int playerCount);
-	void* __fastcall DLSS_Draw(ID3D11DeviceContext* pContext, int OutOffset, void* saveRCX); // OutOffset is a float, but now just check if it's 0
+	void* __fastcall DLSS_Draw(Pg_D3D11DeviceInfo pD3D, int OutOffset, void* saveRCX); // OutOffset is a float, but now just check if it's 0
 	void __fastcall DLSS_Release();
 }
 

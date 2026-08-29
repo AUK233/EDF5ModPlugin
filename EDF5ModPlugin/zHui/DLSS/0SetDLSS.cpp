@@ -78,12 +78,11 @@ void __fastcall DLSS_CreateFeature(int playerCount) {
 	// end
 }
 
-void* __fastcall DLSS_Draw(ID3D11DeviceContext* pContext, int OutOffset, void* saveRCX){
+void* __fastcall DLSS_Draw(Pg_D3D11DeviceInfo pD3D, int OutOffset, void* saveRCX){
 	if (!pD3DPostProcess) return saveRCX;
 
 	int playerIndex = 0;
 	if (OutOffset) playerIndex = 1;
-
 
 	auto sys = XGS_GetXGSSystemPointer();
 	auto pColorRes = (Pg_D3D_ResourceInfo)sys->player[playerIndex].pDrawColorInfo;
@@ -100,21 +99,81 @@ void* __fastcall DLSS_Draw(ID3D11DeviceContext* pContext, int OutOffset, void* s
 	pTexture->GetDesc(&inDesc);
 	if (inDesc.Format != DXGI_FORMAT_R16G16B16A16_FLOAT) return saveRCX;
 
+	ID3D11DeviceContext* pContext = pD3D->context;
 	if (Config_PostProcess) {
+		pD3D->pCurrentCSShaderResourceView[0] = &pColorRes->pSRV;
 		pContext->CSSetShaderResources(0, 1, &pColorRes->pSRV);
+		pD3D->pCurrentCSShaderResourceView[1] = &pDSVInfo->pSRV;
 		pContext->CSSetShaderResources(1, 1, &pDSVInfo->pSRV);
+
+		pD3D->pCurrentCSShaderResourceView[9] = &pD3DPostProcess->LookupTable_SRV;
+		pContext->CSSetShaderResources(9, 1, &pD3DPostProcess->LookupTable_SRV);
+		pD3D->pCurrentCSSamplerState[11] = &pD3DPostProcess->LUTSamplerLinear;
+		pContext->CSSetSamplers(11, 1, &pD3DPostProcess->LUTSamplerLinear);
+
+		pD3D->pCurrentCSShader = pD3DPostProcess->PostProcessCS;
 		pContext->CSSetShader(pD3DPostProcess->PostProcessCS, nullptr, 0);
+
+		pD3D->pCurrentCSUnorderedAccessViews[0] = &pD3DPostProcess->OutUAV[playerIndex];
 		pContext->CSSetUnorderedAccessViews(0, 1, &pD3DPostProcess->OutUAV[playerIndex], nullptr);
+
 		//pContext->CSSetUnorderedAccessViews(1, 1, &pD3DPostProcess->LinearDepthUAV[playerIndex], nullptr);
+
 		pContext->Dispatch((pColorRes->width + 15) / 16, (pColorRes->height + 15) / 16, 1);
 	}
 	else if (pNGX_dlss) {
 		pContext->CopyResource(pD3DPostProcess->OutColor[playerIndex], pColorRes->pTexture);
 	}
 	else { return saveRCX; }
-		
+
+	/*
+	auto p1259680 = DXGI_GetGameRenderer1259680();
+	auto old_cb0 = p1259680->CB_xgl_system;
+		pContext->CSSetConstantBuffers(0, 1, old_cb0);
+		pContext->CSSetConstantBuffers(2, 1, &pD3DPostProcess->PreviousCB_xgl_system);
+
+		auto xyzID = &sys->player[playerIndex].pRTV->pColorPass1RT5->pSRV;
+		pD3D->pCurrentCSShaderResourceView[0] = xyzID;
+		pContext->CSSetShaderResources(0, 1, xyzID);
+
+		pD3D->pCurrentCSShader = pD3DPostProcess->MotionVectorCS;
+		pContext->CSSetShader(pD3DPostProcess->MotionVectorCS, nullptr, 0);
+		pContext->CSSetUnorderedAccessViews(0, 1, &pD3DPostProcess->MotionVectorUAV, nullptr);
+
+		pContext->Dispatch((pColorRes->width + 15) / 16, (pColorRes->height + 15) / 16, 1);
+		pD3D->pCurrentCSUnorderedAccessViews[0] = 0;
+		ID3D11UnorderedAccessView* nullUAV = nullptr;
+		pContext->CSSetUnorderedAccessViews(0, 1, &nullUAV, nullptr);
+	pContext->CopyResource(pD3DPostProcess->PreviousCB_xgl_system, *old_cb0);*/
+
 	// evaluate dlss
 	if (pNGX_dlss) {
+		if (!pNGX_dlss->IsSplitScreen) {
+			auto p1259680 = DXGI_GetGameRenderer1259680();
+			auto old_cb0 = p1259680->CB_xgl_system;
+			if(!pNGX_dlss->IsReset){
+				pContext->CSSetConstantBuffers(0, 1, old_cb0);
+				pContext->CSSetConstantBuffers(2, 1, &pD3DPostProcess->PreviousCB_xgl_system);
+
+				auto xyzID = &sys->player[playerIndex].pRTV->pColorPass1RT5->pSRV;
+				pD3D->pCurrentCSShaderResourceView[0] = xyzID;
+				pContext->CSSetShaderResources(0, 1, xyzID);
+
+				pD3D->pCurrentCSShader = pD3DPostProcess->MotionVectorCS;
+				pContext->CSSetShader(pD3DPostProcess->MotionVectorCS, nullptr, 0);
+				pContext->CSSetUnorderedAccessViews(0, 1, &pD3DPostProcess->MotionVectorUAV, nullptr);
+
+				pContext->Dispatch((pColorRes->width + 15) / 16, (pColorRes->height + 15) / 16, 1);
+				pD3D->pCurrentCSUnorderedAccessViews[0] = 0;
+				ID3D11UnorderedAccessView* nullUAV = nullptr;
+				pContext->CSSetUnorderedAccessViews(0, 1, &nullUAV, nullptr);
+			} else {
+				FLOAT clearValues[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+				pContext->ClearUnorderedAccessViewFloat(pD3DPostProcess->MotionVectorUAV, clearValues);
+			}
+			pContext->CopyResource(pD3DPostProcess->PreviousCB_xgl_system, *old_cb0);
+		}
+
 		pNGX_dlss->ColorBuffer = pD3DPostProcess->OutColor[playerIndex];
 		pD3DPostProcess->Context = pContext;
 
@@ -201,7 +260,13 @@ void __fastcall DLSS_Initialization(ID3D11Device** ppDevice, ID3D11DeviceContext
 		return;
 	}
 
-	NVSDK_NGX_Parameter_SetUI(p->m_ngxParameters, NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_DLAA, NVSDK_NGX_DLSS_Hint_Render_Preset_Default);
+	if (Config_DLAA == 3){
+		NVSDK_NGX_Parameter_SetUI(p->m_ngxParameters, NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_DLAA, NVSDK_NGX_DLSS_Hint_Render_Preset_L);
+	}
+	else {
+		NVSDK_NGX_Parameter_SetUI(p->m_ngxParameters, NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_DLAA, NVSDK_NGX_DLSS_Hint_Render_Preset_Default);
+	}
+
 }
 
 void __fastcall DLSS_TriggerFailureResult(UINT32 slresult, int FreeDLSS) {
@@ -236,8 +301,12 @@ void __fastcall DLSS_SetFeature(ID3D11DeviceContext* pContext, UINT Width, UINT 
 	DlssCreateParams.Feature.InTargetWidth = Width;
 	DlssCreateParams.Feature.InTargetHeight = Height;
 	DlssCreateParams.Feature.InPerfQualityValue = NVSDK_NGX_PerfQuality_Value_DLAA;
-	DlssCreateParams.InFeatureCreateFlags = NVSDK_NGX_DLSS_Feature_Flags_None | NVSDK_NGX_DLSS_Feature_Flags_AutoExposure;
+	DlssCreateParams.InFeatureCreateFlags = NVSDK_NGX_DLSS_Feature_Flags_None | NVSDK_NGX_DLSS_Feature_Flags_IsHDR;
 	DlssCreateParams.InEnableOutputSubrects = false;
+
+	if (Config_DLAA == 2) {
+		DlssCreateParams.InFeatureCreateFlags |= NVSDK_NGX_DLSS_Feature_Flags_AutoExposure;
+	}
 
 
 	auto ResultDLSS = NGX_D3D11_CREATE_DLSS_EXT(pContext, &p->m_dlssFeature, p->m_ngxParameters, &DlssCreateParams);
