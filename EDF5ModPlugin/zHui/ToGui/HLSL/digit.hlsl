@@ -10,22 +10,43 @@ static const float c_LineFactor = float(1.0 / 2.0);
 static const uint c_ColumnCount = 11;
 // ===================================================
 
-// Game's CB0, incomplete at present
-// cbuffer xgl_system : register(b0)
-// {
-// 	row_major float4x4 g_xgl_view;
-// 	row_major float4x4 g_xgl_view_inverse;
-// 	row_major float4x4 g_xgl_projection;
-// 	row_major float4x4 g_xgl_view_projection;
-// 	row_major float4x4 g_xgl_view_projection_inverse;
-// };
+// Game's CB0
+cbuffer xgl_system : register(b1)
+{
+	row_major float4x4 g_xgl_view;
+	row_major float4x4 g_xgl_view_inverse;
+	row_major float4x4 g_xgl_projection;
+	row_major float4x4 g_xgl_view_projection;
+	row_major float4x4 g_xgl_view_projection_inverse;
+	uint2 g_xgl_target_dimension;
+	float g_xgl_time;
+	int g_xgl_id;
+	
+	struct Light
+	{
+		float3 m_vector;
+		float m_pad0;
+		float3 m_color;
+		float m_pad1;
+		float3 m_specular_color;
+		float m_pad2;
+	} g_xgl_light[4];
+	
+	float3 g_xgl_ambient_color;
+	float g_pad3;
+	float g_xgl_fog_mul;
+	float g_xgl_fog_add;
+	float g_xgl_fade_mul;
+	float g_xgl_fade_add;
+	float4 g_xgl_fog_color;
+};
 
 // use our own version
-cbuffer xgl_transform : register(b1)
-{
-	row_major float4x4 c_xgl_view;
-	row_major float4x4 c_xgl_projection;
-}
+// cbuffer xgl_transform : register(b1)
+// {
+// 	row_major float4x4 c_xgl_view;
+// 	row_major float4x4 c_xgl_projection;
+// }
 
 // b2 is safe
 cbuffer xgl_user_param : register(b2)
@@ -68,6 +89,25 @@ struct PS_INPUT
 #ifdef _DynamicPos
 	#pragma message("DynamicPos is defined!")
 	float2 WorldToScreen(float4 world_pos) {
+		float4 worldPos = float4(world_pos.xyz, 1);
+
+		float4 ClipPos;
+		ClipPos.x = dot(worldPos, g_xgl_view_projection[0]);
+		ClipPos.y = dot(worldPos, g_xgl_view_projection[1]);
+		ClipPos.z = dot(worldPos, g_xgl_view_projection[2]);
+		ClipPos.w = dot(worldPos, g_xgl_view_projection[3]);
+
+		if (ClipPos.w < 0.1f) return -c_DefaultResolution;
+		float3 ndc = ClipPos.xyz / ClipPos.w;
+		
+		float2 screen_pos;
+		screen_pos.x = (ScreenSize.x * 0.5 * ndc.x) + (ScreenSize.x * 0.5);
+		screen_pos.y = -(ScreenSize.y * 0.5 * ndc.y) + (ScreenSize.y * 0.5);
+		return screen_pos;
+	}
+
+#if 0
+	float2 WorldToScreen_old(float4 world_pos) {
 		float3 relative_pos = world_pos.xyz;
 
 		// do not modify it
@@ -93,6 +133,7 @@ struct PS_INPUT
 		screen_pos.y = -(ScreenSize.y * 0.5 * ndc.y) + (ScreenSize.y * 0.5);
 		return screen_pos;
 	}
+#endif
 #else
 	#pragma message("NOT defined _DynamicPos")
 #endif

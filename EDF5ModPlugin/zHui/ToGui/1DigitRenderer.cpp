@@ -12,6 +12,11 @@
 #include "0SolidColorTexture.hpp"
 #include "utiliy.h"
 
+#include "HLSL/0digitDynamicPos_ps.hpp"
+#include "HLSL/0digitDynamicPos_vs.hpp"
+#include "HLSL/0digitFixedPos_ps.hpp"
+#include "HLSL/0digitFixedPos_vs.hpp"
+
 #include "1DigitRenderer.h"
 
 //#define DEBUGMODE
@@ -127,22 +132,34 @@ void DynamicDigitRenderer_t::Initialize()
 #else
 	//LoadEmbeddedResource(v_data_digit_texture, L"Resource\\DamageUINumber.dds", L"Texture"); // no, this cannot be found.
 	LoadEmbeddedResource(v_data_digit_texture, MAKEINTRESOURCEW(IDR_DamageUINumber), L"Texture");
-	LoadEmbeddedResource(v_data_shader_vs[DigitRendererShader_Fixed], MAKEINTRESOURCEW(IDR_vs_digitFixed), L"Shader");
-	LoadEmbeddedResource(v_data_shader_ps[DigitRendererShader_Fixed], MAKEINTRESOURCEW(IDR_ps_digitFixed), L"Shader");
-	LoadEmbeddedResource(v_data_shader_vs[DigitRendererShader_Dynamic], MAKEINTRESOURCEW(IDR_vs_digitDynamic), L"Shader");
-	LoadEmbeddedResource(v_data_shader_ps[DigitRendererShader_Dynamic], MAKEINTRESOURCEW(IDR_ps_digitDynamic), L"Shader");
+
+	const BYTE* v_data_shader_vs[DigitRendererShader_ALL];
+	const BYTE* v_data_shader_ps[DigitRendererShader_ALL];
+	size_t v_data_shader_vs_size[DigitRendererShader_ALL];
+	size_t v_data_shader_ps_size[DigitRendererShader_ALL];
+
+	v_data_shader_vs[DigitRendererShader_Fixed] = DR_digitFixedPos_vs;
+	v_data_shader_vs_size[DigitRendererShader_Fixed] = sizeof(DR_digitFixedPos_vs);
+	v_data_shader_ps[DigitRendererShader_Fixed] = DR_digitFixedPos_ps;
+	v_data_shader_ps_size[DigitRendererShader_Fixed] = sizeof(DR_digitFixedPos_ps);
+
+	v_data_shader_vs[DigitRendererShader_Dynamic] = DR_digitDynamicPos_vs;
+	v_data_shader_vs_size[DigitRendererShader_Dynamic] = sizeof(DR_digitDynamicPos_vs);
+	v_data_shader_ps[DigitRendererShader_Dynamic] = DR_digitDynamicPos_ps;
+	v_data_shader_ps_size[DigitRendererShader_Dynamic] = sizeof(DR_digitDynamicPos_ps);
 
 
 	for (int i = 0; i < DigitRendererShader_ALL; i++) {
 		// load shader
-		device->CreatePixelShader(v_data_shader_ps[i].data(), v_data_shader_ps[i].size(), nullptr, &pixel_shader[i]);
-		device->CreateVertexShader(v_data_shader_vs[i].data(), v_data_shader_vs[i].size(), nullptr, &vertex_shader[i]);
+		device->CreatePixelShader(v_data_shader_ps[i], v_data_shader_ps_size[i], nullptr, &pixel_shader[i]);
+		device->CreateVertexShader(v_data_shader_vs[i], v_data_shader_vs_size[i], nullptr, &vertex_shader[i]);
 
 		// create input layout
-		device->CreateInputLayout(layout, _countof(layout), v_data_shader_vs[i].data(), v_data_shader_vs[i].size(), &input_layout[i]);
+		device->CreateInputLayout(layout, _countof(layout), v_data_shader_vs[i], v_data_shader_vs_size[i], &input_layout[i]);
 	}
 	// load texture
 	DirectX::CreateDDSTextureFromMemory(device, v_data_digit_texture.data(), v_data_digit_texture.size(), nullptr, &digit_texture_srv);
+	v_data_digit_texture.clear();
 #endif
 
 
@@ -434,16 +451,19 @@ void DynamicDigitRenderer_t::SetToShader(int shader_index, int cb_index, const P
 	g_context->IASetInputLayout(input_layout[shader_index]);
 
 	//g_context->UpdateSubresource(constant_buffer0, 0, nullptr, &g_constants0, 0, 0);
-	g_context->UpdateSubresource(constant_buffer1, 0, nullptr, &g_constants1, 0, 0);
+	//g_context->UpdateSubresource(constant_buffer1, 0, nullptr, &g_constants1, 0, 0);
 	g_context->UpdateSubresource(constant_buffer[cb_index], 0, nullptr, pData, 0, 0);
 
+	auto p1259680 = DXGI_GetGameRenderer1259680();
+	auto old_cb0 = p1259680->CB_xgl_system;
+	g_context->VSSetConstantBuffers(1, 1, old_cb0);
+
 	//g_context->VSSetConstantBuffers(0, 1, &constant_buffer0);
-	g_context->VSSetConstantBuffers(1, 1, &constant_buffer1);
+	//g_context->VSSetConstantBuffers(1, 1, &constant_buffer1);
 	g_context->VSSetConstantBuffers(2, 1, &constant_buffer[cb_index]);
 	// ok ps no cb1
 	//g_context->PSSetConstantBuffers(0, 1, &constant_buffer0);
 	g_context->PSSetConstantBuffers(2, 1, &constant_buffer[cb_index]);
-
 
 	g_context->PSSetShaderResources(1, 1, &digit_texture_srv); // to t1
 	g_context->PSSetSamplers(0, 1, &point_sampler);

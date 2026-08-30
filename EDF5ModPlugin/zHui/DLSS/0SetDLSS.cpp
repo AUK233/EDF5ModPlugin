@@ -24,6 +24,11 @@
 
 #include "0SetDLSS.h"
 
+#define HASVK
+#if defined(HASVK)
+#include "0SetDLSS_VK.hpp"
+#endif
+
 //#define DEBUGMODE
 __declspec(align(16)) typedef struct NGX_DLSS_t {
 	ID3D11Texture2D* ColorBuffer;
@@ -32,6 +37,17 @@ __declspec(align(16)) typedef struct NGX_DLSS_t {
 	int resolution[2];
 	NVSDK_NGX_Parameter* m_ngxParameters;
 	NVSDK_NGX_Handle* m_dlssFeature;
+#if defined(HASVK)
+	IDXGIVkInteropDevice* pVkInterop;
+	VkDevice vkDevice;
+	VkInstance vkInstance;
+	VkPhysicalDevice vkPhysDevice;
+	VkQueue vkQueue;
+	VkCommandPool vkCMDPool;
+	VkCommandBuffer vkCMDlist;
+	VkFence dlssFence;
+	uint32_t QueueFamilyIndex;
+#endif
 	int m_bDlssAvailable;
 	int JitterIndex;
 	int IsReset;
@@ -205,15 +221,25 @@ void __fastcall DLSS_Release(){
 	}
 
 	if (pNGX_dlss) {
-		NVSDK_NGX_D3D11_DestroyParameters(pNGX_dlss->m_ngxParameters);
-		if (pNGX_dlss->m_bDlssAvailable) {
-			NVSDK_NGX_D3D11_ReleaseFeature(pNGX_dlss->m_dlssFeature);
+#if defined(HASVK)
+		if (pNGX_dlss->vkDevice) {
+			NVSDK_NGX_VULKAN_DestroyParameters(pNGX_dlss->m_ngxParameters);
+			if (pNGX_dlss->m_bDlssAvailable) {
+				NVSDK_NGX_VULKAN_ReleaseFeature(pNGX_dlss->m_dlssFeature);
+			}
+			NVSDK_NGX_VULKAN_Shutdown1(nullptr);
+		} else
+#endif
+		{
+			NVSDK_NGX_D3D11_DestroyParameters(pNGX_dlss->m_ngxParameters);
+			if (pNGX_dlss->m_bDlssAvailable) {
+				NVSDK_NGX_D3D11_ReleaseFeature(pNGX_dlss->m_dlssFeature);
+			}
+			NVSDK_NGX_D3D11_Shutdown1(nullptr);
 		}
-
 		_aligned_free(pNGX_dlss);
 		pNGX_dlss = nullptr;
 
-		NVSDK_NGX_D3D11_Shutdown1(nullptr);
 	}
 	// end
 }
@@ -234,6 +260,13 @@ void __fastcall DLSS_Initialization(ID3D11Device** ppDevice, ID3D11DeviceContext
 
 	if (!Config_DLAA || pNGX_dlss) return;
 
+#if ndef(HASVK)
+	static const GUID IID_IDXGIVkInteropDevice = { 0xe2ef5fa5, 0xdc21, 0x4af7, { 0x90, 0xc4, 0xf6, 0x7e, 0xf6, 0xa0, 0x93, 0x23 } };
+	void* pVkInterop = nullptr;
+	HRESULT hr = device->QueryInterface(IID_IDXGIVkInteropDevice, (void**)&pVkInterop);
+	if (pVkInterop) return;
+#endif
+
 	auto p = (PNGX_DLSS)_aligned_malloc(sizeof(NGX_DLSS_t), 16U);
 	if (!p) return;
 
@@ -241,24 +274,91 @@ void __fastcall DLSS_Initialization(ID3D11Device** ppDevice, ID3D11DeviceContext
 	pNGX_dlss = p;
 
 	p->JitterIndex = 1;
-	/*
-	NVSDK_NGX_FeatureCommonInfo featureCommonInfo = {};
-	featureCommonInfo.LoggingInfo.DisableOtherLoggingSinks = false;
-	featureCommonInfo.LoggingInfo.MinimumLoggingLevel = NVSDK_NGX_LOGGING_LEVEL_VERBOSE;
-	auto slresult = NVSDK_NGX_D3D11_Init(231313132, L"Z:\\TEMP", device, &featureCommonInfo);
-	*/
+	/*const char* path = getenv("DXVK_ENABLE_NVAPI");
+	if (path[0] == '1') {
+		MessageBoxW(NULL, L"has DXVK_ENABLE_NVAPI", L"test", MB_OK);
+	}*/
 
-	auto slresult = NVSDK_NGX_D3D11_Init(231313132, L".", device); // this id is from ngx_dlss_demo 
-	if (slresult != NVSDK_NGX_Result_Success) {
-		DLSS_TriggerFailureResult((UINT32)slresult - NVSDK_NGX_Result_Fail, 1);
-		return;
+#if defined(HASVK)
+	IDXGIVkInteropDevice* pVkInterop = nullptr;
+	HRESULT hr = device->QueryInterface(IID_IDXGIVkInteropDevice, (void**)&pVkInterop);
+	if (pVkInterop) {
+		pVkInterop->GetVulkanHandles(&p->vkInstance, &p->vkPhysDevice, &p->vkDevice);
+		pVkInterop->GetSubmissionQueue(&p->vkQueue, &p->QueueFamilyIndex);
+		pVkInterop->Release();
 	}
 
-	slresult = NVSDK_NGX_D3D11_GetCapabilityParameters(&pNGX_dlss->m_ngxParameters);
-	if (slresult != NVSDK_NGX_Result_Success) {
-		DLSS_TriggerFailureResult((UINT32)(slresult - NVSDK_NGX_Result_Fail) + 200, 1);
-		return;
+	if (p->vkDevice) {
+		if(!LoadVulkanLibrary()){
+			DLSS_TriggerFailureResult(100086, 1);
+			return;
+		}
+
+		VkCommandPoolCreateInfo poolInfo{};
+		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+		poolInfo.queueFamilyIndex = p->QueueFamilyIndex;
+		if (vkCreateCommandPool(p->vkDevice, &poolInfo, nullptr, &p->vkCMDPool) != VK_SUCCESS) {
+			DLSS_TriggerFailureResult(3335, 1);
+			return;
+		}
+
+		VkCommandBufferAllocateInfo allocInfo{};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.commandPool = p->vkCMDPool;
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandBufferCount = 1;
+		if (vkAllocateCommandBuffers(p->vkDevice, &allocInfo, &p->vkCMDlist) != VK_SUCCESS) {
+			DLSS_TriggerFailureResult(3336, 1);
+			return;
+		}
+
+		NVSDK_NGX_FeatureCommonInfo featureCommonInfo = {};
+		featureCommonInfo.LoggingInfo.DisableOtherLoggingSinks = false;
+		featureCommonInfo.LoggingInfo.MinimumLoggingLevel = NVSDK_NGX_LOGGING_LEVEL_VERBOSE;
+		auto vkresult = NVSDK_NGX_VULKAN_Init(231313132, L"Z:\\TEMP", p->vkInstance, p->vkPhysDevice, p->vkDevice,0,0, &featureCommonInfo);
+		if (vkresult != NVSDK_NGX_Result_Success) {
+			DLSS_TriggerFailureResult((UINT32)vkresult - NVSDK_NGX_Result_Fail, 1);
+			return;
+		}
+
+		vkresult = NVSDK_NGX_VULKAN_GetCapabilityParameters(&pNGX_dlss->m_ngxParameters);
+		if (vkresult != NVSDK_NGX_Result_Success) {
+			DLSS_TriggerFailureResult((UINT32)(vkresult - NVSDK_NGX_Result_Fail) + 200, 1);
+			return;
+		}
+
+		//MessageBoxW(NULL, L"vulkan done!", L"test", MB_OK);
+
+		p->pVkInterop = pVkInterop;
+
+		VkFenceCreateInfo fenceInfo{};
+		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		vkCreateFence(p->vkDevice, &fenceInfo, nullptr, &p->dlssFence);
+
+	} else
+#endif
+	{
+		/*
+		NVSDK_NGX_FeatureCommonInfo featureCommonInfo = {};
+		featureCommonInfo.LoggingInfo.DisableOtherLoggingSinks = false;
+		featureCommonInfo.LoggingInfo.MinimumLoggingLevel = NVSDK_NGX_LOGGING_LEVEL_VERBOSE;
+		auto slresult = NVSDK_NGX_D3D11_Init(231313132, L"Z:\\TEMP", device, &featureCommonInfo);
+		*/
+
+		auto slresult = NVSDK_NGX_D3D11_Init(231313132, L".", device); // this id is from ngx_dlss_demo 
+		if (slresult != NVSDK_NGX_Result_Success) {
+			DLSS_TriggerFailureResult((UINT32)slresult - NVSDK_NGX_Result_Fail, 1);
+			return;
+		}
+
+		slresult = NVSDK_NGX_D3D11_GetCapabilityParameters(&pNGX_dlss->m_ngxParameters);
+		if (slresult != NVSDK_NGX_Result_Success) {
+			DLSS_TriggerFailureResult((UINT32)(slresult - NVSDK_NGX_Result_Fail) + 200, 1);
+			return;
+		}
 	}
+
 
 	if (Config_DLAA == 3){
 		NVSDK_NGX_Parameter_SetUI(p->m_ngxParameters, NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_DLAA, NVSDK_NGX_DLSS_Hint_Render_Preset_L);
@@ -289,7 +389,15 @@ void __fastcall DLSS_SetFeature(ID3D11DeviceContext* pContext, UINT Width, UINT 
 	p->m_bDlssAvailable = 0;
 
 	if (p->m_bDlssAvailable) {
-		NVSDK_NGX_D3D11_ReleaseFeature(pNGX_dlss->m_dlssFeature);
+#if defined(HASVK)
+		if (p->vkDevice) {
+			NVSDK_NGX_VULKAN_ReleaseFeature(pNGX_dlss->m_dlssFeature);
+		} else
+#endif
+		{
+			NVSDK_NGX_D3D11_ReleaseFeature(pNGX_dlss->m_dlssFeature);
+		}
+
 		DLSS_Reset();
 	}
 
@@ -309,7 +417,34 @@ void __fastcall DLSS_SetFeature(ID3D11DeviceContext* pContext, UINT Width, UINT 
 	}
 
 
-	auto ResultDLSS = NGX_D3D11_CREATE_DLSS_EXT(pContext, &p->m_dlssFeature, p->m_ngxParameters, &DlssCreateParams);
+	NVSDK_NGX_Result ResultDLSS;
+#if defined(HASVK)
+	if (p->vkDevice) {
+		VkCommandBufferBeginInfo beginInfo{};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+		p->pVkInterop->FlushRenderingCommands();
+		p->pVkInterop->LockSubmissionQueue();
+
+		vkBeginCommandBuffer(p->vkCMDlist, &beginInfo);
+
+		ResultDLSS = NGX_VULKAN_CREATE_DLSS_EXT(p->vkCMDlist, 1, 1, &p->m_dlssFeature, p->m_ngxParameters, &DlssCreateParams);
+
+		vkEndCommandBuffer(p->vkCMDlist);
+		VkSubmitInfo submitInfo{};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &p->vkCMDlist;
+		vkQueueSubmit(p->vkQueue, 1, &submitInfo, VK_NULL_HANDLE);
+
+		p->pVkInterop->ReleaseSubmissionQueue();
+	} else
+#endif
+	{
+		ResultDLSS = NGX_D3D11_CREATE_DLSS_EXT(pContext, &p->m_dlssFeature, p->m_ngxParameters, &DlssCreateParams);
+	}
+
 	if (ResultDLSS != NVSDK_NGX_Result_Success) {
 		DLSS_TriggerFailureResult((UINT32)ResultDLSS, 1);
 		return;
@@ -410,27 +545,102 @@ void __fastcall DLSS_Evaluate(){
 
 	float jitter[2];
 	DLSS_GetJitter(jitter);
-	NVSDK_NGX_D3D11_DLSS_Eval_Params D3D11DlssEvalParams;
-	memset(&D3D11DlssEvalParams, 0, sizeof(D3D11DlssEvalParams));
+#if defined(HASVK)
+	auto vkDevice = pNGX_dlss->vkDevice;
+	if (vkDevice) {
+		NVSDK_NGX_Resource_VK pInColor{};
+		NVSDK_NGX_Resource_VK_Get(vkDevice, pNGX_dlss->ColorBuffer, &pInColor);
+		NVSDK_NGX_Resource_VK pInOutput{};
+		NVSDK_NGX_Resource_VK_Get(vkDevice, pNGX_dlss->OutColor, &pInOutput);
+		NVSDK_NGX_Resource_VK pInDepth{};
+		NVSDK_NGX_Resource_VK_Get(vkDevice, pNGX_dlss->DepthBuffer, &pInDepth);
+		NVSDK_NGX_Resource_VK pInMotionVectors{};
+		NVSDK_NGX_Resource_VK_Get(vkDevice, pD3DPostProcess->BlackMV, &pInMotionVectors);
 
-	D3D11DlssEvalParams.Feature.pInColor = pNGX_dlss->ColorBuffer;
-	D3D11DlssEvalParams.Feature.pInOutput = pNGX_dlss->OutColor;
-	D3D11DlssEvalParams.Feature.InSharpness = 1;
+		NVSDK_NGX_VK_DLSS_Eval_Params D3DvkDlssEvalParams;
+		memset(&D3DvkDlssEvalParams, 0, sizeof(D3DvkDlssEvalParams));
 
-	D3D11DlssEvalParams.pInDepth = pNGX_dlss->DepthBuffer;
-	D3D11DlssEvalParams.pInMotionVectors = pD3DPostProcess->BlackMV;
+		D3DvkDlssEvalParams.Feature.pInColor = &pInColor;
+		D3DvkDlssEvalParams.Feature.pInOutput = &pInOutput;
+		D3DvkDlssEvalParams.Feature.InSharpness = 1;
 
-	D3D11DlssEvalParams.InJitterOffsetX = jitter[0];
-	D3D11DlssEvalParams.InJitterOffsetY = jitter[1];
-	D3D11DlssEvalParams.InRenderSubrectDimensions.Width = pNGX_dlss->resolution[0];
-	D3D11DlssEvalParams.InRenderSubrectDimensions.Height = pNGX_dlss->resolution[1];
+		D3DvkDlssEvalParams.pInDepth = &pInDepth;
+		D3DvkDlssEvalParams.pInMotionVectors = &pInMotionVectors;
 
-	D3D11DlssEvalParams.InReset = pNGX_dlss->IsReset;
-	D3D11DlssEvalParams.InMVScaleX = 1.0;
-	D3D11DlssEvalParams.InMVScaleY = 1.0;
+		D3DvkDlssEvalParams.InJitterOffsetX = jitter[0];
+		D3DvkDlssEvalParams.InJitterOffsetY = jitter[1];
+		D3DvkDlssEvalParams.InRenderSubrectDimensions.Width = pNGX_dlss->resolution[0];
+		D3DvkDlssEvalParams.InRenderSubrectDimensions.Height = pNGX_dlss->resolution[1];
 
-	NVSDK_NGX_Parameter_SetF(pNGX_dlss->m_ngxParameters, NVSDK_NGX_Parameter_Denoise, 1.0);
-	auto result = NGX_D3D11_EVALUATE_DLSS_EXT(pD3DPostProcess->Context, pNGX_dlss->m_dlssFeature, pNGX_dlss->m_ngxParameters, &D3D11DlssEvalParams);
+		D3DvkDlssEvalParams.InReset = pNGX_dlss->IsReset;
+		D3DvkDlssEvalParams.InMVScaleX = 1.0;
+		D3DvkDlssEvalParams.InMVScaleY = 1.0;
+		NVSDK_NGX_Parameter_SetF(pNGX_dlss->m_ngxParameters, NVSDK_NGX_Parameter_Denoise, 1.0);
+
+		static int count = 0;
+
+		pNGX_dlss->pVkInterop->FlushRenderingCommands();
+		pNGX_dlss->pVkInterop->LockSubmissionQueue();
+
+		VkCommandBufferBeginInfo beginInfo{};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+		vkResetCommandBuffer(pNGX_dlss->vkCMDlist, 0);
+		vkBeginCommandBuffer(pNGX_dlss->vkCMDlist, &beginInfo);
+
+		auto ResultDLSS = NGX_VULKAN_EVALUATE_DLSS_EXT(pNGX_dlss->vkCMDlist, pNGX_dlss->m_dlssFeature, pNGX_dlss->m_ngxParameters, &D3DvkDlssEvalParams);
+
+		if (!count) {
+			if (ResultDLSS == NVSDK_NGX_Result_Success) {
+				MessageBoxW(NULL, L"Done!", L"info", MB_OK);
+			} else {
+				MessageBoxW(NULL, std::to_wstring((UINT32)ResultDLSS).c_str(), L"error", MB_OK);
+			}
+			count++;
+		}
+
+		vkEndCommandBuffer(pNGX_dlss->vkCMDlist);
+		VkSubmitInfo submitInfo{};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &pNGX_dlss->vkCMDlist;
+		vkQueueSubmit(pNGX_dlss->vkQueue, 1, &submitInfo, pNGX_dlss->dlssFence);
+
+		pNGX_dlss->pVkInterop->ReleaseSubmissionQueue();
+
+		/**/
+		vkWaitForFences(vkDevice, 1, &pNGX_dlss->dlssFence, VK_TRUE, UINT64_MAX);
+		vkResetFences(vkDevice, 1, &pNGX_dlss->dlssFence);
+
+		NVSDK_NGX_Resource_VK_Destroy(vkDevice, &pInColor);
+		NVSDK_NGX_Resource_VK_Destroy(vkDevice, &pInOutput);
+		NVSDK_NGX_Resource_VK_Destroy(vkDevice, &pInDepth);
+		NVSDK_NGX_Resource_VK_Destroy(vkDevice, &pInMotionVectors); 
+	} else
+#endif
+	{
+		NVSDK_NGX_D3D11_DLSS_Eval_Params D3D11DlssEvalParams;
+		memset(&D3D11DlssEvalParams, 0, sizeof(D3D11DlssEvalParams));
+
+		D3D11DlssEvalParams.Feature.pInColor = pNGX_dlss->ColorBuffer;
+		D3D11DlssEvalParams.Feature.pInOutput = pNGX_dlss->OutColor;
+		D3D11DlssEvalParams.Feature.InSharpness = 1;
+
+		D3D11DlssEvalParams.pInDepth = pNGX_dlss->DepthBuffer;
+		D3D11DlssEvalParams.pInMotionVectors = pD3DPostProcess->BlackMV;
+
+		D3D11DlssEvalParams.InJitterOffsetX = jitter[0];
+		D3D11DlssEvalParams.InJitterOffsetY = jitter[1];
+		D3D11DlssEvalParams.InRenderSubrectDimensions.Width = pNGX_dlss->resolution[0];
+		D3D11DlssEvalParams.InRenderSubrectDimensions.Height = pNGX_dlss->resolution[1];
+
+		D3D11DlssEvalParams.InReset = pNGX_dlss->IsReset;
+		D3D11DlssEvalParams.InMVScaleX = 1.0;
+		D3D11DlssEvalParams.InMVScaleY = 1.0;
+
+		NVSDK_NGX_Parameter_SetF(pNGX_dlss->m_ngxParameters, NVSDK_NGX_Parameter_Denoise, 1.0);
+		NGX_D3D11_EVALUATE_DLSS_EXT(pD3DPostProcess->Context, pNGX_dlss->m_dlssFeature, pNGX_dlss->m_ngxParameters, &D3D11DlssEvalParams);
+	}
 
 	pNGX_dlss->IsReset = 0;
 

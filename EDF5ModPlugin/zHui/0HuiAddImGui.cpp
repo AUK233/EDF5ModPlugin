@@ -53,6 +53,8 @@ void module_InitializeAddImGui(PBYTE hmodEXE)
 	DXGI_Initialize(hmodEXE);
 
 	if (Config_DLAA || Config_PostProcess){
+		//_putenv_s("DXVK_ENABLE_NVAPI", "1");
+		//_putenv_s("DXVK_HUD", "full");
 		// EDF5.exe+5E10F0
 		hookGameBlockWithInt3((void*)(hmodEXE + 0x5E10F0), (uintptr_t)ASMdx11CreateDevice);
 		WriteHookToProcess((void*)(hmodEXE + 0x5E10F0 + 15), (void*)&nop1, 1U);

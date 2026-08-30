@@ -436,10 +436,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Base\SSE.inc" />
-    <None Include="Resource\digitDynamicPos_ps.cso" />
-    <None Include="Resource\digitDynamicPos_vs.cso" />
-    <None Include="Resource\digitFixedPos_ps.cso" />
-    <None Include="Resource\digitFixedPos_vs.cso" />
     <None Include="Resource\ps_digit.cso" />
     <None Include="Resource\vs_digit.cso" />
     <None Include="shader2.bin" />

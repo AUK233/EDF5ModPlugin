@@ -25,8 +25,6 @@ namespace DigitRenderer{
     private:
 	    ID3D11DeviceContext* g_context; // for rendering, set in Render()
         DigitTextByte v_data_digit_texture;
-        DigitTextByte v_data_shader_vs[DigitRendererShader_ALL];
-        DigitTextByte v_data_shader_ps[DigitRendererShader_ALL];
         // DX11
         ID3D11Buffer* constant_buffer0;
         ID3D11Buffer* constant_buffer1;

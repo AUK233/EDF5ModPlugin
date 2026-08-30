@@ -328,8 +328,10 @@ void togui_MainDisplay_ToDigit(PG_SoldierBase* pLCP)
 	else if (Config_DisplayDamageType == 2) {
 		auto pUmbraSystem = DXGI_GetUmbraSystem125B080();
 		if (pUmbraSystem) {
+			/*
 			memcpy(g_DigitRenderer->g_constants1.c_xgl_view, pUmbraSystem->matrix_view, sizeof(float) * 4 * 4);
 			memcpy(g_DigitRenderer->g_constants1.c_xgl_projection, pUmbraSystem->matrix_projection, sizeof(float) * 4 * 4);
+			*/
 			g_DigitRenderer->SetRender(pCTX, &g_DigitProcessor->DigitConstantData, DigitRenderer::DigitRendererShader_Dynamic);
 
 			togui_MainDisplay_ToDigit_DamageInHitMode();
