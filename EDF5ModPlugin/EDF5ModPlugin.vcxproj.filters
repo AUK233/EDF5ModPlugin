@@ -777,5 +777,8 @@
     <Library Include="zHui\DLSS\lib\nvsdk_ngx_d.lib">
       <Filter>Source Files\Module Hui\DLSS\lib</Filter>
     </Library>
+    <Library Include="zHui\DLSS\lib\libxess.lib">
+      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
+    </Library>
   </ItemGroup>
 </Project>

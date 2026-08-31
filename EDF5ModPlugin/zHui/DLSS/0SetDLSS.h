@@ -17,4 +17,7 @@ void __fastcall DLSS_ClearBuffer();
 void __fastcall DLSS_Reset();
 float __fastcall DLSS_Halton(int index, int base);
 void __fastcall DLSS_GetJitter(float* out);
-void __fastcall DLSS_Evaluate();
+void __fastcall DLSS_Evaluate(int playerIndex);
+
+void __fastcall DLSS_VK_Enter(void* pDLSS);
+void __fastcall DLSS_VK_Leave(void* pDLSS, void* pFence);

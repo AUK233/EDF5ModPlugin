@@ -4,6 +4,10 @@
 #include "vulkan/vulkan.h"
 #include "lib/nvsdk_ngx_vk.h"
 #include "lib/nvsdk_ngx_helpers_vk.h"
+// xess
+#include "lib/xess_vk.h"
+#include <mutex>
+#include <chrono>
 
 //typedef struct VkInstance_T* VkInstance;
 //typedef struct VkPhysicalDevice_T* VkPhysicalDevice;
@@ -158,6 +162,7 @@ PFN_vkResetCommandBuffer vkResetCommandBuffer = nullptr;
 
 PFN_vkQueueSubmit vkQueueSubmit = nullptr;
 PFN_vkCreateFence vkCreateFence = nullptr;
+PFN_vkDestroyFence vkDestroyFence = nullptr;
 PFN_vkWaitForFences vkWaitForFences = nullptr;
 PFN_vkResetFences vkResetFences = nullptr;
 
@@ -181,6 +186,7 @@ bool LoadVulkanLibrary() {
 
 	vkQueueSubmit = (PFN_vkQueueSubmit)GetProcAddress(vulkanModule, "vkQueueSubmit");
 	vkCreateFence = (PFN_vkCreateFence)GetProcAddress(vulkanModule, "vkCreateFence");
+	vkDestroyFence = (PFN_vkDestroyFence)GetProcAddress(vulkanModule, "vkDestroyFence");
 	vkWaitForFences = (PFN_vkWaitForFences)GetProcAddress(vulkanModule, "vkWaitForFences");
 	vkResetFences = (PFN_vkResetFences)GetProcAddress(vulkanModule, "vkResetFences");
 
@@ -212,8 +218,6 @@ bool NVSDK_NGX_Resource_VK_Get(VkDevice device, ID3D11Texture2D* pTexture, NVSDK
 	pResource->ReadWrite = true;
 	return true;*/
 
-	
-
 	// create image view
 	
 	VkImageViewCreateInfo viewInfo = {};
@@ -231,13 +235,17 @@ bool NVSDK_NGX_Resource_VK_Get(VkDevice device, ID3D11Texture2D* pTexture, NVSDK
 		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 	}
 	viewInfo.format = vkInfo.format;
+	
 	// check is depth format
 	if (vkInfo.format == VK_FORMAT_D16_UNORM || vkInfo.format == VK_FORMAT_D32_SFLOAT ||
 		vkInfo.format == VK_FORMAT_D24_UNORM_S8_UINT || vkInfo.format == VK_FORMAT_D32_SFLOAT_S8_UINT) {
 		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+		/*
 		if (vkInfo.format == VK_FORMAT_D24_UNORM_S8_UINT || vkInfo.format == VK_FORMAT_D32_SFLOAT_S8_UINT) {
 			viewInfo.subresourceRange.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
-		}
+		}*/
+	} else {
+		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	}
 
 	viewInfo.subresourceRange.baseMipLevel = 0;
@@ -277,4 +285,44 @@ void NVSDK_NGX_Resource_VK_Destroy(VkDevice device, NVSDK_NGX_Resource_VK* pReso
 		pResource->Resource.ImageViewInfo.ImageView = VK_NULL_HANDLE;
 	}
 	// end
+}
+
+typedef struct DLSS_VKResource_t{
+	ID3D11Texture2D* DXBuffer;
+	NVSDK_NGX_Resource_VK vkResource;
+}*PDLSS_VKResource;
+
+void DLSS_VKResource_Set(VkDevice device, ID3D11Texture2D* pTexture, PDLSS_VKResource pVKR) {
+	if (pVKR->DXBuffer == pTexture) return;
+
+	NVSDK_NGX_Resource_VK_Destroy(device, &pVKR->vkResource);
+
+	pVKR->DXBuffer = pTexture;
+	NVSDK_NGX_Resource_VK_Get(device, pTexture, &pVKR->vkResource);
+}
+
+static std::ofstream g_XeSSLogFile;
+static std::mutex g_XeSSLogMutex;
+
+void XeSSLoggingCallback(const char* message, xess_logging_level_t loggingLevel) {
+	auto now = std::chrono::system_clock::now();
+	auto time = std::chrono::system_clock::to_time_t(now);
+
+	std::lock_guard<std::mutex> lock(g_XeSSLogMutex);
+
+	g_XeSSLogFile.open("Z:/TEMP/xess_debug.log", std::ios::out | std::ios::app);
+
+	g_XeSSLogFile << std::put_time(std::localtime(&time), "%Y-%m-%d %H:%M:%S")
+		<< " [" << loggingLevel << "] "
+		<< (message ? message : "(null message)")
+		<< std::endl;
+
+	g_XeSSLogFile.flush();
+	g_XeSSLogFile.close();
+
+	/*static int count = 0;
+	if (!count) {
+		MessageBoxW(NULL, L"Done!", L"info", MB_OK);
+		count++;
+	}*/
 }

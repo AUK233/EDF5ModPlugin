@@ -451,6 +451,7 @@
     <Image Include="Resource\DamageUINumber.dds" />
   </ItemGroup>
   <ItemGroup>
+    <Library Include="zHui\DLSS\lib\libxess.lib" />
     <Library Include="zHui\DLSS\lib\nvsdk_ngx_d.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
