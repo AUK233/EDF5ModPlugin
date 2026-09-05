@@ -24,13 +24,13 @@
 
 #include "0SetImGui.h"
 
-
 //#define DEBUGMODE
 
 extern "C" {
 	extern int Config_RTRead;
 	extern int Config_DisplayDamageType;
 	extern int Config_DisplaySubtitle;
+	extern int Config_HUDEnhance;
 }
 
 DigitRenderer::PDynamicDigitRenderer g_DigitRenderer;
@@ -57,8 +57,8 @@ int __fastcall togui_GetDXGISwapChain(int protectECX, IDXGISwapChain* pSwapChain
 			auto addrPresent = &pVTable[8]; // vft+0x40
 			fnIDXGISwapChainPresent = *addrPresent;
 
-			addrToHook = (uintptr_t)togui_Present;
-			WriteHookToProcess(addrPresent, &addrToHook, 8U);
+			//addrToHook = (uintptr_t)togui_Present;
+			//WriteHookToProcess(addrPresent, &addrToHook, 8U);
 		}
 #if defined(DEBUGMODE)
 		if (!fnIDXGISwapChainResizeBuffers) {
@@ -81,19 +81,16 @@ void __fastcall togui_ClearImGui()
 	ImGui::DestroyContext();
 }
 
-#if defined(DEBUGMODE)
-int testResolution[2];
-int bTestResolution = 0;
-#endif
+void __fastcall togui_Main() {
+	if (!Config_HUDEnhance) return;
 
-HRESULT __stdcall togui_Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags)
-{
 	if (!g_bImGuiInitialized) {
-		togui_InitializeImGui();
 		auto pRender = DXGI_GetGameDXGIRender();
+		g_pSwapChain = pRender->pDXGISwapChain;
+		togui_InitializeImGui();
 		oWndProc = (WNDPROC)SetWindowLongPtrW(pRender->DXGISwapChainDesc.OutputWindow, GWLP_WNDPROC, (LONG_PTR)togui_WndProc);
 		g_bImGuiInitialized = 1;
-		return fnIDXGISwapChainPresent(pSwapChain, SyncInterval, Flags);
+		return;
 	}
 
 #if defined(DEBUGMODE)
@@ -105,7 +102,7 @@ HRESULT __stdcall togui_Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, U
 		if (RefreshTime > 60) {
 			INIConfig_ReadIngameConfigurable();
 			RefreshTime = 0;
-		}else{
+		} else {
 			RefreshTime++;
 		}
 	}
@@ -125,7 +122,15 @@ HRESULT __stdcall togui_Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, U
 	if (!(GetAsyncKeyState('R') & 0x8000)) {
 		rKeyDown = false;
 	}*/
+}
 
+#if defined(DEBUGMODE)
+int testResolution[2];
+int bTestResolution = 0;
+#endif
+
+HRESULT __stdcall togui_Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags) {
+	togui_Main();
 	return fnIDXGISwapChainPresent(pSwapChain, SyncInterval, Flags);
 }
 

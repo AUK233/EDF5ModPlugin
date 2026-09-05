@@ -130,11 +130,17 @@ static_assert(offsetof(G_TextureBackBuffer_t, pInfo) == 0x18);
 typedef struct alignas(16) G_Application_t {
 	void* vf_table;
 	char pad08[0x8];
-	float FPS;
-	char pad14[0x8C];
+	float CurrentFPS;
+	char pad14[0xC];
+	int FramePerSecond;
+	char pad24[0xC];
+	float FrameInterval; // per second
+	char pad34[0x6C];
 	void* pDSVResource; Pg_D3D_ResourceInfo pDSVInfo;
 }*PG_Application;
 #if 1
+static_assert(offsetof(G_Application_t, FramePerSecond) == 0x20);
+static_assert(offsetof(G_Application_t, FrameInterval) == 0x30);
 static_assert(offsetof(G_Application_t, pDSVInfo) == 0xA8);
 #endif
 

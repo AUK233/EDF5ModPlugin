@@ -108,6 +108,18 @@ EDF5.exe+5EF8E1 - FF 90 08010000        - call qword ptr [rax+00000108]
 rdx是8
 从EDF5.exe+5E2703 call的
 
+EDF5.exe+9DCE0 - FF 90 08010000        - call qword ptr [rax+00000108]
+清除rtv和dsv
+EDF5.exe+5EFA90 - FF 90 90010000        - call qword ptr [rax+00000190]
+这里call的ClearRenderTargetView，是d3d11.dll+106EB0
+
+EDF5.exe+5DAD60 - E8 DB010000           - call EDF5.exe+5DAF40
+这里就是present前的ClearRenderTargetView
+
+EDF5.exe+5DB97A - 48 8B 81 38060000     - mov rax,[rcx+00000638]
+这里可能是交换链图像
+
+
 call OMSetRenderTargets
 d3d11.dll+100640  OMSetRenderTargets的地址
 

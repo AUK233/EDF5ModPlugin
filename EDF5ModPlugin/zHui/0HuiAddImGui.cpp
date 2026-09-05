@@ -37,6 +37,9 @@ extern "C" {
 	void __fastcall ASMRenderBufferToScreenBuffer();
 	uintptr_t RenderBufferToScreenBufferRetAddr;
 
+	void __fastcall ASMCall_IDXGISwapChain_Present();
+	uintptr_t Call_IDXGISwapChain_PresentRetAddr;
+
 	void __fastcall ASMGetDXGISwapChain();
 	uintptr_t GetDXGISwapChainRetAddr;
 
@@ -76,6 +79,13 @@ void module_InitializeAddImGui(PBYTE hmodEXE)
 		HookFunction_D3D11_FullAO();
 	}
 
+	if (Config_DLAA || Config_HUDEnhance){
+		// EDF5.exe+5E316E
+		hookGameBlockWithInt3((void*)(hmodEXE + 0x5E316E), (uintptr_t)ASMCall_IDXGISwapChain_Present);
+		WriteHookToProcess((void*)(hmodEXE + 0x5E316E + 15), (void*)&nop4, 4U);
+		Call_IDXGISwapChain_PresentRetAddr = (uintptr_t)(hmodEXE + 0x5E3181);
+	}
+
 	//MessageBoxW(NULL, L"test", L"debug", MB_OK);
 
 	// ========================================================================
@@ -83,8 +93,9 @@ void module_InitializeAddImGui(PBYTE hmodEXE)
 	if (!Config_HUDEnhance) return;
 
 	// EDF5.exe+5E1BB9
-	hookGameBlockWithInt3((void*)(hmodEXE + 0x5E1BB9), (uintptr_t)ASMGetDXGISwapChain);
-	WriteHookToProcess((void*)(hmodEXE + 0x5E1BB9 + 15), (void*)&nop1, 1U);
+	// it's not needed now.
+	//hookGameBlockWithInt3((void*)(hmodEXE + 0x5E1BB9), (uintptr_t)ASMGetDXGISwapChain);
+	//WriteHookToProcess((void*)(hmodEXE + 0x5E1BB9 + 15), (void*)&nop1, 1U);
 	GetDXGISwapChainRetAddr = (uintptr_t)(hmodEXE + 0x5E1BCE);
 
 	// EDF5.exe+613E80

@@ -11,6 +11,10 @@ extern DLSS_Release : proto
 extern DLSS_Draw : proto
 extern RenderBufferToScreenBufferRetAddr : qword
 
+extern togui_Main : proto
+extern DLSS_FG_Evaluate : proto
+extern Call_IDXGISwapChain_PresentRetAddr : qword
+
 extern togui_GetDXGISwapChain : proto
 extern GetDXGISwapChainRetAddr : qword
 
@@ -57,6 +61,27 @@ ASMgetPlayerCountInHQ proc
 	int 3
 
 ASMgetPlayerCountInHQ ENDP
+
+align 16
+
+ASMCall_IDXGISwapChain_Present proc
+
+	mov rdi, [rsp+20h]
+	;
+	call togui_Main
+	;
+	xor r8d, r8d
+	mov edx, [rsp+28h]
+	mov rcx, [rdi+0C8h]
+	call DLSS_FG_Evaluate
+	;
+	xor r8d, r8d
+	mov edx, [rsp+28h]
+	mov rcx, [rdi+0C8h]
+	jmp Call_IDXGISwapChain_PresentRetAddr
+	int 3
+
+ASMCall_IDXGISwapChain_Present ENDP
 
 align 16
 

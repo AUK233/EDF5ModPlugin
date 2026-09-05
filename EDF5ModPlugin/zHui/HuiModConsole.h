@@ -8,7 +8,14 @@ typedef struct cmd_KeyState_t {
 	int AlphabetKey[26];
 	int F_key[12];
 } *Pcmd_KeyState;
+
 typedef void(__fastcall* ModConsoleFuncPTR)();
+typedef struct cmd_ModConsoleFunc_t {
+	ModConsoleFuncPTR SetInvincible;
+	ModConsoleFuncPTR MaxWeaponQuality;
+	ModConsoleFuncPTR UnlockAllWeapon;
+	ModConsoleFuncPTR UnlockMission;
+} *Pcmd_ModConsoleFunc;
 
 void cmd_ModConsole_Initialize(PBYTE hmodEXE);
 void cmd_ModConsole_MonitorKeys();
@@ -31,6 +38,8 @@ void __fastcall ModConsole_GetWeaponBox();
 void __fastcall ModConsole_CreateKeyMonitor();
 
 void ModConsole_MonitorKeys();
-void ModConsole_WriteToClipboard(const std::wstring& text);
+void cmd_ModConsole_WriteToClipboard(const std::wstring& text);
 void __fastcall ModConsole_MK_GetPlayerPos();
 void __fastcall ModConsole_MK_GetCameraPos();
+
+void cmd_ModConsole_GetPlayerPos(int hasOrientation);

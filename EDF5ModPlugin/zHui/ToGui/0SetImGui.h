@@ -5,6 +5,7 @@
 extern "C" {
 	int __fastcall togui_GetDXGISwapChain(int protectECX, IDXGISwapChain* pSwapChain);
 	void __fastcall togui_ClearImGui();
+	void __fastcall togui_Main();
 }
 
 HRESULT __stdcall togui_Present(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);

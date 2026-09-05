@@ -19,5 +19,9 @@ float __fastcall DLSS_Halton(int index, int base);
 void __fastcall DLSS_GetJitter(float* out);
 void __fastcall DLSS_Evaluate(int playerIndex);
 
+extern "C" {
+	void __fastcall DLSS_FG_Evaluate(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags);
+}
+
 void __fastcall DLSS_VK_Enter(void* pDLSS);
 void __fastcall DLSS_VK_Leave(void* pDLSS, void* pFence);

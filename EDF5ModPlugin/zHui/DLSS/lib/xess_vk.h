@@ -16,7 +16,7 @@
 #ifndef XESS_VK_H
 #define XESS_VK_H
 
-#include "../vulkan/vulkan.h"
+#include <vulkan/vulkan.h>
 
 #include "xess.h"
 

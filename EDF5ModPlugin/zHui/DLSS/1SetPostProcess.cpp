@@ -118,6 +118,13 @@ namespace D3D {
 			BlackMV->Release();
 			BlackMV = nullptr;
 		}
+
+		// ===========================
+
+		if (OutputInterp) {
+			OutputInterp->Release();
+			OutputInterp = nullptr;
+		}
 	}
 
 	void D3DPostProcess_t::SetBuffer(UINT Width, UINT Height) {
@@ -183,9 +190,16 @@ namespace D3D {
 			uavDesc.Format = DXGI_FORMAT_R16G16_FLOAT;
 			Device->CreateUnorderedAccessView(BlackMV, &uavDesc, &MotionVectorUAV);
 
-			FLOAT clearValues[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-			Context->ClearUnorderedAccessViewFloat(MotionVectorUAV, clearValues);
+			if (MotionVectorUAV) {
+				FLOAT clearValues[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+				Context->ClearUnorderedAccessViewFloat(MotionVectorUAV, clearValues);
+			}
 		}
+
+		// set output interp buffer
+		outDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		Device->CreateTexture2D(&outDesc, 0, &OutputInterp);
+		Device->CreateTexture2D(&outDesc, 0, &OutputReal);
 		// end
 	}
 
@@ -203,7 +217,8 @@ namespace D3D {
 		HRESULT hr = Device->CreateSamplerState(&samp_desc, &LUTSamplerLinear);
 
 		CriFileSystemGet_t getFile;
-		auto fileIsExist = getFile.Open(L"app:/ui/LUT_DefaultEnhance.dds");
+		//auto fileIsExist = getFile.Open(L"app:/ui/LUT_DefaultEnhance.dds");
+		auto fileIsExist = getFile.Open(L"./subtitle/LUT_DefaultEnhance.dds");
 
 		DirectX::CreateDDSTextureFromMemory(Device, getFile.fs->data, getFile.fs->data_size, nullptr, &LookupTable_SRV);
 	}

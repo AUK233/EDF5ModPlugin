@@ -9,12 +9,12 @@ extern "C" {
         D3D_DRIVER_TYPE DriverType,
         HMODULE Software,
         UINT Flags,
-        _In_reads_opt_(FeatureLevels) CONST D3D_FEATURE_LEVEL* pFeatureLevels,
+        const D3D_FEATURE_LEVEL* pFeatureLevels,
         UINT FeatureLevels,
         UINT SDKVersion,
-        _COM_Outptr_opt_ ID3D11Device** ppDevice,
-        _Out_opt_ D3D_FEATURE_LEVEL* pFeatureLevel,
-        _COM_Outptr_opt_ ID3D11DeviceContext** ppImmediateContext);
+        ID3D11Device** ppDevice,
+        D3D_FEATURE_LEVEL* pFeatureLevel,
+        ID3D11DeviceContext** ppImmediateContext);
 }
 
 HRESULT WINAPI New_CreateTexture2D(ID3D11Device* pDevice, const D3D11_TEXTURE2D_DESC* pDesc, const D3D11_SUBRESOURCE_DATA* pInitialData, ID3D11Texture2D** ppTexture2D);

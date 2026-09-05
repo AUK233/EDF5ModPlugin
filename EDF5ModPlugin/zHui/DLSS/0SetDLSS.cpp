@@ -39,6 +39,8 @@ __declspec(align(16)) typedef struct NGX_DLSS_t {
 	NVSDK_NGX_Handle* m_dlssFeature;
 #if defined(HASVK)
 	VkDevice vkDevice;
+	NVSDK_NGX_Parameter* m_FGParameters;
+	NVSDK_NGX_Handle* m_FGFeature;
 #endif
 	int m_bDlssAvailable;
 	int JitterIndex;
@@ -46,7 +48,11 @@ __declspec(align(16)) typedef struct NGX_DLSS_t {
 	int IsSplitScreen;
 	int IsReady;
 #if defined(HASVK)
+	uint32_t QueueFamilyIndex;
+#if defined(XESS)
+	// remove xess, because it must load libxess.dll
 	xess_context_handle_t m_xessContext; // intel xess!
+#endif
 	IDXGIVkInteropDevice* pVkInterop;
 	VkInstance vkInstance;
 	VkPhysicalDevice vkPhysDevice;
@@ -54,10 +60,11 @@ __declspec(align(16)) typedef struct NGX_DLSS_t {
 	VkCommandPool vkCMDPool;
 	VkCommandBuffer vkCMDlist;
 	VkFence dlssFence;
-	uint32_t QueueFamilyIndex;
 	// set in DLSS_CreateFeature
 	NVSDK_NGX_Resource_VK vkInColor[2];
 	NVSDK_NGX_Resource_VK vkMV;
+	NVSDK_NGX_Resource_VK vkOutputInterp;
+	NVSDK_NGX_Resource_VK vkOutputReal;
 #endif
 } *PNGX_DLSS;
 
@@ -88,6 +95,9 @@ void __fastcall DLSS_CreateFeature(int playerCount) {
 	if (pNGX_dlss && pNGX_dlss->vkDevice) {
 		NVSDK_NGX_Resource_VK_Destroy(pNGX_dlss->vkDevice, &pNGX_dlss->vkInColor[0]);
 		NVSDK_NGX_Resource_VK_Destroy(pNGX_dlss->vkDevice, &pNGX_dlss->vkInColor[1]);
+		NVSDK_NGX_Resource_VK_Destroy(pNGX_dlss->vkDevice, &pNGX_dlss->vkMV);
+		NVSDK_NGX_Resource_VK_Destroy(pNGX_dlss->vkDevice, &pNGX_dlss->vkOutputInterp);
+		NVSDK_NGX_Resource_VK_Destroy(pNGX_dlss->vkDevice, &pNGX_dlss->vkOutputReal);
 	}
 
 	pD3DPostProcess->SetBuffer(res[0], res[1]);
@@ -108,6 +118,9 @@ void __fastcall DLSS_CreateFeature(int playerCount) {
 
 			if (playerCount == 2) {
 				NVSDK_NGX_Resource_VK_Get(pNGX_dlss->vkDevice, pD3DPostProcess->OutColor[1], &pNGX_dlss->vkInColor[1]);
+			} else {
+				NVSDK_NGX_Resource_VK_Get(pNGX_dlss->vkDevice, pD3DPostProcess->OutputInterp, &pNGX_dlss->vkOutputInterp);
+				NVSDK_NGX_Resource_VK_Get(pNGX_dlss->vkDevice, pD3DPostProcess->OutputReal, &pNGX_dlss->vkOutputReal);
 			}
 		}
 		// end
@@ -244,13 +257,21 @@ void __fastcall DLSS_Release(){
 	if (pNGX_dlss) {
 #if defined(HASVK)
 		if (pNGX_dlss->vkDevice) {
+#if defined(XESS)
 			if (pNGX_dlss->m_xessContext) {
 				xessDestroyContext(pNGX_dlss->m_xessContext);
-			} else {
+			} else
+#endif
+			{
 				NVSDK_NGX_VULKAN_DestroyParameters(pNGX_dlss->m_ngxParameters);
 				if (pNGX_dlss->m_bDlssAvailable) {
 					NVSDK_NGX_VULKAN_ReleaseFeature(pNGX_dlss->m_dlssFeature);
 				}
+
+				if (pNGX_dlss->m_FGParameters) NVSDK_NGX_VULKAN_DestroyParameters(pNGX_dlss->m_FGParameters);
+
+				if (pNGX_dlss->m_FGFeature) NVSDK_NGX_VULKAN_ReleaseFeature(pNGX_dlss->m_FGFeature);
+
 				NVSDK_NGX_VULKAN_Shutdown1(nullptr);
 			}
 
@@ -349,6 +370,7 @@ void __fastcall DLSS_Initialization(ID3D11Device** ppDevice, ID3D11DeviceContext
 		vkCreateFence(p->vkDevice, &fenceInfo, nullptr, &p->dlssFence);
 
 		// set xess
+#if defined(XESS)
 		if (Config_DLAA == 4) {
 			auto status = xessVKCreateContext(p->vkInstance, p->vkPhysDevice, p->vkDevice, &p->m_xessContext);
 			if (status != XESS_RESULT_SUCCESS) {
@@ -360,11 +382,13 @@ void __fastcall DLSS_Initialization(ID3D11Device** ppDevice, ID3D11DeviceContext
 
 			return;
 		}
+#endif
 
 		NVSDK_NGX_FeatureCommonInfo featureCommonInfo = {};
 		featureCommonInfo.LoggingInfo.DisableOtherLoggingSinks = false;
 		featureCommonInfo.LoggingInfo.MinimumLoggingLevel = NVSDK_NGX_LOGGING_LEVEL_VERBOSE;
-		auto vkresult = NVSDK_NGX_VULKAN_Init(231313132, L"Z:\\TEMP", p->vkInstance, p->vkPhysDevice, p->vkDevice,0,0, &featureCommonInfo);
+		//auto vkresult = NVSDK_NGX_VULKAN_Init(231313132, L"Z:\\TEMP", p->vkInstance, p->vkPhysDevice, p->vkDevice,0,0, &featureCommonInfo);
+		auto vkresult = NVSDK_NGX_VULKAN_Init_with_ProjectID("a0f57b54-1daf-4934-90ae-c4035c19df04", NVSDK_NGX_ENGINE_TYPE_CUSTOM, "5.0", L"Z:\\TEMP", p->vkInstance, p->vkPhysDevice, p->vkDevice, nullptr, nullptr, &featureCommonInfo);
 		if (vkresult != NVSDK_NGX_Result_Success) {
 			DLSS_TriggerFailureResult((UINT32)vkresult - NVSDK_NGX_Result_Fail, 1);
 			return;
@@ -374,6 +398,12 @@ void __fastcall DLSS_Initialization(ID3D11Device** ppDevice, ID3D11DeviceContext
 		if (vkresult != NVSDK_NGX_Result_Success) {
 			DLSS_TriggerFailureResult((UINT32)(vkresult - NVSDK_NGX_Result_Fail) + 200, 1);
 			return;
+		}
+
+		// enable fg
+		vkresult = NVSDK_NGX_VULKAN_GetCapabilityParameters(&pNGX_dlss->m_FGParameters);
+		if (vkresult != NVSDK_NGX_Result_Success) {
+			DLSS_TriggerFailureResult((UINT32)(vkresult - NVSDK_NGX_Result_Fail) + 210, 0);
 		}
 	} else
 #endif
@@ -430,6 +460,8 @@ void __fastcall DLSS_SetFeature(ID3D11DeviceContext* pContext, UINT Width, UINT 
 #if defined(HASVK)
 		if (p->vkDevice) {
 			NVSDK_NGX_VULKAN_ReleaseFeature(pNGX_dlss->m_dlssFeature);
+
+			if (p->m_FGFeature) NVSDK_NGX_VULKAN_ReleaseFeature(pNGX_dlss->m_FGFeature);
 		} else
 #endif
 		{
@@ -440,7 +472,7 @@ void __fastcall DLSS_SetFeature(ID3D11DeviceContext* pContext, UINT Width, UINT 
 	}
 	p->m_bDlssAvailable = 0;
 
-#if defined(HASVK)
+#if defined(XESS)
 	if (p->m_xessContext) {
 		DLSS_Reset();
 
@@ -493,6 +525,20 @@ void __fastcall DLSS_SetFeature(ID3D11DeviceContext* pContext, UINT Width, UINT 
 		DLSS_VK_Enter(p);
 
 		ResultDLSS = NGX_VULKAN_CREATE_DLSS_EXT(p->vkCMDlist, 0, 0, &p->m_dlssFeature, p->m_ngxParameters, &DlssCreateParams);
+
+		if (p->m_FGParameters) {
+
+			NVSDK_NGX_DLSSG_Create_Params DlssGCreateParams;
+			memset(&DlssGCreateParams, 0, sizeof(DlssGCreateParams));
+			DlssGCreateParams.Width = Width;
+			DlssGCreateParams.Height = Height;
+			DlssGCreateParams.NativeBackbufferFormat = VK_FORMAT_R8G8B8A8_UNORM;
+			DlssGCreateParams.RenderWidth = Width;
+			DlssGCreateParams.RenderHeight = Height;
+			DlssGCreateParams.DynamicResolutionScaling = false;
+
+			ResultDLSS = NGX_VK_CREATE_DLSSG(p->vkCMDlist, 0, 0, &p->m_FGFeature, p->m_FGParameters, &DlssGCreateParams);
+		}
 
 		DLSS_VK_Leave(p, VK_NULL_HANDLE);
 	} else
@@ -614,7 +660,7 @@ void __fastcall DLSS_Evaluate(int playerIndex){
 		NVSDK_NGX_Resource_VK pInMotionVectors{};
 		NVSDK_NGX_Resource_VK_Get(vkDevice, pD3DPostProcess->BlackMV, &pInMotionVectors);
 		*/
-
+#if defined(XESS)
 		if (pNGX_dlss->m_xessContext) {
 			xess_vk_execute_params_t exec_params;
 			memset(&exec_params, 0, sizeof(xess_vk_execute_params_t));
@@ -646,7 +692,9 @@ void __fastcall DLSS_Evaluate(int playerIndex){
 				}
 				count++;
 			}*/
-		} else {
+		} else
+#endif
+		{
 			NVSDK_NGX_VK_DLSS_Eval_Params D3DvkDlssEvalParams;
 			memset(&D3DvkDlssEvalParams, 0, sizeof(D3DvkDlssEvalParams));
 
@@ -710,6 +758,65 @@ void __fastcall DLSS_Evaluate(int playerIndex){
 	pNGX_dlss->IsReset = 0;
 
 	DLSS_ClearBuffer();
+}
+
+void __fastcall DLSS_FG_Evaluate(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags) {
+#if defined(HASVK)
+	if (!pNGX_dlss) return;
+	if (!pNGX_dlss->m_FGFeature) return;
+
+	auto vkDevice = pNGX_dlss->vkDevice;
+	if(!vkDevice) return;
+
+	auto pRenderer = DXGI_GetGameRenderer1259680();
+	auto pSwapChainImage = pRenderer->pDSVInfo638->pTexture;
+	auto context = pD3DPostProcess->Context;
+
+
+	context->CopyResource(pD3DPostProcess->OutputReal, pSwapChainImage);
+
+	//NVSDK_NGX_Resource_VK pBackbuffer{};
+	//NVSDK_NGX_Resource_VK_Get(vkDevice, pRenderer->pDSVInfo638->pTexture, &pBackbuffer);
+	NVSDK_NGX_Resource_VK pDepth{};
+	NVSDK_NGX_Resource_VK_Get(vkDevice, pRenderer->pDSVInfo638->pTexture, &pDepth);
+
+	NVSDK_NGX_VK_DLSSG_Eval_Params FGParams;
+	ZeroMemory(&FGParams, sizeof(FGParams));
+	//FGParams.pBackbuffer = &pBackbuffer;
+	FGParams.pBackbuffer = &pNGX_dlss->vkOutputReal;
+	FGParams.pDepth = &pDepth;
+	FGParams.pMVecs = &pNGX_dlss->vkMV;
+	FGParams.pOutputInterpFrame = &pNGX_dlss->vkOutputInterp;
+	//FGParams.pOutputRealFrame = &pNGX_dlss->vkOutputReal;
+	//FGParams.pOutputRealFrame = &pBackbuffer;
+
+	NVSDK_NGX_DLSSG_Opt_Eval_Params OptEvalParams = {};
+	OptEvalParams.reset = 0;
+	OptEvalParams.depthInverted = false;
+	OptEvalParams.mvecScale[0] = 1;
+	OptEvalParams.mvecScale[1] = 1;
+	//OptEvalParams.clipToPrevClip = clipToPrevClipMatrix;
+	//OptEvalParams.prevClipToClip = prevClipToClipMatrix;
+	OptEvalParams.multiFrameCount = 1;
+	OptEvalParams.multiFrameIndex = 1;
+
+	DLSS_VK_Enter(pNGX_dlss);
+	auto ResultDLSS = NGX_VK_EVALUATE_DLSSG(pNGX_dlss->vkCMDlist, pNGX_dlss->m_FGFeature, pNGX_dlss->m_FGParameters, &FGParams, &OptEvalParams);
+	DLSS_VK_Leave(pNGX_dlss, pNGX_dlss->dlssFence);
+
+	vkWaitForFences(vkDevice, 1, &pNGX_dlss->dlssFence, VK_TRUE, UINT64_MAX);
+	vkResetFences(vkDevice, 1, &pNGX_dlss->dlssFence);
+	//NVSDK_NGX_Resource_VK_Destroy(vkDevice, &pBackbuffer);
+	NVSDK_NGX_Resource_VK_Destroy(vkDevice, &pDepth);
+
+	context->CopyResource(pSwapChainImage, pD3DPostProcess->OutputInterp);
+	pSwapChain->Present(SyncInterval, Flags);
+
+	auto pApp = DXGI_GetApplication1253708();
+	int sleep_time = pApp->FrameInterval * 500;// yeah 0.5x1000
+	Sleep(sleep_time);
+	context->CopyResource(pSwapChainImage, pD3DPostProcess->OutputReal);
+#endif
 }
 
 void __fastcall DLSS_VK_Enter(void* pDLSS) {

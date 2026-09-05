@@ -22,6 +22,11 @@ namespace D3D {
 		ID3D11Buffer* PreviousCB_xgl_system;
 		ID3D11ComputeShader* MotionVectorCS;
 
+		// dlss fg
+		ID3D11Texture2D* OutputInterp;
+		ID3D11Texture2D* OutputReal;
+
+		//
 		int PlayerCount;
 
 		void Initialize(ID3D11Device* device, ID3D11DeviceContext* context, DXGI_SWAP_CHAIN_DESC* pChainDesc);

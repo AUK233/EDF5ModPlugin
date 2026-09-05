@@ -1,13 +1,16 @@
 #pragma once
 #include <d3d11.h>
 #define VK_NO_PROTOTYPES
-#include "vulkan/vulkan.h"
+#include <vulkan/vulkan.h>
 #include "lib/nvsdk_ngx_vk.h"
 #include "lib/nvsdk_ngx_helpers_vk.h"
+#include "lib/nvsdk_ngx_helpers_dlssg_vk.h"
+#if defined(XESS)
 // xess
 #include "lib/xess_vk.h"
 #include <mutex>
 #include <chrono>
+#endif
 
 //typedef struct VkInstance_T* VkInstance;
 //typedef struct VkPhysicalDevice_T* VkPhysicalDevice;
@@ -301,6 +304,7 @@ void DLSS_VKResource_Set(VkDevice device, ID3D11Texture2D* pTexture, PDLSS_VKRes
 	NVSDK_NGX_Resource_VK_Get(device, pTexture, &pVKR->vkResource);
 }
 
+#if defined(XESS)
 static std::ofstream g_XeSSLogFile;
 static std::mutex g_XeSSLogMutex;
 
@@ -326,3 +330,4 @@ void XeSSLoggingCallback(const char* message, xess_logging_level_t loggingLevel)
 		count++;
 	}*/
 }
+#endif
