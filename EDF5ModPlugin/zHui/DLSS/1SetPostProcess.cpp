@@ -19,10 +19,12 @@
 #include "Base/g_criFS.h"
 #include "shader/1SetPostProcess_CS.hpp"
 #include "shader/1SetPostProcess_MV.hpp"
+#include "shader/1SetPostProcess_FG.hpp"
 #include "1SetPostProcess.h"
 
 extern "C" {
 	extern int Config_PostProcess;
+	extern int Config_PostProcessTexIndex;
 }
 
 namespace D3D {
@@ -59,6 +61,7 @@ namespace D3D {
 		}
 
 		Device->CreateComputeShader(D3DPostProcess_MotionVector, sizeof(D3DPostProcess_MotionVector), nullptr, &MotionVectorCS);
+		Device->CreateComputeShader(D3DPostProcess_ToFGBuffer, sizeof(D3DPostProcess_ToFGBuffer), nullptr, &ToFGBufferCS);
 		// end
 	}
 
@@ -125,9 +128,35 @@ namespace D3D {
 			OutputInterp->Release();
 			OutputInterp = nullptr;
 		}
+
+		if (OutputReal) {
+			OutputReal->Release();
+			OutputReal = nullptr;
+		}
+
+		if (FGHudLessUAV) {
+			FGHudLessUAV->Release();
+			FGHudLessUAV = nullptr;
+		}
+
+		if (FGHudLess) {
+			FGHudLess->Release();
+			FGHudLess = nullptr;
+		}
+
+		if (FGDepthUAV) {
+			FGDepthUAV->Release();
+			FGDepthUAV = nullptr;
+		}
+
+		if (FGDepth) {
+			FGDepth->Release();
+			FGDepth = nullptr;
+		}
+		// end
 	}
 
-	void D3DPostProcess_t::SetBuffer(UINT Width, UINT Height) {
+	void D3DPostProcess_t::SetBuffer(UINT Width, UINT Height, UINT DLSS_Level) {
 		ReleaseBuffer();
 
 		D3D11_TEXTURE2D_DESC outDesc = {};
@@ -173,6 +202,7 @@ namespace D3D {
 			Device->CreateUnorderedAccessView(LinearDepth[1], &uavDesc, &LinearDepthUAV[1]);
 		}*/
 
+		if (DLSS_Level < 1) return;
 		// set black mv buffer
 		outDesc.Format = DXGI_FORMAT_R16G16_FLOAT;
 		//outDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET | D3D11_BIND_UNORDERED_ACCESS;
@@ -196,10 +226,28 @@ namespace D3D {
 			}
 		}
 
+		if (DLSS_Level < 2) return;
 		// set output interp buffer
 		outDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		Device->CreateTexture2D(&outDesc, 0, &OutputInterp);
 		Device->CreateTexture2D(&outDesc, 0, &OutputReal);
+
+		if (DLSS_Level < 3) return;
+		// set fg hud less buffer
+		Device->CreateTexture2D(&outDesc, 0, &FGHudLess);
+		if (FGHudLess) {
+			uavDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			Device->CreateUnorderedAccessView(FGHudLess, &uavDesc, &FGHudLessUAV);
+		}
+
+		// set fg depth buffer
+		outDesc.Format = DXGI_FORMAT_R32_FLOAT;
+		Device->CreateTexture2D(&outDesc, 0, &FGDepth);
+		if (FGDepth) {
+			uavDesc.Format = DXGI_FORMAT_R32_FLOAT;
+			Device->CreateUnorderedAccessView(FGDepth, &uavDesc, &FGDepthUAV);
+		}
+
 		// end
 	}
 
@@ -216,11 +264,48 @@ namespace D3D {
 
 		HRESULT hr = Device->CreateSamplerState(&samp_desc, &LUTSamplerLinear);
 
-		CriFileSystemGet_t getFile;
-		//auto fileIsExist = getFile.Open(L"app:/ui/LUT_DefaultEnhance.dds");
-		auto fileIsExist = getFile.Open(L"./subtitle/LUT_DefaultEnhance.dds");
+		// =====================================================================
+		auto index = Config_PostProcessTexIndex;
+		if (index > 3) index = 0;
 
-		DirectX::CreateDDSTextureFromMemory(Device, getFile.fs->data, getFile.fs->data_size, nullptr, &LookupTable_SRV);
+		LookupTable_SRV = CreateLUTBuffer(index);
+	}
+
+	void D3DPostProcess_t::ReloadLUTBuffer() {
+		if (LookupTable_SRV_Backup) {
+			LookupTable_SRV_Backup->Release();
+			LookupTable_SRV_Backup = nullptr;
+		}
+
+		if (LUTindex > 3) LUTindex = 0;
+
+		LookupTable_SRV_Backup = LookupTable_SRV;
+		LookupTable_SRV = CreateLUTBuffer(LUTindex);
+	}
+
+	ID3D11ShaderResourceView* D3DPostProcess_t::CreateLUTBuffer(int index) {
+		CriFileSystemGet_t getFile;
+		auto pFile = getFile.Open(GetLUTFilePath(index));
+		// L"./subtitle/LUT_DefaultEnhance.dds"
+
+		ID3D11ShaderResourceView* out;
+		DirectX::CreateDDSTextureFromMemory(Device, getFile.fs->data, getFile.fs->data_size, nullptr, &out);
+
+		return out;
+	}
+
+	std::wstring D3DPostProcess_t::GetLUTFilePath(int index) {
+		switch (index) {
+		case 1:
+			return L"app:/ui/LUT_HistoricalReproduction.dds";
+		case 2:
+			return L"app:/ui/LUT_DefaultEnhance1.dds";
+		case 3:
+			return L"app:/ui/LUT_DefaultEnhance2.dds";
+		default:
+			return L"app:/ui/LUT_DefaultEnhance0.dds";
+		}
+		// end
 	}
 
 // end

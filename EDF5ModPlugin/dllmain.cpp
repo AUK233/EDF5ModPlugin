@@ -91,7 +91,6 @@ int ModLogStatus = 0;
 int HUDEnhanceStatus = 0;
 int displaySubtitleOn = 0;
 UINT noThrowAnime = 0;
-UINT newSaveDataUnlock = 0;
 }
 //HANDLE ddThread;
 
@@ -375,7 +374,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 		HUDEnhance = GetPrivateProfileIntW(L"ModOption", L"HUDEnhance", 0, iniPath);
 		noThrowAnime = GetPrivateProfileIntW(L"ModOption", L"NoThrowAnime", 0, iniPath);
-		newSaveDataUnlock = GetPrivateProfileIntW(L"ModOption", L"StarterKit", 0, iniPath);
 		//Redirect = GetPrivateProfileBoolW(L"ModOption", L"Redirect", Redirect, iniPath);
 		//GameLog = GetPrivateProfileBoolW(L"ModOption", L"GameLog", GameLog, iniPath);
 
@@ -520,13 +518,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
 		// Set startup behavior
 		GameStartupInitialization(hmodEXE);
-		// Provide basic equipment to new players
-		if (newSaveDataUnlock) {
-			GameStartupUnlock(hmodEXE);
-			if (ModLogStatus == 1) {
-				PLOG_INFO << "You will get all weapons and maximum mission limit armor values!";
-			}
-		}
 		// End, change game title
 		std::wstring GameTitle = L"EDF5 for PC in MOD Mode";
 		WriteHookToProcess(hmodEXE + 0xebcbd0, (void *)GameTitle.c_str(), 48U);

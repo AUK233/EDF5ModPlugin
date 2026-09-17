@@ -3,6 +3,7 @@
 void GameStartupInitialization(PBYTE hmodEXE);
 void GetGameGlobalPointer(PBYTE hmodEXE);
 void GameStartupHook(PBYTE hmodEXE);
+// It is no longer in use.
 void GameStartupUnlock(PBYTE hmodEXE);
 
 extern "C" {

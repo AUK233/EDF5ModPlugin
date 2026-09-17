@@ -83,7 +83,9 @@ void CS_main(uint3 threadID : SV_DispatchThreadID)
 	prevClipPos.w = dot(worldPos, previousSys.g_xgl_view_projection[3]);
 	prevClipPos.xyz /= prevClipPos.w;
 
-	float2 ndc = ClipPos.xy - prevClipPos.xy;
+	//float2 ndc = ClipPos.xy - prevClipPos.xy;
+	// Because in dlss demo, it is "o_color.xy = prevWindowPos.xy - i_position.xy"
+	float2 ndc = prevClipPos.xy - ClipPos.xy;
 	
 	float2 ScreenSize = currentSys.g_xgl_target_dimension;
 	float2 screen_pos;

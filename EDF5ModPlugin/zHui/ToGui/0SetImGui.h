@@ -3,7 +3,7 @@
 #include <d3d11.h>
 
 extern "C" {
-	int __fastcall togui_GetDXGISwapChain(int protectECX, IDXGISwapChain* pSwapChain);
+	void __fastcall togui_GetDXGISwapChain(IDXGISwapChain* pSwapChain);
 	void __fastcall togui_ClearImGui();
 	void __fastcall togui_Main();
 }

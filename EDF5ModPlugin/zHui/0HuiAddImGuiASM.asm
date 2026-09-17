@@ -11,10 +11,18 @@ extern DLSS_Release : proto
 extern DLSS_Draw : proto
 extern RenderBufferToScreenBufferRetAddr : qword
 
+extern streamline_SwapChainGetBuffer : proto
+extern Call_IDXGISwapChain_GetBufferRetAddr : qword
+
 extern togui_Main : proto
 extern DLSS_FG_Evaluate : proto
+extern streamline_SwapChainPresent : proto
 extern Call_IDXGISwapChain_PresentRetAddr : qword
 
+extern streamline_MapLoadResources : proto
+extern map_async_obj_initRetAddr : qword
+
+extern streamline_CreateSwapChain : proto
 extern togui_GetDXGISwapChain : proto
 extern GetDXGISwapChainRetAddr : qword
 
@@ -64,20 +72,46 @@ ASMgetPlayerCountInHQ ENDP
 
 align 16
 
+ASMCall_IDXGISwapChain_GetBuffer proc
+
+		lea r8, [rsp+70h]
+		mov rdx, rsi
+		mov rcx, rdi
+		call streamline_SwapChainGetBuffer
+		test eax, eax
+		js ofs5C66D7
+		jmp Call_IDXGISwapChain_GetBufferRetAddr
+	ofs5C66D7:
+		xor al, al
+		add rsp, 50h
+		pop rdi
+		pop rsi
+		pop rbx
+		ret 
+		int 3
+
+ASMCall_IDXGISwapChain_GetBuffer ENDP
+
+align 16
+
 ASMCall_IDXGISwapChain_Present proc
 
 	mov rdi, [rsp+20h]
 	;
 	call togui_Main
 	;
-	xor r8d, r8d
-	mov edx, [rsp+28h]
-	mov rcx, [rdi+0C8h]
-	call DLSS_FG_Evaluate
+	; xor r8d, r8d
+	; mov edx, [rsp+28h]
+	; mov rcx, [rdi+0C8h]
+	; call DLSS_FG_Evaluate
+	mov rcx, rdi
+	call streamline_SwapChainPresent
 	;
 	xor r8d, r8d
 	mov edx, [rsp+28h]
 	mov rcx, [rdi+0C8h]
+	mov rax, [rcx]
+	call qword ptr [rax+40h]
 	jmp Call_IDXGISwapChain_PresentRetAddr
 	int 3
 
@@ -85,19 +119,57 @@ ASMCall_IDXGISwapChain_Present ENDP
 
 align 16
 
+ASMmap_async_obj_init proc
+
+	; lea r9, [rbp+0B0h]
+	; mov r8, [r14+40h]
+	; lea rcx, [rsi+1090h]
+	; call streamline_MapLoadResources
+	mov rcx, rsi
+	call streamline_MapLoadResources
+	movzx ebx, al
+	lea rdx, [rsi+1C8h]
+	jmp map_async_obj_initRetAddr
+	int 3
+
+ASMmap_async_obj_init ENDP
+
+align 16
+
 ASMGetDXGISwapChain proc
 
-	mov [rdi+0C8h], rbx
-	mov [rdi+30h], eax
-	mov rdx, rbx
-	call togui_GetDXGISwapChain
-	;test cl, cl ;old
-	test al, al
-	mov eax, [rsp+44h]
-	mov [rdi+34h], eax
-	mov eax, ebp
-	jmp GetDXGISwapChainRetAddr
-	int 3
+		mov r8, [rdi+0C8h]
+		lea rdx, [rsp+30h]
+		lea rcx, [rsp+40h]
+		call streamline_CreateSwapChain
+		mov [rdi+0C8h], rbp
+		test al, al
+		jnz ReturnOriginal
+	ofs5E0F69:
+		mov rcx, [rdi+0D8h] ; IDXGIFactory*
+		lea r9, [rsp+30h] ; IDXGISwapChain**
+		mov rdx, [rdi+0B8h] ; ID3D11Device*
+		lea r8, [rsp+40h] ; DXGI_SWAP_CHAIN_DESC*
+		mov [rsp+30h], rbp
+		mov rax, [rcx]
+		call qword ptr [rax+50h]
+		test eax, eax
+		js ofs5E0FF6
+	ReturnOriginal:
+		mov rbx, [rsp+30h]
+		;mov rcx, rbx
+		;call togui_GetDXGISwapChain
+		mov eax, [rsp+40h]
+		jmp GetDXGISwapChainRetAddr
+		int 3
+	ofs5E0FF6:
+		mov rbx, [rsp+0D0h]
+		add rsp, 0A0h
+		pop r14
+		pop rdi
+		pop rbp
+		ret 
+		int 3
 
 ASMGetDXGISwapChain ENDP
 

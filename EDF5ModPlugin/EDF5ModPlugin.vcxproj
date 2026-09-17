@@ -232,6 +232,8 @@
     <ClCompile Include="zHui\0HuiAddImGui.cpp" />
     <ClCompile Include="zHui\ASFunc_Hook.cpp" />
     <ClCompile Include="zHui\DLSS\0SetDLSS.cpp" />
+    <ClCompile Include="zHui\DLSS\0SL_executor.cpp" />
+    <ClCompile Include="zHui\DLSS\0SL_wapper.cpp" />
     <ClCompile Include="zHui\DLSS\1FullAO.cpp" />
     <ClCompile Include="zHui\DLSS\1SetPostProcess.cpp" />
     <ClCompile Include="zHui\HuiCasController.cpp">
@@ -375,12 +377,16 @@
     <ClInclude Include="zHui\0HuiAddImGui.h" />
     <ClInclude Include="zHui\ASFunc_Hook.h" />
     <ClInclude Include="zHui\DLSS\0SetDLSS.h" />
+    <ClInclude Include="zHui\DLSS\0SL_executor.h" />
+    <ClInclude Include="zHui\DLSS\0SL_wapper.h" />
     <ClInclude Include="zHui\DLSS\1FullAO.h" />
     <ClInclude Include="zHui\DLSS\1FullAOData.hpp" />
     <ClInclude Include="zHui\DLSS\1SetPostProcess.h" />
+    <ClInclude Include="zHui\DLSS\1Test.hpp" />
     <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx.h" />
     <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_defs.h" />
     <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers.h" />
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers_d3d.h" />
     <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_params.h" />
     <ClInclude Include="zHui\HuiCasController.h" />
     <ClInclude Include="zHui\HUiHudCommonStruct.h" />

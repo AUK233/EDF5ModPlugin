@@ -257,7 +257,7 @@ void __fastcall Evaluate_NGX_dlss(ID3D11DeviceContext* d3dcontext, ID3D11Device*
 	consts.mvecScale = { 1,1 };
 	slSetConstants(consts, *currentFrame, myViewport);
 
-	/*sl::Resource depth = sl::Resource{ sl::ResourceType::eTex2d, nullptr, nullptr, nullptr, 0 };
+	sl::Resource depth = sl::Resource{ sl::ResourceType::eTex2d, nullptr, nullptr, nullptr, 0 };/*
 	sl::Resource mvec = sl::Resource{ sl::ResourceType::eTex2d, nullptr, nullptr, nullptr, 0 };
 	sl::ResourceTag depthTag = sl::ResourceTag{ &depth, sl::kBufferTypeDepth, sl::ResourceLifecycle::eValidUntilPresent};
 	sl::ResourceTag mvecTag = sl::ResourceTag{ &mvec, sl::kBufferTypeMotionVectors, sl::ResourceLifecycle::eValidUntilPresent };

@@ -145,8 +145,7 @@ extern "C" {
 	uintptr_t gameStartupSetMinClassArmorRetAddr;
 }
 
-void GameStartupUnlock(PBYTE hmodEXE)
-{
+void GameStartupUnlock(PBYTE hmodEXE) {
 	// EDF5.exe+8CB20, Unlock all weapons for new players (0 stars, activate once per run)
 	hookGameBlockWithInt3((void*)(hmodEXE + 0x8CB20), (uintptr_t)ASMgameStartupUnlockAllWeapon);
 	WriteHookToProcess((void*)(hmodEXE + 0x8CB20 + 15), (void*)&nop2, 2U);

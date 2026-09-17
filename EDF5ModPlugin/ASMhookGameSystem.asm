@@ -1,6 +1,6 @@
 .data
 
-extern newSaveDataUnlock : dword
+;extern newSaveDataUnlock : dword
 extern gameStartupUnlockAllWeaponRetAddr : qword
 
 extern gameStartupSetMinClassArmorRetAddr : qword
@@ -15,7 +15,7 @@ ASMgameStartupUnlockAllWeapon proc
         lea rax, [rax+rax*2]
         test byte ptr [r15+rax*4], 1
         jne ofs8BF37
-        cmp newSaveDataUnlock, 0
+        ;cmp newSaveDataUnlock, 0
         je ofs8BF39
         mov byte ptr [r15+rax*4], 1
     ofs8BF37:
@@ -27,7 +27,7 @@ ASMgameStartupUnlockAllWeapon proc
         inc ecx
         cmp ecx, edx
         jne ofs8BF20
-        mov newSaveDataUnlock, 0 ; activate only once per game run
+        ;mov newSaveDataUnlock, 0 ; activate only once per game run
         jmp gameStartupUnlockAllWeaponRetAddr
 
 ASMgameStartupUnlockAllWeapon ENDP

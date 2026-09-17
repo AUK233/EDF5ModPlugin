@@ -13,9 +13,10 @@ namespace D3D {
 		//ID3D11Texture2D* LinearDepth[2];
 		//ID3D11UnorderedAccessView* LinearDepthUAV[2];
 
+		ID3D11ComputeShader* PostProcessCS;
 		ID3D11SamplerState* LUTSamplerLinear;
 		ID3D11ShaderResourceView* LookupTable_SRV;
-		ID3D11ComputeShader* PostProcessCS;
+		ID3D11ShaderResourceView* LookupTable_SRV_Backup; // temporarily reserve the LUT when switching
 
 		ID3D11Texture2D* BlackMV;
 		ID3D11UnorderedAccessView* MotionVectorUAV;
@@ -25,15 +26,22 @@ namespace D3D {
 		// dlss fg
 		ID3D11Texture2D* OutputInterp;
 		ID3D11Texture2D* OutputReal;
+		ID3D11Texture2D* FGHudLess; ID3D11UnorderedAccessView* FGHudLessUAV;
+		ID3D11Texture2D* FGDepth; ID3D11UnorderedAccessView* FGDepthUAV;
+		ID3D11ComputeShader* ToFGBufferCS;
 
 		//
+		int LUTindex;
 		int PlayerCount;
 
 		void Initialize(ID3D11Device* device, ID3D11DeviceContext* context, DXGI_SWAP_CHAIN_DESC* pChainDesc);
 		void LoadComputeShader();
 		void ReleaseBuffer();
-		void SetBuffer(UINT Width, UINT Height);
+		void SetBuffer(UINT Width, UINT Height, UINT DLSS_Level);
 		void LoadLUTBuffer();
+		void ReloadLUTBuffer();
+		ID3D11ShaderResourceView* CreateLUTBuffer(int index);
+		std::wstring GetLUTFilePath(int index);
 	};
 
 	typedef D3DPostProcess_t* PD3DPostProcess;

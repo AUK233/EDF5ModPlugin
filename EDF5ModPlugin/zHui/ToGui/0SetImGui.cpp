@@ -46,8 +46,7 @@ IDXGISwapChainPresent fnIDXGISwapChainPresent = 0;
 IDXGISwapChainResizeBuffers fnIDXGISwapChainResizeBuffers = 0;
 ImFont* MyDefaultFont;
 
-int __fastcall togui_GetDXGISwapChain(int protectECX, IDXGISwapChain* pSwapChain)
-{
+void __fastcall togui_GetDXGISwapChain(IDXGISwapChain* pSwapChain) {
 	g_pSwapChain = pSwapChain;
 	if (pSwapChain) {
 		auto pVTable = *(IDXGISwapChainPresent**)(pSwapChain);
@@ -71,7 +70,7 @@ int __fastcall togui_GetDXGISwapChain(int protectECX, IDXGISwapChain* pSwapChain
 #endif
 		// end
 	}
-	return protectECX;
+	return;
 }
 
 void __fastcall togui_ClearImGui()

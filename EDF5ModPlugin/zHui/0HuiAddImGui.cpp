@@ -22,6 +22,7 @@
 #include "DLSS/1FullAO.h"
 
 #include "0HuiAddImGui.h"
+#include "DLSS/0SL_wapper.h"
 
 extern "C" {
 	extern int Config_HUDEnhance;
@@ -37,8 +38,15 @@ extern "C" {
 	void __fastcall ASMRenderBufferToScreenBuffer();
 	uintptr_t RenderBufferToScreenBufferRetAddr;
 
+	void __fastcall ASMCall_IDXGISwapChain_GetBuffer();
+	uintptr_t Call_IDXGISwapChain_GetBufferRetAddr;
+
 	void __fastcall ASMCall_IDXGISwapChain_Present();
 	uintptr_t Call_IDXGISwapChain_PresentRetAddr;
+
+	void __fastcall ASMmap_async_obj_init();
+	uintptr_t map_async_obj_initRetAddr;
+	uintptr_t map_async_obj_initC3650;
 
 	void __fastcall ASMGetDXGISwapChain();
 	uintptr_t GetDXGISwapChainRetAddr;
@@ -55,6 +63,7 @@ void module_InitializeAddImGui(PBYTE hmodEXE)
 {
 	DXGI_Initialize(hmodEXE);
 
+
 	if (Config_DLAA || Config_PostProcess){
 		//_putenv_s("DXVK_ENABLE_NVAPI", "1");
 		//_putenv_s("DXVK_HUD", "full");
@@ -62,6 +71,12 @@ void module_InitializeAddImGui(PBYTE hmodEXE)
 		hookGameBlockWithInt3((void*)(hmodEXE + 0x5E10F0), (uintptr_t)ASMdx11CreateDevice);
 		WriteHookToProcess((void*)(hmodEXE + 0x5E10F0 + 15), (void*)&nop1, 1U);
 		dx11CreateDeviceRetAddr = (uintptr_t)(hmodEXE + 0x5E1100);
+
+		// EDF5.exe+5E1B50
+		hookGameBlockWithInt3((void*)(hmodEXE + 0x5E1B50), (uintptr_t)ASMGetDXGISwapChain);
+		WriteHookToProcess((void*)(hmodEXE + 0x5E1B50 + 15), (void*)&nop1, 1U);
+		GetDXGISwapChainRetAddr = (uintptr_t)(hmodEXE + 0x5E1BB2);
+
 
 		// EDF5.exe+50732A, Sys_Exit_Game
 		hookGameBlock((void*)(hmodEXE + 0x50732A), (uintptr_t)ASMsysExitGame);
@@ -79,11 +94,34 @@ void module_InitializeAddImGui(PBYTE hmodEXE)
 		HookFunction_D3D11_FullAO();
 	}
 
+	//if (Config_DLAA) _putenv_s("DXVK_CONFIG", "dxgi.syncInterval = 0");
+
 	if (Config_DLAA || Config_HUDEnhance){
+
+		// EDF5.exe+5C7206
+		hookGameBlockWithInt3((void*)(hmodEXE + 0x5C7206), (uintptr_t)ASMCall_IDXGISwapChain_GetBuffer);
+		Call_IDXGISwapChain_GetBufferRetAddr = (uintptr_t)(hmodEXE + 0x5C721D);
+
 		// EDF5.exe+5E316E
 		hookGameBlockWithInt3((void*)(hmodEXE + 0x5E316E), (uintptr_t)ASMCall_IDXGISwapChain_Present);
 		WriteHookToProcess((void*)(hmodEXE + 0x5E316E + 15), (void*)&nop4, 4U);
-		Call_IDXGISwapChain_PresentRetAddr = (uintptr_t)(hmodEXE + 0x5E3181);
+		Call_IDXGISwapChain_PresentRetAddr = (uintptr_t)(hmodEXE + 0x5E3187);
+
+		// EDF5.exe+EB09E is the smallest granularity, but the performance is too poor.
+		// MapLoadResourcesB2370 = (uintptr_t)(hmodEXE + 0xB2370);
+
+		// EDF5.exe+C21CC
+		//hookGameBlockWithInt3((void*)(hmodEXE + 0xC21CC), (uintptr_t)ASMmap_async_obj_init);
+		//WriteHookToProcess((void*)(hmodEXE + 0xC21CC + 15), (void*)&nop3, 3U);
+		map_async_obj_initRetAddr = (uintptr_t)(hmodEXE + 0xC21DE);
+		map_async_obj_initC3650 = (uintptr_t)(hmodEXE + 0xC3650);
+		// EDF5.exe+B256C
+		/**/
+		BYTE setThreadCount[] = {
+			0x41, 0xB8, 0x02, 0x00, 0x00, 0x00, // mov r8d, 2
+			0x0F, 0x1F, 0x40, 0x00
+		};
+		WriteHookToProcess((void*)(hmodEXE + 0xB256C), &setThreadCount, 10);
 	}
 
 	//MessageBoxW(NULL, L"test", L"debug", MB_OK);
@@ -92,11 +130,7 @@ void module_InitializeAddImGui(PBYTE hmodEXE)
 	// Next, all features are only available when HUD enhancement is enabled.
 	if (!Config_HUDEnhance) return;
 
-	// EDF5.exe+5E1BB9
-	// it's not needed now.
-	//hookGameBlockWithInt3((void*)(hmodEXE + 0x5E1BB9), (uintptr_t)ASMGetDXGISwapChain);
-	//WriteHookToProcess((void*)(hmodEXE + 0x5E1BB9 + 15), (void*)&nop1, 1U);
-	GetDXGISwapChainRetAddr = (uintptr_t)(hmodEXE + 0x5E1BCE);
+	
 
 	// EDF5.exe+613E80
 	hookGameBlock14((void*)(hmodEXE + 0x613E80), (uintptr_t)ASMxgsSystemSetPlayerSlot);
@@ -123,12 +157,17 @@ HRESULT WINAPI module_InitializeD3D11(DXGI_SWAP_CHAIN_DESC* pChainDesc, D3D_DRIV
 	//auto debugText = std::format(L"SampleDesc, count: {0}", pChainDesc->SampleDesc.Count);
 	//MessageBoxW(NULL, debugText.c_str(), L"debug", MB_OK); 
 
+	auto d3d11on12Result = streamline_CreateD3D11On12Device(Flags, ppDevice, ppImmediateContext);
+	if (d3d11on12Result) return S_OK;
+
 	auto result = D3D11CreateDevice(0, DriverType, Software, Flags, pFeatureLevels, FeatureLevels, SDKVersion, ppDevice, pFeatureLevel, ppImmediateContext);
 	if (result < 0) return result;
 
 	if (Config_DLAA || Config_PostProcess) {
 		pChainDesc->SampleDesc.Count = 1; // old is 8
 		pChainDesc->SampleDesc.Quality = 0;
+		// Invalid
+		//pChainDesc->BufferDesc.RefreshRate.Numerator = 600;
 
 		if (!fnID3D11Device_CreateTexture2D) {
 			// d3d11.dll+19610

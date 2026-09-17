@@ -2,6 +2,31 @@ EDF5.exe+5F36E0
 next keyframe (x,y,z,1) - current keyframe (x,y,z,1) * ([rsp+30] to  (x,y,z,w)) + current keyframe (x,y,z,1) * axis transformation speed (x,y,z,1) + initial axis (x,y,z,1)
 r10是基础指针，r9是前一个帧，rcx是后一个帧，r11是基础xyzw和速度xyzw
 
+EDF5.exe+61298E - 80 BE BC090000 00     - cmp byte ptr [rsi+000009BC],00
+任务加载完成后执行渲染
+
+EDF5.exe+5AE37D - FF 90 80010000        - call qword ptr [rax+00000180]
+EDF5.exe+B262B - FF 15 574DBE00        - call qword ptr [EDF5.exe+C97388]
+这两处会冲突
+
+EDF5.exe+10BD7F - E8 AC130000           - call EDF5.exe+10D130
+这里载入了着色器和地图的贴图，但是没有载入地图内部的着色器
+
+EDF5.exe+5B9D02 obj_init 加载着色器的循环
+
+EDF5.exe+5C11C4
+EDF5.exe+5C0F2D
+EDF5.exe+B2587
+EDF5.exe+EB0B5
+EDF5.exe+C21CF
+obj_init创建线程的栈
+
+EDF5.exe+B2572 - 44 8D 40 FF           - lea r8d,[rax-01]
+这里是根据返回的核心数来设置线程数
+
+
+
+
 EDF5.exe+5E10CE
 EDF5.exe+1256C88 ID3D11Device* 和d00是一样的
 EDF5.exe+1256C90 ID3D11DeviceContext* 和d08是一样的
@@ -119,6 +144,15 @@ EDF5.exe+5DAD60 - E8 DB010000           - call EDF5.exe+5DAF40
 EDF5.exe+5DB97A - 48 8B 81 38060000     - mov rax,[rcx+00000638]
 这里可能是交换链图像
 
+EDF5.exe+5C73D4 创建交换链buffer的rtv，存疑
+EDF5.exe+5E1DD0 这个地方可能是保存buffer信息的位置
+
+EDF5.exe+5C721D - 85 C0                 - test eax,eax
+真正的地方是这里，在dxgi.dll+6D80的GetBuffer 以后创建rtv
+EDF5.exe+5ef503 这里是读这个buffer的分辨率
+
+EDF5.exe+5E2283 - FF 50 58              - call qword ptr [rax+58]
+这里获取全屏状态
 
 call OMSetRenderTargets
 d3d11.dll+100640  OMSetRenderTargets的地址
@@ -139,6 +173,16 @@ d3d11.dll+104950
 EDF5.exe+5F0081 - 41 FF 51 78           - call qword ptr [r9+78]
 这里调用Unmap
 d3d11.dll+105880 
+
+EDF5.exe+62BE92 - C7 44 24 28 03000000  - mov [rsp+28],00000003
+这里是负责输出阴影贴图的返回地址
+
+EDF5.exe+626A80 - 48 8B C4              - mov rax,rsp
+进入任务后才会激活这里
+
+EDF5.exe+5EF9C4 - FF 90 60010000        - call qword ptr [rax+00000160]
+这里负责执行RSSetViewports
+d3d11.dll+100360是RSSetViewports
 
 EDF5.exe+5ECEA3 - 48 81 C4 98000000     - add rsp,00000098
 将渲染的buffer转换到输出屏幕的buffer

@@ -14,18 +14,25 @@
 #include "utiliy.h"
 #include "commonNOP.h"
 #include "ToGui/0GetDXGI.h"
+#include "DLSS/0SetDLSS.h"
+
 #include "HuiModConsole.h"
+#include "DLSS/0SL_wapper.h"
 
 Pcmd_KeyState cmd_keyState;
 Pcmd_ModConsoleFunc cmd_ModConsoleFunc;
 
 extern "C" {
+	extern int Config_Cheat;
+
 	uintptr_t vedf125ABD8;
 	extern uintptr_t vedf125AB68;
 }
 
 void cmd_ModConsole_Initialize(PBYTE hmodEXE) {
 	vedf125ABD8 = (uintptr_t)(hmodEXE + 0x125ABD8);
+
+	if (!Config_Cheat) return;
 
 	auto p = (Pcmd_KeyState)_aligned_malloc(sizeof(cmd_KeyState_t), 16U);
 	cmd_keyState = p;
@@ -59,6 +66,7 @@ void cmd_ModConsole_MonitorKeys() {
 			bool cheatonce;
 			bool unlock;
 			bool get;
+			bool toggle; // aka "switch"
 		} b;
 		std::uint64_t i;
 	};
@@ -77,21 +85,64 @@ void cmd_ModConsole_MonitorKeys() {
 
 		cmd_ModConsole_SetKeyState();
 
-		if (cmd_keyState->alt) {
-
-			if (cmd_keyState->AlphabetKey['O' - 'A'] == 1) {
-				state.b.cheatonce = !state.b.cheatonce;
+		if (cmd_keyState->ctrl) {
+			// F1
+			if (cmd_keyState->F_key[0] == 1) {
+				cmd_ModConsole_GetPlayerPos(0);
+			}
+			// F2
+			if (cmd_keyState->F_key[1] == 1) {
+				cmd_ModConsole_GetPlayerPos(1);
+			}
+			// S
+			if (cmd_keyState->AlphabetKey['S' - 'A'] == 1) {
+				state.b.toggle = !state.b.toggle;
 			}
 
-			if (cmd_keyState->ctrl){
-				// F1
-				if (cmd_keyState->F_key[0] == 1) {
-					cmd_ModConsole_GetPlayerPos(0);
+			if (state.b.toggle){
+				if (cmd_keyState->NumPad[VK_NUMPAD0 - VK_NUMPAD0] == 1) {
+					// numpad0
+					// toggle DLAA
+					//DLSS_SwitchStatus(1);
+					streamline_SwapChainPresentToggle();
+					state.i = 0;
 				}
-				// F2
-				if (cmd_keyState->F_key[1] == 1) {
-					cmd_ModConsole_GetPlayerPos(1);
+				else if (cmd_keyState->NumPad[VK_NUMPAD1 - VK_NUMPAD0] == 1) {
+					// numpad1
+					// toggle post process
+					DLSS_SwitchStatus(0);
+					state.i = 0;
 				}
+				else if (cmd_keyState->NumPad[VK_NUMPAD2 - VK_NUMPAD0] == 1) {
+					// numpad2
+					// toggle DLSS FG
+					DLSS_SwitchStatus(2);
+					state.i = 0;
+				}
+				else if (cmd_keyState->NumPad[VK_NUMPAD4 - VK_NUMPAD0] == 1) {
+					// numpad4
+					// toggle post process lut
+					DLSS_SwitchStatus(3);
+					state.i = 0;
+				}
+				else if (cmd_keyState->NumPad[VK_NUMPAD5 - VK_NUMPAD0] == 1) {
+					// numpad5
+					// toggle DLSS multi-frame generation count
+					DLSS_SwitchStatus(4);
+					state.i = 0;
+				}
+				else if (cmd_keyState->AlphabetKey['F' - 'A'] == 1) {
+					// toggle fps, 30 or 60
+					cmd_ModConsole_SetFPS();
+					state.i = 0;
+				}
+			}
+			// end
+		}
+
+		if (cmd_keyState->alt) {
+			if (cmd_keyState->AlphabetKey['O' - 'A'] == 1) {
+				state.b.cheatonce = !state.b.cheatonce;
 			}
 
 			if (state.b.cheatonce) {
@@ -169,21 +220,30 @@ void cmd_ModConsole_SetKeyState(){
 		cmd_keyState->Subtract = 0;
 	}
 
-	// F1-F12
-	for (int i = 0; i < 12; ++i) {
-		if (GetAsyncKeyState(VK_F1 + i) & 0x8000) {
-			cmd_keyState->F_key[i] += 1;
-		} else {
-			cmd_keyState->F_key[i] = 0;
-		}
-	}
-
 	// A-Z
 	for (int i = 0; i < 26; ++i) {
 		if (GetAsyncKeyState('A' + i) & 0x8000) {
 			cmd_keyState->AlphabetKey[i] += 1;
 		} else {
 			cmd_keyState->AlphabetKey[i] = 0;
+		}
+	}
+
+	// numpad 0-9
+	for (int i = 0; i < 10; ++i) {
+		if (GetAsyncKeyState(VK_NUMPAD0 + i) & 0x8000) {
+			cmd_keyState->NumPad[i] += 1;
+		} else {
+			cmd_keyState->NumPad[i] = 0;
+		}
+	}
+
+	// F1-F12
+	for (int i = 0; i < 12; ++i) {
+		if (GetAsyncKeyState(VK_F1 + i) & 0x8000) {
+			cmd_keyState->F_key[i] += 1;
+		} else {
+			cmd_keyState->F_key[i] = 0;
 		}
 	}
 	// end
@@ -396,4 +456,18 @@ void cmd_ModConsole_GetPlayerPos(int hasOrientation) {
 		text += std::format(L",\n            \"positions_2\":[ {:.3f}, {:.3f}, {:.3f} ]", v_pos.m128_f32[0], v_pos.m128_f32[1], v_pos.m128_f32[2]);
 	}
 	cmd_ModConsole_WriteToClipboard(text);
+}
+
+void cmd_ModConsole_SetFPS() {
+	auto pApp = DXGI_GetApplication1253708();
+	if (!pApp) return;
+
+	if (pApp->FrameInterval < (1.0 / 40.0)) {
+		pApp->FramePerSecond = 30;
+		pApp->FrameInterval = 1.0 / 30.0;
+	} else {
+		pApp->FramePerSecond = 60;
+		pApp->FrameInterval = 1.0 / 60.0;
+	}
+	// end
 }

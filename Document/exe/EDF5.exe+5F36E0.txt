@@ -10,10 +10,7 @@ EDF5.exe+2DFBC2
 
 EDF5.exe+11E4DD 2C(0x3ED 获取玩家类型，获取玩家指针
 
-
-
-
-1MOD.dll+29793 
+EDF5.exe+11D860 创建玩家
 
 EDF5.exe+5C43D0 SGO编码转换
 
@@ -34,11 +31,27 @@ EDF5.exe+54B2B4 联机时等待房主选择
 
 EDF5.exe+116903 2C(0xBB8 移除对象
 
+EDF5.exe+114FA4 2C(0x2 注册函数
+EDF5.exe+11508B 2C(0x5 InitializeCommon
+EDF5.exe+115182 2C(0x8 重置场景
+EDF5.exe+115218 2C(0xA 显示载入界面？
+EDF5.exe+115261 2C(0xB 这里执行完以后就准备载入地图了，应该是完成加载？
+EDF5.exe+11529D 2C(0xC 等待加载？
+EDF5.exe+115303 2C(0xE 预载地图
+EDF5.exe+115362 2C(0x10 预载玩家资源？
+EDF5.exe+11537E 2C(0x11 EconomyMode
+EDF5.exe+1153FD 2C(0x12 不知道有什么用
+EDF5.exe+115425 2C(0x14 SetMissionLevel
+EDF5.exe+115451 2C(0x15 GetDifficulty
+EDF5.exe+115FAA 2C(0x64 加载地图
+EDF5.exe+116BC4 2C(0x7D2 CreateEnemyGroup
 
 
 00007FF6427D745B 12685B
 
-
+d3d11on12.dll+DD3C 崩溃在这里
+EDF5.exe+f7074 读取dxbc
+EDF5.exe+5ae365
 
 
 

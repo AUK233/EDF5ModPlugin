@@ -16,6 +16,10 @@
 #include "lib/nvsdk_ngx_defs.h"
 #include "lib/nvsdk_ngx_params.h"
 #include "lib/nvsdk_ngx_helpers.h"
+
+//#include "lib/nvsdk_ngx_defs_dlssd.h"
+//#include "lib/nvsdk_ngx_params_dlssd.h"
+//#include "lib/nvsdk_ngx_helpers_dlssd_d3d.h"
 //#pragma comment(lib, "./zHui/DLSS/lib/nvsdk_ngx_d.lib")
 
 #include "Base/g_DXresource.h"
@@ -29,19 +33,20 @@
 #include "0SetDLSS_VK.hpp"
 #endif
 
-#define DEBUGMODE
+//#define DEBUGMODE
 __declspec(align(16)) typedef struct NGX_DLSS_t {
-	ID3D11Texture2D* ColorBuffer;
-	ID3D11Texture2D* OutColor;
-	ID3D11Texture2D* DepthBuffer;
 	int resolution[2];
 	NVSDK_NGX_Parameter* m_ngxParameters;
 	NVSDK_NGX_Handle* m_dlssFeature;
 #if defined(HASVK)
 	VkDevice vkDevice;
+	ID3D11Texture2D* pSwapChainImage; // frame generation content
 	NVSDK_NGX_Parameter* m_FGParameters;
 	NVSDK_NGX_Handle* m_FGFeature;
 #endif
+	ID3D11Texture2D* ColorBuffer;
+	ID3D11Texture2D* OutColor;
+	ID3D11Texture2D* DepthBuffer;
 	int m_bDlssAvailable;
 	int JitterIndex;
 	int IsReset;
@@ -65,15 +70,31 @@ __declspec(align(16)) typedef struct NGX_DLSS_t {
 	NVSDK_NGX_Resource_VK vkMV;
 	NVSDK_NGX_Resource_VK vkOutputInterp;
 	NVSDK_NGX_Resource_VK vkOutputReal;
+	NVSDK_NGX_Resource_VK vkFGHudLess;
+	NVSDK_NGX_Resource_VK vkFGDepth;
+	// frame generation content
+	IDXGISwapChain* pSwapChain;
+	float targetTime;
+	UINT scSyncInterval, scFlags;
+	// other
+	int FGReset;
+	int multiFrameCount;
 #endif
 } *PNGX_DLSS;
 
 PNGX_DLSS pNGX_dlss = nullptr;
 D3D::PD3DPostProcess pD3DPostProcess = nullptr;
+// 0 is PostProcess, 1 is DLAA, 2 is DLSSFG
+bool b_PostProcess[4] = { false, true, true, true };
+
+const int MaxMultiFrameCount = 2;
 
 extern "C" {
 	extern int Config_PostProcess;
+	extern int Config_PostProcessTexIndex;
 	extern int Config_DLAA;
+	extern int Config_DLSSFG;
+	extern uintptr_t vedf125AB68;
 }
 
 void __fastcall DLSS_CreateFeature(int playerCount) {
@@ -92,15 +113,24 @@ void __fastcall DLSS_CreateFeature(int playerCount) {
 		res[0] /= 2;
 	}
 
-	if (pNGX_dlss && pNGX_dlss->vkDevice) {
-		NVSDK_NGX_Resource_VK_Destroy(pNGX_dlss->vkDevice, &pNGX_dlss->vkInColor[0]);
-		NVSDK_NGX_Resource_VK_Destroy(pNGX_dlss->vkDevice, &pNGX_dlss->vkInColor[1]);
-		NVSDK_NGX_Resource_VK_Destroy(pNGX_dlss->vkDevice, &pNGX_dlss->vkMV);
-		NVSDK_NGX_Resource_VK_Destroy(pNGX_dlss->vkDevice, &pNGX_dlss->vkOutputInterp);
-		NVSDK_NGX_Resource_VK_Destroy(pNGX_dlss->vkDevice, &pNGX_dlss->vkOutputReal);
+	UINT DLSS_Level = 0;
+	if (pNGX_dlss) {
+		DLSS_Level = 1;
+		if(pNGX_dlss->vkDevice){
+			NVSDK_NGX_Resource_VK_Destroy(pNGX_dlss->vkDevice, &pNGX_dlss->vkInColor[0]);
+			NVSDK_NGX_Resource_VK_Destroy(pNGX_dlss->vkDevice, &pNGX_dlss->vkInColor[1]);
+			NVSDK_NGX_Resource_VK_Destroy(pNGX_dlss->vkDevice, &pNGX_dlss->vkMV);
+			NVSDK_NGX_Resource_VK_Destroy(pNGX_dlss->vkDevice, &pNGX_dlss->vkOutputInterp);
+			NVSDK_NGX_Resource_VK_Destroy(pNGX_dlss->vkDevice, &pNGX_dlss->vkOutputReal);
+			NVSDK_NGX_Resource_VK_Destroy(pNGX_dlss->vkDevice, &pNGX_dlss->vkFGHudLess);
+			NVSDK_NGX_Resource_VK_Destroy(pNGX_dlss->vkDevice, &pNGX_dlss->vkFGDepth);
+			DLSS_Level = 2;
+		}
+
+		if (pNGX_dlss->m_FGParameters) DLSS_Level = 3;
 	}
 
-	pD3DPostProcess->SetBuffer(res[0], res[1]);
+	pD3DPostProcess->SetBuffer(res[0], res[1], DLSS_Level);
 
 	if (pNGX_dlss){
 		if (playerCount == 2) {
@@ -121,6 +151,11 @@ void __fastcall DLSS_CreateFeature(int playerCount) {
 			} else {
 				NVSDK_NGX_Resource_VK_Get(pNGX_dlss->vkDevice, pD3DPostProcess->OutputInterp, &pNGX_dlss->vkOutputInterp);
 				NVSDK_NGX_Resource_VK_Get(pNGX_dlss->vkDevice, pD3DPostProcess->OutputReal, &pNGX_dlss->vkOutputReal);
+
+				if (DLSS_Level > 2) {
+					NVSDK_NGX_Resource_VK_Get(pNGX_dlss->vkDevice, pD3DPostProcess->FGHudLess, &pNGX_dlss->vkFGHudLess);
+					NVSDK_NGX_Resource_VK_Get(pNGX_dlss->vkDevice, pD3DPostProcess->FGDepth, &pNGX_dlss->vkFGDepth);
+				}
 			}
 		}
 		// end
@@ -150,7 +185,7 @@ void* __fastcall DLSS_Draw(Pg_D3D11DeviceInfo pD3D, int OutOffset, void* saveRCX
 	if (inDesc.Format != DXGI_FORMAT_R16G16B16A16_FLOAT) return saveRCX;
 
 	ID3D11DeviceContext* pContext = pD3D->context;
-	if (Config_PostProcess) {
+	if (b_PostProcess[0]) {
 		pD3D->pCurrentCSShaderResourceView[0] = &pColorRes->pSRV;
 		pContext->CSSetShaderResources(0, 1, &pColorRes->pSRV);
 		pD3D->pCurrentCSShaderResourceView[1] = &pDSVInfo->pSRV;
@@ -196,52 +231,98 @@ void* __fastcall DLSS_Draw(Pg_D3D11DeviceInfo pD3D, int OutOffset, void* saveRCX
 		pContext->CSSetUnorderedAccessViews(0, 1, &nullUAV, nullptr);
 	pContext->CopyResource(pD3DPostProcess->PreviousCB_xgl_system, *old_cb0);*/
 
+	if (!pNGX_dlss || !b_PostProcess[1]) {
+		pContext->CopyResource(pColorRes->pTexture, pD3DPostProcess->OutColor[playerIndex]);
+		return saveRCX;
+	}
+
+
+	// restore native image
+	if (pNGX_dlss->pSwapChainImage) {
+		auto pApp = DXGI_GetApplication1253708();
+		if (pNGX_dlss->targetTime <= pApp->GameTime) {
+			pContext->CopyResource(pNGX_dlss->pSwapChainImage, pD3DPostProcess->OutputReal);
+			pNGX_dlss->pSwapChain->Present(pNGX_dlss->scSyncInterval, pNGX_dlss->scFlags);
+			pNGX_dlss->pSwapChainImage = nullptr;
+		}
+		// end
+	}
+
 	// evaluate dlss
-	if (pNGX_dlss) {
-		if (!pNGX_dlss->IsSplitScreen) {
-			auto p1259680 = DXGI_GetGameRenderer1259680();
-			auto old_cb0 = p1259680->CB_xgl_system;
-			if(!pNGX_dlss->IsReset){
-				pContext->CSSetConstantBuffers(0, 1, old_cb0);
-				pContext->CSSetConstantBuffers(2, 1, &pD3DPostProcess->PreviousCB_xgl_system);
+	if (!pNGX_dlss->IsSplitScreen) {
+		auto p1259680 = DXGI_GetGameRenderer1259680();
+		auto old_cb0 = p1259680->CB_xgl_system;
 
-				auto xyzID = &sys->player[playerIndex].pRTV->pColorPass1RT5->pSRV;
-				pD3D->pCurrentCSShaderResourceView[0] = xyzID;
-				pContext->CSSetShaderResources(0, 1, xyzID);
+		if(!pNGX_dlss->IsReset){
+			pContext->CSSetConstantBuffers(0, 1, old_cb0);
+			pContext->CSSetConstantBuffers(2, 1, &pD3DPostProcess->PreviousCB_xgl_system);
 
-				pD3D->pCurrentCSShader = pD3DPostProcess->MotionVectorCS;
-				pContext->CSSetShader(pD3DPostProcess->MotionVectorCS, nullptr, 0);
-				pContext->CSSetUnorderedAccessViews(0, 1, &pD3DPostProcess->MotionVectorUAV, nullptr);
+			auto xyzID = &sys->player[playerIndex].pRTV->pColorPass1RT5->pSRV;
+			pD3D->pCurrentCSShaderResourceView[0] = xyzID;
+			pContext->CSSetShaderResources(0, 1, xyzID);
 
-				pContext->Dispatch((pColorRes->width + 15) / 16, (pColorRes->height + 15) / 16, 1);
-				pD3D->pCurrentCSUnorderedAccessViews[0] = 0;
-				ID3D11UnorderedAccessView* nullUAV = nullptr;
-				pContext->CSSetUnorderedAccessViews(0, 1, &nullUAV, nullptr);
-			} else {
-				FLOAT clearValues[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-				pContext->ClearUnorderedAccessViewFloat(pD3DPostProcess->MotionVectorUAV, clearValues);
-			}
-			pContext->CopyResource(pD3DPostProcess->PreviousCB_xgl_system, *old_cb0);
+			pD3D->pCurrentCSShader = pD3DPostProcess->MotionVectorCS;
+			pContext->CSSetShader(pD3DPostProcess->MotionVectorCS, nullptr, 0);
+			pContext->CSSetUnorderedAccessViews(0, 1, &pD3DPostProcess->MotionVectorUAV, nullptr);
+
+			pContext->Dispatch((pColorRes->width + 15) / 16, (pColorRes->height + 15) / 16, 1);
+			pD3D->pCurrentCSUnorderedAccessViews[0] = 0;
+			ID3D11UnorderedAccessView* nullUAV = nullptr;
+			pContext->CSSetUnorderedAccessViews(0, 1, &nullUAV, nullptr);
+		} else {
+			FLOAT clearValues[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+			pContext->ClearUnorderedAccessViewFloat(pD3DPostProcess->MotionVectorUAV, clearValues);
 		}
 
-		pNGX_dlss->ColorBuffer = pD3DPostProcess->OutColor[playerIndex];
-		pD3DPostProcess->Context = pContext;
-
-		pNGX_dlss->OutColor = pColorRes->pTexture;
-		pNGX_dlss->resolution[0] = pColorRes->width;
-		pNGX_dlss->resolution[1] = pColorRes->height;
-
-		/*if (Config_PostProcess) {
-			pNGX_dlss->DepthBuffer = pD3DPostProcess->LinearDepth[playerIndex];
-		} else {
-			
-		}*/
-		pNGX_dlss->DepthBuffer = pDSVInfo->pTexture;
-
-		DLSS_Evaluate(playerIndex);
-	} else {
-		pContext->CopyResource(pColorRes->pTexture, pD3DPostProcess->OutColor[playerIndex]);
+		pContext->CopyResource(pD3DPostProcess->PreviousCB_xgl_system, *old_cb0);
 	}
+
+	pNGX_dlss->ColorBuffer = pD3DPostProcess->OutColor[playerIndex];
+	pD3DPostProcess->Context = pContext;
+
+	pNGX_dlss->OutColor = pColorRes->pTexture;
+	pNGX_dlss->resolution[0] = pColorRes->width;
+	pNGX_dlss->resolution[1] = pColorRes->height;
+
+	/*if (Config_PostProcess) {
+		pNGX_dlss->DepthBuffer = pD3DPostProcess->LinearDepth[playerIndex];
+	} else {
+			
+	}*/
+	pNGX_dlss->DepthBuffer = pDSVInfo->pTexture;
+
+	DLSS_Evaluate(playerIndex, sys->player[playerIndex].pRTV);
+
+	if (!pNGX_dlss->IsSplitScreen && pNGX_dlss->m_FGFeature) {
+
+		auto inColor = &pColorRes->pSRV;
+		pD3D->pCurrentCSShaderResourceView[0] = inColor;
+		pContext->CSSetShaderResources(0, 1, inColor);
+		auto inDepth = &pDSVInfo->pSRV;
+		pD3D->pCurrentCSShaderResourceView[1] = inDepth;
+		pContext->CSSetShaderResources(1, 1, inDepth);
+
+		pD3D->pCurrentCSShader = pD3DPostProcess->ToFGBufferCS;
+		pContext->CSSetShader(pD3DPostProcess->ToFGBufferCS, nullptr, 0);
+		pContext->CSSetUnorderedAccessViews(0, 1, &pD3DPostProcess->FGHudLessUAV, nullptr);
+		pContext->CSSetUnorderedAccessViews(1, 1, &pD3DPostProcess->FGDepthUAV, nullptr);
+
+		pContext->Dispatch((pColorRes->width + 15) / 16, (pColorRes->height + 15) / 16, 1);
+
+		pD3D->pCurrentCSUnorderedAccessViews[0] = 0;
+		pD3D->pCurrentCSUnorderedAccessViews[1] = 0;
+		ID3D11UnorderedAccessView* nullUAV = nullptr;
+		pContext->CSSetUnorderedAccessViews(0, 1, &nullUAV, nullptr);
+		pContext->CSSetUnorderedAccessViews(1, 1, &nullUAV, nullptr);
+	}
+
+	// frame generation
+	if (pNGX_dlss->pSwapChainImage) {
+		pContext->CopyResource(pNGX_dlss->pSwapChainImage, pD3DPostProcess->OutputReal);
+		pNGX_dlss->pSwapChain->Present(pNGX_dlss->scSyncInterval, pNGX_dlss->scFlags);
+		pNGX_dlss->pSwapChainImage = nullptr;
+	}
+	
 
 	return saveRCX;
 }
@@ -307,6 +388,7 @@ void __fastcall DLSS_Initialization(ID3D11Device** ppDevice, ID3D11DeviceContext
 		}
 		// end
 	}
+	b_PostProcess[0] = true;
 
 	if (!Config_DLAA || pNGX_dlss) return;
 
@@ -328,6 +410,9 @@ void __fastcall DLSS_Initialization(ID3D11Device** ppDevice, ID3D11DeviceContext
 	if (path[0] == '1') {
 		MessageBoxW(NULL, L"has DXVK_ENABLE_NVAPI", L"test", MB_OK);
 	}*/
+
+	static const char game_guid[] = "a0f57b54-1daf-4934-90ae-c4035c19df04";
+	static const char game_version[] = "5.0";
 
 #if defined(HASVK)
 	IDXGIVkInteropDevice* pVkInterop = nullptr;
@@ -383,12 +468,16 @@ void __fastcall DLSS_Initialization(ID3D11Device** ppDevice, ID3D11DeviceContext
 			return;
 		}
 #endif
-
+		//auto vkresult = NVSDK_NGX_VULKAN_Init(231313132, L"Z:\\TEMP", p->vkInstance, p->vkPhysDevice, p->vkDevice,0,0, &featureCommonInfo);
+		/*
 		NVSDK_NGX_FeatureCommonInfo featureCommonInfo = {};
 		featureCommonInfo.LoggingInfo.DisableOtherLoggingSinks = false;
 		featureCommonInfo.LoggingInfo.MinimumLoggingLevel = NVSDK_NGX_LOGGING_LEVEL_VERBOSE;
-		//auto vkresult = NVSDK_NGX_VULKAN_Init(231313132, L"Z:\\TEMP", p->vkInstance, p->vkPhysDevice, p->vkDevice,0,0, &featureCommonInfo);
-		auto vkresult = NVSDK_NGX_VULKAN_Init_with_ProjectID("a0f57b54-1daf-4934-90ae-c4035c19df04", NVSDK_NGX_ENGINE_TYPE_CUSTOM, "5.0", L"Z:\\TEMP", p->vkInstance, p->vkPhysDevice, p->vkDevice, nullptr, nullptr, &featureCommonInfo);
+		auto vkresult = NVSDK_NGX_VULKAN_Init_with_ProjectID(game_guid, NVSDK_NGX_ENGINE_TYPE_CUSTOM, game_version, L"Z:\\TEMP", p->vkInstance, p->vkPhysDevice, p->vkDevice, nullptr, nullptr, &featureCommonInfo);*/
+		//auto vkresult = NVSDK_NGX_VULKAN_Init_with_ProjectID(game_guid, NVSDK_NGX_ENGINE_TYPE_CUSTOM, game_version, L"./", p->vkInstance, p->vkPhysDevice, p->vkDevice, nullptr, nullptr, &featureCommonInfo);
+
+
+		auto vkresult = NVSDK_NGX_VULKAN_Init_with_ProjectID(game_guid, NVSDK_NGX_ENGINE_TYPE_CUSTOM, game_version, L".", p->vkInstance, p->vkPhysDevice, p->vkDevice);
 		if (vkresult != NVSDK_NGX_Result_Success) {
 			DLSS_TriggerFailureResult((UINT32)vkresult - NVSDK_NGX_Result_Fail, 1);
 			return;
@@ -401,9 +490,20 @@ void __fastcall DLSS_Initialization(ID3D11Device** ppDevice, ID3D11DeviceContext
 		}
 
 		// enable fg
-		vkresult = NVSDK_NGX_VULKAN_GetCapabilityParameters(&pNGX_dlss->m_FGParameters);
-		if (vkresult != NVSDK_NGX_Result_Success) {
-			DLSS_TriggerFailureResult((UINT32)(vkresult - NVSDK_NGX_Result_Fail) + 210, 0);
+		if (Config_DLSSFG) {
+			vkresult = NVSDK_NGX_VULKAN_GetCapabilityParameters(&pNGX_dlss->m_FGParameters);
+			if (vkresult != NVSDK_NGX_Result_Success) {
+				DLSS_TriggerFailureResult((UINT32)(vkresult - NVSDK_NGX_Result_Fail) + 210, 0);
+			}
+
+			if (Config_DLSSFG > MaxMultiFrameCount){
+				pNGX_dlss->multiFrameCount = MaxMultiFrameCount;
+			} else {
+				pNGX_dlss->multiFrameCount = Config_DLSSFG;
+			}
+			// 1b0 -> 190
+			// really need this?
+			//NVSDK_NGX_Parameter_SetUI(p->m_FGParameters, NVSDK_NGX_DLSSG_Parameter_MultiFrameCountMax, pNGX_dlss->multiFrameCount);
 		}
 	} else
 #endif
@@ -414,8 +514,9 @@ void __fastcall DLSS_Initialization(ID3D11Device** ppDevice, ID3D11DeviceContext
 		featureCommonInfo.LoggingInfo.MinimumLoggingLevel = NVSDK_NGX_LOGGING_LEVEL_VERBOSE;
 		auto slresult = NVSDK_NGX_D3D11_Init(231313132, L"Z:\\TEMP", device, &featureCommonInfo);
 		*/
+		// 231313132 from ngx_dlss_demo 
 
-		auto slresult = NVSDK_NGX_D3D11_Init(231313132, L".", device); // this id is from ngx_dlss_demo 
+		auto slresult = NVSDK_NGX_D3D11_Init_with_ProjectID(game_guid, NVSDK_NGX_ENGINE_TYPE_CUSTOM, game_version, L".", device);
 		if (slresult != NVSDK_NGX_Result_Success) {
 			DLSS_TriggerFailureResult((UINT32)slresult - NVSDK_NGX_Result_Fail, 1);
 			return;
@@ -428,9 +529,11 @@ void __fastcall DLSS_Initialization(ID3D11Device** ppDevice, ID3D11DeviceContext
 		}
 	}
 
-
 	if (Config_DLAA == 3){
 		NVSDK_NGX_Parameter_SetUI(p->m_ngxParameters, NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_DLAA, NVSDK_NGX_DLSS_Hint_Render_Preset_L);
+	}
+	else if (Config_DLAA == 4) {
+		NVSDK_NGX_Parameter_SetUI(p->m_ngxParameters, NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_DLAA, NVSDK_NGX_DLSS_Hint_Render_Preset_M);
 	}
 	else {
 		NVSDK_NGX_Parameter_SetUI(p->m_ngxParameters, NVSDK_NGX_Parameter_DLSS_Hint_Render_Preset_DLAA, NVSDK_NGX_DLSS_Hint_Render_Preset_Default);
@@ -613,6 +716,7 @@ void __fastcall DLSS_Reset() {
 
 	pNGX_dlss->JitterIndex = 1;
 	pNGX_dlss->IsReset = 1;
+	pNGX_dlss->FGReset = 1;
 	DLSS_ClearBuffer();
 }
 
@@ -643,7 +747,7 @@ void __fastcall DLSS_GetJitter(float* out){
 	pNGX_dlss->JitterIndex++;
 }
 
-void __fastcall DLSS_Evaluate(int playerIndex){
+void __fastcall DLSS_Evaluate(int playerIndex, PGameRenderer_RTV pRTV){
 
 	float jitter[2];
 	DLSS_GetJitter(jitter);
@@ -751,6 +855,10 @@ void __fastcall DLSS_Evaluate(int playerIndex){
 		D3D11DlssEvalParams.InMVScaleX = 1.0;
 		D3D11DlssEvalParams.InMVScaleY = 1.0;
 
+		D3D11DlssEvalParams.GBufferSurface.pInAttrib[NVSDK_NGX_GBUFFER_ALBEDO] = pRTV->pColorPass1RT0->pTexture;
+		D3D11DlssEvalParams.GBufferSurface.pInAttrib[NVSDK_NGX_GBUFFER_SPECULAR] = pRTV->pColorPass1RT1->pTexture;
+		D3D11DlssEvalParams.GBufferSurface.pInAttrib[NVSDK_NGX_GBUFFER_NORMALS] = pRTV->pColorPass1RT2->pTexture;
+
 		NVSDK_NGX_Parameter_SetF(pNGX_dlss->m_ngxParameters, NVSDK_NGX_Parameter_Denoise, 1.0);
 		NGX_D3D11_EVALUATE_DLSS_EXT(pD3DPostProcess->Context, pNGX_dlss->m_dlssFeature, pNGX_dlss->m_ngxParameters, &D3D11DlssEvalParams);
 	}
@@ -762,11 +870,22 @@ void __fastcall DLSS_Evaluate(int playerIndex){
 
 void __fastcall DLSS_FG_Evaluate(IDXGISwapChain* pSwapChain, UINT SyncInterval, UINT Flags) {
 #if defined(HASVK)
+	if (!b_PostProcess[2]) return;
+
 	if (!pNGX_dlss) return;
 	if (!pNGX_dlss->m_FGFeature) return;
 
 	auto vkDevice = pNGX_dlss->vkDevice;
 	if(!vkDevice) return;
+
+	if (pNGX_dlss->IsSplitScreen) return;
+	auto pSys = XGS_GetXGSSystemPointer();
+	if (!pSys) return;
+	auto pCamera = pSys->player[0].pCamera;
+	if (!pCamera) return;
+	auto pPlayer = pCamera->pGameObject;
+	if (!pPlayer) return;
+
 
 	auto pRenderer = DXGI_GetGameRenderer1259680();
 	auto pSwapChainImage = pRenderer->pDSVInfo638->pTexture;
@@ -777,45 +896,70 @@ void __fastcall DLSS_FG_Evaluate(IDXGISwapChain* pSwapChain, UINT SyncInterval, 
 
 	//NVSDK_NGX_Resource_VK pBackbuffer{};
 	//NVSDK_NGX_Resource_VK_Get(vkDevice, pRenderer->pDSVInfo638->pTexture, &pBackbuffer);
-	NVSDK_NGX_Resource_VK pDepth{};
-	NVSDK_NGX_Resource_VK_Get(vkDevice, pRenderer->pDSVInfo638->pTexture, &pDepth);
+	//NVSDK_NGX_Resource_VK pDepth{};
+	//NVSDK_NGX_Resource_VK_Get(vkDevice, pRenderer->pDSVInfo638->pTexture, &pDepth);
 
 	NVSDK_NGX_VK_DLSSG_Eval_Params FGParams;
 	ZeroMemory(&FGParams, sizeof(FGParams));
 	//FGParams.pBackbuffer = &pBackbuffer;
 	FGParams.pBackbuffer = &pNGX_dlss->vkOutputReal;
-	FGParams.pDepth = &pDepth;
+	FGParams.pDepth = &pNGX_dlss->vkFGDepth;
 	FGParams.pMVecs = &pNGX_dlss->vkMV;
+	FGParams.pHudless = &pNGX_dlss->vkFGHudLess;
 	FGParams.pOutputInterpFrame = &pNGX_dlss->vkOutputInterp;
 	//FGParams.pOutputRealFrame = &pNGX_dlss->vkOutputReal;
 	//FGParams.pOutputRealFrame = &pBackbuffer;
 
 	NVSDK_NGX_DLSSG_Opt_Eval_Params OptEvalParams = {};
-	OptEvalParams.reset = 0;
+	OptEvalParams.reset = pNGX_dlss->FGReset;
 	OptEvalParams.depthInverted = false;
 	OptEvalParams.mvecScale[0] = 1;
 	OptEvalParams.mvecScale[1] = 1;
 	//OptEvalParams.clipToPrevClip = clipToPrevClipMatrix;
 	//OptEvalParams.prevClipToClip = prevClipToClipMatrix;
-	OptEvalParams.multiFrameCount = 1;
+	OptEvalParams.multiFrameCount = pNGX_dlss->multiFrameCount;
 	OptEvalParams.multiFrameIndex = 1;
 
 	DLSS_VK_Enter(pNGX_dlss);
 	auto ResultDLSS = NGX_VK_EVALUATE_DLSSG(pNGX_dlss->vkCMDlist, pNGX_dlss->m_FGFeature, pNGX_dlss->m_FGParameters, &FGParams, &OptEvalParams);
-	DLSS_VK_Leave(pNGX_dlss, pNGX_dlss->dlssFence);
+	DLSS_VK_Leave(pNGX_dlss, VK_NULL_HANDLE);
+	pNGX_dlss->FGReset = 0;
 
+	/*
+	DLSS_VK_Leave(pNGX_dlss, pNGX_dlss->dlssFence);
 	vkWaitForFences(vkDevice, 1, &pNGX_dlss->dlssFence, VK_TRUE, UINT64_MAX);
 	vkResetFences(vkDevice, 1, &pNGX_dlss->dlssFence);
+	*/
 	//NVSDK_NGX_Resource_VK_Destroy(vkDevice, &pBackbuffer);
-	NVSDK_NGX_Resource_VK_Destroy(vkDevice, &pDepth);
+	//NVSDK_NGX_Resource_VK_Destroy(vkDevice, &pDepth);
 
 	context->CopyResource(pSwapChainImage, pD3DPostProcess->OutputInterp);
-	pSwapChain->Present(SyncInterval, Flags);
 
-	auto pApp = DXGI_GetApplication1253708();
-	int sleep_time = pApp->FrameInterval * 500;// yeah 0.5x1000
-	Sleep(sleep_time);
-	context->CopyResource(pSwapChainImage, pD3DPostProcess->OutputReal);
+	if (pNGX_dlss->multiFrameCount > 1) {
+		pSwapChain->Present(SyncInterval, Flags);
+		for (int i = 2; i <= pNGX_dlss->multiFrameCount; i++) {
+			OptEvalParams.multiFrameIndex = i;
+			DLSS_VK_Enter(pNGX_dlss);
+			auto ResultDLSS = NGX_VK_EVALUATE_DLSSG(pNGX_dlss->vkCMDlist, pNGX_dlss->m_FGFeature, pNGX_dlss->m_FGParameters, &FGParams, &OptEvalParams);
+			DLSS_VK_Leave(pNGX_dlss, VK_NULL_HANDLE);
+			context->CopyResource(pSwapChainImage, pD3DPostProcess->OutputInterp);
+			pSwapChain->Present(SyncInterval, Flags);
+		}
+		context->CopyResource(pSwapChainImage, pD3DPostProcess->OutputReal);
+	} else {
+		/**/
+		auto pApp = DXGI_GetApplication1253708();
+		pNGX_dlss->targetTime = (pApp->FrameInterval * 0.5) + pApp->GameTime;
+		pNGX_dlss->pSwapChain = pSwapChain;
+		pNGX_dlss->pSwapChainImage = pSwapChainImage;
+		pNGX_dlss->scSyncInterval = SyncInterval;
+		pNGX_dlss->scFlags = Flags;
+		//int sleep_time = pApp->FrameInterval * 500;// yeah 0.5x1000
+		//Sleep(sleep_time);
+		//pSwapChain->Present(SyncInterval, Flags);
+		//context->CopyResource(pSwapChainImage, pD3DPostProcess->OutputReal);
+	}
+
 #endif
 }
 
@@ -848,4 +992,50 @@ void __fastcall DLSS_VK_Leave(void* pDLSS, void* pFence) {
 
 	p->pVkInterop->ReleaseSubmissionQueue();
 #endif
+}
+
+void __fastcall DLSS_SwitchStatus(int index){
+	switch (index) {
+	case 0:
+		if(!Config_PostProcess) return;
+
+		b_PostProcess[0] = !b_PostProcess[0];
+
+		if (!b_PostProcess[0]) {
+			auto index = Config_PostProcessTexIndex;
+			if (index > 3) index = 0;
+
+			pD3DPostProcess->LUTindex = index;
+			pD3DPostProcess->ReloadLUTBuffer();
+		}
+		return;
+	case 1:
+		if (!Config_DLAA) return;
+
+		b_PostProcess[1] = !b_PostProcess[1];
+		return;
+	case 2:
+		if (!Config_DLSSFG) return;
+
+		b_PostProcess[2] = !b_PostProcess[2];
+
+		if (pNGX_dlss) pNGX_dlss->multiFrameCount = 1;
+
+		return;
+	case 3:
+		pD3DPostProcess->LUTindex++;
+		pD3DPostProcess->ReloadLUTBuffer();
+		return;
+	case 4: {
+		if (!pNGX_dlss) return;
+
+		auto mfg = pNGX_dlss->multiFrameCount + 1;
+		if (mfg > MaxMultiFrameCount) mfg = 1;
+
+		pNGX_dlss->multiFrameCount = mfg;
+		return;
+	}
+	default: return;
+	}
+	// end
 }

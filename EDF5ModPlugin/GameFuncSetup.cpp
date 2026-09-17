@@ -316,7 +316,8 @@ void hookEDFClassFunctions() {
 	module_UpdateHuiObjectClass(hmodEXE);
 	ASFunc_Hook_Initialize(hmodEXE);
 
-	module_UpdateHuiModConsole(hmodEXE);
+	//module_UpdateHuiModConsole(hmodEXE);
+	cmd_ModConsole_Initialize(hmodEXE);
 	module_InitializeAddImGui(hmodEXE);
 
 	// EDF5.exe+3391D5

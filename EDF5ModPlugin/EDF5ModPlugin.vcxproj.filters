@@ -276,6 +276,12 @@
     <ClCompile Include="zHui\ASFunc_Hook.cpp">
       <Filter>Source Files\Module Hui\main</Filter>
     </ClCompile>
+    <ClCompile Include="zHui\DLSS\0SL_wapper.cpp">
+      <Filter>Source Files\Module Hui\DLSS</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\DLSS\0SL_executor.cpp">
+      <Filter>Source Files\Module Hui\DLSS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMgamelog_hook.asm">
@@ -735,6 +741,18 @@
     </ClInclude>
     <ClInclude Include="zHui\ASFunc_Hook.h">
       <Filter>Source Files\Module Hui\main</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers_d3d.h">
+      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\0SL_wapper.h">
+      <Filter>Source Files\Module Hui\DLSS</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\0SL_executor.h">
+      <Filter>Source Files\Module Hui\DLSS</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\1Test.hpp">
+      <Filter>Source Files\Module Hui\DLSS</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

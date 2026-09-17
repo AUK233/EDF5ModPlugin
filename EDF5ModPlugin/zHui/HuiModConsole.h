@@ -7,6 +7,7 @@ typedef struct cmd_KeyState_t {
 	int Add, Subtract;
 	int AlphabetKey[26];
 	int F_key[12];
+	int NumPad[10];
 } *Pcmd_KeyState;
 
 typedef void(__fastcall* ModConsoleFuncPTR)();
@@ -43,3 +44,4 @@ void __fastcall ModConsole_MK_GetPlayerPos();
 void __fastcall ModConsole_MK_GetCameraPos();
 
 void cmd_ModConsole_GetPlayerPos(int hasOrientation);
+void cmd_ModConsole_SetFPS();

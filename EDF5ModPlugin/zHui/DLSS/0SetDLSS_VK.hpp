@@ -203,6 +203,8 @@ bool LoadVulkanLibrary() {
 }
 
 bool NVSDK_NGX_Resource_VK_Get(VkDevice device, ID3D11Texture2D* pTexture, NVSDK_NGX_Resource_VK* pResource) {
+	//if (!pTexture) return false;
+
 	IDXGIVkInteropSurface* pVkSurface = nullptr;
 	HRESULT hr = pTexture->QueryInterface(IID_IDXGIVkInteropSurface, (void**)&pVkSurface);
 	if (!pVkSurface) return false;

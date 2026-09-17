@@ -638,7 +638,7 @@ void CS_main(uint3 threadID : SV_DispatchThreadID) {
 		//specAccum *= 1.25;
 		color = finalColor + specAccum;
 
-		color = AddBlackBorder(color, pixel, 0.75, 2, 0.5);
+		color = AddBlackBorder(color, pixel, 0.75, 1.5, 0.5);
 	} else {
 		// line 358-361
 		color = NoAOColor(pixel);

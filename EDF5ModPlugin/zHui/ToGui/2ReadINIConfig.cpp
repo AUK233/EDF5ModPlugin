@@ -13,23 +13,29 @@
 std::wstring ConfigINIPath;
 extern "C" {
 	int Config_RTRead; // 0 is no, 1 is open
+	int Config_Cheat; // 0 is no, 1 is open
 
 	int Config_HUDEnhance; // 0 is no, 1 is open
 	int Config_DisplayDamageType; // 0 is none, 1 is fixed pos, 2 is dynamic pos
 	int Config_DisplaySubtitle; // 0 is no, 1 is open
-	int Config_PostProcess; // 0 is no, 1 is open
-	int Config_DLAA; // 0 is no, 1 is open
 	int Config_EnhanceAO; // 0 is no, 1 is open
+	int Config_PostProcess; // 0 is no, 1 is open
+	int Config_PostProcessTexIndex;
+	int Config_DLAA; // 0 is no, 1 is open
+	int Config_DLSSFG; // 0 is no, 1 is open
 }
 
 void __fastcall INIConfig_Initialize(LPCWSTR path)
 {
 	ConfigINIPath = path;
+	Config_Cheat = GetPrivateProfileIntW(L"ModOption", L"Cheat", 0, path);
 
 	Config_HUDEnhance = GetPrivateProfileIntW(L"Graphic", L"HUDEnhance", 0, path);
-	Config_PostProcess = GetPrivateProfileIntW(L"Graphic", L"PostProcess", 0, path);
-	Config_DLAA = GetPrivateProfileIntW(L"Graphic", L"DLAA", 0, path);
 	Config_EnhanceAO = GetPrivateProfileIntW(L"Graphic", L"EnhanceAO", 0, path);
+	Config_PostProcess = GetPrivateProfileIntW(L"Graphic", L"PostProcess", 0, path);
+	Config_PostProcessTexIndex = GetPrivateProfileIntW(L"Graphic", L"PostProcessTexIndex", 0, path);
+	Config_DLAA = GetPrivateProfileIntW(L"Graphic", L"DLAA", 0, path);
+	Config_DLSSFG = GetPrivateProfileIntW(L"Graphic", L"DLSSFG", 0, path);
 	INIConfig_ReadIngameConfigurable();
 }
 

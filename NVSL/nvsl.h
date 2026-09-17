@@ -1,7 +1,7 @@
 #pragma once
 
 // decide whether to use streamline
-//#define NVSL
+#define NVSL
 
 #include <d3d11.h>
 #if defined(NVSL)

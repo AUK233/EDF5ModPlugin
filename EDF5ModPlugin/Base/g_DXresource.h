@@ -133,14 +133,19 @@ typedef struct alignas(16) G_Application_t {
 	float CurrentFPS;
 	char pad14[0xC];
 	int FramePerSecond;
-	char pad24[0xC];
+	float Time24; // second, reset by every hour
+	char pad28[0x8];
 	float FrameInterval; // per second
-	char pad34[0x6C];
+	char pad34[0x34];
+	float GameTime;
+	char pad6C[0x34];
 	void* pDSVResource; Pg_D3D_ResourceInfo pDSVInfo;
 }*PG_Application;
 #if 1
 static_assert(offsetof(G_Application_t, FramePerSecond) == 0x20);
+static_assert(offsetof(G_Application_t, Time24) == 0x24);
 static_assert(offsetof(G_Application_t, FrameInterval) == 0x30);
+static_assert(offsetof(G_Application_t, GameTime) == 0x68);
 static_assert(offsetof(G_Application_t, pDSVInfo) == 0xA8);
 #endif
 
