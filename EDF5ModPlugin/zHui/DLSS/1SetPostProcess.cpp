@@ -17,9 +17,6 @@
 
 #include "Base/g_DXresource.h"
 #include "Base/g_criFS.h"
-#include "shader/1SetPostProcess_CS.hpp"
-#include "shader/1SetPostProcess_MV.hpp"
-#include "shader/1SetPostProcess_FG.hpp"
 #include "1SetPostProcess.h"
 
 extern "C" {
@@ -46,22 +43,6 @@ namespace D3D {
 	}
 
 	void D3DPostProcess_t::LoadComputeShader() {
-		Microsoft::WRL::ComPtr<ID3DBlob> cs_blob;
-		Microsoft::WRL::ComPtr<ID3DBlob> error_blob;
-		//ID3DBlob* cs_blob = nullptr;
-		//ID3DBlob* error_blob = nullptr;
-
-		if (Config_PostProcess == 2) {
-			auto hr = D3DCompileFromFile(L"./subtitle/test.hlsl", nullptr, nullptr, "CS_main", "cs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &cs_blob, &error_blob);
-			if (hr == S_OK) {
-				Device->CreateComputeShader(cs_blob->GetBufferPointer(), cs_blob->GetBufferSize(), nullptr, &PostProcessCS);
-			}
-		} else {
-			Device->CreateComputeShader(D3DPostProcess_ComputeShader, sizeof(D3DPostProcess_ComputeShader), nullptr, &PostProcessCS);
-		}
-
-		Device->CreateComputeShader(D3DPostProcess_MotionVector, sizeof(D3DPostProcess_MotionVector), nullptr, &MotionVectorCS);
-		Device->CreateComputeShader(D3DPostProcess_ToFGBuffer, sizeof(D3DPostProcess_ToFGBuffer), nullptr, &ToFGBufferCS);
 		// end
 	}
 

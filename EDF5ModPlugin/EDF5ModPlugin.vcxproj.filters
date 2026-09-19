@@ -282,6 +282,12 @@
     <ClCompile Include="zHui\DLSS\0SL_executor.cpp">
       <Filter>Source Files\Module Hui\DLSS</Filter>
     </ClCompile>
+    <ClCompile Include="zHui\DLSS\0SL_common.cpp">
+      <Filter>Source Files\Module Hui\DLSS</Filter>
+    </ClCompile>
+    <ClCompile Include="zHui\DLSS\0SL_PostProcess.cpp">
+      <Filter>Source Files\Module Hui\DLSS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="ASMgamelog_hook.asm">
@@ -752,6 +758,12 @@
       <Filter>Source Files\Module Hui\DLSS</Filter>
     </ClInclude>
     <ClInclude Include="zHui\DLSS\1Test.hpp">
+      <Filter>Source Files\Module Hui\DLSS</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\0SL_common.h">
+      <Filter>Source Files\Module Hui\DLSS</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\0SL_PostProcess.h">
       <Filter>Source Files\Module Hui\DLSS</Filter>
     </ClInclude>
   </ItemGroup>

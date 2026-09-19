@@ -18,16 +18,16 @@
 #include "ToGui/HUiHudPowerGuage.h"
 #include "ToGui/HUiHudWeapon.h"
 #include "ToGui/2SubtitleRenderer.h"
-#include "DLSS/0SetDLSS.h"
 #include "DLSS/1FullAO.h"
+#include "DLSS/0SL_wapper.h"
 
 #include "0HuiAddImGui.h"
-#include "DLSS/0SL_wapper.h"
 
 extern "C" {
 	extern int Config_HUDEnhance;
 	extern int Config_PostProcess;
 	extern int Config_DLAA;
+	extern int Config_OnDX12;
 	extern int Config_EnhanceAO;
 
 	void __fastcall ASMdx11CreateDevice();
@@ -43,10 +43,6 @@ extern "C" {
 
 	void __fastcall ASMCall_IDXGISwapChain_Present();
 	uintptr_t Call_IDXGISwapChain_PresentRetAddr;
-
-	void __fastcall ASMmap_async_obj_init();
-	uintptr_t map_async_obj_initRetAddr;
-	uintptr_t map_async_obj_initC3650;
 
 	void __fastcall ASMGetDXGISwapChain();
 	uintptr_t GetDXGISwapChainRetAddr;
@@ -97,7 +93,6 @@ void module_InitializeAddImGui(PBYTE hmodEXE)
 	//if (Config_DLAA) _putenv_s("DXVK_CONFIG", "dxgi.syncInterval = 0");
 
 	if (Config_DLAA || Config_HUDEnhance){
-
 		// EDF5.exe+5C7206
 		hookGameBlockWithInt3((void*)(hmodEXE + 0x5C7206), (uintptr_t)ASMCall_IDXGISwapChain_GetBuffer);
 		Call_IDXGISwapChain_GetBufferRetAddr = (uintptr_t)(hmodEXE + 0x5C721D);
@@ -106,22 +101,6 @@ void module_InitializeAddImGui(PBYTE hmodEXE)
 		hookGameBlockWithInt3((void*)(hmodEXE + 0x5E316E), (uintptr_t)ASMCall_IDXGISwapChain_Present);
 		WriteHookToProcess((void*)(hmodEXE + 0x5E316E + 15), (void*)&nop4, 4U);
 		Call_IDXGISwapChain_PresentRetAddr = (uintptr_t)(hmodEXE + 0x5E3187);
-
-		// EDF5.exe+EB09E is the smallest granularity, but the performance is too poor.
-		// MapLoadResourcesB2370 = (uintptr_t)(hmodEXE + 0xB2370);
-
-		// EDF5.exe+C21CC
-		//hookGameBlockWithInt3((void*)(hmodEXE + 0xC21CC), (uintptr_t)ASMmap_async_obj_init);
-		//WriteHookToProcess((void*)(hmodEXE + 0xC21CC + 15), (void*)&nop3, 3U);
-		map_async_obj_initRetAddr = (uintptr_t)(hmodEXE + 0xC21DE);
-		map_async_obj_initC3650 = (uintptr_t)(hmodEXE + 0xC3650);
-		// EDF5.exe+B256C
-		/**/
-		BYTE setThreadCount[] = {
-			0x41, 0xB8, 0x02, 0x00, 0x00, 0x00, // mov r8d, 2
-			0x0F, 0x1F, 0x40, 0x00
-		};
-		WriteHookToProcess((void*)(hmodEXE + 0xB256C), &setThreadCount, 10);
 	}
 
 	//MessageBoxW(NULL, L"test", L"debug", MB_OK);
@@ -157,10 +136,24 @@ HRESULT WINAPI module_InitializeD3D11(DXGI_SWAP_CHAIN_DESC* pChainDesc, D3D_DRIV
 	//auto debugText = std::format(L"SampleDesc, count: {0}", pChainDesc->SampleDesc.Count);
 	//MessageBoxW(NULL, debugText.c_str(), L"debug", MB_OK); 
 
-	auto d3d11on12Result = streamline_CreateD3D11On12Device(Flags, ppDevice, ppImmediateContext);
-	if (d3d11on12Result) return S_OK;
+	if (Config_OnDX12) {
+		streamline_CreateD3D12Device();
+	}
 
-	auto result = D3D11CreateDevice(0, DriverType, Software, Flags, pFeatureLevels, FeatureLevels, SDKVersion, ppDevice, pFeatureLevel, ppImmediateContext);
+	D3D_FEATURE_LEVEL featureLevels[] = {
+		D3D_FEATURE_LEVEL_11_1,
+		D3D_FEATURE_LEVEL_11_0,
+		D3D_FEATURE_LEVEL_10_1,
+		D3D_FEATURE_LEVEL_10_0,
+		D3D_FEATURE_LEVEL_9_3,
+		D3D_FEATURE_LEVEL_9_2,
+		D3D_FEATURE_LEVEL_9_1
+	};
+
+	auto result = D3D11CreateDevice(0, DriverType, Software, Flags, featureLevels, 7, SDKVersion, ppDevice, pFeatureLevel, ppImmediateContext);
+	//UINT featureLevelIndex = *pFeatureLevel;
+	//std::wstring hrText = std::format(L"FeatureLevel: {:x}.", featureLevelIndex);
+	//MessageBoxW(NULL, hrText.c_str(), L"debug", MB_OK);
 	if (result < 0) return result;
 
 	if (Config_DLAA || Config_PostProcess) {
@@ -186,7 +179,7 @@ HRESULT WINAPI module_InitializeD3D11(DXGI_SWAP_CHAIN_DESC* pChainDesc, D3D_DRIV
 			//WriteHookToProcess(addrOMSetRenderTargets, &addrToHook, 8U);
 		}
 
-		DLSS_Initialization(ppDevice, ppImmediateContext, pChainDesc);
+		streamline_Initialize(*ppDevice, *ppImmediateContext);
 	}
 
 	return result;

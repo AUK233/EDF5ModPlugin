@@ -2,6 +2,7 @@
 #include <d3d11.h>
 #include <dxgi1_6.h>
 #pragma comment(lib, "D3D11.lib")
+#include "Base/g_DXresource.h"
 
 typedef struct GameDXGIRender_t {
 	char pad0[0x70];
@@ -9,9 +10,9 @@ typedef struct GameDXGIRender_t {
 	ID3D11Device* pD3D11Device;
 	ID3D11DeviceContext* pD3D11DeviceContext;
 	IDXGISwapChain* pDXGISwapChain;
-	IDXGIAdapter4* pDXGIAdapter;
-	IDXGIFactory7* pDXGIFactory;
-	char padE0[0x80];
+	IDXGIAdapter4* pDXGIAdapter; IDXGIFactory7* pDXGIFactory;
+	void* padE0; PG_TextureBackBuffer pTextureBackBuffer;
+	char padF0[0x70];
 	ID3D11RenderTargetView* pMainRenderTargetView; // it will release when start mission.
 } *PGameDXGIRender;
 #if 1
@@ -20,6 +21,7 @@ static_assert(offsetof(GameDXGIRender_t, pD3D11Device) == 0xB8);
 static_assert(offsetof(GameDXGIRender_t, pD3D11DeviceContext) == 0xC0);
 static_assert(offsetof(GameDXGIRender_t, pDXGISwapChain) == 0xC8);
 static_assert(offsetof(GameDXGIRender_t, pDXGIFactory) == 0xD8);
+static_assert(offsetof(GameDXGIRender_t, pTextureBackBuffer) == 0xE8);
 static_assert(offsetof(GameDXGIRender_t, pMainRenderTargetView) == 0x160);
 #endif
 

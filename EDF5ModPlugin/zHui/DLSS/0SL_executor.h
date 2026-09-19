@@ -1,8 +1,6 @@
 #pragma once
-#include <d3d12.h>
-#include <dxgi1_6.h>
-#include <d3d11on12.h>
 #pragma comment(lib, "DXGI.lib")
+#include "0SL_common.h"
 #include "zHui/ToGui/0GetDXGI.h"
 
 constexpr auto D3D12WrappedBackBuffersCount = 3;
@@ -18,15 +16,28 @@ namespace D3D {
 	__declspec(align(16)) class StreamLineProcessor_t {
 	public:
 		StreamLineProcessorStatus_t m_status;
+		bool m_bIsSplitScreen;
 
+		// D3D12 =====================================================
 		ID3D12Device* m_d3d12Device; ID3D12CommandQueue* m_commandQueue;
-		IDXGIFactory7* m_dxgiFactory; ID3D11On12Device2* m_d3d11On12Device;
-		IDXGISwapChain3* m_dxgiSwapChain3;
-		ID3D11Resource* v_wrappedBackBuffers[D3D12WrappedBackBuffersCount];
-		ID3D11Texture2D* g_gameSceneResource;
+		IDXGIFactory7* m_dxgiFactory; IDXGISwapChain3* m_dxgiSwapChain3;
+		ID3D12CommandAllocator* m_commandAllocator;
+		ID3D12GraphicsCommandList* m_commandList;
+
+		ID3D12Fence* m_fenceNative; UINT64 m_nativeFenceValue; HANDLE m_fenceEvent;
+		ID3D11Fence* m_Fence11; ID3D12Fence* m_fence12; UINT64 m_shareFenceValue;
+
+		ID3D12Resource* v_d3d12BackBuffers[D3D12WrappedBackBuffersCount];
+		// End   =====================================================
+
+		DXSharedTexture2D g_gameSceneResource;
+
+		void __fastcall CreateD3D12Device();
 
 		HRESULT __fastcall SwapChainGetBuffer(PGameDXGIRender pGameDXGI, ID3D11Texture2D** pOut);
 		void __fastcall SwapChainPresent(PGameDXGIRender pGameDXGI);
+		void __fastcall WaitFinish();
+		void __fastcall Release();
 	};
 	typedef StreamLineProcessor_t* PStreamLineProcessor;
 }

@@ -708,9 +708,9 @@ namespace
                 {
                     if ((pSrcBits + numBytes) > pEndBits)
                     {
-                        (*textureView)->Release();
+                        (*textureView)->D3D_Release();
                         *textureView = nullptr;
-                        tex->Release();
+                        tex->D3D_Release();
                         return HRESULT_FROM_WIN32(ERROR_HANDLE_EOF);
                     }
 
@@ -764,7 +764,7 @@ namespace
 
                     UINT64 copyFence = d3dContextX->InsertFence(0);
                     while (d3dDeviceX->IsFencePending(copyFence)) { SwitchToThread(); }
-                    pStaging->Release();
+                    pStaging->D3D_Release();
                 }
             #else
                 if (arraySize > 1)

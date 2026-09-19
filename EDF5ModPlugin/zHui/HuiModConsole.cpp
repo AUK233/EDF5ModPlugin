@@ -103,8 +103,7 @@ void cmd_ModConsole_MonitorKeys() {
 				if (cmd_keyState->NumPad[VK_NUMPAD0 - VK_NUMPAD0] == 1) {
 					// numpad0
 					// toggle DLAA
-					//DLSS_SwitchStatus(1);
-					streamline_SwapChainPresentToggle();
+					DLSS_SwitchStatus(1);
 					state.i = 0;
 				}
 				else if (cmd_keyState->NumPad[VK_NUMPAD1 - VK_NUMPAD0] == 1) {

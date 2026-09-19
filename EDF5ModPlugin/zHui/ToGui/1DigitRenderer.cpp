@@ -124,11 +124,11 @@ void DynamicDigitRenderer_t::Initialize()
 	// load texture
 	DirectX::CreateDDSTextureFromFile(device, L"./subtitle/DamageUINumber.dds", nullptr, &digit_texture_srv);
 
-	vs_blob->Release();
-	ps_blob->Release();
-	vs_blob2->Release();
-	ps_blob2->Release();
-	if (error_blob) error_blob->Release();
+	vs_blob->D3D_Release();
+	ps_blob->D3D_Release();
+	vs_blob2->D3D_Release();
+	ps_blob2->D3D_Release();
+	if (error_blob) error_blob->D3D_Release();
 #else
 	//LoadEmbeddedResource(v_data_digit_texture, L"Resource\\DamageUINumber.dds", L"Texture"); // no, this cannot be found.
 	LoadEmbeddedResource(v_data_digit_texture, MAKEINTRESOURCEW(IDR_DamageUINumber), L"Texture");
@@ -230,14 +230,14 @@ void DynamicDigitRenderer_t::ReloadDynamicPosShader()
 	};
 	device->CreateInputLayout(layout, _countof(layout), vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), &newLayout);
 
-	if (vertex_shader[1]) vertex_shader[1]->Release();
-	if (input_layout[1]) input_layout[1]->Release();
+	if (vertex_shader[1]) vertex_shader[1]->D3D_Release();
+	if (input_layout[1]) input_layout[1]->D3D_Release();
 
 	vertex_shader[1] = newVS;
 	input_layout[1] = newLayout;
 
-	vs_blob->Release();
-	if (error_blob) error_blob->Release();
+	vs_blob->D3D_Release();
+	if (error_blob) error_blob->D3D_Release();
 #endif
 }
 

@@ -22,6 +22,7 @@ extern "C" {
 	int Config_PostProcess; // 0 is no, 1 is open
 	int Config_PostProcessTexIndex;
 	int Config_DLAA; // 0 is no, 1 is open
+	int Config_OnDX12; // 0 is no, 1 is open
 	int Config_DLSSFG; // 0 is no, 1 is open
 }
 
@@ -35,6 +36,7 @@ void __fastcall INIConfig_Initialize(LPCWSTR path)
 	Config_PostProcess = GetPrivateProfileIntW(L"Graphic", L"PostProcess", 0, path);
 	Config_PostProcessTexIndex = GetPrivateProfileIntW(L"Graphic", L"PostProcessTexIndex", 0, path);
 	Config_DLAA = GetPrivateProfileIntW(L"Graphic", L"DLAA", 0, path);
+	Config_OnDX12 = GetPrivateProfileIntW(L"Graphic", L"OnDX12", 0, path);
 	Config_DLSSFG = GetPrivateProfileIntW(L"Graphic", L"DLSSFG", 0, path);
 	INIConfig_ReadIngameConfigurable();
 }

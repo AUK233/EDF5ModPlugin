@@ -14,10 +14,11 @@
 #include "utiliy.h"
 #include "commonNOP.h"
 
-#include "DLSS/1SetPostProcess.h"
+#include "DLSS/0SL_PostProcess.h"
+#include "zHui/ToGui/0GetDXGI.h"
 #include "ASFunc_Hook.h"
 
-extern D3D::PD3DPostProcess pD3DPostProcess;
+extern D3D::PAddPostProcess g_AddPostProcess;
 
 extern "C" {
 	void __fastcall ASMResetControllerAssign();
@@ -35,5 +36,7 @@ void __fastcall ASFunc_Hook_ResetControllerAssign() {
 
 	initialized = 0x55;
 
-	if (pD3DPostProcess) pD3DPostProcess->LoadLUTBuffer();
+	auto pDXGI = DXGI_GetGameDXGIRender();
+
+	if (g_AddPostProcess) g_AddPostProcess->LUTBuffer_Load(pDXGI->pD3D11Device);
 }

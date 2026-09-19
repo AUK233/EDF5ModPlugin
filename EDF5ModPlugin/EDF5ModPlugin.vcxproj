@@ -232,7 +232,9 @@
     <ClCompile Include="zHui\0HuiAddImGui.cpp" />
     <ClCompile Include="zHui\ASFunc_Hook.cpp" />
     <ClCompile Include="zHui\DLSS\0SetDLSS.cpp" />
+    <ClCompile Include="zHui\DLSS\0SL_common.cpp" />
     <ClCompile Include="zHui\DLSS\0SL_executor.cpp" />
+    <ClCompile Include="zHui\DLSS\0SL_PostProcess.cpp" />
     <ClCompile Include="zHui\DLSS\0SL_wapper.cpp" />
     <ClCompile Include="zHui\DLSS\1FullAO.cpp" />
     <ClCompile Include="zHui\DLSS\1SetPostProcess.cpp" />
@@ -377,7 +379,9 @@
     <ClInclude Include="zHui\0HuiAddImGui.h" />
     <ClInclude Include="zHui\ASFunc_Hook.h" />
     <ClInclude Include="zHui\DLSS\0SetDLSS.h" />
+    <ClInclude Include="zHui\DLSS\0SL_common.h" />
     <ClInclude Include="zHui\DLSS\0SL_executor.h" />
+    <ClInclude Include="zHui\DLSS\0SL_PostProcess.h" />
     <ClInclude Include="zHui\DLSS\0SL_wapper.h" />
     <ClInclude Include="zHui\DLSS\1FullAO.h" />
     <ClInclude Include="zHui\DLSS\1FullAOData.hpp" />

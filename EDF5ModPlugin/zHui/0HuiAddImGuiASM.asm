@@ -3,12 +3,12 @@
 extern module_InitializeD3D11 : proto
 extern dx11CreateDeviceRetAddr : qword
 
-extern DLSS_CreateFeature : proto
+extern streamline_SetFeature : proto
 extern vedf125AB30 : qword
 
-extern DLSS_Release : proto
+extern streamline_Release : proto
 
-extern DLSS_Draw : proto
+extern streamline_ExecuteSR : proto
 extern RenderBufferToScreenBufferRetAddr : qword
 
 extern streamline_SwapChainGetBuffer : proto
@@ -18,9 +18,6 @@ extern togui_Main : proto
 extern DLSS_FG_Evaluate : proto
 extern streamline_SwapChainPresent : proto
 extern Call_IDXGISwapChain_PresentRetAddr : qword
-
-extern streamline_MapLoadResources : proto
-extern map_async_obj_initRetAddr : qword
 
 extern streamline_CreateSwapChain : proto
 extern togui_GetDXGISwapChain : proto
@@ -54,7 +51,8 @@ ASMgetPlayerCountInHQ proc
 	mov rdx, [vedf125AB30]
 	mov rax, [rdx]
 	mov rcx, [rax+2459Ch]
-	call DLSS_CreateFeature
+	call streamline_SetFeature
+	;call DLSS_CreateFeature
 	mov rax, rsi
 	mov rbx, [rsp+2B0h]
 	add rsp, 260h
@@ -119,23 +117,6 @@ ASMCall_IDXGISwapChain_Present ENDP
 
 align 16
 
-ASMmap_async_obj_init proc
-
-	; lea r9, [rbp+0B0h]
-	; mov r8, [r14+40h]
-	; lea rcx, [rsi+1090h]
-	; call streamline_MapLoadResources
-	mov rcx, rsi
-	call streamline_MapLoadResources
-	movzx ebx, al
-	lea rdx, [rsi+1C8h]
-	jmp map_async_obj_initRetAddr
-	int 3
-
-ASMmap_async_obj_init ENDP
-
-align 16
-
 ASMGetDXGISwapChain proc
 
 		mov r8, [rdi+0C8h]
@@ -181,7 +162,8 @@ ASMsysExitGame proc
 	pop rdi
 	pop rsi
 	pop rbp
-	jmp DLSS_Release
+	jmp streamline_Release
+	;jmp DLSS_Release
 	int 3
 
 ASMsysExitGame ENDP
@@ -204,7 +186,8 @@ ASMRenderBufferToScreenBuffer proc
 	mov r8, rcx
 	mov rdx, [r9]
 	mov rcx, rdi
-	call DLSS_Draw
+	call streamline_ExecuteSR
+	;call DLSS_Draw
 	;
 	lea r9, [rax+50h]
 	lea r8, [rax+10h]
