@@ -64,6 +64,9 @@
     <Filter Include="Source Files\Module EDF\Ammo">
       <UniqueIdentifier>{457f2da0-d499-4c26-8b30-6b4af7572c15}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Module Hui\DLSS\sllib">
+      <UniqueIdentifier>{a64c6f35-83f0-42e1-bed4-df1bc1b8c72a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -766,6 +769,42 @@
     <ClInclude Include="zHui\DLSS\0SL_PostProcess.h">
       <Filter>Source Files\Module Hui\DLSS</Filter>
     </ClInclude>
+    <ClInclude Include="zHui\DLSS\sllib\sl.h">
+      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\sllib\sl_consts.h">
+      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\sllib\sl_core_api.h">
+      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\sllib\sl_core_types.h">
+      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\sllib\sl_device_wrappers.h">
+      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\sllib\sl_dlss.h">
+      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\sllib\sl_dlss_g.h">
+      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\sllib\sl_result.h">
+      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\sllib\sl_version.h">
+      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\sllib\sl_struct.h">
+      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\sllib\sl_appidentity.h">
+      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\0SL_vulkanAPI.hpp">
+      <Filter>Source Files\Module Hui\DLSS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="zHui\ToGui\DirectXTK\TeapotData.inc">
@@ -806,6 +845,9 @@
   <ItemGroup>
     <Library Include="zHui\DLSS\lib\nvsdk_ngx_d.lib">
       <Filter>Source Files\Module Hui\DLSS\lib</Filter>
+    </Library>
+    <Library Include="zHui\DLSS\sllib\sl.interposer.lib">
+      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
     </Library>
   </ItemGroup>
 </Project>

@@ -13,7 +13,7 @@
 #include "commonNOP.h"
 #include "utiliy.h"
 #include "GameFunctionInASM.h"
-#include "zHui/DLSS/0SetDLSS.h"
+#include "zHui/DLSS/0SL_wapper.h"
 
 #include "GameFunc_Mission.h"
 
@@ -112,7 +112,7 @@ void __fastcall CustomMissionData_SetWeaponIconColor()
 void __fastcall CustomMissionData_OtherSettingInit() {
 	CustomMissionData_SetWeaponIconColor();
 
-	DLSS_Reset();
+	streamline_Reset();
 }
 
 void __fastcall CustomMissionData_InitializationMore(PCustomMissionData pData)

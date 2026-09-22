@@ -5,7 +5,7 @@ typedef struct g_D3D11DeviceInfo_t {
 	ID3D11Device* device; // maybe?
 	ID3D11DeviceContext* context;
 	char pad10[0x628];
-	ID3D11UnorderedAccessView** pCurrentCSUnorderedAccessViews[3];
+	ID3D11UnorderedAccessView** pCurrentCSUnorderedAccessViews[3]; //should be 8
 	char pad6A8[0x310];
 	ID3D11ComputeShader* pCurrentCSShader;
 	char pad9C0[0x288];

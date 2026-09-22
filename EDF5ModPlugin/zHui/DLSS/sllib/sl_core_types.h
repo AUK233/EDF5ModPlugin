@@ -200,6 +200,20 @@ constexpr BufferType kBufferTypeColorBeforeDepthOfField = 65;
 constexpr BufferType kBufferTypeColorAfterDepthOfField = 66;
 //! Optional - Color buffer that overrides the alpha channel of kBufferTypeScalingOutputColor
 constexpr BufferType kBufferTypeScalingOutputAlpha  = 67;
+//! Optional buffer for responsivity mask
+constexpr BufferType kBufferTypeResponsivityMask = 68;
+//! Optional - UI Alpha
+//! A 1 channel resource containing the alpha value of on-screen elements, between 0.0f and 1.0f inclusive.
+//!  Similar to kBufferTypeUIColorAndAlpha, but only the alpha channel for optimized run-time performance.
+constexpr BufferType kBufferTypeUIAlpha = 69;
+//! Input color for neural-net "uplift" passes
+constexpr BufferType kBufferTypeUpliftInputColor = 70;
+//! Output color for neural-net "uplift" passes
+//! May alias kBufferTypeUpliftInputColor (in-place uplift); the feature transitions appropriately.
+constexpr BufferType kBufferTypeUpliftOutputColor = 71;
+//! Optional - 4-channel control mask consumed by uplift passes
+constexpr BufferType kBufferTypeUpliftControlMask = 72;
+
 //! Features supported with this SDK
 //! 
 //! IMPORTANT: Each feature must use a unique id
@@ -236,8 +250,15 @@ constexpr Feature kFeatureNvPerf = 1002;
 
 constexpr Feature kFeatureDirectSR = 1003;
 
+constexpr Feature kFeatureDLSS_NR = 1004;
+
 // ImGUI 
 constexpr Feature kFeatureImGUI = 9999;
+
+#if defined(SL_UNITTEST_ONLY_CODE)
+//! Dummy plugin for testing plugin.cpp functionality
+constexpr Feature kFeatureDummyPlugin = 65534;
+#endif
 
 //! Common feature, NOT intended to be used directly
 constexpr Feature kFeatureCommon = UINT_MAX;
@@ -352,8 +373,17 @@ SL_STRUCT_BEGIN(Resource, StructType({ 0x3a9d70cf, 0x2418, 0x4b72, { 0x83, 0x91,
     uint32_t flags;
     //! VkImageUsageFlags
     uint32_t usage{};
-    //! Reserved for internal use
-    uint32_t reserved{};
+    //! Internal flags (bitfield) - do not modify
+    enum InternalFlags : uint16_t
+    {
+        eNone = 0,
+        //! Resource wraps a Vulkan swapchain image not allocated by SL or the host callback.
+        //! The release callback must not be invoked for such resources.
+        eVulkanSwapChainImage = 1 << 0,
+    };
+    uint16_t internalFlags{};
+    //! Reserved for future use
+    uint16_t reserved{};
 
     //! IMPORTANT: New members go here or if optional can be chained in a new struct, see sl_struct.h for details
 SL_STRUCT_END()
@@ -517,6 +547,9 @@ enum class PreferenceFlags : uint64_t
     //! Optional - allow tagging of resources for frame. This helps distinguish whether slEvaluateFeature needs to do frame-based tagging
     //! of resources which wasn't the case earlier.
     eUseFrameBasedResourceTagging = 1 << 7,
+
+    //! All preference flags.  This isn't expected to be used directly by integrations, but may be useful for e.g. writing helpers.
+    eAll = eDisableCLStateTracking | eDisableDebugText | eUseManualHooking | eAllowOTA | eBypassOSVersionCheck | eUseDXGIFactoryProxy | eLoadDownloadedPlugins | eUseFrameBasedResourceTagging
 };
 
 SL_ENUM_OPERATORS_64(PreferenceFlags)
@@ -584,7 +617,7 @@ SL_STRUCT_BEGIN(ViewportHandle, StructType({ 0x171b6435, 0x9b3c, 0x4fc8, { 0x99,
     operator uint32_t() const { return value; }
 private:
     uint32_t value = UINT_MAX;
-    friend void sl::test::AbiValidation();
+    friend constexpr void sl::test::AbiValidation();
 SL_STRUCT_END()
 
 //! Specifies feature requirement flags
@@ -598,7 +631,10 @@ enum class FeatureRequirementFlags : uint32_t
     //! If set V-Sync must be disabled when feature is active
     eVSyncOffRequired = 1 << 3,
     //! If set GPU hardware scheduling OS feature must be turned on
-    eHardwareSchedulingRequired = 1 << 4
+    eHardwareSchedulingRequired = 1 << 4,
+
+    //! All feature requirement flags.  This isn't expected to be used directly by integrations, but may be useful for e.g. writing helpers.
+    eAll = eD3D11Supported | eD3D12Supported | eVulkanSupported | eVSyncOffRequired | eHardwareSchedulingRequired
 };
 
 SL_ENUM_OPERATORS_32(FeatureRequirementFlags);

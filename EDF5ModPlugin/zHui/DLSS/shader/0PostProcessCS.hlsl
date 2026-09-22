@@ -12,6 +12,7 @@ Texture2D<float4> InputColor : register(t0);
 Texture2D<float> DepthMap : register(t1);
 
 RWTexture2D<float4> OutputColor : register(u0);
+RWTexture2D<float> OutputDepth : register(u1);
 // ===================================================
 float LinearizeDepth(float depth)
 {
@@ -187,7 +188,8 @@ float4 ApplyLUT(float4 color){
 [numthreads(16, 16, 1)]
 void CS_main(uint3 id : SV_DispatchThreadID)
 {
-	float4 originalColor = InputColor[id.xy];
+	uint2 pixel = id.xy;
+	float4 originalColor = InputColor[pixel];
 	
 	//float4 filteredColor = ApplyAFPFilter(originalColor);
 	// float4 filteredColor = ApplyNewFilter(originalColor);
@@ -195,6 +197,6 @@ void CS_main(uint3 id : SV_DispatchThreadID)
 
     float4 filteredColor = ApplyLUT(originalColor);
 	
-	OutputColor[id.xy] = filteredColor;
-    //OutputColor[id.xy] = InputColor[id.xy];
+	OutputColor[pixel] = filteredColor;
+	OutputDepth[pixel] = DepthMap[pixel];
 }

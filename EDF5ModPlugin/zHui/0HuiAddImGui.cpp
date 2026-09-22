@@ -90,13 +90,16 @@ void module_InitializeAddImGui(PBYTE hmodEXE)
 		HookFunction_D3D11_FullAO();
 	}
 
-	//if (Config_DLAA) _putenv_s("DXVK_CONFIG", "dxgi.syncInterval = 0");
-
-	if (Config_DLAA || Config_HUDEnhance){
+	if (Config_DLAA) {
+		//_putenv_s("DXVK_CONFIG", "dxgi.syncInterval = 0"); 
+		streamline_InitializeSLPointers();
 		// EDF5.exe+5C7206
 		hookGameBlockWithInt3((void*)(hmodEXE + 0x5C7206), (uintptr_t)ASMCall_IDXGISwapChain_GetBuffer);
 		Call_IDXGISwapChain_GetBufferRetAddr = (uintptr_t)(hmodEXE + 0x5C721D);
+	}
 
+
+	if (Config_DLAA || Config_HUDEnhance){
 		// EDF5.exe+5E316E
 		hookGameBlockWithInt3((void*)(hmodEXE + 0x5E316E), (uintptr_t)ASMCall_IDXGISwapChain_Present);
 		WriteHookToProcess((void*)(hmodEXE + 0x5E316E + 15), (void*)&nop4, 4U);

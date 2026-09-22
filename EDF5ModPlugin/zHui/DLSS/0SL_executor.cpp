@@ -18,6 +18,21 @@
 extern PFN_D3D12_CREATE_DEVICE fnD3D12CreateDevice;
 
 namespace D3D {
+	void _fastcall StreamLineResource_t::CreateFromD11(ID3D11Texture2D* tex, sl::BufferType type, sl::ResourceLifecycle lifecycle, sl::Extent* extent) {
+		res = sl::Resource{ sl::ResourceType::eTex2d, tex, nullptr, nullptr, 0 };
+		tag = sl::ResourceTag{ &res, type, lifecycle, extent };
+	}
+
+	void _fastcall StreamLineResource_t::CreateFromD12(ID3D12Resource* tex, sl::BufferType type, sl::ResourceLifecycle lifecycle, sl::Extent* extent, uint32_t state){
+		res = sl::Resource{ sl::ResourceType::eTex2d, tex, nullptr, nullptr, state };
+		tag = sl::ResourceTag{ &res, type, lifecycle, extent };
+	}
+
+	void _fastcall StreamLineResource_t::CreateFromVK(PVKResource vkRes, sl::BufferType type, sl::ResourceLifecycle lifecycle, sl::Extent* extent){
+		res = sl::Resource{ sl::ResourceType::eTex2d, vkRes->vkImage, nullptr, vkRes->vkImageView, (uint32_t)vkRes->vkLayout };
+		tag = sl::ResourceTag{ &res, type, lifecycle, extent };
+	}
+
 	void __fastcall StreamLineProcessor_t::CreateD3D12Device() {
 		// create dxgi factory
 		auto hr = CreateDXGIFactory1(IID_PPV_ARGS(&m_dxgiFactory));
@@ -95,9 +110,9 @@ namespace D3D {
 		ComPtr<ID3D11Device5> d3d11Device5;
 		auto hr = device->QueryInterface(IID_PPV_ARGS(&d3d11Device5));
 
-		hr = d3d11Device5->CreateFence(0, D3D11_FENCE_FLAG_SHARED, IID_PPV_ARGS(&m_Fence11));
+		hr = d3d11Device5->CreateFence(0, D3D11_FENCE_FLAG_SHARED, IID_PPV_ARGS(&m_fence11));
 		HANDLE sharedHandle = nullptr;
-		m_Fence11->CreateSharedHandle(nullptr, DXGI_SHARED_RESOURCE_READ | DXGI_SHARED_RESOURCE_WRITE, nullptr, &sharedHandle);
+		m_fence11->CreateSharedHandle(nullptr, DXGI_SHARED_RESOURCE_READ | DXGI_SHARED_RESOURCE_WRITE, nullptr, &sharedHandle);
 		hr = m_d3d12Device->OpenSharedHandle(sharedHandle, IID_PPV_ARGS(&m_fence12));
 		CloseHandle(sharedHandle);
 
@@ -115,7 +130,7 @@ namespace D3D {
 
 		ComPtr<ID3D11DeviceContext4> d3d11Context4;
 		pGameDXGI->pD3D11DeviceContext->QueryInterface(IID_PPV_ARGS(&d3d11Context4));
-		d3d11Context4->Signal(m_Fence11, ++m_shareFenceValue);
+		d3d11Context4->Signal(m_fence11, ++m_shareFenceValue);
 		d3d11Context4->Flush();
 
 		UINT currentIndex = m_dxgiSwapChain3->GetCurrentBackBufferIndex();
@@ -170,6 +185,8 @@ namespace D3D {
 	}
 
 	void __fastcall StreamLineProcessor_t::Release() {
+		if (m_renderAPI) slShutdown();
+
 		if (m_status == StreamLineProcessorStatus_t::eD3D12) {
 			BOOL fullscreen;
 			IDXGIOutput* pTarget;
@@ -181,9 +198,57 @@ namespace D3D {
 
 			WaitFinish();
 
+
 			CloseHandle(m_fenceEvent);
 			m_d3d12Device->Release();
 		}
 		// end
+	}
+
+	void __fastcall StreamLineProcessor_t::GetNewFrame() {
+		if (m_bGetNewFrame) return;
+		slGetNewFrameToken(currentFrame);
+		m_bGetNewFrame = false;
+	}
+
+	sl::FrameToken* __fastcall StreamLineProcessor_t::ClearFrame(){
+		auto cur = currentFrame;
+
+		if (!m_bGetNewFrame) return cur;
+		currentFrame = 0;
+		m_bGetNewFrame = true;
+
+		return cur;
+	}
+
+	void __fastcall StreamLineProcessor_t::Reset() {
+		IsReset = sl::Boolean::eTrue;
+		JitterIndex = 1;
+		*(UINT64*)v_jitter = 0;
+	}
+
+	float __fastcall StreamLineProcessor_t::Halton(int index, int base) {
+		float result = 0.0f;
+		float f = 1.0f / base;
+		int i = index;
+		while (i > 0) {
+			result += f * (i % base);
+			i = i / base;
+			f = f / base;
+		}
+		result -= 0.5f;
+		return result;
+	}
+
+	void __fastcall StreamLineProcessor_t::GetJitter(int playerCount) {
+		if (playerCount > 1) {
+			*(UINT64*)v_jitter = 0;
+			IsReset = sl::Boolean::eTrue;
+			return;
+		}
+
+		v_jitter[0] = Halton(JitterIndex, 2);
+		v_jitter[1] = Halton(JitterIndex, 3);
+		JitterIndex++;
 	}
 }
