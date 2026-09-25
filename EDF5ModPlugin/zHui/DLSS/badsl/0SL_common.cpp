@@ -30,7 +30,7 @@ namespace D3D {
 		d11->QueryInterface(IID_PPV_ARGS(&dxgiRes));
 
 		HANDLE sharedHandle = nullptr;
-		dxgiRes->CreateSharedHandle(nullptr, DXGI_SHARED_RESOURCE_READ | DXGI_SHARED_RESOURCE_WRITE, nullptr, &sharedHandle);
+		dxgiRes->CreateSharedHandle(nullptr, DXGI_SHARED_RESOURCE_READ, nullptr, &sharedHandle);
 
 		hr = device12->OpenSharedHandle(sharedHandle, IID_PPV_ARGS(&d12));
 		CloseHandle(sharedHandle);
@@ -53,9 +53,9 @@ namespace D3D {
 		HRESULT hr = d11->QueryInterface(IID_IDXGIVkInteropSurface, (void**)&pVkSurface);
 		if (!pVkSurface) return;
 
-		vk = (PVKResource)_aligned_malloc(sizeof(NVSDK_NGX_Resource_VK), 16);
+		vk = (PVKResource)_aligned_malloc(sizeof(VKResource_t), 16);
 		if(!vk) return;
-		ZeroMemory(vk, sizeof(NVSDK_NGX_Resource_VK));
+		ZeroMemory(vk, sizeof(VKResource_t));
 
 		VkImage vkImage = VK_NULL_HANDLE;
 		VkImageLayout vkLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -63,7 +63,7 @@ namespace D3D {
 		vkInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		hr = pVkSurface->GetVulkanImageInfo(&vkImage, &vkLayout, &vkInfo);
 		pVkSurface->Release();
-		//if (FAILED(hr)) return;
+		if (FAILED(hr)) return;
 
 		// create image view
 		VkImageViewCreateInfo viewInfo = {};
@@ -96,27 +96,18 @@ namespace D3D {
 		viewInfo.subresourceRange.layerCount = vkInfo.arrayLayers;
 		VkImageView vkImageView;
 		VkResult result = deviceVK->vkCreateImageView(deviceVK->m_vkDevice, &viewInfo, nullptr, &vkImageView);
-		//if (result != VK_SUCCESS) return;
+		if (result != VK_SUCCESS) return;
 
-		vk->Resource.ImageViewInfo.ImageView = vkImageView;
-		vk->Resource.ImageViewInfo.Image = vkImage;
-		vk->Resource.ImageViewInfo.SubresourceRange = viewInfo.subresourceRange;
-		vk->Resource.ImageViewInfo.Format = vkInfo.format;
-		vk->Resource.ImageViewInfo.Width = vkInfo.extent.width;
-		vk->Resource.ImageViewInfo.Height = vkInfo.extent.height;
-		vk->Type = NVSDK_NGX_RESOURCE_VK_TYPE_VK_IMAGEVIEW;
-		vk->ReadWrite = true;
+		vk->vkImage = vkImage;
+		vk->vkImageView = vkImageView;
+		vk->vkLayout = vkLayout;
 	}
 
 	void DXSharedTexture2D::VK_Release(PslVulkanAPI deviceVK) {
 		D3DResourceCommonRelease(d11);
-		VK_ReleaseVKResource(deviceVK);
-	}
-
-	void DXSharedTexture2D::VK_ReleaseVKResource(PslVulkanAPI deviceVK){
 		if (!vk) return;
 
-		auto vkImageView = vk->Resource.ImageViewInfo.ImageView;
+		auto vkImageView = vk->vkImageView;
 		if (vkImageView) {
 			deviceVK->vkDestroyImageView(deviceVK->m_vkDevice, vkImageView, nullptr);
 		}
@@ -140,20 +131,6 @@ namespace D3D {
 			pIn->Release();
 			pIn = nullptr;
 		}
-	}
-
-	void __fastcall D3D12SetResourceBarriers(D3D12_RESOURCE_BARRIER& barrier, ID3D12Resource* res, D3D12_RESOURCE_STATES stateBefore, D3D12_RESOURCE_STATES stateAfter) {
-		if (res) {
-			barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-			barrier.Transition.pResource = res;
-			barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-			barrier.Transition.StateBefore = stateBefore;
-			barrier.Transition.StateAfter = stateAfter;
-		} else {
-			barrier.Transition.StateBefore = stateAfter;
-			barrier.Transition.StateAfter = stateBefore;
-		}
-		// end
 	}
 // end
 }

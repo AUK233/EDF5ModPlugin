@@ -15,7 +15,6 @@
 
 #include "Base/g_system.h"
 #include "0SL_executor.h"
-#include "0SL_PostProcess.h"
 #include "0SL_wapper.h"
 
 //#define hasDX12Debug
@@ -30,12 +29,16 @@ D3D::PAddPostProcess g_AddPostProcess = nullptr;
 bool g_bPostProcess[4] = { false, true, true, true };
 
 extern "C"{
+	extern int Config_PostProcess;
+	extern int Config_PostProcessTexIndex;
 	extern int Config_DLAA;
 	extern int Config_OnDX12;
+	extern int Config_DLSSFG;
 }
 
 void __fastcall streamline_TriggerFailureResult(UINT32 slresult, void* sl) {
 #if defined(SLDEBUG)
+	std::wstring hrText = std::format(L"DLSS Error Code: {:X}.\n", slresult);
 	MessageBoxW(NULL, std::to_wstring((UINT32)slresult).c_str(), L"error", MB_OK);
 #endif
 
@@ -55,73 +58,14 @@ void __fastcall streamline_InitializeSLPointers() {
 	ZeroMemory(p, sizeof(StreamLineProcessor_t));
 	g_StreamLineProcessor = p;
 
-	if (Config_OnDX12) {
-		p->m_status = StreamLineProcessorStatus_t::eD3D12;
-	} else {
-		if (std::filesystem::exists(L"./dxgi.dll")) {
-			p->m_status = StreamLineProcessorStatus_t::eVULKAN;
-		} else {
-			p->m_status = StreamLineProcessorStatus_t::eD3D11;
-		}
-	}
-
-	p->m_renderAPI = (int)p->m_status;
-	auto renderAPI = p->m_status;
-
-	p->myViewport[0] = sl::ViewportHandle{ 0 };
-	p->myViewport[1] = sl::ViewportHandle{ 1 };
-
-	wchar_t exePath[MAX_PATH];
-	GetModuleFileNameW(nullptr, exePath, MAX_PATH);
-	std::filesystem::path exeDir = std::filesystem::path(exePath).parent_path();
-	std::filesystem::path slDir = exeDir / L"SL";
-	p->slDirStr = slDir.wstring();
-
-	std::vector<sl::Feature> myFeatures;
-	myFeatures.push_back(sl::kFeatureDLSS);
-
-	sl::Preferences pref{};
-	const wchar_t* pluginPaths[] = { p->slDirStr.c_str() };
-	pref.pathsToPlugins = pluginPaths;
-	pref.numPathsToPlugins = 1;
-	pref.featuresToLoad = myFeatures.data();
-	pref.numFeaturesToLoad = myFeatures.size();
-	pref.flags = sl::PreferenceFlags::eDisableCLStateTracking | sl::PreferenceFlags::eUseFrameBasedResourceTagging; //  | sl::PreferenceFlags::eUseDXGIFactoryProxy | sl::PreferenceFlags::eUseManualHooking
-	//pref.applicationId = 231313132;
-	pref.engineVersion = "5.0";
-	pref.projectId = "a0f57b54-1daf-4934-90ae-c4035c19df04";
-
-#if defined(SLDEBUG)
-	pref.logLevel = sl::LogLevel::eVerbose;
-	pref.pathToLogsAndData = L"Z:\\TEMP";
-#else
-	pref.logLevel = sl::LogLevel::eOff;
-	pref.pathToLogsAndData = nullptr;
-#endif
-
-	switch (renderAPI) {
-	case StreamLineProcessorStatus_t::eD3D11:
-		pref.renderAPI = sl::RenderAPI::eD3D11;
-		break;
-	case StreamLineProcessorStatus_t::eD3D12:
-		pref.renderAPI = sl::RenderAPI::eD3D12;
-		break;
-	case StreamLineProcessorStatus_t::eVULKAN:
-		pref.renderAPI = sl::RenderAPI::eVulkan;
-		break;
-	default: break;
-	}
-	auto slresult = slInit(pref);
-	if (slresult != sl::Result::eOk) {
-		streamline_TriggerFailureResult((UINT32)slresult + 1000, p);
-		return;
-	}
+	p->m_status = StreamLineProcessorStatus_t::eFailed;
+	p->Reset();
 }
 
 bool __fastcall streamline_InitializeD3D12() {
 	// check no dxvk
+	if (std::filesystem::exists(L"./dxgi.dll")) return false;
 	if (!g_StreamLineProcessor) return false;
-	if (g_StreamLineProcessor->m_status != D3D::StreamLineProcessorStatus_t::eD3D12) return false;
 
 	auto hmodD3D12 = LoadLibraryW(L"d3d12.dll");
 	if (!hmodD3D12) return false;
@@ -132,7 +76,7 @@ bool __fastcall streamline_InitializeD3D12() {
 	return true;
 }
 
-bool __fastcall streamline_InitializeVK(ID3D11Device* device, void* pVKinfo){
+bool __fastcall streamline_InitializeVK(ID3D11Device* device){
 	using namespace D3D;
 
 	IDXGIVkInteropDevice* pVkInterop = nullptr;
@@ -159,12 +103,6 @@ bool __fastcall streamline_InitializeVK(ID3D11Device* device, void* pVKinfo){
 		return false;
 	}
 
-	auto vulkanInfo = (sl::VulkanInfo*)pVKinfo;
-	vulkanInfo->instance = vkInstance;
-	vulkanInfo->physicalDevice = vkPhysDevice;
-	vulkanInfo->device = vkDevice;
-	vulkanInfo->computeQueueFamily = QueueFamilyIndex;
-
 	p->m_vkInterop = pVkInterop;
 	p->m_vkDevice = vkDevice;
 	p->m_vkInstance = vkInstance;
@@ -187,12 +125,12 @@ void __fastcall streamline_CreateD3D12Device(){
 	ComPtr<ID3D12Debug> debugController;
 	if (SUCCEEDED(fnD3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
 		debugController->EnableDebugLayer();
-		debugController->D3D_Release();
+		//debugController->Release();
 	}
 #endif	
 
 	auto pSL = g_StreamLineProcessor;
-	pSL->m_status = D3D::StreamLineProcessorStatus_t::eFailed;
+	//pSL->m_status = D3D::StreamLineProcessorStatus_t::eFailed;
 	pSL->CreateD3D12Device();
 }
 
@@ -219,31 +157,52 @@ void __fastcall streamline_Initialize(ID3D11Device* device, ID3D11DeviceContext*
 	auto pPP = g_AddPostProcess;
 	if (!pPP) return;
 
-	sl::Result slresult;
+	if (pSL->m_status != D3D::StreamLineProcessorStatus_t::eD3D12) {
+		if (!streamline_InitializeVK(device)) {
+			pSL->m_status = D3D::StreamLineProcessorStatus_t::eD3D11;
+		} else {
+			pSL->m_status = D3D::StreamLineProcessorStatus_t::eVULKAN;
+		}
+	}
+
+	static const char game_guid[] = "a0f57b54-1daf-4934-90ae-c4035c19df04";
+	static const char game_version[] = "5.0";
+#if defined(SLDEBUG)
+	// 231313132 from ngx_dlss_demo
+	NVSDK_NGX_FeatureCommonInfo featureCommonInfo = {};
+	featureCommonInfo.LoggingInfo.DisableOtherLoggingSinks = false;
+	featureCommonInfo.LoggingInfo.MinimumLoggingLevel = NVSDK_NGX_LOGGING_LEVEL_VERBOSE;
+
+	static const wchar_t log_path[] = L"Z:\\TEMP";
+	NVSDK_NGX_FeatureCommonInfo* pFeatureInfo = &featureCommonInfo;
+#else
+	static const wchar_t log_path[] = L".";
+	NVSDK_NGX_FeatureCommonInfo* pFeatureInfo = nullptr;
+#endif
+
+	NVSDK_NGX_Result slresult;
 	switch (pSL->m_status) {
 	case StreamLineProcessorStatus_t::eD3D11:
-		slresult = slSetD3DDevice(device);
-		if (slresult != sl::Result::eOk) {
-			streamline_TriggerFailureResult((UINT32)slresult + 1000, pSL);
+		slresult = NVSDK_NGX_D3D11_Init_with_ProjectID(game_guid, NVSDK_NGX_ENGINE_TYPE_CUSTOM, game_version, log_path, device, pFeatureInfo);
+		if (slresult != NVSDK_NGX_Result_Success) {
+			streamline_TriggerFailureResult((UINT32)slresult + 0x100, pSL);
 			return;
 		}
 
 		break;
 	case StreamLineProcessorStatus_t::eD3D12:
-		slresult = slSetD3DDevice(pSL->m_d3d12Device);
-		if (slresult != sl::Result::eOk) {
-			streamline_TriggerFailureResult((UINT32)slresult + 1000, pSL);
+		slresult = NVSDK_NGX_D3D12_Init_with_ProjectID(game_guid, NVSDK_NGX_ENGINE_TYPE_CUSTOM, game_version, log_path, pSL->m_d3d12Device, pFeatureInfo);
+		if (slresult != NVSDK_NGX_Result_Success) {
+			streamline_TriggerFailureResult((UINT32)slresult + 0x200, pSL);
 			return;
 		}
 
 		break;
 	case StreamLineProcessorStatus_t::eVULKAN: {
-		sl::VulkanInfo vulkanInfo = {};
-		if (!streamline_InitializeVK(device, &vulkanInfo)) return;
-
-		slresult = slSetVulkanInfo(vulkanInfo);
-		if (slresult != sl::Result::eOk) {
-			streamline_TriggerFailureResult((UINT32)slresult + 1000, pSL);
+		auto vk = pSL->vk;
+		slresult = NVSDK_NGX_VULKAN_Init_with_ProjectID(game_guid, NVSDK_NGX_ENGINE_TYPE_CUSTOM, game_version, log_path, vk->m_vkInstance, vk->m_vkPhysDevice, vk->m_vkDevice, nullptr, nullptr, pFeatureInfo);
+		if (slresult != NVSDK_NGX_Result_Success) {
+			streamline_TriggerFailureResult((UINT32)slresult + 0x300, pSL);
 			return;
 		}
 
@@ -316,10 +275,10 @@ ID3D11Texture2D* tempBuffer2 = 0;
 
 HRESULT __fastcall streamline_SwapChainGetBuffer(IDXGISwapChain* pSwapChain, PGameDXGIRender pGameDXGI, ID3D11Texture2D** pOut) {
 	auto pSL = g_StreamLineProcessor;
-	if (!pSL || pSL->m_status != D3D::StreamLineProcessorStatus_t::eD3D12) {
+	if (!pSL) {
 #if defined(hasDX12Debug)
 		pSwapChain->GetBuffer(0, IID_PPV_ARGS(&tempBuffer));
-		tempBuffer->D3D_Release();
+		tempBuffer->Release();
 
 		auto device = pGameDXGI->pD3D11Device;
 
@@ -347,22 +306,22 @@ HRESULT __fastcall streamline_SwapChainGetBuffer(IDXGISwapChain* pSwapChain, PGa
 #endif
 	}
 
-	auto hr = pSL->SwapChainGetBuffer(pGameDXGI, pOut);
+	auto hr = pSL->SwapChainGetBuffer(pSwapChain, pGameDXGI, pOut);
 	return hr;
 }
 
-void __fastcall streamline_SwapChainPresent(PGameDXGIRender pGameDXGI) {
+bool __fastcall streamline_SwapChainPresent(PGameDXGIRender pGameDXGI, UINT SyncInterval) {
 	auto pSL = g_StreamLineProcessor;
 	if (!pSL) {
 #if defined(hasDX12Debug)
 		auto context = pGameDXGI->pD3D11DeviceContext;
 		context->CopyResource(tempBuffer, tempBuffer2);
 #endif
-		return;
+		return false;
 	}
 
-	auto curFrame = pSL->ClearFrame();
-	pSL->SwapChainPresent(pGameDXGI);
+	auto presentDone = pSL->SwapChainPresent(pGameDXGI, SyncInterval);
+	return presentDone;
 }
 
 void __fastcall streamline_Release() {
@@ -439,27 +398,7 @@ void __fastcall streamline_SetFeature(int playerCount) {
 	pPP->Buffer_VKCreate(deviceVK);
 
 	if (pSL){
-		sl::DLSSOptions dlssOptions = {};
-		dlssOptions.mode = sl::DLSSMode::eDLAA;
-		dlssOptions.outputWidth = res.Width;
-		dlssOptions.outputHeight = res.Height;
-		dlssOptions.sharpness = 1;
-		dlssOptions.colorBuffersHDR = sl::Boolean::eFalse;
-		// In sl.dlss, if there is no exposure texture, forced automatic exposure is applied.
-		//dlssOptions.useAutoExposure = sl::Boolean::eFalse;
-		//dlssOptions.dlaaPreset = sl::DLSSPreset::ePresetL;
-
-		slDLSSSetOptions(pSL->myViewport[0], dlssOptions);
-		if (playerCount == 2){
-			slDLSSSetOptions(pSL->myViewport[1], dlssOptions);
-		}
-
-		/*
-		if (playerCount == 2) {
-			pSL->m_bIsSplitScreen = true;
-		} else {
-			pSL->m_bIsSplitScreen = false;
-		}*/
+		pSL->SetFeature(pDXGI->pD3D11DeviceContext, res.Width, res.Height, playerCount);
 	}
 	// end
 }
@@ -472,10 +411,9 @@ void* __fastcall streamline_ExecuteSR(Pg_D3D11DeviceInfo pD3D, int OutOffset, vo
 	auto pSL = g_StreamLineProcessor;
 	if (!pPP) return saveRCX;
 
-	int inDlssMode = 0;
+	int hasDLSS = 0;
 	if (pSL) {
-		pSL->GetNewFrame();
-		if (pSL->m_renderAPI && g_bPostProcess[1]) inDlssMode = 1;
+		if (pSL->m_srFeature && g_bPostProcess[1]) hasDLSS = 1;
 	}
 
 	auto playerCount = pPP->m_playerCount;
@@ -499,174 +437,137 @@ void* __fastcall streamline_ExecuteSR(Pg_D3D11DeviceInfo pD3D, int OutOffset, vo
 
 		if (g_bPostProcess[0]) {
 			pPP->Execute(pD3D, i, threadGroupCount, &pColorRes->pSRV, &pDSVInfo->pSRV);
-		} else if (inDlssMode) {
+		} else if (hasDLSS) {
 			context->CopyResource(pPP->m_ColorRes[i].d11, pColorRes->pTexture);
 			context->CopyResource(pPP->m_DepthRes[i].d11, pDSVInfo->pTexture);
 		} else { return saveRCX; }
-
-		if (!(inDlssMode & 1)) {
-			context->CopyResource(pColorRes->pTexture, pPP->m_ColorRes[i].d11);
-			if (i > 0) return saveRCX;
-		}
 	}
 
+	if (!hasDLSS) {
+		if (g_bPostProcess[0]) {
+			if (pColorToMV[0])
+				context->CopyResource(pColorToMV[0]->pTexture, pPP->m_ColorRes[0].d11);
 
-	if (inDlssMode & 1) {
-		ComPtr<ID3D11DeviceContext4> d3d11Context4;
-		context->QueryInterface(IID_PPV_ARGS(&d3d11Context4));
-
-		bool isClearMV = (pSL->IsReset || playerCount != 1);
-		pPP->CalculateMV(pD3D, player[0], threadGroupCount, isClearMV);
-
-		sl::Extent slExtent = { 0, 0, pPP->m_resolution.Width, pPP->m_resolution.Height };
-		// Used to prohibit flag: NVSDK_NGX_DLSS_Feature_Flags_MVLowRes
-		sl::Extent mvExtent = { 0, 0, pPP->m_resolution.Width + 1, pPP->m_resolution.Height + 1 };
-		StreamLineResource_t colorIn, colorOut, depth, mvec;
-
-		pSL->GetJitter(playerCount);
-
-		sl::Constants constants{};
-		constants.jitterOffset = { pSL->v_jitter[0], pSL->v_jitter[1] };
-		constants.reset = pSL->IsReset;
-		constants.mvecScale = { 1, 1 };
-		constants.cameraMotionIncluded = sl::Boolean::eTrue;
-		constants.motionVectorsJittered = sl::Boolean::eFalse;
-
-		pSL->IsReset = sl::Boolean::eFalse;
-
-		if (pSL->m_status == StreamLineProcessorStatus_t::eD3D11) {
-			for (int i = 0; i < playerCount; i++) {
-				slSetConstants(constants, *pSL->currentFrame, pSL->myViewport[i]);
-
-				auto pColorRes = (Pg_D3D_ResourceInfo)player[i]->pDrawColorInfo;
-				auto pDSVInfo = (Pg_D3D_ResourceInfo)player[i]->pDSVInfo;
-
-				colorIn.CreateFromD11(pPP->m_ColorRes[i].d11, sl::kBufferTypeScalingInputColor, sl::ResourceLifecycle::eValidUntilPresent, &slExtent);
-				colorOut.CreateFromD11(pColorRes->pTexture, sl::kBufferTypeScalingOutputColor, sl::ResourceLifecycle::eValidUntilEvaluate, &slExtent);
-				depth.CreateFromD11(pDSVInfo->pTexture, sl::kBufferTypeDepth, sl::ResourceLifecycle::eValidUntilEvaluate, &slExtent);
-				mvec.CreateFromD11(pPP->m_MotionVector.d11, sl::kBufferTypeMotionVectors, sl::ResourceLifecycle::eValidUntilPresent, &mvExtent);
-
-				//sl::ResourceTag tags[] = { colorIn.tag, colorOut.tag, depth.tag, mvec.tag };
-				//slSetTagForFrame(*pSL->currentFrame, pSL->myViewport[0], tags, _countof(tags), context);
-
-				//StreamLineResource_t albedo, normal;
-				//albedo.CreateFromD11(player[i]->pRTV->pColorPass1RT0->pTexture, sl::kBufferTypeAlbedo, sl::ResourceLifecycle::eValidUntilEvaluate, &slExtent);
-				//normal.CreateFromD11(player[i]->pRTV->pColorPass1RT2->pTexture, sl::kBufferTypeNormals, sl::ResourceLifecycle::eValidUntilEvaluate, &slExtent);
-
-				const sl::BaseStructure* inputs[] = {
-					&pSL->myViewport[i],
-					&colorIn.tag,
-					&colorOut.tag,
-					&depth.tag,
-					&mvec.tag,
-					//&albedo.tag,
-					//&normal.tag,
-				};
-				slEvaluateFeature(sl::kFeatureDLSS, *pSL->currentFrame, inputs, _countof(inputs), context);
-			}
-			// end
-		} else if (pSL->m_status == StreamLineProcessorStatus_t::eD3D12) {
-
-			d3d11Context4->Signal(pSL->m_fence11, ++pSL->m_shareFenceValue);
-			d3d11Context4->Flush();
-
-			pSL->m_commandAllocator->Reset();
-			pSL->m_commandList->Reset(pSL->m_commandAllocator, nullptr);
-			for (int i = 0; i < playerCount; i++) {
-				slSetConstants(constants, *pSL->currentFrame, pSL->myViewport[i]);
-
-				colorIn.CreateFromD12(pPP->m_ColorRes[i].d12, sl::kBufferTypeScalingInputColor, sl::ResourceLifecycle::eValidUntilPresent, &slExtent, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-				colorOut.CreateFromD12(pPP->m_MidColorRes[i].d12, sl::kBufferTypeScalingOutputColor, sl::ResourceLifecycle::eValidUntilPresent, &slExtent, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-				depth.CreateFromD12(pPP->m_DepthRes[i].d12, sl::kBufferTypeDepth, sl::ResourceLifecycle::eValidUntilPresent, &slExtent, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-				mvec.CreateFromD12(pPP->m_MotionVector.d12, sl::kBufferTypeMotionVectors, sl::ResourceLifecycle::eValidUntilPresent, &mvExtent, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-
-				const sl::BaseStructure* inputs[] = {
-					&pSL->myViewport[i], &colorIn.tag, &colorOut.tag, &depth.tag, &mvec.tag,
-				};
-
-				D3D12_RESOURCE_BARRIER barriers[4] = {};
-
-				barriers[0].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-				barriers[0].Transition.pResource = pPP->m_ColorRes[i].d12;
-				barriers[0].Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-				barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_COMMON;
-				barriers[0].Transition.StateAfter = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
-
-				barriers[1].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-				barriers[1].Transition.pResource = pPP->m_MidColorRes[i].d12;
-				barriers[1].Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-				barriers[1].Transition.StateBefore = D3D12_RESOURCE_STATE_COMMON;
-				barriers[1].Transition.StateAfter = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-
-				barriers[2].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-				barriers[2].Transition.pResource = pPP->m_DepthRes[i].d12;
-				barriers[2].Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-				barriers[2].Transition.StateBefore = D3D12_RESOURCE_STATE_COMMON;
-				barriers[2].Transition.StateAfter = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
-
-				barriers[3].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-				barriers[3].Transition.pResource = pPP->m_MotionVector.d12;
-				barriers[3].Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-				barriers[3].Transition.StateBefore = D3D12_RESOURCE_STATE_COMMON;
-				barriers[3].Transition.StateAfter = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
-
-				pSL->m_commandList->ResourceBarrier(4, barriers);
-
-				slEvaluateFeature(sl::kFeatureDLSS, *pSL->currentFrame, inputs, _countof(inputs), pSL->m_commandList);
-
-				barriers[0].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-				barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
-				barriers[0].Transition.StateAfter = D3D12_RESOURCE_STATE_COMMON;
-
-				barriers[1].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-				barriers[1].Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-				barriers[1].Transition.StateAfter = D3D12_RESOURCE_STATE_COMMON;
-
-				barriers[2].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-				barriers[2].Transition.StateBefore = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
-				barriers[2].Transition.StateAfter = D3D12_RESOURCE_STATE_COMMON;
-
-				barriers[3].Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-				barriers[3].Transition.StateBefore = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
-				barriers[3].Transition.StateAfter = D3D12_RESOURCE_STATE_COMMON;
-				pSL->m_commandList->ResourceBarrier(4, barriers);
-			}
-			pSL->m_commandList->Close();
-			ID3D12CommandList* lists[] = { pSL->m_commandList };
-
-			pSL->m_commandQueue->Wait(pSL->m_fence12, pSL->m_shareFenceValue);
-			pSL->m_commandQueue->ExecuteCommandLists(1, lists);
-
-			//pSL->WaitFinish();
-
-			pSL->m_commandQueue->Signal(pSL->m_fence12, ++pSL->m_shareFenceValue);
-			d3d11Context4->Wait(pSL->m_fence11, pSL->m_shareFenceValue);
-
-			pPP->CopyBuffer(pD3D, threadGroupCount, pColorToMV[0], pColorToMV[1]);
-			// end
-		}
-		else if (pSL->m_status == StreamLineProcessorStatus_t::eVULKAN) {
-			for (int i = 0; i < playerCount; i++) {
-				slSetConstants(constants, *pSL->currentFrame, pSL->myViewport[i]);
-
-				colorIn.CreateFromVK(pPP->m_ColorRes[i].vk, sl::kBufferTypeScalingInputColor, sl::ResourceLifecycle::eValidUntilPresent, &slExtent);
-				colorOut.CreateFromVK(pPP->m_MidColorRes[i].vk, sl::kBufferTypeScalingOutputColor, sl::ResourceLifecycle::eValidUntilEvaluate, &slExtent);
-				depth.CreateFromVK(pPP->m_DepthRes[i].vk, sl::kBufferTypeDepth, sl::ResourceLifecycle::eValidUntilEvaluate, &slExtent);
-				mvec.CreateFromVK(pPP->m_MotionVector.vk, sl::kBufferTypeMotionVectors, sl::ResourceLifecycle::eValidUntilPresent, &mvExtent);
-
-				const sl::BaseStructure* inputs[] = {
-					&pSL->myViewport[i], &colorIn.tag, &colorOut.tag, &depth.tag, &mvec.tag,
-				};
-
-				pSL->vk->VK_Enter();
-				slEvaluateFeature(sl::kFeatureDLSS, *pSL->currentFrame, inputs, _countof(inputs), pSL->vk->m_vkCMDlist);
-				pSL->vk->VK_Leave(VK_NULL_HANDLE);
-			}
-			// end
+			if (pColorToMV[1])
+				context->CopyResource(pColorToMV[1]->pTexture, pPP->m_ColorRes[1].d11);
 		}
 
+		return saveRCX;
 	}
 
+	// compute motion vector
+	bool isClearMV = (pSL->m_srReset || playerCount != 1);
+	pPP->CalculateMV(pD3D, player[0], threadGroupCount, isClearMV);
+
+	int srReset = pSL->m_srReset;
+	pSL->GetJitter(playerCount);
+
+	// execute DLSS
+	if (pSL->m_status == StreamLineProcessorStatus_t::eD3D11) {
+		NVSDK_NGX_D3D11_DLSS_Eval_Params D3D11DlssEvalParams;
+		memset(&D3D11DlssEvalParams, 0, sizeof(D3D11DlssEvalParams));
+
+		D3D11DlssEvalParams.InReset = srReset;
+
+		for (int i = 0; i < playerCount; i++) {
+			//auto pDSVInfo = (Pg_D3D_ResourceInfo)player[i]->pDSVInfo;
+			//D3D11DlssEvalParams.pInDepth = pDSVInfo->pTexture;
+			D3D11DlssEvalParams.Feature.pInOutput = pColorToMV[i]->pTexture;
+				
+			pSL->EvaluateSR(context, pPP, player[i]->pRTV, D3D11DlssEvalParams, i);
+		}
+		// end
+	} else if (pSL->m_status == StreamLineProcessorStatus_t::eD3D12) {
+		/**/
+		NVSDK_NGX_D3D12_DLSS_Eval_Params D3D12DlssEvalParams;
+		memset(&D3D12DlssEvalParams, 0, sizeof(D3D12DlssEvalParams));
+		D3D12DlssEvalParams.InReset = srReset;
+
+		pSL->D3D12CommandBegin();
+		for (int i = 0; i < playerCount; i++) {
+			pSL->EvaluateSR(pPP, D3D12DlssEvalParams, i);
+		}
+		pSL->D3D12CommandEnd();
+
+		pSL->D3D12WaitFinish();
+		// Must use CPU wait, this GPU wait may be invalid.
+		//pSL->m_commandQueue->Signal(pSL->m_fence12, ++pSL->m_shareFenceValue);
+		//pSL->m_context4->Wait(pSL->m_fence11, pSL->m_shareFenceValue);
+
+		// end
+	}
+	else if (pSL->m_status == StreamLineProcessorStatus_t::eVULKAN) {
+		NVSDK_NGX_VK_DLSS_Eval_Params D3DvkDlssEvalParams;
+		memset(&D3DvkDlssEvalParams, 0, sizeof(D3DvkDlssEvalParams));
+
+		D3DvkDlssEvalParams.InReset = srReset;
+
+		pSL->vk->VK_Enter();
+		for (int i = 0; i < playerCount; i++) {
+			pSL->EvaluateSR(pPP, D3DvkDlssEvalParams, i);
+		}
+		pSL->vk->VK_Leave(VK_NULL_HANDLE);
+		// end
+	}
+
+	// next, compute FG required resources
+	if (pSL->m_renderAPI < 2) return saveRCX;
+
+	pPP->CopyBuffer(pD3D, threadGroupCount, pColorToMV[0], pColorToMV[1]);
 
 	return saveRCX;
+}
+
+void __fastcall streamline_SwitchStatus(int index) {
+	switch (index) {
+	case 0: {
+		if (!Config_PostProcess) return;
+
+		g_bPostProcess[0] = !g_bPostProcess[0];
+
+		if (!g_bPostProcess[0]) {
+			auto index = Config_PostProcessTexIndex;
+			if (index > 3) index = 0;
+
+			auto pDXGI = DXGI_GetGameDXGIRender();
+			g_AddPostProcess->m_LUTindex = index;
+			g_AddPostProcess->LUTBuffer_Reload(pDXGI->pD3D11Device);
+		}
+		return;
+	}
+	case 1:
+		if (!Config_DLAA) return;
+
+		g_bPostProcess[1] = !g_bPostProcess[1];
+		return;
+	case 2:
+		if (!Config_DLSSFG) return;
+
+		g_bPostProcess[2] = !g_bPostProcess[2];
+
+		if (g_StreamLineProcessor) {
+
+			g_StreamLineProcessor->m_multiFrameCount = 1;
+			g_StreamLineProcessor->m_bNeedFG = g_bPostProcess[2];
+		}
+
+		return;
+	case 3: {
+		g_AddPostProcess->m_LUTindex++;
+		auto pDXGI = DXGI_GetGameDXGIRender();
+		g_AddPostProcess->LUTBuffer_Reload(pDXGI->pD3D11Device);
+		return;
+	}
+	case 4: {
+		if (!g_StreamLineProcessor) return;
+
+		auto mfg = g_StreamLineProcessor->m_multiFrameCount + 1;
+		if (mfg > DLSSMaxMultiFrameCount) mfg = 1;
+
+		g_StreamLineProcessor->m_multiFrameCount = mfg;
+		return;
+	}
+	default: return;
+	}
+	// end
 }

@@ -1,24 +1,19 @@
 #pragma once
 #pragma comment(lib, "DXGI.lib")
 #include "0SL_common.h"
-#include "sllib/sl.h"
-#include "sllib/sl_dlss.h"
-#include "sllib/sl_dlss_g.h"
+#include "lib/nvsdk_ngx.h"
+#include "lib/nvsdk_ngx_defs.h"
+#include "lib/nvsdk_ngx_params.h"
+#include "lib/nvsdk_ngx_helpers.h"
+#include "lib/nvsdk_ngx_helpers_dlssg_d3d.h"
+#include "0SL_PostProcess.h"
+
 #include "zHui/ToGui/0GetDXGI.h"
 
 constexpr auto D3D12WrappedBackBuffersCount = 3;
+constexpr auto DLSSMaxMultiFrameCount = 5;
 
 namespace D3D {
-	class StreamLineResource_t {
-	public:
-		sl::Resource res;
-		sl::ResourceTag tag;
-
-		void _fastcall CreateFromD11(ID3D11Texture2D* tex, sl::BufferType type, sl::ResourceLifecycle lifecycle, sl::Extent* extent);
-		void _fastcall CreateFromD12(ID3D12Resource* tex, sl::BufferType type, sl::ResourceLifecycle lifecycle, sl::Extent* extent, uint32_t state);
-		void _fastcall CreateFromVK(PVKResource vkRes, sl::BufferType type, sl::ResourceLifecycle lifecycle, sl::Extent* extent);
-	};
-
 	enum class StreamLineProcessorStatus_t : int {
 		eFailed = 0,
 		eD3D11 = 1,
@@ -28,18 +23,27 @@ namespace D3D {
 
 	__declspec(align(16)) class StreamLineProcessor_t {
 	public:
-		StreamLineProcessorStatus_t m_status;
-		bool m_bGetNewFrame;
-		int m_renderAPI;
+		union {
+			StreamLineProcessorStatus_t m_status;
+			int m_renderAPI;
+		};
+		bool m_bIsSplitScreen, m_bNeedFG;
 		PslVulkanAPI vk;
 
-		// streamline =================================================
-		sl::ViewportHandle myViewport[2];
-		sl::FrameToken* currentFrame;
-		std::wstring slDirStr;
-		sl::Boolean IsReset;
+		// dlss =================================================
+		NVSDK_NGX_Parameter* m_srParameters;
+		NVSDK_NGX_Handle* m_srFeature;
+		NVSDK_NGX_Parameter* m_fgParameters;
+		NVSDK_NGX_Handle* m_fgFeature;
+		int m_srReset, m_fgReset, m_multiFrameCount;
 		int JitterIndex; float v_jitter[2];
-		// streamline end =============================================
+		// dlss end =============================================
+
+		// FG =====================================================
+		ID3D11DeviceContext4* m_context4;
+		DXSharedTexture2D g_gameSceneResource;
+		ID3D11Texture2D* g_D3D11BackBuffer; // DXVK is simulations D3D swap chain buffer
+		// FG end =================================================
 
 		// D3D12 =====================================================
 		ID3D12Device* m_d3d12Device; ID3D12CommandQueue* m_commandQueue;
@@ -51,23 +55,43 @@ namespace D3D {
 		ID3D11Fence* m_fence11; ID3D12Fence* m_fence12; UINT64 m_shareFenceValue;
 
 		ID3D12Resource* v_d3d12BackBuffers[D3D12WrappedBackBuffersCount];
-		DXSharedTexture2D g_gameSceneResource;
-		// End   =====================================================
+		// D3D12 End ===================================================
 
 
 
 		void __fastcall CreateD3D12Device();
 
-		HRESULT __fastcall SwapChainGetBuffer(PGameDXGIRender pGameDXGI, ID3D11Texture2D** pOut);
-		void __fastcall SwapChainPresent(PGameDXGIRender pGameDXGI);
-		void __fastcall WaitFinish();
-		void __fastcall Release();
+		HRESULT __fastcall SwapChainGetBuffer(IDXGISwapChain* pSwapChain, PGameDXGIRender pGameDXGI, ID3D11Texture2D** pOut);
+		bool __fastcall SwapChainPresent(PGameDXGIRender pGameDXGI, UINT SyncInterval);
 
-		void __fastcall GetNewFrame();
-		sl::FrameToken* __fastcall ClearFrame();
+
+		void __fastcall D3D12CommandBegin();
+		void __fastcall D3D12CommandEnd();
+		void __fastcall D3D12WaitFinish();
+		void __fastcall D3D12SetPresentBuffer();
+
+
+		bool __fastcall GetParameters();
+		void __fastcall SetFeature(ID3D11DeviceContext* context, UINT Width, UINT Height, int playerCount);
+		void __fastcall Release();
+		void __fastcall ReleaseFeature();
 		void __fastcall Reset();
+
 		float __fastcall Halton(int index, int base);
 		void __fastcall GetJitter(int playerCount);
+
+		// D3D11
+		void __fastcall EvaluateSR(ID3D11DeviceContext* context, PAddPostProcess pPP, PGameRenderer_RTV pRTV, NVSDK_NGX_D3D11_DLSS_Eval_Params& D3D11DlssEvalParams, int playerIndex);
+		// D3D12
+		void __fastcall EvaluateSR(PAddPostProcess pPP, NVSDK_NGX_D3D12_DLSS_Eval_Params& D3D12DlssEvalParams, int playerIndex);
+		// VULKAN
+		void __fastcall EvaluateSR(PAddPostProcess pPP, NVSDK_NGX_VK_DLSS_Eval_Params& D3DvkDlssEvalParams, int playerIndex);
+
+		PAddPostProcess __fastcall CheckNeedFG();
+		bool __fastcall D3D12EvaluateFG(PGameDXGIRender pGameDXGI, UINT SyncInterval);
+		// D3D12
+		void EvaluateFG(NVSDK_NGX_D3D12_DLSSG_Eval_Params& FGParams, NVSDK_NGX_DLSSG_Opt_Eval_Params& OptEvalParams, PAddPostProcess pPP);
+		bool __fastcall VKEvaluateFG(PGameDXGIRender pGameDXGI, UINT SyncInterval);
 	};
 	typedef StreamLineProcessor_t* PStreamLineProcessor;
 }

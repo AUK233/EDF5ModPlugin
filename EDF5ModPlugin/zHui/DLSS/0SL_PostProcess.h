@@ -12,22 +12,24 @@ namespace D3D{
 	public:
 		AddPostProcessRes_t m_resolution;
 		DXSharedTexture2D m_ColorRes[2]; ID3D11UnorderedAccessView* m_ColorUAV[2];
+		DXSharedTexture2D m_DepthRes[2]; ID3D11UnorderedAccessView* m_DepthUAV[2];
 
 		ID3D11ComputeShader* m_PostProcessCS; ID3D11SamplerState* m_LUTSamplerLinear;
 		ID3D11ShaderResourceView* m_LookupTable_SRV;
 		ID3D11ShaderResourceView* m_LookupTable_SRV_Backup; // temporarily reserve the LUT when switching
 
 		// DLSS
-		DXSharedTexture2D m_MotionVector; ID3D11UnorderedAccessView* m_MotionVectorUAV;
+		DXSharedTexture2D m_MotionVectorRes; ID3D11UnorderedAccessView* m_MotionVectorUAV;
+		DXSharedTexture2D m_fgMVRes; ID3D11UnorderedAccessView* m_fgMVUAV;
 		ID3D11Buffer* CB_Previous_xgl_system; // this is used to calculate the motion vector
 		ID3D11ComputeShader* m_MotionVectorCS;
 		ID3D11ComputeShader* m_ToFGBufferCS; // FG
 		// DLSS end
 
 		// DX12 or VK
-		DXSharedTexture2D m_DepthRes[2]; ID3D11UnorderedAccessView* m_DepthUAV[2];
 		DXSharedTexture2D m_MidColorRes[2]; ID3D11ShaderResourceView* m_MidColorSRV[2]; // Used to link DX11 and DX12/VK resources
-		DXSharedTexture2D m_FGColorRes[2]; ID3D11UnorderedAccessView* m_FGColorUAV[2]; // 0 is output interp color, 1 is color without HUD 
+		DXSharedTexture2D m_FGhudLessRes; ID3D11UnorderedAccessView* m_FGhudLessUAV;
+		DXSharedTexture2D m_FGOutputInterpRes;
 		// DX12 or VK end
 
 		int m_LUTindex, m_playerCount;
@@ -48,4 +50,6 @@ namespace D3D{
 		std::wstring GetLUTFilePath(int index);
 	};
 	typedef AddPostProcess_t* PAddPostProcess;
+
+	PAddPostProcess  __fastcall GetAddPostProcessPointer();
 }

@@ -64,8 +64,8 @@
     <Filter Include="Source Files\Module EDF\Ammo">
       <UniqueIdentifier>{457f2da0-d499-4c26-8b30-6b4af7572c15}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Module Hui\DLSS\sllib">
-      <UniqueIdentifier>{a64c6f35-83f0-42e1-bed4-df1bc1b8c72a}</UniqueIdentifier>
+    <Filter Include="Source Files\Module Hui\DLSS\shader">
+      <UniqueIdentifier>{d2264115-8ec2-4a50-85ed-886594b2a0f0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -769,41 +769,41 @@
     <ClInclude Include="zHui\DLSS\0SL_PostProcess.h">
       <Filter>Source Files\Module Hui\DLSS</Filter>
     </ClInclude>
-    <ClInclude Include="zHui\DLSS\sllib\sl.h">
-      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\DLSS\sllib\sl_consts.h">
-      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\DLSS\sllib\sl_core_api.h">
-      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\DLSS\sllib\sl_core_types.h">
-      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\DLSS\sllib\sl_device_wrappers.h">
-      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\DLSS\sllib\sl_dlss.h">
-      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\DLSS\sllib\sl_dlss_g.h">
-      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\DLSS\sllib\sl_result.h">
-      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\DLSS\sllib\sl_version.h">
-      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\DLSS\sllib\sl_struct.h">
-      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
-    </ClInclude>
-    <ClInclude Include="zHui\DLSS\sllib\sl_appidentity.h">
-      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
-    </ClInclude>
     <ClInclude Include="zHui\DLSS\0SL_vulkanAPI.hpp">
       <Filter>Source Files\Module Hui\DLSS</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers_vk.h">
+      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_vk.h">
+      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers_dlssg_vk.h">
+      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_defs_dlssg.h">
+      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_params_dlssg.h">
+      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\shader\1SetPostProcess_FG.hpp">
+      <Filter>Source Files\Module Hui\DLSS\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\shader\1SetPostProcess_MV.hpp">
+      <Filter>Source Files\Module Hui\DLSS\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\shader\1FullAO_MainColorCS.hpp">
+      <Filter>Source Files\Module Hui\DLSS\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\shader\1FullAO_MainColorCS_UG.hpp">
+      <Filter>Source Files\Module Hui\DLSS\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\shader\1SetPostProcess_CS.hpp">
+      <Filter>Source Files\Module Hui\DLSS\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers_dlssg_d3d.h">
+      <Filter>Source Files\Module Hui\DLSS\lib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -845,9 +845,6 @@
   <ItemGroup>
     <Library Include="zHui\DLSS\lib\nvsdk_ngx_d.lib">
       <Filter>Source Files\Module Hui\DLSS\lib</Filter>
-    </Library>
-    <Library Include="zHui\DLSS\sllib\sl.interposer.lib">
-      <Filter>Source Files\Module Hui\DLSS\sllib</Filter>
     </Library>
   </ItemGroup>
 </Project>

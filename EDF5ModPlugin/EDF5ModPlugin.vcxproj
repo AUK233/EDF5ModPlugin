@@ -390,20 +390,20 @@
     <ClInclude Include="zHui\DLSS\1Test.hpp" />
     <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx.h" />
     <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_defs.h" />
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_defs_dlssg.h" />
     <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers.h" />
     <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers_d3d.h" />
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers_dlssg_d3d.h" />
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers_dlssg_vk.h" />
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_helpers_vk.h" />
     <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_params.h" />
-    <ClInclude Include="zHui\DLSS\sllib\sl.h" />
-    <ClInclude Include="zHui\DLSS\sllib\sl_appidentity.h" />
-    <ClInclude Include="zHui\DLSS\sllib\sl_consts.h" />
-    <ClInclude Include="zHui\DLSS\sllib\sl_core_api.h" />
-    <ClInclude Include="zHui\DLSS\sllib\sl_core_types.h" />
-    <ClInclude Include="zHui\DLSS\sllib\sl_device_wrappers.h" />
-    <ClInclude Include="zHui\DLSS\sllib\sl_dlss.h" />
-    <ClInclude Include="zHui\DLSS\sllib\sl_dlss_g.h" />
-    <ClInclude Include="zHui\DLSS\sllib\sl_result.h" />
-    <ClInclude Include="zHui\DLSS\sllib\sl_struct.h" />
-    <ClInclude Include="zHui\DLSS\sllib\sl_version.h" />
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_params_dlssg.h" />
+    <ClInclude Include="zHui\DLSS\lib\nvsdk_ngx_vk.h" />
+    <ClInclude Include="zHui\DLSS\shader\1FullAO_MainColorCS.hpp" />
+    <ClInclude Include="zHui\DLSS\shader\1FullAO_MainColorCS_UG.hpp" />
+    <ClInclude Include="zHui\DLSS\shader\1SetPostProcess_CS.hpp" />
+    <ClInclude Include="zHui\DLSS\shader\1SetPostProcess_FG.hpp" />
+    <ClInclude Include="zHui\DLSS\shader\1SetPostProcess_MV.hpp" />
     <ClInclude Include="zHui\HuiCasController.h" />
     <ClInclude Include="zHui\HUiHudCommonStruct.h" />
     <ClInclude Include="zHui\HuiModConsole.h" />
@@ -474,7 +474,6 @@
   </ItemGroup>
   <ItemGroup>
     <Library Include="zHui\DLSS\lib\nvsdk_ngx_d.lib" />
-    <Library Include="zHui\DLSS\sllib\sl.interposer.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

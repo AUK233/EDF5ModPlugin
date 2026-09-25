@@ -45,6 +45,7 @@ cbuffer prev_system : register(b2)
 // in c++
 Texture2D<float4> g_viewXYZ_id : register(t0);
 RWTexture2D<float2> OutputMV : register(u0);
+RWTexture2D<float2> OutputMV_FG : register(u1);
 
 // ===================================================
 [numthreads(16, 16, 1)]
@@ -55,6 +56,7 @@ void CS_main(uint3 threadID : SV_DispatchThreadID)
 	
 	if (abs(viewPos.z) >= 60000.0) {
 		OutputMV[pixel] = 0;
+		OutputMV_FG[pixel] = 0;
 		return;
 	}
 
@@ -72,6 +74,7 @@ void CS_main(uint3 threadID : SV_DispatchThreadID)
 
 	if (ClipPos.w < 0.0001f) {
 		OutputMV[pixel] = 0;
+		OutputMV_FG[pixel] = 0;
 		return;
 	}
 	ClipPos.xyz /= ClipPos.w;
@@ -89,10 +92,11 @@ void CS_main(uint3 threadID : SV_DispatchThreadID)
 	float2 ndc = prevClipPos.xy - ClipPos.xy;
 	float2 ScreenSize = currentSys.g_xgl_target_dimension;
 	float2 screen_pos;
-	screen_pos.x = (ScreenSize.x * 0.5 * ndc.x);
-	screen_pos.y = -(ScreenSize.y * 0.5 * ndc.y);
-	// sl must be divided by the resolution
-	screen_pos /= ScreenSize;
+	screen_pos = ScreenSize * ndc * float2(0.5, -0.5);
+	// screen_pos.x = (ScreenSize.x * 0.5 * ndc.x);
+	// screen_pos.y = -(ScreenSize.y * 0.5 * ndc.y);
 
 	OutputMV[pixel] = screen_pos;
+	// Normalized MV, used for FG
+	OutputMV_FG[pixel] = screen_pos / ScreenSize;
 }

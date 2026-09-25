@@ -14,10 +14,9 @@
 #include "utiliy.h"
 #include "commonNOP.h"
 #include "ToGui/0GetDXGI.h"
-#include "DLSS/0SetDLSS.h"
+#include "DLSS/0SL_wapper.h"
 
 #include "HuiModConsole.h"
-#include "DLSS/0SL_wapper.h"
 
 Pcmd_KeyState cmd_keyState;
 Pcmd_ModConsoleFunc cmd_ModConsoleFunc;
@@ -103,31 +102,31 @@ void cmd_ModConsole_MonitorKeys() {
 				if (cmd_keyState->NumPad[VK_NUMPAD0 - VK_NUMPAD0] == 1) {
 					// numpad0
 					// toggle DLAA
-					DLSS_SwitchStatus(1);
+					streamline_SwitchStatus(1);
 					state.i = 0;
 				}
 				else if (cmd_keyState->NumPad[VK_NUMPAD1 - VK_NUMPAD0] == 1) {
 					// numpad1
 					// toggle post process
-					DLSS_SwitchStatus(0);
+					streamline_SwitchStatus(0);
 					state.i = 0;
 				}
 				else if (cmd_keyState->NumPad[VK_NUMPAD2 - VK_NUMPAD0] == 1) {
 					// numpad2
 					// toggle DLSS FG
-					DLSS_SwitchStatus(2);
+					streamline_SwitchStatus(2);
 					state.i = 0;
 				}
 				else if (cmd_keyState->NumPad[VK_NUMPAD4 - VK_NUMPAD0] == 1) {
 					// numpad4
 					// toggle post process lut
-					DLSS_SwitchStatus(3);
+					streamline_SwitchStatus(3);
 					state.i = 0;
 				}
 				else if (cmd_keyState->NumPad[VK_NUMPAD5 - VK_NUMPAD0] == 1) {
 					// numpad5
 					// toggle DLSS multi-frame generation count
-					DLSS_SwitchStatus(4);
+					streamline_SwitchStatus(4);
 					state.i = 0;
 				}
 				else if (cmd_keyState->AlphabetKey['F' - 'A'] == 1) {

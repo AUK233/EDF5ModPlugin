@@ -27,6 +27,8 @@ extern "C" {
 	extern int Config_PostProcessTexIndex;
 }
 
+extern D3D::PAddPostProcess g_AddPostProcess;
+
 namespace D3D {
 	void AddPostProcess_t::Initialize(ID3D11Device* device, ID3D11DeviceContext* context){
 
@@ -85,14 +87,6 @@ namespace D3D {
 			if (m_ColorRes[1].d11) device->CreateUnorderedAccessView(m_ColorRes[1].d11, &uavDesc, &m_ColorUAV[1]);
 		}
 
-		if (DLSS_Level < 1) return;
-		// set mv buffer
-		outDesc.Format = DXGI_FORMAT_R16G16_FLOAT;
-		uavDesc.Format = DXGI_FORMAT_R16G16_FLOAT;
-		m_MotionVector.D3D_Create(device, &outDesc, device12);
-		if (m_MotionVector.d11) device->CreateUnorderedAccessView(m_MotionVector.d11, &uavDesc, &m_MotionVectorUAV);
-
-		if (DLSS_Level < 2) return;
 		// set depth buffer
 		outDesc.Format = DXGI_FORMAT_R32_FLOAT;
 		uavDesc.Format = DXGI_FORMAT_R32_FLOAT;
@@ -104,6 +98,17 @@ namespace D3D {
 
 			if (m_DepthRes[1].d11) device->CreateUnorderedAccessView(m_DepthRes[1].d11, &uavDesc, &m_DepthUAV[1]);
 		}
+
+		if (DLSS_Level < 1) return;
+		// set mv buffer
+		outDesc.Format = DXGI_FORMAT_R16G16_FLOAT;
+		uavDesc.Format = DXGI_FORMAT_R16G16_FLOAT;
+		m_MotionVectorRes.D3D_Create(device, &outDesc, device12);
+		m_fgMVRes.D3D_Create(device, &outDesc, device12);
+		if (m_MotionVectorRes.d11) device->CreateUnorderedAccessView(m_MotionVectorRes.d11, &uavDesc, &m_MotionVectorUAV);
+		if (m_fgMVRes.d11) device->CreateUnorderedAccessView(m_fgMVRes.d11, &uavDesc, &m_fgMVUAV);
+
+		if (DLSS_Level < 2) return;
 
 		// set mid color buffer
 		outDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
@@ -125,10 +130,9 @@ namespace D3D {
 		// set fg color buffer
 		outDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		uavDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		m_FGColorRes[0].D3D_Create(device, &outDesc, device12);
-		m_FGColorRes[1].D3D_Create(device, &outDesc, device12);
-		if (m_FGColorRes[0].d11) device->CreateUnorderedAccessView(m_FGColorRes[0].d11, &uavDesc, &m_FGColorUAV[0]);
-		if (m_FGColorRes[1].d11) device->CreateUnorderedAccessView(m_FGColorRes[1].d11, &uavDesc, &m_FGColorUAV[1]);
+		m_FGhudLessRes.D3D_Create(device, &outDesc, device12);
+		m_FGOutputInterpRes.D3D_Create(device, &outDesc, device12);
+		if (m_FGhudLessRes.d11) device->CreateUnorderedAccessView(m_FGhudLessRes.d11, &uavDesc, &m_FGhudLessUAV);
 
 		// end
 	}
@@ -138,13 +142,14 @@ namespace D3D {
 
 		m_ColorRes[0].VK_CreateFromD11(deviceVK);
 		m_ColorRes[1].VK_CreateFromD11(deviceVK);
-		m_MotionVector.VK_CreateFromD11(deviceVK);
+		m_MotionVectorRes.VK_CreateFromD11(deviceVK);
+		m_fgMVRes.VK_CreateFromD11(deviceVK);
 		m_DepthRes[0].VK_CreateFromD11(deviceVK);
 		m_DepthRes[1].VK_CreateFromD11(deviceVK);
 		m_MidColorRes[0].VK_CreateFromD11(deviceVK);
 		m_MidColorRes[1].VK_CreateFromD11(deviceVK);
-		m_FGColorRes[0].VK_CreateFromD11(deviceVK);
-		m_FGColorRes[1].VK_CreateFromD11(deviceVK);
+		m_FGhudLessRes.VK_CreateFromD11(deviceVK);
+		m_FGOutputInterpRes.VK_CreateFromD11(deviceVK);
 	}
 
 	void AddPostProcess_t::Buffer_Release(PslVulkanAPI deviceVK) {
@@ -154,7 +159,9 @@ namespace D3D {
 		m_ColorRes[1].Release(deviceVK);
 
 		D3DResourceCommonRelease(m_MotionVectorUAV);
-		m_MotionVector.Release(deviceVK);
+		m_MotionVectorRes.Release(deviceVK);
+		D3DResourceCommonRelease(m_fgMVUAV);
+		m_fgMVRes.Release(deviceVK);
 
 		D3DResourceCommonRelease(m_DepthUAV[0]);
 		m_DepthRes[0].Release(deviceVK);
@@ -166,10 +173,9 @@ namespace D3D {
 		D3DResourceCommonRelease(m_MidColorSRV[1]);
 		m_MidColorRes[1].Release(deviceVK);
 
-		D3DResourceCommonRelease(m_FGColorUAV[0]);
-		m_FGColorRes[0].Release(deviceVK);
-		D3DResourceCommonRelease(m_FGColorUAV[1]);
-		m_FGColorRes[1].Release(deviceVK);
+		D3DResourceCommonRelease(m_FGhudLessUAV);
+		m_FGhudLessRes.Release(deviceVK);
+		m_FGOutputInterpRes.Release(deviceVK);
 	}
 
 	void AddPostProcess_t::Execute(Pg_D3D11DeviceInfo pD3D, int playerIndex, const AddPostProcessRes_t& ThreadGroupCount, ID3D11ShaderResourceView** ppColor, ID3D11ShaderResourceView** ppDepth){
@@ -221,12 +227,14 @@ namespace D3D {
 
 			context->CSSetShader(m_MotionVectorCS, nullptr, 0);
 			context->CSSetUnorderedAccessViews(0, 1, &m_MotionVectorUAV, nullptr);
+			context->CSSetUnorderedAccessViews(1, 1, &m_fgMVUAV, nullptr);
 
 			context->Dispatch(ThreadGroupCount.Width, ThreadGroupCount.Height, 1);
 
 			pD3D->pCurrentCSShader = 0;
 			pD3D->pCurrentCSShaderResourceView[0] = 0;
 			pD3D->pCurrentCSUnorderedAccessViews[0] = 0;
+			pD3D->pCurrentCSUnorderedAccessViews[1] = 0;
 
 			ID3D11ShaderResourceView* nullSRV = nullptr;
 			context->CSSetShaderResources(0, 1, &nullSRV);
@@ -234,6 +242,7 @@ namespace D3D {
 			context->CSSetShader(nullptr, nullptr, 0);
 			ID3D11UnorderedAccessView* nullUAV = nullptr;
 			context->CSSetUnorderedAccessViews(0, 1, &nullUAV, nullptr);
+			context->CSSetUnorderedAccessViews(1, 1, &nullUAV, nullptr);
 		}
 		else {
 			FLOAT clearValues[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -248,7 +257,7 @@ namespace D3D {
 
 		context->CSSetShaderResources(0, 1, &m_MidColorSRV[0]);
 		context->CSSetShader(m_ToFGBufferCS, nullptr, 0);
-		context->CSSetUnorderedAccessViews(0, 1, &m_FGColorUAV[1], nullptr);
+		context->CSSetUnorderedAccessViews(0, 1, &m_FGhudLessUAV, nullptr);
 		context->CSSetUnorderedAccessViews(1, 1, &p1color->pUAV, nullptr);
 
 		context->Dispatch(ThreadGroupCount.Width, ThreadGroupCount.Height, 1);
@@ -265,6 +274,10 @@ namespace D3D {
 		ID3D11UnorderedAccessView* nullUAV = nullptr;
 		context->CSSetUnorderedAccessViews(0, 1, &nullUAV, nullptr);
 		context->CSSetUnorderedAccessViews(1, 1, &nullUAV, nullptr);
+
+		if (p2color) context->CopyResource(p2color->pTexture, m_MidColorRes[1].d11);
+
+		//context->Flush();
 	}
 
 	void AddPostProcess_t::LUTBuffer_Load(ID3D11Device* device) {
@@ -323,5 +336,10 @@ namespace D3D {
 		}
 		// end
 	}
-// end
+
+
+	PAddPostProcess __fastcall GetAddPostProcessPointer(){
+		return g_AddPostProcess;
+	}
+	// end
 }

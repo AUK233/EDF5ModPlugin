@@ -2,7 +2,10 @@
 #include <d3d11.h>
 #define VK_NO_PROTOTYPES
 #include <vulkan/vulkan.h>
-#include "sllib/sl_helpers_vk.h"
+// dlss
+#include "lib/nvsdk_ngx_vk.h"
+#include "lib/nvsdk_ngx_helpers_vk.h"
+#include "lib/nvsdk_ngx_helpers_dlssg_vk.h"
 
 class IDXGIVkInteropDevice;
 
@@ -227,6 +230,11 @@ namespace D3D{
 			vkQueueSubmit(m_vkQueue, 1, &submitInfo, pFence);
 
 			m_vkInterop->ReleaseSubmissionQueue();
+
+			if (pFence == VK_NULL_HANDLE) return;
+
+			vkWaitForFences(m_vkDevice, 1, &pFence, VK_TRUE, UINT64_MAX);
+			vkResetFences(m_vkDevice, 1, &pFence);
 		}
 		// end
 	};

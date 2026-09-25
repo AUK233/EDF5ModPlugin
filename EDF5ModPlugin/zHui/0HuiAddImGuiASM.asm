@@ -94,24 +94,28 @@ align 16
 
 ASMCall_IDXGISwapChain_Present proc
 
-	mov rdi, [rsp+20h]
-	;
-	call togui_Main
-	;
-	; xor r8d, r8d
-	; mov edx, [rsp+28h]
-	; mov rcx, [rdi+0C8h]
-	; call DLSS_FG_Evaluate
-	mov rcx, rdi
-	call streamline_SwapChainPresent
-	;
-	xor r8d, r8d
-	mov edx, [rsp+28h]
-	mov rcx, [rdi+0C8h]
-	mov rax, [rcx]
-	call qword ptr [rax+40h]
-	jmp Call_IDXGISwapChain_PresentRetAddr
-	int 3
+		mov rdi, [rsp+20h]
+		;
+		call togui_Main
+		;
+		; xor r8d, r8d
+		; mov edx, [rsp+28h]
+		; mov rcx, [rdi+0C8h]
+		; call DLSS_FG_Evaluate
+		mov edx, [rsp+28h]
+		mov rcx, rdi
+		call streamline_SwapChainPresent
+		test al, al
+		jnz JustReturn
+		;
+		xor r8d, r8d
+		mov edx, [rsp+28h]
+		mov rcx, [rdi+0C8h]
+		mov rax, [rcx]
+		call qword ptr [rax+40h]
+	JustReturn:
+		jmp Call_IDXGISwapChain_PresentRetAddr
+		int 3
 
 ASMCall_IDXGISwapChain_Present ENDP
 

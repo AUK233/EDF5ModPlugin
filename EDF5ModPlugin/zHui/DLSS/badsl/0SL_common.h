@@ -8,10 +8,14 @@ using namespace Microsoft::WRL;
 
 #include "0SL_vulkanAPI.hpp"
 
-#define EnableDXDebugInformation
+//#define EnableDXDebugInformation
 
 namespace D3D{
-	typedef NVSDK_NGX_Resource_VK *PVKResource;
+	typedef struct VKResource_t {
+		VkImage vkImage;
+		VkImageView vkImageView;
+		VkImageLayout vkLayout;
+	} *PVKResource;
 
 	class DXSharedTexture2D {
 	public:
@@ -29,13 +33,10 @@ namespace D3D{
 		void VK_CreateFromD11(PslVulkanAPI deviceVK);
 		// don't call D3D_Release()
 		void VK_Release(PslVulkanAPI deviceVK);
-		// need call D3D_Release()
-		void VK_ReleaseVKResource(PslVulkanAPI deviceVK);
 
 
 		void Release(PslVulkanAPI deviceVK);
 	};
 
 	void __fastcall D3DResourceCommonRelease(IUnknown* pIn);
-	void __fastcall D3D12SetResourceBarriers(D3D12_RESOURCE_BARRIER& barrier, ID3D12Resource* res, D3D12_RESOURCE_STATES stateBefore, D3D12_RESOURCE_STATES stateAfter);
 }
